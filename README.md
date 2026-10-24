@@ -162,7 +162,8 @@ Choices made where the plan left room, in the order they came up.
     local setup, which also uses TinyTeX. It is far smaller, and its default
     package set built the PDF with no additions. CI runs `tlmgr update --self`
     first, because the installer's `tlmgr` refused to install packages until
-    it was updated. CI also caches the compiled Verso packages, keyed on
+    it was updated. CI's TinyTeX has fewer packages than the local one, so CI
+    installs every package the local PDF build loads, read from `print.fls`. CI also caches the compiled Verso packages, keyed on
     `lake-manifest.json`.
 20. **Pages deploys from `main` only.** Pull requests build and upload the
     site but do not deploy it.

@@ -37,7 +37,13 @@ jobs:
           curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh
           echo "$HOME/bin" >> "$GITHUB_PATH"
           "$HOME/bin/tlmgr" update --self
-          "$HOME/bin/tlmgr" install latexmk unicode-math fontspec lm-math
+          # Every package the PDF build loads, from blueprint/print/print.fls.
+          "$HOME/bin/tlmgr" install latexmk xetex lm lm-math zapfding \
+            amscls amsfonts amsmath mathtools tools geometry fontspec unicode-math \
+            l3kernel l3packages etoolbox graphics graphics-cfg graphics-def \
+            hyperref hycolor url iftex infwarerr intcalc kvdefinekeys kvoptions \
+            kvsetkeys ltxcmds pdfescape pdftexcmds refcount rerunfilecheck \
+            stringenc uniquecounter bigintcalc bitset gettitlestring
       - run: pip install leanblueprint
       # web writes blueprint/lean_decls, which checkdecls reads.
       - run: leanblueprint web && leanblueprint checkdecls && leanblueprint pdf
