@@ -1,0 +1,23 @@
+name = "business-rules-verified"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["Rules"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+autoImplicit = false
+relaxedAutoImplicit = false
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.36.0-rc1"
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso.git"
+rev = "v4.36.0-rc1"
+
+[[lean_lib]]
+name = "Rules"
