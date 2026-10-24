@@ -8,13 +8,11 @@ Reads build/status.json (written by `lake exe status`) and writes:
   Review/Review/Generated/Guarantees.lean   Verso chapter: one section per theorem
   Review/Review/Generated/Examples.lean     Verso chapter: one section per @[case]
   Review/Review/Generated/Ears.lean         Verso section: the EARS table
-  build/ears.csv                        the EARS table for the spec-driven team
 
 Nothing here decides a status.  Every status and example value comes from
 status.json, which the status executable computes from the compiled Lean.
 """
 
-import csv
 import json
 import re
 import sys
@@ -225,7 +223,7 @@ def render_ears_verso(decls):
     parts.append(
         "This table lists every EARS statement in the model, with the rule that implements it and the "
         "guarantees that mention that rule. The build generates it from the docstrings; the same table "
-        "is in the blueprint and in `ears.csv`."
+        "is in the blueprint and in [ears.csv](ears.csv)."
     )
     parts.append("")
     parts += [":::table +header", "*", "  * ID", "  * EARS statement", "  * Rule", "  * Status", "  * Proven by"]
@@ -245,16 +243,6 @@ def render_ears_verso(decls):
     (GENERATED / "Ears.lean").write_text("\n".join(parts))
 
 
-def write_ears_csv(decls):
-    out = ROOT / "build" / "ears.csv"
-    with out.open("w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["id", "ears", "declaration", "status", "proven_by"])
-        for d in ears_rows(decls):
-            pb = "; ".join(n + (" (open)" if st == "open" else "") for n, _, st in proven_by(d, decls))
-            w.writerow([d.get("earsId") or "", d["ears"], d["name"], d["status"], pb])
-
-
 def main():
     decls = load_status()
     GENERATED.mkdir(parents=True, exist_ok=True)
@@ -263,9 +251,8 @@ def main():
     render_guarantees(decls)
     render_examples(decls)
     render_ears_verso(decls)
-    write_ears_csv(decls)
     print("rendered blueprint/src/content.generated.tex, ears.generated.tex, "
-          "Review/Review/Generated/*.lean, build/ears.csv")
+          "Review/Review/Generated/*.lean")
 
 
 if __name__ == "__main__":

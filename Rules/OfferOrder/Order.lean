@@ -1,3 +1,4 @@
+import Rules.Core.Attributes
 import Rules.Core.Money
 import Rules.Core.Time
 
@@ -72,6 +73,7 @@ refunded.
 
 The result is the new state, or {lean}`none` when the event is not allowed in the
 current state. -/
+@[ears "OO-002"]
 def step : DeliveryState → DeliveryEvent → Option DeliveryState
   | .ready, .deliver => some .delivered
   | .ready, .cancel => some .cancelled

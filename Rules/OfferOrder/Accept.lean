@@ -1,3 +1,4 @@
+import Rules.Core.Attributes
 import Rules.OfferOrder.Offer
 import Rules.OfferOrder.Order
 
@@ -35,6 +36,7 @@ only if the offer has not expired and contains at least one item.
 The checks run in order: expiry first, then an empty offer, then items priced
 in a currency other than the offer's.  The order's price is the sum of the
 item prices, in the offer's currency. -/
+@[ears "OO-001"]
 def accept (o : Offer) (now : Instant) (orderId : String) : Except Rejection Order :=
   if now ≥ o.expiresAt then .error .expired
   else if o.items.isEmpty then .error .emptyOffer
