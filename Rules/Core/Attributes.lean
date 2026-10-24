@@ -11,7 +11,7 @@ namespace Rules.Core
 
 open Lean
 
-/-- `@[case]` marks a build-time example: a concrete scenario whose value the
+/-- {lit}`@[case]` marks a build-time example: a concrete scenario whose value the
 build computes and the review artifact shows. -/
 initialize caseAttr : TagAttribute ←
   registerTagAttribute `case "a build-time example shown in the review artifact"

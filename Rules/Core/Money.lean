@@ -11,14 +11,17 @@ namespace Rules.Core
 
 /-- The currencies this slice prices offers in, as ISO 4217 codes. -/
 inductive Currency
+  /-- United States dollar. -/
   | USD
+  /-- Euro. -/
   | EUR
+  /-- Pound sterling. -/
   | GBP
   deriving DecidableEq, Repr, Inhabited
 
 /-- An amount of money: a non-negative count of minor units (cents for USD and
 EUR, pence for GBP) in a single currency.  A price of 125.00 USD is
-`⟨12500, .USD⟩`. -/
+{lean}`(⟨12500, .USD⟩ : Money)`. -/
 structure Money where
   /-- The amount in minor units.  It cannot be negative. -/
   amount : Nat

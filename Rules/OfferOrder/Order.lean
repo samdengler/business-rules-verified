@@ -5,8 +5,8 @@ import Rules.Core.Time
 # Orders
 
 An order is what the customer bought: the items of an accepted offer, each
-with its own delivery state.  It corresponds to the IATA ONE Order `Order`,
-`OrderItem`, and the delivery status of a service.
+with its own delivery state.  It corresponds to the IATA ONE Order {lit}`Order`,
+{lit}`OrderItem`, and the delivery status of a service.
 -/
 
 namespace Rules.OfferOrder
@@ -39,7 +39,7 @@ inductive DeliveryEvent
   deriving DecidableEq, Repr, Inhabited
 
 /-- One purchased service inside an order, created from one offer item.  It
-corresponds to a ONE Order `OrderItem`. -/
+corresponds to a ONE Order {lit}`OrderItem`. -/
 structure OrderItem where
   /-- The order item reference. -/
   id : String
@@ -52,7 +52,7 @@ structure OrderItem where
   deriving DecidableEq, Repr, Inhabited
 
 /-- A customer's purchase: the items of one accepted offer, the total price,
-and when it was created.  It corresponds to a ONE Order `Order`. -/
+and when it was created.  It corresponds to a ONE Order {lit}`Order`. -/
 structure Order where
   /-- The order reference. -/
   id : String
@@ -70,7 +70,7 @@ structure Order where
 only the transitions ready to delivered, ready to cancelled, cancelled to
 refunded.
 
-The result is the new state, or `none` when the event is not allowed in the
+The result is the new state, or {lean}`none` when the event is not allowed in the
 current state. -/
 def step : DeliveryState → DeliveryEvent → Option DeliveryState
   | .ready, .deliver => some .delivered

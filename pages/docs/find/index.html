@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redirecting to the review document</title>
+<script>
+  // leanblueprint links each \lean{} name to docs/find/#doc/<name>.
+  // The Verso document resolves names at find/?name=<name>, so translate.
+  var m = location.hash.match(/^#doc\/(.+)$/);
+  var target = m
+    ? "../../find/?domain=Verso.Genre.Manual.doc&name=" + encodeURIComponent(decodeURIComponent(m[1]))
+    : "../../";
+  location.replace(target);
+</script>
+</head>
+<body>
+<p>Redirecting to the <a href="../../">review document</a>.</p>
+</body>
+</html>

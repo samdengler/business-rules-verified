@@ -8,6 +8,7 @@ pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 autoImplicit = false
 relaxedAutoImplicit = false
 maxSynthPendingDepth = 3
+doc.verso = true
 
 [[require]]
 name = "mathlib"
@@ -19,5 +20,24 @@ name = "verso"
 git = "https://github.com/leanprover/verso.git"
 rev = "v4.36.0-rc1"
 
+[[require]]
+name = "checkdecls"
+git = "https://github.com/PatrickMassot/checkdecls.git"
+
 [[lean_lib]]
 name = "Rules"
+
+[[lean_exe]]
+name = "status"
+root = "Status.Main"
+supportInterpreter = true
+
+[[lean_lib]]
+name = "Review"
+srcDir = "Review"
+roots = ["Review"]
+
+[[lean_exe]]
+name = "review-doc"
+srcDir = "Review"
+root = "Main"

@@ -41,9 +41,9 @@ theorem delivered_not_cancellable :
 refund was accepted against one of the order's payments.
 
 Open question for the Offer/Order team.  This does not hold as the rule is
-written: `acceptRefund` checks each refund against its payment alone, so two
-refunds of 60 against one payment of 100 are each accepted and together
-return 120.  The counterexample is the `doubleRefund` case.  Does the rule
+written: {name}`acceptRefund` checks each refund against its payment alone, so two
+refunds of 60.00 USD against one payment of 100.00 USD are each accepted and
+together return 120.00 USD.  The counterexample is the {lit}`doubleRefund` case.  Does the rule
 mean the limit applies per refund, cumulatively per payment, or cumulatively
 per order?  And is a refund above the amount paid ever allowed, for example
 as a goodwill credit? -/

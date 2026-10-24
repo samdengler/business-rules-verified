@@ -1,0 +1,237 @@
+% Blueprint content for the Offer acceptance slice.
+%
+% Do not write \leanok here.  scripts/render_status.py reads build/status.json
+% and writes content.generated.tex with \leanok added to every environment
+% whose declaration the build reports as defined or proven.
+
+\chapter{Offer acceptance}
+
+This blueprint covers one slice of the Offer and Order domain: an offer with
+priced items and an expiry, the order created when the offer is accepted,
+payments against the order, and refunds against payments.  Each node in the
+dependency graph is a Lean declaration.  A green node is defined or proven in
+Lean; an uncolored theorem is open.
+
+The Verso review document at the site root shows the same declarations with
+their docstrings, the examples the build computes, and the open question for
+the Offer/Order team.
+
+\section{Core concepts}
+
+\begin{definition}[Currency]
+  \label{def:currency}
+  \lean{Rules.Core.Currency}
+  The currencies the slice prices offers in, as ISO 4217 codes: USD, EUR and
+  GBP.
+\end{definition}
+
+\begin{definition}[Money]
+  \label{def:money}
+  \lean{Rules.Core.Money}
+  \uses{def:currency}
+  An amount of money is a non-negative whole number of minor units (cents,
+  pence) in one currency.
+\end{definition}
+
+\begin{definition}[Adding money]
+  \label{def:money-add}
+  \lean{Rules.Core.Money.add}
+  \uses{def:money}
+  Two amounts add only when they are in the same currency.  A mixed-currency
+  sum has no result, so it is a visible failure rather than a silent
+  conversion.
+\end{definition}
+
+\begin{definition}[Instant]
+  \label{def:instant}
+  \lean{Rules.Core.Instant}
+  A point in time, as whole seconds since the Unix epoch.  All times are UTC.
+\end{definition}
+
+\begin{definition}[Passenger]
+  \label{def:passenger}
+  \lean{Rules.Core.Passenger}
+  A traveller named on an offer or order.
+\end{definition}
+
+\begin{definition}[Principal]
+  \label{def:principal}
+  \lean{Rules.Core.Principal}
+  Whoever makes a request.  A placeholder for the Identity namespace.
+\end{definition}
+
+\begin{definition}[Classification]
+  \label{def:classification}
+  \lean{Rules.Core.Classification}
+  Data sensitivity levels, ordered public, internal, confidential,
+  restricted.  A placeholder for the Data Governance namespace.
+\end{definition}
+
+\begin{theorem}[Public is the lowest level]
+  \label{thm:public-le}
+  \lean{Rules.Core.Classification.public_le}
+  \uses{def:classification}
+  Every classification level is at least as sensitive as public.
+\end{theorem}
+\begin{proof}
+  By comparing ranks: public has rank 0.
+\end{proof}
+
+\section{Offers and orders}
+
+\begin{definition}[Offer item]
+  \label{def:offer-item}
+  \lean{Rules.OfferOrder.OfferItem}
+  \uses{def:money, def:passenger}
+  One priced product inside an offer for one passenger: a flight, a bag, a
+  seat.  It corresponds to a ONE Order OfferItem.
+\end{definition}
+
+\begin{definition}[Offer]
+  \label{def:offer}
+  \lean{Rules.OfferOrder.Offer}
+  \uses{def:offer-item, def:instant, def:currency}
+  A set of priced items the airline offers a customer, valid until it
+  expires, with every price in one currency.
+\end{definition}
+
+\begin{definition}[Delivery state]
+  \label{def:delivery-state}
+  \lean{Rules.OfferOrder.DeliveryState}
+  Where a purchased service is in its life: ready, delivered, cancelled, or
+  refunded.
+\end{definition}
+
+\begin{definition}[Delivery event]
+  \label{def:delivery-event}
+  \lean{Rules.OfferOrder.DeliveryEvent}
+  Something that happens to a purchased service: deliver, cancel, or refund.
+\end{definition}
+
+\begin{definition}[Order item]
+  \label{def:order-item}
+  \lean{Rules.OfferOrder.OrderItem}
+  \uses{def:money, def:delivery-state}
+  One purchased service inside an order, created from one offer item.
+\end{definition}
+
+\begin{definition}[Order]
+  \label{def:order}
+  \lean{Rules.OfferOrder.Order}
+  \uses{def:order-item, def:money, def:instant}
+  A customer's purchase: the items of one accepted offer, the total price, and
+  when it was created.
+\end{definition}
+
+\begin{definition}[Rejection]
+  \label{def:rejection}
+  \lean{Rules.OfferOrder.Rejection}
+  Why an offer could not be accepted: it expired, it is empty, or its items
+  are priced in more than one currency.
+\end{definition}
+
+\begin{definition}[Accepting an offer]
+  \label{def:accept}
+  \lean{Rules.OfferOrder.accept}
+  \uses{def:offer, def:order, def:rejection}
+  When a customer accepts an offer, the system creates an order only if the
+  offer has not expired, contains at least one item, and prices every item in
+  the offer's currency.  The order's price is the sum of the item prices.
+\end{definition}
+
+\begin{definition}[Delivery transitions]
+  \label{def:step}
+  \lean{Rules.OfferOrder.step}
+  \uses{def:delivery-state, def:delivery-event}
+  The only allowed transitions are ready to delivered, ready to cancelled, and
+  cancelled to refunded.  Every other event is refused.
+\end{definition}
+
+\begin{theorem}[Order price is the sum of the items]
+  \label{thm:accept-price-eq-sum}
+  \lean{Rules.OfferOrder.accept_price_eq_sum}
+  \uses{def:accept}
+  When an offer is accepted, the order's price is exactly the sum of the
+  offer's item prices.
+\end{theorem}
+\begin{proof}
+  \uses{def:accept}
+  Unfold the acceptance decision; in the only branch that creates an order,
+  the price is defined as that sum.
+\end{proof}
+
+\begin{theorem}[Expired offers are rejected]
+  \label{thm:accept-rejects-expired}
+  \lean{Rules.OfferOrder.accept_rejects_expired}
+  \uses{def:accept}
+  An offer accepted at or after its expiry instant is rejected as expired.
+\end{theorem}
+\begin{proof}
+  \uses{def:accept}
+  The expiry check is the first check the decision makes.
+\end{proof}
+
+\begin{theorem}[Delivered services cannot be cancelled]
+  \label{thm:delivered-not-cancellable}
+  \lean{Rules.OfferOrder.delivered_not_cancellable}
+  \uses{def:step}
+  The cancel event is refused for a delivered service, and no event moves a
+  delivered service to cancelled.
+\end{theorem}
+\begin{proof}
+  \uses{def:step}
+  Check each of the three events.
+\end{proof}
+
+\section{Payments and refunds}
+
+\begin{definition}[Payment]
+  \label{def:payment}
+  \lean{Rules.OfferOrder.Payment}
+  \uses{def:money}
+  Money received from the customer against an order.
+\end{definition}
+
+\begin{definition}[Refund]
+  \label{def:refund}
+  \lean{Rules.OfferOrder.Refund}
+  \uses{def:money}
+  Money returned to the customer against one payment.
+\end{definition}
+
+\begin{definition}[Totals paid and refunded]
+  \label{def:totals}
+  \lean{Rules.OfferOrder.totalPaid, Rules.OfferOrder.totalRefunded}
+  \uses{def:payment, def:refund}
+  The total received in an order's payments, and the total returned in
+  refunds against those payments.
+\end{definition}
+
+\begin{definition}[Accepting a refund]
+  \label{def:accept-refund}
+  \lean{Rules.OfferOrder.acceptRefund}
+  \uses{def:payment, def:refund}
+  A refund is accepted against a payment only if the refund amount does not
+  exceed that payment's amount.  The check looks at one refund at a time.
+\end{definition}
+
+\begin{theorem}[Refunds never exceed payments]
+  \label{thm:refunds-le-payments}
+  \lean{Rules.OfferOrder.refunds_le_payments}
+  \uses{def:accept-refund, def:totals}
+  If every refund was accepted against one of the order's payments, the total
+  refunded does not exceed the total paid.
+
+  This is open.  Two refunds of 60.00 against one payment of 100.00 are each
+  accepted and together return 120.00.  The question for the Offer/Order team:
+  does the limit apply per refund, cumulatively per payment, or cumulatively
+  per order, and is a refund above the amount paid ever allowed, for example
+  as a goodwill credit?
+\end{theorem}
+\begin{proof}
+  \uses{def:accept-refund, def:totals}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\input{ears.generated}

@@ -5,8 +5,8 @@ import Rules.OfferOrder.Payment
 /-!
 # Examples
 
-Concrete scenarios the build computes.  Each `@[case]` declaration is shown in
-the review artifact with its computed value, and each `#guard` fails the build
+Concrete scenarios the build computes.  Each {attr}`@[case]` declaration is shown in
+the review artifact with its computed value, and each {lit}`#guard` fails the build
 if that value changes.
 -/
 
@@ -70,7 +70,7 @@ def samplePayment : Payment := ⟨"PAY-1", "ORD-1", ⟨10000, .USD⟩⟩
 /-- Two refunds of 60.00 USD against one payment of 100.00 USD are each
 accepted, and together return 120.00 USD, more than was paid.  The triple is
 whether the first refund is accepted, whether the second is accepted, and the
-total refunded.  Counterexample for `refunds_le_payments`. -/
+total refunded.  Counterexample for {lit}`refunds_le_payments`. -/
 @[case] def doubleRefund : Bool × Bool × Nat :=
   let r1 : Refund := ⟨"REF-1", "PAY-1", ⟨6000, .USD⟩⟩
   let r2 : Refund := ⟨"REF-2", "PAY-1", ⟨6000, .USD⟩⟩

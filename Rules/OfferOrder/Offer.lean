@@ -7,7 +7,7 @@ import Rules.Core.Party
 
 An offer is what the airline proposes to sell: a set of priced items for
 named passengers, valid until it expires.  It corresponds to the IATA ONE
-Order `Offer` and `OfferItem`.
+Order {lit}`Offer` and {lit}`OfferItem`.
 -/
 
 namespace Rules.OfferOrder
@@ -15,12 +15,12 @@ namespace Rules.OfferOrder
 open Rules.Core
 
 /-- One priced product inside an offer, for one passenger: a flight, a bag,
-a seat.  It corresponds to a ONE Order `OfferItem`. -/
+a seat.  It corresponds to a ONE Order {lit}`OfferItem`. -/
 structure OfferItem where
   /-- The offer item reference, unique within its offer. -/
   id : String
-  /-- The service the item sells, such as `FLT` (flight), `BAG` (checked bag)
-  or `SEAT` (seat selection). -/
+  /-- The service the item sells, such as {lit}`FLT` (flight), {lit}`BAG` (checked bag)
+  or {lit}`SEAT` (seat selection). -/
   serviceCode : String
   /-- The price the customer pays for this item. -/
   price : Money
@@ -29,8 +29,8 @@ structure OfferItem where
   deriving DecidableEq, Repr, Inhabited
 
 /-- A set of priced items the airline offers a customer, valid until
-`expiresAt`, with every price stated in `currency`.  It corresponds to a
-ONE Order `Offer`. -/
+{lit}`expiresAt`, with every price stated in {lit}`currency`.  It corresponds to a
+ONE Order {lit}`Offer`. -/
 structure Offer where
   /-- The offer reference. -/
   id : String
