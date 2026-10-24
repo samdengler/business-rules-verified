@@ -15,8 +15,9 @@ A theorem's status comes from the axioms it depends on, so nobody can mark a
 rule proven by hand.
 
 It writes `build/status.json`, and the EARS table as `build/ears.md` and
-`build/ears.csv`.  It exits nonzero if an EARS statement does not follow
-exactly one EARS template.
+`build/ears.csv`.  It exits nonzero if a declaration depends on `sorry`
+without being tagged `@[open_question]`, or if an EARS statement does not
+follow exactly one EARS template.
 -/
 
 open Lean Meta
@@ -179,6 +180,11 @@ def main : IO UInt32 := do
   IO.FS.writeFile "build/ears.md" (earsTable entries)
   IO.FS.writeFile "build/ears.csv" (earsCsv entries)
   let mut ok := true
+  let (sorries, _) ← sorryDecls.toIO ctx { env }
+  for n in sorries do
+    unless Rules.Core.openQuestionAttr.hasTag env n do
+      IO.eprintln s!"error: {n} depends on sorry but is not tagged @[open_question]"
+      ok := false
   for e in earsRows entries do
     if templateOf (e.ears.getD "") |>.isNone then
       IO.eprintln s!"error: the EARS statement of {e.name} does not follow exactly one EARS template"

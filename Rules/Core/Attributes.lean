@@ -16,6 +16,12 @@ build computes and the review artifact shows. -/
 initialize caseAttr : TagAttribute ←
   registerTagAttribute `case "a build-time example shown in the review artifact"
 
+/-- {lit}`@[open_question]` marks a theorem left open on purpose because its
+proof is waiting on a business decision.  Any other theorem that depends on
+{lit}`sorry` fails the status check. -/
+initialize openQuestionAttr : TagAttribute ←
+  registerTagAttribute `open_question "a theorem left open pending a business decision"
+
 /-- {lit}`@[ears "OO-001"]` gives a rule its stable EARS requirement ID.  IDs are
 assigned by this attribute, not by position, so adding a rule never renumbers
 the others. -/

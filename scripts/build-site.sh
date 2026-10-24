@@ -13,8 +13,9 @@ lake exe status
 python3 scripts/render_status.py
 lake build Review
 lake exe review-doc --output build/review
-leanblueprint checkdecls
+# web writes blueprint/lean_decls, which checkdecls reads.
 leanblueprint web
+leanblueprint checkdecls
 leanblueprint pdf
 
 rm -rf site

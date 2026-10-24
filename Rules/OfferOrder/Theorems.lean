@@ -1,3 +1,4 @@
+import Rules.Core.Attributes
 import Rules.OfferOrder.Accept
 import Rules.OfferOrder.Payment
 
@@ -47,6 +48,7 @@ together return 120.00 USD.  The counterexample is the {lit}`doubleRefund` case.
 mean the limit applies per refund, cumulatively per payment, or cumulatively
 per order?  And is a refund above the amount paid ever allowed, for example
 as a goodwill credit? -/
+@[open_question]
 theorem refunds_le_payments (ps : List Payment) (rs : List Refund) (orderId : String)
     (hids : (ps.map (·.id)).Nodup)
     (hacc : ∀ r ∈ rs, ∃ p ∈ ps, acceptRefund p r = true) :
