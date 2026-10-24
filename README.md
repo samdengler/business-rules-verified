@@ -83,7 +83,38 @@ python3 -m http.server -d site          # preview at http://localhost:8000
 
 ## Results
 
-RESULTS_PLACEHOLDER
+Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
+[40113345785](https://github.com/samdengler/business-rules-verified/actions/runs/40113345785).
+
+| # | Criterion | Result |
+| --- | --- | --- |
+| 1 | `lake build` from a clean clone after `lake exe cache get`, under 10 minutes | Pass. Clean clone: `lake exe cache get` 65 s, `lake build` 15 s. In CI the lean-action step (cache plus build) takes about 3 minutes. |
+| 2 | `lake exe status` writes `status.json` and `ears.md`, three proven, one open, exit 0 | Pass. `Rules.OfferOrder`: 3 proven, 1 open (`refunds_le_payments`). It also writes `ears.csv`. |
+| 3 | Rejecting a second refund against a payment lets `refunds_le_payments` be proven | Pass, on a discarded branch. `acceptRefund` took the list of refunds already accepted and rejected a second refund against the same payment. The theorem's hypothesis then says each refund was accepted given the ones before it. The proof closed without `sorry`, and `lake exe status` reported 4 proven, 0 open, exit 0. |
+| 4 | Changing a `#guard` expected value by one unit fails `lake build` | Pass. `24500` to `24501` failed `Rules.OfferOrder.Examples`; reverted. |
+| 5 | `checkdecls` passes; graph shows the open theorem uncolored and the rest green | Pass. All 24 defined or proven nodes are green; `refunds_le_payments` has no fill (see Decisions). |
+| 6 | Verso document builds; renaming `accept` to `acceptOffer` fails it | Pass. The rename failed at `Review/Review/Rules.lean:21` ("Unknown identifier `Rules.OfferOrder.accept`"). `render_status.py` also refused, because `content.tex` names `accept`. Reverted. |
+| 7 | Examples chapter shows six cases whose values match the `#guard`s | Pass. Six cases; values come from `lake exe status`. |
+| 8 | `build/ears.csv` has three rows, OO-001 to OO-003 | Pass. |
+| 9 | CI green on `main`; Pages serves the Verso document at the root and the blueprint at `/blueprint/` with a working PDF link | Partial. CI is green. Pages is **not** live: GitHub refused to enable it ("Your current plan does not support GitHub Pages for this repository"). Each CI run uploads the assembled site as the `github-pages` artifact. |
+| 10 | README covers the two layers, authored and computed parts, the local build, and Decisions | Pass. |
+
+**Pages URLs.** None are live yet. Once Pages is turned on (a paid plan, or a
+public repository) and the repository variable `PAGES_ENABLED` is set to
+`true`, the next push to `main` deploys to:
+
+- Verso document: <https://samdengler.github.io/business-rules-verified/>
+- Blueprint: <https://samdengler.github.io/business-rules-verified/blueprint/>
+- Dependency graph: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
+- PDF: <https://samdengler.github.io/business-rules-verified/blueprint/print.pdf>
+
+On a GitHub Pro personal account, a Pages site published from a private
+repository is publicly readable. Only GitHub Enterprise Cloud restricts Pages to
+collaborators.
+
+To preview the site now: download the `github-pages` artifact from the latest
+run, extract `artifact.tar`, and run `python3 -m http.server` in that
+directory. Or run `scripts/build-site.sh` locally.
 
 ## Decisions
 
