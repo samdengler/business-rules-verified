@@ -96,25 +96,16 @@ Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
 | 6 | Verso document builds; renaming `accept` to `acceptOffer` fails it | Pass. The rename failed at `Review/Review/Rules.lean:21` ("Unknown identifier `Rules.OfferOrder.accept`"). `render_status.py` also refused, because `content.tex` names `accept`. Reverted. |
 | 7 | Examples chapter shows six cases whose values match the `#guard`s | Pass. Six cases; values come from `lake exe status`. |
 | 8 | `build/ears.csv` has three rows, OO-001 to OO-003 | Pass. |
-| 9 | CI green on `main`; Pages serves the Verso document at the root and the blueprint at `/blueprint/` with a working PDF link | Partial. CI is green. Pages is **not** live: GitHub refused to enable it ("Your current plan does not support GitHub Pages for this repository"). Each CI run uploads the assembled site as the `github-pages` artifact. |
+| 9 | CI green on `main`; Pages serves the Verso document at the root and the blueprint at `/blueprint/` with a working PDF link | Pass, after making the repository public (see Decisions). |
 | 10 | README covers the two layers, authored and computed parts, the local build, and Decisions | Pass. |
 
-**Pages URLs.** None are live yet. Once Pages is turned on (a paid plan, or a
-public repository) and the repository variable `PAGES_ENABLED` is set to
-`true`, the next push to `main` deploys to:
+**Pages URLs.**
 
 - Verso document: <https://samdengler.github.io/business-rules-verified/>
 - Blueprint: <https://samdengler.github.io/business-rules-verified/blueprint/>
 - Dependency graph: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
 - PDF: <https://samdengler.github.io/business-rules-verified/blueprint/print.pdf>
-
-On a GitHub Pro personal account, a Pages site published from a private
-repository is publicly readable. Only GitHub Enterprise Cloud restricts Pages to
-collaborators.
-
-To preview the site now: download the `github-pages` artifact from the latest
-run, extract `artifact.tar`, and run `python3 -m http.server` in that
-directory. Or run `scripts/build-site.sh` locally.
+- EARS table: <https://samdengler.github.io/business-rules-verified/ears.csv>
 
 ## Decisions
 
@@ -198,13 +189,13 @@ Choices made where the plan left room, in the order they came up.
     `lake-manifest.json`.
 20. **Pages deploys from `main` only.** Pull requests build and upload the
     site but do not deploy it.
-21. **Deploy is gated on `PAGES_ENABLED`.** GitHub refused to turn on Pages
-    for this repository: "Your current plan does not support GitHub Pages for
-    this repository." The plan asks for a private repository, so it stays
-    private, and the deploy job runs only when the repository variable
-    `PAGES_ENABLED` is `true`. Until then, every CI run uploads the assembled
-    site as the `github-pages` artifact, which can be downloaded from the run
-    and previewed locally.
+21. **The repository is public.** The plan asked for a private repository.
+    GitHub refused Pages for it on this account's plan ("Your current plan does
+    not support GitHub Pages for this repository"), so the repository was made
+    public with Sam's approval, and Pages was enabled with GitHub Actions as
+    the source. The deploy job still checks the repository variable
+    `PAGES_ENABLED` (set to `true`), so a fork or a copy without Pages keeps a
+    green build.
 22. **EARS outputs.** The status executable writes `build/ears.csv` along with
     `ears.md`. "Proven by" lists every theorem whose statement mentions the
     rule, so OO-001 lists both `accept` theorems.
