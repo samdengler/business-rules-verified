@@ -8,3 +8,4 @@ import Rules.OfferOrder.Order
 import Rules.OfferOrder.Payment
 import Rules.OfferOrder.Accept
 import Rules.OfferOrder.Theorems
+import Rules.OfferOrder.Examples
