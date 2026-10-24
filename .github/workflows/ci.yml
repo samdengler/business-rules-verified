@@ -14,6 +14,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
         with: { use-mathlib-cache: true }
+      # Compiled Verso and checkdecls, restored after lake has cloned the
+      # packages.  Mathlib comes from its own cache above.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .lake/packages/verso/.lake
+            .lake/packages/subverso/.lake
+            .lake/packages/MD4Lean/.lake
+            .lake/packages/illuminate/.lake
+            .lake/packages/checkdecls/.lake
+          key: lake-deps-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
       # Fails on any sorry not tagged @[open_question], before anything renders.
       - run: lake exe status
       - run: python3 scripts/render_status.py
@@ -25,6 +36,7 @@ jobs:
         run: |
           curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh
           echo "$HOME/bin" >> "$GITHUB_PATH"
+          "$HOME/bin/tlmgr" update --self
           "$HOME/bin/tlmgr" install latexmk unicode-math fontspec lm-math
       - run: pip install leanblueprint
       # web writes blueprint/lean_decls, which checkdecls reads.
@@ -38,8 +50,10 @@ jobs:
           cp build/ears.md build/ears.csv build/status.json site/
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
+  # Deploys only once Pages is available for the repository: set the
+  # repository variable PAGES_ENABLED to true after turning Pages on.
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true'
     needs: build
     runs-on: ubuntu-latest
     environment:

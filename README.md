@@ -121,7 +121,9 @@ Choices made where the plan left room, in the order they came up.
    `Money.add_same_currency`).
 10. **Example values** are computed with `Lean.Meta.evalExpr` inside the status
     executable (built with `supportInterpreter = true`). The `#eval` fallback
-    was not needed.
+    was not needed. The executable imports only `Rules.Core.Attributes` and
+    loads `Rules` from its `.olean` files at run time. Importing all of `Rules`
+    made linking compile Mathlib's native code, which took 14 minutes in CI.
 11. **Docstrings use Verso markup** (`doc.verso = true` for the whole
     package). Code spans carry roles: `{name}` for model declarations (a rename
     breaks the docstring), and `{lit}` or `{lean}` for literals and terms.
@@ -158,14 +160,24 @@ Choices made where the plan left room, in the order they came up.
     reads.
 19. **TeX in CI.** CI installs TinyTeX instead of `texlive-full`, matching the
     local setup, which also uses TinyTeX. It is far smaller, and its default
-    package set built the PDF with no additions.
+    package set built the PDF with no additions. CI runs `tlmgr update --self`
+    first, because the installer's `tlmgr` refused to install packages until
+    it was updated. CI also caches the compiled Verso packages, keyed on
+    `lake-manifest.json`.
 20. **Pages deploys from `main` only.** Pull requests build and upload the
     site but do not deploy it.
-21. **EARS outputs.** The status executable writes `build/ears.csv` along with
+21. **Deploy is gated on `PAGES_ENABLED`.** GitHub refused to turn on Pages
+    for this repository: "Your current plan does not support GitHub Pages for
+    this repository." The plan asks for a private repository, so it stays
+    private, and the deploy job runs only when the repository variable
+    `PAGES_ENABLED` is `true`. Until then, every CI run uploads the assembled
+    site as the `github-pages` artifact, which can be downloaded from the run
+    and previewed locally.
+22. **EARS outputs.** The status executable writes `build/ears.csv` along with
     `ears.md`. "Proven by" lists every theorem whose statement mentions the
     rule, so OO-001 lists both `accept` theorems.
-22. **Branch protection** is not turned on for the POC. CODEOWNERS names
+23. **Branch protection** is not turned on for the POC. CODEOWNERS names
     `@samdengler` on every path.
-23. **Acceptance demos.** The demos (fixing the refund rule, changing a
+24. **Acceptance demos.** The demos (fixing the refund rule, changing a
     `#guard`, renaming `accept`) were run locally on a branch or as uncommitted
     edits, then discarded, as the plan says.

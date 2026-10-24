@@ -1,5 +1,5 @@
 import Lean
-import Rules
+import Rules.Core.Attributes
 
 
 
