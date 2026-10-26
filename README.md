@@ -16,6 +16,15 @@ Shared concepts live in `Rules/Core/`; each group gets a directory under
 | Verso document: prose with checked Lean inside it | `Review/` | site root |
 | leanblueprint: dependency graph colored by status, plus a PDF | `blueprint/src/content.tex` | `/blueprint/` and `/blueprint/print.pdf` |
 
+The requirements are also published as Kiro specs, one folder per Lean module
+that holds rules, in [`.kiro/specs/`](.kiro/specs/). Opening this repository in
+Kiro shows them as specs. Each `requirements.md` has the module's
+introduction, and for each rule its user story, its EARS statement, and its
+acceptance criteria in Kiro's `WHEN ... THE SYSTEM SHALL ...` notation. Each
+criterion carries its ID and the status the build computed for it.
+[`.kiro/specs/README.md`](.kiro/specs/README.md) indexes them with every
+criterion's status.
+
 Both layers are built from the same commit and take their status from the same
 file, `build/status.json`, which `lake exe status` computes from the compiled
 Lean.
@@ -25,7 +34,10 @@ Lean.
 Authored, and reviewed against the Lean by a second person:
 
 - Docstrings in `Rules/` (they are the prose of both layers, written in Verso
-  markup).
+  markup). A rule's docstring holds its `EARS:` statement, a `Story:` line, and
+  its acceptance criteria as list items (`* OO-001.1: If ...`).
+- The `@[checks "OO-001.1"]` tags on theorems and examples, which say which
+  criteria each one checks.
 - The Verso chapters `Overview`, `Objects`, `Rules` and `Open Questions` in
   `Review/Review/`.
 - The blueprint statements in `blueprint/src/content.tex` (without `\leanok`).
@@ -39,13 +51,22 @@ Computed by the build, never typed:
   value changes.
 - The EARS table (`build/ears.md`, `build/ears.csv`), from the `EARS:` line of
   each rule's docstring and its `@[ears "OO-00n"]` ID.
+- Each acceptance criterion's status, from the theorems and examples that
+  check it: open if a checking theorem is open, proven if one is proven,
+  example only if only examples check it, and not checked otherwise. The
+  criteria go to `build/ears-criteria.csv` and into the Kiro specs.
+- The Kiro specs in `.kiro/specs/`. These are committed so they can be read on
+  GitHub and opened in Kiro, and CI fails if the committed copies differ from
+  what `scripts/render_status.py` writes.
 - `\leanok` markers in the blueprint, and the Verso `Guarantees`, `Examples`
   and EARS sections, written by `scripts/render_status.py` into
   `blueprint/src/*.generated.tex` and `Review/Review/Generated/`.
 
 `lake exe status` exits nonzero if any declaration depends on `sorry` without
-the `@[open_question]` tag, or if an EARS statement does not follow exactly one
-EARS template. CI runs it before rendering anything.
+the `@[open_question]` tag, if an EARS statement or acceptance criterion does
+not follow exactly one EARS template, if a rule lacks a story or criteria, or if
+a `@[checks]` tag names a criterion no rule defines. CI runs it before
+rendering anything.
 
 ## Building locally
 
@@ -55,7 +76,8 @@ graphviz, and a TeX installation with `xelatex` and `latexmk` (TinyTeX works).
 ```sh
 lake exe cache get                      # prebuilt Mathlib, once
 lake build                              # the Rules library
-lake exe status                         # build/status.json, ears.md, ears.csv
+lake exe status                         # build/status.json, ears.md, ears.csv, ears-criteria.csv
+python3 scripts/render_status.py        # .kiro/specs and the generated review sections
 
 python3 -m venv .venv && . .venv/bin/activate
 pip install leanblueprint               # on macOS with Homebrew graphviz, set
@@ -105,7 +127,10 @@ Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
 - Blueprint: <https://samdengler.github.io/business-rules-verified/blueprint/>
 - Dependency graph: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
 - PDF: <https://samdengler.github.io/business-rules-verified/blueprint/print.pdf>
-- EARS table: <https://samdengler.github.io/business-rules-verified/ears.csv>
+- EARS table, one row per rule: <https://samdengler.github.io/business-rules-verified/ears.csv>
+- Acceptance criteria, one row per criterion: <https://samdengler.github.io/business-rules-verified/ears-criteria.csv>
+- Kiro specs, rendered on GitHub: <https://github.com/samdengler/business-rules-verified/tree/main/.kiro/specs>
+  (the same files are on Pages under `/specs/`)
 
 ## Decisions
 
@@ -204,3 +229,24 @@ Choices made where the plan left room, in the order they came up.
 24. **Acceptance demos.** The demos (fixing the refund rule, changing a
     `#guard`, renaming `accept`) were run locally on a branch or as uncommitted
     edits, then discarded, as the plan says.
+25. **Kiro specs and acceptance criteria** (added after the plan, at Sam's
+    request). The Kiro specs are Markdown so they can be used with Kiro's
+    spec-driven flow; `ears.csv` stays as an extra export. Decisions:
+    - One spec folder per Lean module that holds rules, named from the
+      namespace and the module's title, for example
+      `offer-order-accepting-an-offer`. The module docstring becomes the
+      introduction.
+    - Criterion IDs extend the rule's ID (`OO-001.1`) and are written by hand
+      in the docstring, like the rule IDs, so they never renumber.
+    - The EARS text stays in standard form in the docstrings ("When X, the
+      system shall Y"). The Kiro files print it in Kiro's notation
+      (`WHEN X THE SYSTEM SHALL Y`, `IF X THEN THE SYSTEM SHALL Y`).
+    - A criterion's status is computed from what checks it, but whether a
+      theorem's statement covers the criterion's wording is a review question:
+      the `@[checks]` tag is authored.
+    - An example that checks an open criterion is labelled a counterexample.
+    - Four criteria (OO-002.2, OO-002.3, OO-002.5, OO-003.1) have no theorem or
+      example yet and are shown as not checked. Adding theorems for them would
+      change the proven count the acceptance criteria fix at three.
+    - Only `requirements.md` is generated; `design.md` and `tasks.md` belong to
+      the team using the spec.

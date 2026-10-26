@@ -24,5 +24,6 @@ cp -r build/review/html-multi/. site/
 cp -r pages/. site/
 cp -r blueprint/web/. site/blueprint/
 cp blueprint/print/print.pdf site/blueprint/print.pdf
-cp build/ears.md build/ears.csv build/status.json site/
+cp -r .kiro/specs site/specs
+cp build/ears.md build/ears.csv build/ears-criteria.csv build/status.json site/
 echo "site/ is ready; preview with: python3 -m http.server -d site"

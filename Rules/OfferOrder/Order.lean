@@ -71,6 +71,23 @@ structure Order where
 only the transitions ready to delivered, ready to cancelled, cancelled to
 refunded.
 
+Story: As an operations agent, I want a service's delivery state to change only
+along the allowed transitions, so that a delivered service is never cancelled
+and a service is never refunded before it is cancelled.
+
+Acceptance criteria:
+
+* OO-002.1: When a ready service is delivered, the system shall mark it
+  delivered.
+* OO-002.2: When a ready service is cancelled, the system shall mark it
+  cancelled.
+* OO-002.3: When a cancelled service is refunded, the system shall mark it
+  refunded.
+* OO-002.4: If a delivered service is cancelled, then the system shall refuse
+  the event.
+* OO-002.5: If any other event is applied to a service, then the system shall
+  refuse the event.
+
 The result is the new state, or {lean}`none` when the event is not allowed in the
 current state. -/
 @[ears "OO-002"]

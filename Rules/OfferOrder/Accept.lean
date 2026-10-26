@@ -33,6 +33,24 @@ def toOrderItem (orderId : String) (i : OfferItem) : OrderItem where
 /-- EARS: When a customer accepts an offer, the system shall create an order
 only if the offer has not expired and contains at least one item.
 
+Story: As a customer, I want to accept an offer I was shown, so that I get an
+order for exactly those services at the offered price.
+
+Acceptance criteria:
+
+* OO-001.1: If a customer accepts an offer at or after its expiry instant,
+  then the system shall reject it as expired.
+* OO-001.2: If a customer accepts an unexpired offer that has no items, then
+  the system shall reject it as empty.
+* OO-001.3: If a customer accepts an unexpired offer with an item priced in a
+  currency other than the offer's, then the system shall reject it for mixed
+  currencies.
+* OO-001.4: When a customer accepts an unexpired offer with at least one item
+  and every item priced in the offer's currency, the system shall create an
+  order.
+* OO-001.5: When an order is created from an offer, the system shall price the
+  order at the sum of the offer's item prices.
+
 The checks run in order: expiry first, then an empty offer, then items priced
 in a currency other than the offer's.  The order's price is the sum of the
 item prices, in the offer's currency. -/

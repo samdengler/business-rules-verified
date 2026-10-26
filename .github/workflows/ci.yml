@@ -28,6 +28,15 @@ jobs:
       # Fails on any sorry not tagged @[open_question], before anything renders.
       - run: lake exe status
       - run: python3 scripts/render_status.py
+      # The Kiro specs are committed; a change to the model must commit them too.
+      - name: Check .kiro/specs is up to date
+        run: |
+          if [ -n "$(git status --porcelain -- .kiro/specs)" ]; then
+            git status --porcelain -- .kiro/specs
+            git diff -- .kiro/specs
+            echo "::error::.kiro/specs differs from the model; run lake exe status && python3 scripts/render_status.py and commit .kiro/specs"
+            exit 1
+          fi
       - run: lake build Review && lake exe review-doc --output build/review
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
@@ -53,7 +62,8 @@ jobs:
           cp -r pages/. site/
           cp -r blueprint/web/. site/blueprint/
           cp blueprint/print/print.pdf site/blueprint/print.pdf
-          cp build/ears.md build/ears.csv build/status.json site/
+          cp -r .kiro/specs site/specs
+          cp build/ears.md build/ears.csv build/ears-criteria.csv build/status.json site/
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
   # Deploys only once Pages is available for the repository: set the

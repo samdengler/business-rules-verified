@@ -45,6 +45,18 @@ def totalRefunded (ps : List Payment) (rs : List Refund) (orderId : String) : Na
 /-- EARS: When a refund is requested against a payment, the system shall accept it
 only if the refund amount does not exceed that payment's amount.
 
+Story: As a customer service agent, I want each refund checked against the
+payment it is made against, so that a customer is never refunded more than
+they paid.
+
+Acceptance criteria:
+
+* OO-003.1: When a refund is requested against a payment, the system shall
+  accept it only if it names that payment and its amount does not exceed the
+  payment's amount.
+* OO-003.2: The system shall not refund more against an order than was paid
+  for it.
+
 The check looks at this one refund and this one payment; it does not look at
 refunds already made against the same payment. -/
 @[ears "OO-003"]

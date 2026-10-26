@@ -15,6 +15,7 @@ open Rules.Core
 
 /-- When an offer is accepted, the order's price is exactly the sum of the
 offer's item prices: nothing is added or dropped. -/
+@[checks "OO-001.5"]
 theorem accept_price_eq_sum (o : Offer) (now : Instant) (orderId : String) (ord : Order)
     (h : accept o now orderId = .ok ord) :
     ord.price.amount = (o.items.map (·.price.amount)).sum := by
@@ -25,6 +26,7 @@ theorem accept_price_eq_sum (o : Offer) (now : Instant) (orderId : String) (ord 
 
 /-- An offer accepted at or after its expiry instant is always rejected as
 expired. -/
+@[checks "OO-001.1"]
 theorem accept_rejects_expired (o : Offer) (now : Instant) (orderId : String)
     (h : now ≥ o.expiresAt) :
     accept o now orderId = .error .expired := by
@@ -32,6 +34,7 @@ theorem accept_rejects_expired (o : Offer) (now : Instant) (orderId : String)
 
 /-- A delivered service can never be cancelled: the cancel event is refused in
 the delivered state, and no event moves a delivered service to cancelled. -/
+@[checks "OO-002.4"]
 theorem delivered_not_cancellable :
     step .delivered .cancel = none ∧ ∀ e, step .delivered e ≠ some .cancelled := by
   refine ⟨rfl, ?_⟩
@@ -48,7 +51,7 @@ together return 120.00 USD.  The counterexample is the {lit}`doubleRefund` case.
 mean the limit applies per refund, cumulatively per payment, or cumulatively
 per order?  And is a refund above the amount paid ever allowed, for example
 as a goodwill credit? -/
-@[open_question]
+@[open_question, checks "OO-003.2"]
 theorem refunds_le_payments (ps : List Payment) (rs : List Refund) (orderId : String)
     (hids : (ps.map (·.id)).Nodup)
     (hacc : ∀ r ∈ rs, ∃ p ∈ ps, acceptRefund p r = true) :

@@ -38,4 +38,21 @@ initialize earsAttr : ParametricAttribute String ←
       | _ => throwError "expected @[ears \"<ID>\"]"
   }
 
+/-- {lit}`@[checks "OO-001.1"]` says which acceptance criteria a theorem or an
+example checks.  Several IDs are separated by spaces.  The status executable
+computes each criterion's status from the declarations that check it. -/
+syntax (name := checks) "checks " str : attr
+
+/-- The acceptance criterion IDs attached to a theorem or example by
+{lit}`@[checks "..."]`, as written. -/
+initialize checksAttr : ParametricAttribute String ←
+  registerParametricAttribute {
+    name := `checks
+    descr := "acceptance criteria checked by a theorem or example"
+    getParam := fun _ stx =>
+      match stx with
+      | `(attr| checks $ids:str) => pure ids.getString
+      | _ => throwError "expected @[checks \"<ID> ...\"]"
+  }
+
 end Rules.Core

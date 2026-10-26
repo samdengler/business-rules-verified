@@ -26,20 +26,20 @@ def sampleOffer : Offer where
 
 /-- A two-item offer accepted one minute before expiry creates an order
 priced at the sum of the items: 245.00 USD. -/
-@[case] def acceptBeforeExpiry : Except Rejection Order :=
+@[case, checks "OO-001.4 OO-001.5"] def acceptBeforeExpiry : Except Rejection Order :=
   accept sampleOffer ⟨sampleOffer.expiresAt.epochSeconds - 60⟩ "ORD-1"
 
 #guard (acceptBeforeExpiry.map (·.price.amount)) == .ok 24500
 
 /-- The same offer accepted at the expiry instant is rejected as expired. -/
-@[case] def acceptAtExpiry : Except Rejection Order :=
+@[case, checks "OO-001.1"] def acceptAtExpiry : Except Rejection Order :=
   accept sampleOffer sampleOffer.expiresAt "ORD-2"
 
 #guard acceptAtExpiry == .error .expired
 
 /-- An offer priced in USD whose bag is priced in EUR is rejected for mixed
 currencies, even though it has not expired. -/
-@[case] def acceptMixedCurrency : Except Rejection Order :=
+@[case, checks "OO-001.3"] def acceptMixedCurrency : Except Rejection Order :=
   accept
     { sampleOffer with
       items := sampleOffer.items.map fun i =>
@@ -50,7 +50,7 @@ currencies, even though it has not expired. -/
 
 /-- An offer with no items is rejected as empty, even though it has not
 expired. -/
-@[case] def acceptEmptyOffer : Except Rejection Order :=
+@[case, checks "OO-001.2"] def acceptEmptyOffer : Except Rejection Order :=
   accept { sampleOffer with items := [] } ⟨sampleOffer.expiresAt.epochSeconds - 60⟩ "ORD-4"
 
 #guard acceptEmptyOffer == .error .emptyOffer
@@ -58,7 +58,7 @@ expired. -/
 /-- A flight is delivered (the passenger flew), and a later attempt to cancel
 it is refused.  The pair is the state after delivery and the result of the
 cancel. -/
-@[case] def deliveryWalk : Option DeliveryState × Option DeliveryState :=
+@[case, checks "OO-002.1 OO-002.4"] def deliveryWalk : Option DeliveryState × Option DeliveryState :=
   let afterDeliver := step .ready .deliver
   (afterDeliver, afterDeliver.bind (step · .cancel))
 
@@ -71,7 +71,7 @@ def samplePayment : Payment := ⟨"PAY-1", "ORD-1", ⟨10000, .USD⟩⟩
 accepted, and together return 120.00 USD, more than was paid.  The triple is
 whether the first refund is accepted, whether the second is accepted, and the
 total refunded.  Counterexample for {lit}`refunds_le_payments`. -/
-@[case] def doubleRefund : Bool × Bool × Nat :=
+@[case, checks "OO-003.2"] def doubleRefund : Bool × Bool × Nat :=
   let r1 : Refund := ⟨"REF-1", "PAY-1", ⟨6000, .USD⟩⟩
   let r2 : Refund := ⟨"REF-2", "PAY-1", ⟨6000, .USD⟩⟩
   (acceptRefund samplePayment r1, acceptRefund samplePayment r2,
