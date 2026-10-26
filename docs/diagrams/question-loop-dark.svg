@@ -1,49 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="430" viewBox="0 0 1000 430" role="img" aria-label="From a business rule to a guarantee or a question">
+<svg xmlns="http://www.w3.org/2000/svg" width="764" height="474" viewBox="-2 -2 764 474" role="img" aria-label="From a business rule to a guarantee or a question">
 <title>From a business rule to a guarantee or a question</title>
 <defs><marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6e7681"/></marker></defs>
-<rect x="10" y="20" width="205" height="150" rx="10" fill="#0d1117" stroke="#3d444d" stroke-width="1.5"/>
-<text x="26" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Business rule</text>
-<text x="26" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">A refund cannot exceed</text>
-<text x="26" y="94" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">the payment it is made</text>
-<text x="26" y="113" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">against.</text>
-<rect x="268" y="20" width="205" height="150" rx="10" fill="#121d2f" stroke="#4493f8" stroke-width="1.5"/>
-<text x="284" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Lean definition</text>
-<text x="284" y="75" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="12.5" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">acceptRefund p r :=</text>
-<text x="284" y="94" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="12.5" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">  r.payment == p.id &amp;&amp;</text>
-<text x="284" y="113" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="12.5" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">  r.amount ≤ p.amount</text>
-<rect x="526" y="20" width="205" height="150" rx="10" fill="#121d2f" stroke="#4493f8" stroke-width="1.5"/>
-<text x="542" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Theorem</text>
-<text x="542" y="75" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="12.5" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">totalRefunded</text>
-<text x="542" y="94" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="12.5" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">  ≤ totalPaid</text>
-<text x="542" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">for every list of payments</text>
-<text x="542" y="138" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">and refunds on an order</text>
-<rect x="784" y="20" width="205" height="150" rx="10" fill="#12261e" stroke="#3fb950" stroke-width="1.5"/>
-<text x="800" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Proven</text>
-<text x="800" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">A guarantee about every</text>
-<text x="800" y="94" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">input. Lean checked the</text>
-<text x="800" y="113" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">proof on this commit.</text>
-<rect x="526" y="270" width="205" height="150" rx="10" fill="#272115" stroke="#d29922" stroke-width="1.5"/>
-<text x="717" y="298" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#d29922">OPEN</text>
-<text x="542" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Counterexample</text>
-<text x="542" y="325" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">Two refunds of 60.00</text>
-<text x="542" y="344" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">against one payment of</text>
-<text x="542" y="363" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">100.00 both pass, so</text>
-<text x="542" y="382" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">120.00 comes back.</text>
-<rect x="268" y="270" width="205" height="150" rx="10" fill="#0d1117" stroke="#3d444d" stroke-width="1.5"/>
-<text x="284" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Question for the business</text>
-<text x="284" y="325" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">Is the limit per refund,</text>
-<text x="284" y="344" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">per payment or per order?</text>
-<text x="284" y="363" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">Is a goodwill refund above</text>
-<text x="284" y="382" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">the amount paid ever</text>
-<text x="284" y="401" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">allowed?</text>
-<path d="M215,95.0 L266,95.0" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
-<path d="M473,95.0 L524,95.0" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
-<path d="M731,95.0 L782,95.0" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
-<text x="757.5" y="69.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#9198a1" text-anchor="middle" xml:space="preserve">proof</text>
-<text x="757.5" y="84.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#9198a1" text-anchor="middle" xml:space="preserve">checks</text>
-<path d="M628.5,170 L628.5,268" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
-<text x="638.5" y="224.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#9198a1" text-anchor="start" xml:space="preserve">proof fails</text>
-<path d="M526,345.0 L475,345.0" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
-<path d="M370.5,270 L370.5,172" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
-<text x="360.5" y="224.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#9198a1" text-anchor="end" xml:space="preserve">the answer changes the rule</text>
+<rect x="0" y="10" width="220" height="150" rx="10" fill="#0d1117" stroke="#3d444d" stroke-width="1.5"/>
+<text x="16" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Business rule</text>
+<text x="16" y="66" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">A refund cannot exceed the</text>
+<text x="16" y="86" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">payment it is made against.</text>
+<rect x="270" y="10" width="220" height="150" rx="10" fill="#121d2f" stroke="#4493f8" stroke-width="1.5"/>
+<text x="286" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Lean definition</text>
+<text x="286" y="66" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">acceptRefund p r :=</text>
+<text x="286" y="86" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">  r.payment == p.id &amp;&amp;</text>
+<text x="286" y="106" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">  r.amount ≤ p.amount</text>
+<rect x="540" y="10" width="220" height="150" rx="10" fill="#121d2f" stroke="#4493f8" stroke-width="1.5"/>
+<text x="556" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Theorem</text>
+<text x="556" y="66" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">totalRefunded</text>
+<text x="556" y="86" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#e6edf3" text-anchor="start" xml:space="preserve">  ≤ totalPaid</text>
+<text x="556" y="112" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">for every list of payments</text>
+<text x="556" y="132" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">and refunds on an order</text>
+<rect x="540" y="310" width="220" height="150" rx="10" fill="#12261e" stroke="#3fb950" stroke-width="1.5"/>
+<text x="556" y="338" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Proven</text>
+<text x="556" y="366" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">A guarantee about every</text>
+<text x="556" y="386" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">input. Lean checked the</text>
+<text x="556" y="406" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">proof on this commit.</text>
+<rect x="270" y="310" width="220" height="150" rx="10" fill="#272115" stroke="#d29922" stroke-width="1.5"/>
+<text x="476" y="338" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#d29922">OPEN</text>
+<text x="286" y="338" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Counterexample</text>
+<text x="286" y="366" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">Two refunds of 60.00</text>
+<text x="286" y="386" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">against one payment of</text>
+<text x="286" y="406" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">100.00 both pass, so</text>
+<text x="286" y="426" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">120.00 comes back.</text>
+<rect x="0" y="310" width="220" height="150" rx="10" fill="#0d1117" stroke="#3d444d" stroke-width="1.5"/>
+<text x="16" y="338" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Question for the business</text>
+<text x="16" y="366" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">Is the limit per refund, per</text>
+<text x="16" y="386" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">payment or per order? Is a</text>
+<text x="16" y="406" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">goodwill refund above the</text>
+<text x="16" y="426" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">amount paid ever allowed?</text>
+<path d="M220,85.0 L268,85.0" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M490,85.0 L538,85.0" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M694.0,160 L694.0,308" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
+<text x="684.0" y="269.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#9198a1" text-anchor="end" xml:space="preserve">proof checks</text>
+<path d="M606.0,160 L606.0,225.0 Q606.0,235.0 596.0,235.0 L390.0,235.0 Q380.0,235.0 380.0,245.0 L380.0,308" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
+<text x="493.0" y="226.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#9198a1" text-anchor="middle" xml:space="preserve">proof fails</text>
+<path d="M270,385.0 L222,385.0" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M110.0,310 L110.0,162" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
+<text x="120.0" y="231.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#9198a1" text-anchor="start" xml:space="preserve">the answer</text>
+<text x="120.0" y="248.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#9198a1" text-anchor="start" xml:space="preserve">changes the rule</text>
 </svg>
