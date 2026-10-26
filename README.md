@@ -1,13 +1,135 @@
 # business-rules-verified
 
-A Lean model of one slice of the Offer and Order domain: an offer with priced
-items and an expiry, the order created when a customer accepts it, payments
-against the order, and refunds against payments. The build checks the model,
-computes the status of every guarantee, and publishes two review documents.
+Business rules for airline offers and orders, written as code that a computer
+checks, with the review documents and requirement specs generated from that
+code on every commit. It is a proof of concept with invented data. It covers
+one slice of the Offer and Order domain: an offer with priced items and an
+expiry, the order created when a customer accepts it, payments against the
+order, and refunds against payments.
 
-This is the first namespace of a pattern that repeats per business group.
-Shared concepts live in `Rules/Core/`; each group gets a directory under
-`Rules/`.
+- Review document: <https://samdengler.github.io/business-rules-verified/>
+- Requirement specs for Kiro: [`.kiro/specs/`](.kiro/specs/)
+- Dependency graph: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
+
+## Where to start
+
+| You want to | Read |
+| --- | --- |
+| Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/), chapters Overview, Rules and Open Questions |
+| Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
+| See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) (green is proven or defined; no fill is open) |
+| Review or change the model | [`Rules/OfferOrder/`](Rules/OfferOrder/), then the rest of this README |
+
+## Lean, proofs, and the refund example
+
+[Lean](https://lean-lang.org) is a programming language that also checks
+mathematical proofs. In this repository a business rule is an ordinary Lean
+function, and a property the rule should have is a theorem: a claim about every
+possible input. A test checks the inputs someone thought of; a proof covers all
+of them. When the build succeeds, Lean has checked every proof. Checking
+programs and rules this way is called formal verification.
+
+The refund rule shows how this works. The rule as the business states it is
+"a refund cannot exceed the payment it is made against". In Lean it is a
+function that answers true or false for one payment and one refund:
+
+```lean
+def acceptRefund (p : Payment) (r : Refund) : Bool :=
+  r.payment == p.id && decide (r.amount.amount ≤ p.amount.amount)
+```
+
+The property we expect is that refunds on an order never add up to more than
+was paid for it (two hypotheses are left out here):
+
+```lean
+theorem refunds_le_payments ... :
+    totalRefunded ps rs orderId ≤ totalPaid ps orderId := by
+  sorry
+```
+
+`sorry` marks a proof that is missing. This one cannot be written, because the
+claim is false for the rule as stated: two refunds of 60.00 USD against one
+payment of 100.00 USD each pass the check and together return 120.00 USD. The
+model holds that case as a computed example, and the build marks the theorem
+**open**. The open theorem is a question for the business: does the limit apply
+to each refund, to all refunds on a payment, or to all refunds on an order?
+Once the business answers, the rule changes and the proof can be completed.
+That was tried on a scratch branch: with a rule that counts earlier refunds,
+the theorem was proven.
+
+```mermaid
+flowchart TD
+  A["Rule in words:<br/>a refund cannot exceed its payment"] --> B["Lean function<br/>acceptRefund"]
+  B --> C["Theorem:<br/>total refunds never exceed total paid"]
+  C --> D{"Does Lean accept<br/>the proof?"}
+  D -- yes --> E["Proven<br/>a guarantee about every input"]
+  D -- no --> F["A concrete case that breaks it:<br/>two refunds of 60 against 100"]
+  F --> G["Open question<br/>for the business"]
+  G --> H["Answer changes the rule"]
+  H --> C
+```
+
+What a proof here does and does not cover: it is a statement about the Lean
+model. It says nothing yet about whether a production service follows the
+model. Comparing services against the model with generated tests is a later
+step.
+
+## How the build turns the model into documents
+
+People write the Lean files, the prose chapters and the blueprint statements.
+Everything else is computed, so no status or example value is typed by hand.
+
+```mermaid
+flowchart LR
+  subgraph written["Written by people, reviewed in pull requests"]
+    R["Rules/*.lean<br/>rules, theorems, examples,<br/>docstrings with EARS and criteria"]
+    P["Review/ chapters<br/>blueprint/src/content.tex"]
+  end
+  R --> B["lake build<br/>Lean checks every proof<br/>and every example value"]
+  B --> S["lake exe status<br/>proven or open per theorem,<br/>status per criterion"]
+  S --> G["scripts/render_status.py"]
+  P --> G
+  G --> V["Verso review document"]
+  G --> BP["leanblueprint graph and PDF"]
+  G --> K[".kiro/specs<br/>requirements.md per area"]
+  S --> C["ears.csv<br/>ears-criteria.csv"]
+  V --> Pages["GitHub Pages"]
+  BP --> Pages
+  K --> Pages
+  C --> Pages
+```
+
+If someone renames a rule, the review document fails to build. If an example's
+value changes, `lake build` fails. If a theorem is left unproven without being
+marked as an open question, `lake exe status` fails. CI runs all of these on
+every push.
+
+The model is split by business group. Shared concepts such as money and time
+live in `Rules/Core/`, and each group gets its own directory under `Rules/`.
+Offer and Order is the first group; the others in the diagram are not built.
+
+```mermaid
+flowchart BT
+  OO["Rules.OfferOrder<br/>offers, orders, payments, refunds"] --> Core["Rules.Core<br/>money, time, parties, data classification"]
+  ID["Rules.Identity<br/>not built"] -.-> Core
+  DG["Rules.DataGovernance<br/>not built"] -.-> Core
+```
+
+## How this repository was made
+
+[Claude Code](https://claude.com/claude-code), Anthropic's coding agent, built
+this repository from a written implementation plan. The plan had six steps:
+the Lean project and shared concepts, the Offer and Order rules, the checked
+examples, the review documents, the EARS output, and CI. It also had ten
+acceptance criteria. Claude Code committed after each step; the
+[commit history](https://github.com/samdengler/business-rules-verified/commits/main)
+shows them in order. The Kiro specs were added afterwards on request. Where
+the plan left a choice open, the choice is recorded under
+[Decisions](#decisions). [Results](#results) gives the check of each
+acceptance criterion.
+
+The rules, user stories and acceptance criteria are drafts written for this
+proof of concept. The Offer and Order team has not reviewed them yet.
 
 ## The two review layers
 
