@@ -80,8 +80,9 @@ People write the Lean files, the prose chapters and the blueprint statements.
 Everything else is computed, so no status or example value is typed by hand.
 
 ```mermaid
-flowchart LR
+flowchart TD
   subgraph written["Written by people, reviewed in pull requests"]
+    direction LR
     R["Rules/*.lean<br/>rules, theorems, examples,<br/>docstrings with EARS and criteria"]
     P["Review/ chapters<br/>blueprint/src/content.tex"]
   end
@@ -89,10 +90,10 @@ flowchart LR
   B --> S["lake exe status<br/>proven or open per theorem,<br/>status per criterion"]
   S --> G["scripts/render_status.py"]
   P --> G
+  S --> C["ears.csv<br/>ears-criteria.csv"]
   G --> V["Verso review document"]
   G --> BP["leanblueprint graph and PDF"]
   G --> K[".kiro/specs<br/>requirements.md per area"]
-  S --> C["ears.csv<br/>ears-criteria.csv"]
   V --> Pages["GitHub Pages"]
   BP --> Pages
   K --> Pages
