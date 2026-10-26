@@ -57,10 +57,7 @@ Once the business answers, the rule changes and the proof can be completed.
 That was tried on a scratch branch: with a rule that counts earlier refunds,
 the theorem was proven.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/question-loop-dark.svg">
-  <img alt="Diagram: a business rule becomes a Lean definition and a theorem. If Lean accepts the proof, the rule has a guarantee. If not, the build reports a counterexample (two refunds of 60.00 against a payment of 100.00), which becomes a question for the business whose answer changes the rule." src="docs/diagrams/question-loop-light.svg" width="100%">
-</picture>
+<img alt="Diagram: a business rule becomes a Lean definition and a theorem. If Lean accepts the proof, the rule has a guarantee. If not, the build reports a counterexample (two refunds of 60.00 against a payment of 100.00), which becomes a question for the business whose answer changes the rule." src="docs/diagrams/question-loop.svg" width="100%">
 
 What a proof here does and does not cover: it is a statement about the Lean
 model. It says nothing yet about whether a production service follows the
@@ -72,10 +69,7 @@ step.
 People write the Lean files, the prose chapters and the blueprint statements.
 Everything else is computed, so no status or example value is typed by hand.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/build-dark.svg">
-  <img alt="Diagram: people write Rules/*.lean, the Review chapters and the blueprint statements. lake build checks the proofs and example values, lake exe status computes each theorem's and criterion's status, and render_status.py writes the review document, the dependency graph and PDF, and the Kiro specs. CSV exports come from the status step. CI fails on a rejected proof, a changed example value, a renamed rule, an unmarked open theorem, a malformed EARS line, or out-of-date Kiro specs." src="docs/diagrams/build-light.svg" width="100%">
-</picture>
+<img alt="Diagram: people write Rules/*.lean, the Review chapters and the blueprint statements. lake build checks the proofs and example values, lake exe status computes each theorem's and criterion's status, and render_status.py writes the review document, the dependency graph and PDF, and the Kiro specs. CSV exports come from the status step. CI fails on a rejected proof, a changed example value, a renamed rule, an unmarked open theorem, a malformed EARS line, or out-of-date Kiro specs." src="docs/diagrams/build.svg" width="100%">
 
 If someone renames a rule, the review document fails to build. If an example's
 value changes, `lake build` fails. If a theorem is left unproven without being
@@ -86,10 +80,7 @@ The model is split by business group. Shared concepts such as money and time
 live in `Rules/Core/`, and each group gets its own directory under `Rules/`.
 Offer and Order is the first group; the others in the diagram are not built.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/namespaces-dark.svg">
-  <img alt="Diagram: Rules.OfferOrder, built, and Rules.Identity and Rules.DataGovernance, not built, each build on the shared Rules.Core namespace." src="docs/diagrams/namespaces-light.svg" width="100%">
-</picture>
+<img alt="Diagram: Rules.OfferOrder, built, and Rules.Identity and Rules.DataGovernance, not built, each build on the shared Rules.Core namespace." src="docs/diagrams/namespaces.svg" width="100%">
 
 ## How this repository was made
 
@@ -104,8 +95,18 @@ the plan left a choice open, the choice is recorded under
 [Decisions](#decisions). [Results](#results) gives the check of each
 acceptance criterion.
 
-The rules, user stories and acceptance criteria are drafts written for this
-proof of concept. The Offer and Order team has not reviewed them yet.
+The domain comes from IATA's Offers and Orders standard,
+[ONE Order](https://www.iata.org/en/programs/airline-distribution/retailing/one-order/).
+The objects in the model (offer, offer item, order, order item, and the
+delivery status of a service) follow the standard's concepts, and the
+docstrings name the ONE Order concept each corresponds to. The rules, prices
+and data are simplified and invented for this proof of concept; they are not
+transcribed from the standard. Writing the standard itself as a Lean namespace,
+and proving where an airline's own rules match or differ from it, is a planned
+next step.
+
+The rules, user stories and acceptance criteria are drafts. The Offer and
+Order team has not reviewed them yet.
 
 ## The two review layers
 

@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Draw the README diagrams as SVG, in a light and a dark version.
+"""Draw the README diagrams as SVG.
 
     python3 scripts/diagrams.py
 
-writes docs/diagrams/<name>-light.svg and <name>-dark.svg.  The README shows
-them with a <picture> element so GitHub picks the one that matches the
-reader's theme.  The SVGs are committed; rerun this script after editing a
-diagram here.
+writes docs/diagrams/<name>.svg.  Each diagram has its own white background,
+so it reads the same on a light or a dark page.  The SVGs are committed;
+rerun this script after editing a diagram here.
 """
 
 from pathlib import Path
@@ -17,7 +16,8 @@ OUT = Path(__file__).resolve().parent.parent / "docs" / "diagrams"
 SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif"
 MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace"
 
-# GitHub's own light and dark page colors, so the diagrams sit on the page.
+# GitHub's light colors.  The dark set is kept for a later dark variant; the
+# diagrams are drawn in light only, on a white background.
 THEMES = {
     "light": {
         "text": "#1f2328", "muted": "#59636e", "line": "#8c959f",
@@ -103,10 +103,12 @@ class Svg:
             f'<marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" '
             f'orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="{self.t["line"]}"/></marker>'
         )
+        bg = (f'<rect x="-12" y="-12" width="{self.w + 24}" height="{self.h + 24}" rx="12" '
+              f'fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>')
         return (
-            f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.w + 4}" height="{self.h + 4}" '
-            f'viewBox="-2 -2 {self.w + 4} {self.h + 4}" role="img" aria-label="{escape(title)}">\n'
-            f"<title>{escape(title)}</title>\n<defs>{head}</defs>\n" + "\n".join(self.parts) + "\n</svg>\n"
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.w + 26}" height="{self.h + 26}" '
+            f'viewBox="-13 -13 {self.w + 26} {self.h + 26}" role="img" aria-label="{escape(title)}">\n'
+            f"<title>{escape(title)}</title>\n<defs>{head}</defs>\n{bg}\n" + "\n".join(self.parts) + "\n</svg>\n"
         )
 
 
@@ -225,8 +227,7 @@ def namespaces(theme):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, draw in [("question-loop", question_loop), ("build", build), ("namespaces", namespaces)]:
-        for theme in THEMES:
-            (OUT / f"{name}-{theme}.svg").write_text(draw(theme))
+        (OUT / f"{name}.svg").write_text(draw("light"))
     print(f"wrote {OUT.relative_to(OUT.parent.parent)}/*.svg")
 
 
