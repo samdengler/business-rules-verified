@@ -57,17 +57,10 @@ Once the business answers, the rule changes and the proof can be completed.
 That was tried on a scratch branch: with a rule that counts earlier refunds,
 the theorem was proven.
 
-```mermaid
-flowchart TD
-  A["Rule in words:<br/>a refund cannot exceed its payment"] --> B["Lean function<br/>acceptRefund"]
-  B --> C["Theorem:<br/>total refunds never exceed total paid"]
-  C --> D{"Does Lean accept<br/>the proof?"}
-  D -- yes --> E["Proven<br/>a guarantee about every input"]
-  D -- no --> F["A concrete case that breaks it:<br/>two refunds of 60 against 100"]
-  F --> G["Open question<br/>for the business"]
-  G --> H["Answer changes the rule"]
-  H --> C
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/question-loop-dark.svg">
+  <img alt="Diagram: a business rule becomes a Lean definition and a theorem. If Lean accepts the proof, the rule has a guarantee. If not, the build reports a counterexample (two refunds of 60.00 against a payment of 100.00), which becomes a question for the business whose answer changes the rule." src="docs/diagrams/question-loop-light.svg" width="100%">
+</picture>
 
 What a proof here does and does not cover: it is a statement about the Lean
 model. It says nothing yet about whether a production service follows the
@@ -79,26 +72,10 @@ step.
 People write the Lean files, the prose chapters and the blueprint statements.
 Everything else is computed, so no status or example value is typed by hand.
 
-```mermaid
-flowchart TD
-  subgraph written["Written by people, reviewed in pull requests"]
-    direction LR
-    R["Rules/*.lean<br/>rules, theorems, examples,<br/>docstrings with EARS and criteria"]
-    P["Review/ chapters<br/>blueprint/src/content.tex"]
-  end
-  R --> B["lake build<br/>Lean checks every proof<br/>and every example value"]
-  B --> S["lake exe status<br/>proven or open per theorem,<br/>status per criterion"]
-  S --> G["scripts/render_status.py"]
-  P --> G
-  S --> C["ears.csv<br/>ears-criteria.csv"]
-  G --> V["Verso review document"]
-  G --> BP["leanblueprint graph and PDF"]
-  G --> K[".kiro/specs<br/>requirements.md per area"]
-  V --> Pages["GitHub Pages"]
-  BP --> Pages
-  K --> Pages
-  C --> Pages
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/build-dark.svg">
+  <img alt="Diagram: people write Rules/*.lean, the Review chapters and the blueprint statements. lake build checks the proofs and example values, lake exe status computes each theorem's and criterion's status, and render_status.py writes the review document, the dependency graph and PDF, and the Kiro specs. CSV exports come from the status step. CI fails on a rejected proof, a changed example value, a renamed rule, an unmarked open theorem, a malformed EARS line, or out-of-date Kiro specs." src="docs/diagrams/build-light.svg" width="100%">
+</picture>
 
 If someone renames a rule, the review document fails to build. If an example's
 value changes, `lake build` fails. If a theorem is left unproven without being
@@ -109,12 +86,10 @@ The model is split by business group. Shared concepts such as money and time
 live in `Rules/Core/`, and each group gets its own directory under `Rules/`.
 Offer and Order is the first group; the others in the diagram are not built.
 
-```mermaid
-flowchart BT
-  OO["Rules.OfferOrder<br/>offers, orders, payments, refunds"] --> Core["Rules.Core<br/>money, time, parties, data classification"]
-  ID["Rules.Identity<br/>not built"] -.-> Core
-  DG["Rules.DataGovernance<br/>not built"] -.-> Core
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/namespaces-dark.svg">
+  <img alt="Diagram: Rules.OfferOrder, built, and Rules.Identity and Rules.DataGovernance, not built, each build on the shared Rules.Core namespace." src="docs/diagrams/namespaces-light.svg" width="100%">
+</picture>
 
 ## How this repository was made
 
@@ -201,6 +176,7 @@ lake exe cache get                      # prebuilt Mathlib, once
 lake build                              # the Rules library
 lake exe status                         # build/status.json, ears.md, ears.csv, ears-criteria.csv
 python3 scripts/render_status.py        # .kiro/specs and the generated review sections
+python3 scripts/diagrams.py             # the README diagrams in docs/diagrams/
 
 python3 -m venv .venv && . .venv/bin/activate
 pip install leanblueprint               # on macOS with Homebrew graphviz, set

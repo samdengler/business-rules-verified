@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="280" viewBox="0 0 1000 280" role="img" aria-label="Each business group is a namespace that builds on Rules.Core">
+<title>Each business group is a namespace that builds on Rules.Core</title>
+<defs><marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6e7681"/></marker></defs>
+<rect x="10" y="20" width="316" height="108" rx="10" fill="#121d2f" stroke="#4493f8" stroke-width="1.5"/>
+<text x="312" y="48" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#4493f8">BUILT</text>
+<text x="26" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Rules.OfferOrder</text>
+<text x="26" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">Offers, orders, payments, refunds.</text>
+<text x="26" y="94" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">3 rules, 4 theorems, 6 examples</text>
+<rect x="342" y="20" width="316" height="108" rx="10" fill="#0d1117" stroke="#3d444d" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="644" y="48" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#9198a1">NOT BUILT</text>
+<text x="358" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Rules.Identity</text>
+<text x="358" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">Customers, agents, and who may</text>
+<text x="358" y="94" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">act for whom</text>
+<rect x="674" y="20" width="316" height="108" rx="10" fill="#0d1117" stroke="#3d444d" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="976" y="48" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#9198a1">NOT BUILT</text>
+<text x="690" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Rules.DataGovernance</text>
+<text x="690" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">Which fields each clearance</text>
+<text x="690" y="94" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">level may see</text>
+<rect x="10" y="196" width="980" height="74" rx="10" fill="#0d1117" stroke="#3d444d" stroke-width="1.5"/>
+<text x="26" y="224" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#e6edf3" text-anchor="start" xml:space="preserve">Rules.Core</text>
+<text x="26" y="251" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="400" fill="#9198a1" text-anchor="start" xml:space="preserve">Shared by every group: money, time, parties, data classification, and the attributes the status executable reads</text>
+<path d="M168.0,128 L168.0,194" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M500.0,128 L500.0,194" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M832.0,128 L832.0,194" fill="none" stroke="#6e7681" stroke-width="1.6" marker-end="url(#head)"/>
+<text x="178.0" y="167" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#9198a1" text-anchor="start" xml:space="preserve">builds on</text>
+</svg>
