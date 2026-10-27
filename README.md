@@ -9,8 +9,7 @@ accepts it, payments against the order, and refunds against payments.
 This is a proof of concept built from public material only. The objects
 follow IATA's public Offers and Orders standard,
 [ONE Order](https://www.iata.org/en/programs/airline-distribution/retailing/one-order/).
-The rules, prices and data are simplified and invented. Nothing in this
-repository comes from an airline's proprietary rules, systems or data.
+The rules, prices and data are simplified and invented.
 
 - Review document: <https://samdengler.github.io/business-rules-verified/>
 - Requirement specs for Kiro: [`.kiro/specs/`](.kiro/specs/)
