@@ -26,8 +26,10 @@ The rules, prices and data are simplified and invented.
 
 ## Lean, proofs, and the refund example
 
-[Lean](https://lean-lang.org) is a programming language that also checks
-mathematical proofs. In this repository a business rule is an ordinary Lean
+[Lean](https://lean-lang.org) is a functional programming language and a proof
+assistant. People use it to write ordinary programs, to formalize mathematics,
+and to prove that software behaves as specified, all in the same language. In
+this repository a business rule is an ordinary Lean
 function, and a property the rule should have is a theorem: a claim about every
 possible input. A test checks the inputs someone thought of; a proof covers all
 of them. When the build succeeds, Lean has checked every proof. Checking
