@@ -13,16 +13,25 @@ doc.verso = true
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "v4.36.0-rc1"
+rev = "v4.35.0"
 
 [[require]]
 name = "verso"
 git = "https://github.com/leanprover/verso.git"
-rev = "v4.36.0-rc1"
+rev = "v4.35.0"
 
 [[require]]
 name = "checkdecls"
 git = "https://github.com/PatrickMassot/checkdecls.git"
+
+# Aeneas's Lean library: the models of Rust's integers, options and results
+# that Aeneas-generated code refers to.  Pinned to the commit of the Aeneas
+# release whose binary generated Verify/Rust/ (nightly-2026.10.26-da2b22e).
+[[require]]
+name = "aeneas"
+git = "https://github.com/AeneasVerif/aeneas.git"
+rev = "da2b22e78d8fd5f076a902a5617c34038409fb79"
+subDir = "backends/lean"
 
 [[lean_lib]]
 name = "Rules"
@@ -53,3 +62,11 @@ roots = ["Oracle.Handle"]
 name = "oracle"
 root = "Oracle.Main"
 supportInterpreter = true
+
+# Option 3: the Rust implementation, translated to Lean by Charon and Aeneas
+# (Verify/Rust/, generated), and the proofs that it computes what the model
+# computes (Verify/RustRules.lean).  Generated docstrings are plain text.
+[[lean_lib]]
+name = "Verify"
+roots = ["Verify.Rust.OfferOrderRules", "Verify.RustRules"]
+leanOptions = { doc.verso = false }

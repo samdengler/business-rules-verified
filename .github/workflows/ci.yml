@@ -43,6 +43,8 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: "21", cache: maven }
       - run: mvn -B -f impl/java/pom.xml verify
+      # Option 3: the proofs that the Rust translation computes what the model computes.
+      - run: lake build Verify
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: sudo apt-get update && sudo apt-get install -y graphviz libgraphviz-dev
@@ -72,6 +74,21 @@ jobs:
           cp build/oracle/vectors.jsonl site/conformance-vectors.jsonl
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
+  # Option 3, the Rust side: unit tests, and a check that the committed Lean
+  # translation in Verify/Rust/ is what Charon and Aeneas generate from impl/rust.
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo test --manifest-path impl/rust/Cargo.toml
+      - run: scripts/translate-rust.sh
+      - name: Check Verify/Rust is up to date
+        run: |
+          if [ -n "$(git status --porcelain -- Verify/Rust)" ]; then
+            git diff -- Verify/Rust
+            echo "::error::Verify/Rust differs from the Rust code; run scripts/translate-rust.sh and commit Verify/Rust"
+            exit 1
+          fi
   # Deploys only once Pages is available for the repository: set the
   # repository variable PAGES_ENABLED to true after turning Pages on.
   deploy:

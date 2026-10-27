@@ -22,7 +22,7 @@ The rules, prices and data are simplified and invented.
 | Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/), chapters Overview, Rules and Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
 | See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) (green is proven or defined; no fill is open) |
-| Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) |
+| Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) and [`impl/rust`](impl/rust/) |
 | Review or change the model | [`Rules/OfferOrder/`](Rules/OfferOrder/), then the rest of this README |
 
 ## Lean, proofs, and the refund example
@@ -95,16 +95,17 @@ The proofs above are about the Lean model. A service that a team ships is
 separate code, so it needs its own check against the model. There are three
 ways to do that, from quick and partial to slow and complete. Options 1 and 2
 are built here for a Java implementation of the three rules,
-[`impl/java`](impl/java/), and run in CI on every push. Option 3 is not built
-yet.
+[`impl/java`](impl/java/). Option 3 needs Rust, because Aeneas translates
+Rust, and is built for a Rust implementation of two of the rules,
+[`impl/rust`](impl/rust/). All three run in CI on every push.
 
-<img alt="Diagram: the Lean model answers requests through a test oracle. Option 1 runs 24 fixed requests with the model's answers through the Java code. Option 2 generates thousands of inputs with jqwik, checks that Java and the oracle agree, and checks the model's theorems as properties of the Java code. Option 3, not built yet, would translate Rust code into Lean with Charon and Aeneas and prove it computes what the model computes." src="docs/diagrams/implementation-checks.svg" width="100%">
+<img alt="Diagram: the Lean model answers requests through a test oracle. Option 1 runs 24 fixed requests with the model's answers through the Java code. Option 2 generates thousands of inputs with jqwik, checks that Java and the oracle agree, and checks the model's theorems as properties of the Java code. Option 3 translates Rust code into Lean with Charon and Aeneas and proves it computes what the model computes, for every input." src="docs/diagrams/implementation-checks.svg" width="100%">
 
 | Option | What it checks | What a pass means |
 | --- | --- | --- |
 | 1. Test oracle | `lake exe oracle --vectors` writes 24 requests with the model's answers: the inputs of the examples, the boundaries around expiry and the refund limit, and every delivery state and event. [`ConformanceVectorsTest`](impl/java/src/test/java/offerorder/ConformanceVectorsTest.java) runs each one through the Java code. | Java is right on those 24 cases. |
 | 2. Property tests | [jqwik](https://jqwik.net) generates thousands of inputs. [`ModelAgreementProperties`](impl/java/src/test/java/offerorder/ModelAgreementProperties.java) sends each one to the running oracle and to the Java code and compares the answers. [`GuaranteeProperties`](impl/java/src/test/java/offerorder/GuaranteeProperties.java) restates each Lean theorem as a property of the Java code, tagged with its acceptance criterion. | Java is right on every input tried. This is strong evidence, but it is not a proof. |
-| 3. Aeneas proof | [Charon and Aeneas](https://github.com/AeneasVerif/aeneas) translate a Rust implementation into Lean, and a Lean proof shows it computes what the model's definition computes. | The Rust code is right on every input. |
+| 3. Aeneas proof | [Charon and Aeneas](https://github.com/AeneasVerif/aeneas) translate the Rust implementation into Lean, and [`Verify/RustRules.lean`](Verify/RustRules.lean) proves it computes what the model's definition computes. | The Rust code is right on every input. |
 
 ### The test oracle and the conformance vectors
 
@@ -159,6 +160,55 @@ lake build Oracle oracle
 mkdir -p build/oracle && lake exe oracle --vectors > build/oracle/vectors.jsonl
 mvn -f impl/java/pom.xml verify
 ```
+
+### The Aeneas proofs for the Rust code
+
+[`impl/rust/src/lib.rs`](impl/rust/src/lib.rs) implements `step` (OO-002) and
+`accept_refund` (OO-003) in ordinary Rust. Charon reads the Rust compiler's
+view of that file and Aeneas turns it into Lean:
+[`Verify/Rust/OfferOrderRules.lean`](Verify/Rust/OfferOrderRules.lean), one
+Lean function per Rust function. The translation models Rust exactly: a `u64`
+can hold at most 2^64 - 1, and every function returns a result that would
+record a panic or an overflow if one could happen.
+
+[`Verify/RustRules.lean`](Verify/RustRules.lean) maps the Rust types to the
+model's types and proves two theorems:
+
+- `step_matches_model`: for every delivery state and event, the Rust `step`
+  returns without failing and gives the model's answer.
+- `accept_refund_matches_model`: for every payment and refund, the Rust
+  `accept_refund` returns without failing and gives the model's answer.
+
+The mappings are one-to-one, so no two Rust values stand for the same model
+value. References are numbers in the Rust code and strings in the model, so
+the refund theorem holds for any way of naming the numbers as strings, as long
+as different numbers get different names.
+
+The proofs catch real mistakes. Letting the Rust `step` cancel a delivered
+service, or writing `<` instead of `<=` in the refund limit, makes the
+corresponding proof fail once the Rust is translated again.
+
+What is not covered: `accept` builds order references by joining strings, and
+Aeneas does not handle Rust strings well, so it has no Rust version here. A
+proof also says nothing about code outside the translated functions, such as
+how a service reads its input or stores its result.
+
+`Verify/Rust/` is generated and committed. CI translates the Rust again with
+the pinned Aeneas release and fails if the result differs from the committed
+file, so a change to the Rust code has to be translated and proved again
+before it can be merged.
+
+### Running the Rust checks
+
+```sh
+cargo test --manifest-path impl/rust/Cargo.toml
+scripts/translate-rust.sh     # Charon and Aeneas: impl/rust to Verify/Rust/
+lake build Verify             # the proofs
+```
+
+`scripts/translate-rust.sh` downloads the pinned Aeneas release, which
+includes Charon, into `.aeneas/`, and installs the nightly Rust toolchain
+Charon needs with rustup.
 
 ## How this repository was made
 
@@ -235,6 +285,8 @@ Authored, and reviewed against the Lean by a second person:
 - The blueprint statements in `blueprint/src/content.tex` (without `\leanok`).
 - The Java implementation and its tests in `impl/java/`, and the oracle's JSON
   interface and vector inputs in `Oracle/Handle.lean`.
+- The Rust implementation in `impl/rust/`, and the proofs about it in
+  `Verify/RustRules.lean`.
 
 Computed by the build, never typed:
 
@@ -252,6 +304,8 @@ Computed by the build, never typed:
 - The Kiro specs in `.kiro/specs/`. These are committed so they can be read on
   GitHub and opened in Kiro, and CI fails if the committed copies differ from
   what `scripts/render_status.py` writes.
+- The Lean translation of the Rust code in `Verify/Rust/`, generated by Charon
+  and Aeneas and committed; CI fails if it differs from a fresh translation.
 - The conformance vectors' expected answers (`build/oracle/vectors.jsonl`),
   from the model through `lake exe oracle --vectors`.
 - `\leanok` markers in the blueprint, and the Verso `Guarantees`, `Examples`
@@ -267,8 +321,8 @@ rendering anything.
 ## Building locally
 
 Prerequisites: [elan](https://github.com/leanprover/elan), Python 3.12,
-graphviz, a TeX installation with `xelatex` and `latexmk` (TinyTeX works), and
-Java 21 with Maven for the implementation checks.
+graphviz, a TeX installation with `xelatex` and `latexmk` (TinyTeX works),
+Java 21 with Maven, and rustup for the implementation checks.
 
 ```sh
 lake exe cache get                      # prebuilt Mathlib, once
@@ -277,6 +331,7 @@ lake exe status                         # build/status.json, ears.md, ears.csv, 
 python3 scripts/render_status.py        # .kiro/specs and the generated review sections
 python3 scripts/diagrams.py             # the README diagrams in docs/diagrams/
 lake build Oracle oracle                # the test oracle for implementation checks
+lake build Verify                       # the proofs about the Rust implementation
 
 python3 -m venv .venv && . .venv/bin/activate
 pip install leanblueprint               # on macOS with Homebrew graphviz, set
@@ -294,9 +349,11 @@ python3 -m http.server -d site          # preview at http://localhost:8000
 
 | Tool | Version |
 | --- | --- |
-| Lean | `leanprover/lean4:v4.36.0-rc1` (Mathlib master's toolchain on 2026-10-24) |
-| Mathlib | tag `v4.36.0-rc1` |
-| Verso | tag `v4.36.0-rc1` |
+| Lean | `leanprover/lean4:v4.35.0` |
+| Mathlib | tag `v4.35.0` |
+| Verso | tag `v4.35.0` |
+| Aeneas | release `nightly-2026.10.26-da2b22e` (binary, bundled Charon, and Lean library) |
+| Rust | stable for `cargo test`; `nightly-2026-09-17` for Charon |
 | checkdecls | `master` at `3d42585` |
 | leanblueprint | 0.0.20 |
 | Java | 21 (Temurin) |
@@ -342,9 +399,10 @@ Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
 Choices made where the plan left room, in the order they came up.
 
 1. **Lean version.** Mathlib master pinned `v4.36.0-rc1`, and Verso has a tag
-   with the same name, so Mathlib, Verso and the toolchain all use
+   with the same name, so Mathlib, Verso and the toolchain all used
    `v4.36.0-rc1`. Mathlib and Verso are pinned by tag in `lakefile.toml`. Their
-   shared dependencies (plausible, Cli) resolve to the same commits.
+   shared dependencies (plausible, Cli) resolve to the same commits. The
+   repository later moved to the `v4.35.0` release; see decision 27.
 2. **Cache download.** `lake new ... math` runs `lake exe cache get` itself.
    That first run downloaded the Mathlib cache; the `lake update` and
    `lake exe cache get` in Step 1 then had nothing left to fetch.
@@ -471,3 +529,17 @@ Choices made where the plan left room, in the order they came up.
       often.
     - The open theorem's property uses jqwik's `@ExpectFailure`, the Java
       counterpart of `@[open_question]`.
+27. **Aeneas and the move to Lean `v4.35.0`.** The proofs about the Rust
+    code need the model and Aeneas's Lean library in one build, and that
+    library is pinned to Lean and Mathlib `v4.35.0`. The repository moved from
+    `v4.36.0-rc1` to the `v4.35.0` release, which Verso also tags. The status
+    counts, the review document and the conformance vectors came out the same.
+    - The Aeneas binary and its Lean library are pinned to the same release,
+      `nightly-2026.10.26-da2b22e`. Aeneas publishes nightly releases only.
+    - The Rust code uses numbers for references, because Aeneas handles
+      integers and not strings. The refund theorem therefore takes any
+      one-to-one naming of numbers as strings.
+    - `accept` has no Rust version, because it joins strings to make order
+      references.
+    - The generated Lean in `Verify/Rust/` is committed, like the Kiro specs,
+      and CI checks that it matches a fresh translation.

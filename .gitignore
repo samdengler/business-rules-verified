@@ -12,3 +12,5 @@
 /blueprint/lean_decls
 /blueprint/src/*.paux
 /impl/java/.jqwik-database
+/impl/rust/target
+/.aeneas

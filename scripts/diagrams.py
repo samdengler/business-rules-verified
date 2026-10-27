@@ -200,7 +200,7 @@ def build(theme):
         "a renamed rule that the review document mentions",
         "an unproven theorem not marked as an open question",
         "an EARS line that fits no template  ·  out-of-date Kiro specs",
-        "Java code that disagrees with the model (see the next section)",
+        "Java that disagrees with the model  ·  Rust whose proof fails",
     ]):
         s.text(17, 622 + 20 * k, line, color=t["muted"])
     return s.render("How the build turns the Lean model into documents")
@@ -237,12 +237,12 @@ def implementation_checks(theme):
     s.box(xs[1], 120, w, 168, "2  Property tests", tag="SAMPLED", body=[
         "jqwik generates thousands", "of inputs. Java and the", "running oracle must agree,",
         "and each theorem is checked", "as a property of the Java."])
-    s.box(xs[2], 120, w, 168, "3  Aeneas proof", tag="ALL INPUTS", dashed=True, body=[
+    s.box(xs[2], 120, w, 168, "3  Aeneas proof", tag="ALL INPUTS", body=[
         "Charon and Aeneas translate", "the Rust code into Lean, and", "a Lean proof shows it",
-        "computes what the model", "computes. Not built yet."])
+        "computes what the model", "computes, for every input."])
     s.box(xs[0], 352, xs[1] + w - xs[0], 92, "Java: impl/java", tone="green", body=[
         "OfferOrderRules.java, written the way a service team would. mvn verify", "runs options 1 and 2 in CI."])
-    s.box(xs[2], 352, w, 92, "Rust: impl/rust", dashed=True, body=["The same rules in Rust,", "for option 3"])
+    s.box(xs[2], 352, w, 92, "Rust: impl/rust", tone="green", body=["step and accept_refund.", "lake build Verify runs the proofs"])
     for x in xs:
         s.arrow([(x + w / 2, 66), (x + w / 2, 118)])
         s.arrow([(x + w / 2, 288), (x + w / 2, 350)])

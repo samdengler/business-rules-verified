@@ -1,0 +1,9 @@
+[package]
+name = "offer_order_rules"
+version = "0.1.0"
+edition = "2021"
+description = "The Offer and Order rules in Rust, proved equal to the Lean model with Aeneas"
+publish = false
+
+[lib]
+path = "src/lib.rs"

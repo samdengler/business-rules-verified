@@ -17,6 +17,7 @@ lake build Oracle oracle
 mkdir -p build/oracle
 lake exe oracle --vectors > build/oracle/vectors.jsonl
 mvn -B -q -f impl/java/pom.xml verify
+lake build Verify
 # web writes blueprint/lean_decls, which checkdecls reads.
 leanblueprint web
 leanblueprint checkdecls
