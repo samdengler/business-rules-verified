@@ -22,6 +22,7 @@ The rules, prices and data are simplified and invented.
 | Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/), chapters Overview, Rules and Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
 | See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) (green is proven or defined; no fill is open) |
+| Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) |
 | Review or change the model | [`Rules/OfferOrder/`](Rules/OfferOrder/), then the rest of this README |
 
 ## Lean, proofs, and the refund example
@@ -137,7 +138,8 @@ the Lean project and shared concepts, the Offer and Order rules, the checked
 examples, the review documents, the EARS output, and CI. It also had ten
 acceptance criteria. Claude Code committed after each step; the
 [commit history](https://github.com/samdengler/business-rules-verified/commits/main)
-shows them in order. The Kiro specs were added afterwards on request. Where
+shows them in order. The Kiro specs and the implementation checks were
+added afterwards on request. Where
 the plan left a choice open, the choice is recorded under
 [Decisions](#decisions). [Results](#results) gives the check of each
 acceptance criterion.
@@ -187,6 +189,8 @@ Authored, and reviewed against the Lean by a second person:
 - The Verso chapters `Overview`, `Objects`, `Rules` and `Open Questions` in
   `Review/Review/`.
 - The blueprint statements in `blueprint/src/content.tex` (without `\leanok`).
+- The Java implementation and its tests in `impl/java/`, and the oracle's JSON
+  interface and vector inputs in `Oracle/Handle.lean`.
 
 Computed by the build, never typed:
 
@@ -204,6 +208,8 @@ Computed by the build, never typed:
 - The Kiro specs in `.kiro/specs/`. These are committed so they can be read on
   GitHub and opened in Kiro, and CI fails if the committed copies differ from
   what `scripts/render_status.py` writes.
+- The conformance vectors' expected answers (`build/oracle/vectors.jsonl`),
+  from the model through `lake exe oracle --vectors`.
 - `\leanok` markers in the blueprint, and the Verso `Guarantees`, `Examples`
   and EARS sections, written by `scripts/render_status.py` into
   `blueprint/src/*.generated.tex` and `Review/Review/Generated/`.
@@ -249,6 +255,10 @@ python3 -m http.server -d site          # preview at http://localhost:8000
 | Verso | tag `v4.36.0-rc1` |
 | checkdecls | `master` at `3d42585` |
 | leanblueprint | 0.0.20 |
+| Java | 21 (Temurin) |
+| Maven | 3.9 |
+| JUnit | 5.11.4 |
+| jqwik | 1.9.2 |
 
 `lake-manifest.json` pins every dependency to a commit.
 
@@ -280,6 +290,7 @@ Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
 - Acceptance criteria, one row per criterion: <https://samdengler.github.io/business-rules-verified/ears-criteria.csv>
 - Kiro specs, rendered on GitHub: <https://github.com/samdengler/business-rules-verified/tree/main/.kiro/specs>
   (the same files are on Pages under `/specs/`)
+- Conformance vectors for implementation checks: <https://samdengler.github.io/business-rules-verified/conformance-vectors.jsonl>
 
 ## Decisions
 
