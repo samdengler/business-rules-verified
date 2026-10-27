@@ -88,6 +88,47 @@ Offer and Order is the first group; the others in the diagram are not built.
 
 <img alt="Diagram: Rules.OfferOrder, built, and Rules.Identity and Rules.DataGovernance, not built, each build on the shared Rules.Core namespace." src="docs/diagrams/namespaces.svg" width="100%">
 
+## Checking an implementation against the model
+
+The proofs above are about the Lean model. A service that a team ships is
+separate code, so it needs its own check against the model. There are three
+ways to do that, from quick and partial to slow and complete. Options 1 and 2
+are built here for a Java implementation of the three rules,
+[`impl/java`](impl/java/), and run in CI on every push. Option 3 is not built
+yet.
+
+<img alt="Diagram: the Lean model answers requests through a test oracle. Option 1 runs 24 fixed requests with the model's answers through the Java code. Option 2 generates thousands of inputs with jqwik, checks that Java and the oracle agree, and checks the model's theorems as properties of the Java code. Option 3, not built yet, would translate Rust code into Lean with Charon and Aeneas and prove it computes what the model computes." src="docs/diagrams/implementation-checks.svg" width="100%">
+
+| Option | What it checks | What a pass means |
+| --- | --- | --- |
+| 1. Test oracle | `lake exe oracle --vectors` writes 24 requests with the model's answers: the inputs of the examples, the boundaries around expiry and the refund limit, and every delivery state and event. [`ConformanceVectorsTest`](impl/java/src/test/java/offerorder/ConformanceVectorsTest.java) runs each one through the Java code. | Java is right on those 24 cases. |
+| 2. Property tests | [jqwik](https://jqwik.net) generates thousands of inputs. [`ModelAgreementProperties`](impl/java/src/test/java/offerorder/ModelAgreementProperties.java) sends each one to the running oracle and to the Java code and compares the answers. [`GuaranteeProperties`](impl/java/src/test/java/offerorder/GuaranteeProperties.java) restates each Lean theorem as a property of the Java code, tagged with its acceptance criterion. | Java is right on every input tried. This is strong evidence, but it is not a proof. |
+| 3. Aeneas proof | [Charon and Aeneas](https://github.com/AeneasVerif/aeneas) translate a Rust implementation into Lean, and a Lean proof shows it computes what the model's definition computes. | The Rust code is right on every input. |
+
+The oracle is the model itself, run by Lean's interpreter behind a JSON
+interface: one request per line in, one answer per line out (see
+[`Oracle/Handle.lean`](Oracle/Handle.lean)). Any language can use it the same
+way. The vectors are also published at
+<https://samdengler.github.io/business-rules-verified/conformance-vectors.jsonl>.
+
+What the checks catch. Changing the Java expiry check from `now >= expiresAt`
+to `now > expiresAt` fails all three Java test classes: the vector "accept at
+expiry", the agreement property (which shrinks to an empty offer accepted
+exactly at expiry), and the `accept_rejects_expired` property. The open
+question shows up too. The property for `refunds_le_payments` is marked as
+expected to fail, and jqwik finds the counterexample on its own, shrunk to one
+payment and two refunds against it that together exceed it. If the refund rule
+is fixed, that property starts passing and the test fails until the
+expectation is removed, just as the Lean theorem's `sorry` would be.
+
+Run the Java checks locally (the oracle needs the Lean build first):
+
+```sh
+lake build Oracle oracle
+mkdir -p build/oracle && lake exe oracle --vectors > build/oracle/vectors.jsonl
+mvn -f impl/java/pom.xml verify
+```
+
 ## How this repository was made
 
 [Claude Code](https://claude.com/claude-code), Anthropic's coding agent, built
@@ -176,7 +217,8 @@ rendering anything.
 ## Building locally
 
 Prerequisites: [elan](https://github.com/leanprover/elan), Python 3.12,
-graphviz, and a TeX installation with `xelatex` and `latexmk` (TinyTeX works).
+graphviz, a TeX installation with `xelatex` and `latexmk` (TinyTeX works), and
+Java 21 with Maven for the implementation checks.
 
 ```sh
 lake exe cache get                      # prebuilt Mathlib, once
@@ -184,6 +226,7 @@ lake build                              # the Rules library
 lake exe status                         # build/status.json, ears.md, ears.csv, ears-criteria.csv
 python3 scripts/render_status.py        # .kiro/specs and the generated review sections
 python3 scripts/diagrams.py             # the README diagrams in docs/diagrams/
+lake build Oracle oracle                # the test oracle for implementation checks
 
 python3 -m venv .venv && . .venv/bin/activate
 pip install leanblueprint               # on macOS with Homebrew graphviz, set
@@ -356,3 +399,19 @@ Choices made where the plan left room, in the order they came up.
       change the proven count the acceptance criteria fix at three.
     - Only `requirements.md` is generated; `design.md` and `tasks.md` belong to
       the team using the spec.
+26. **Implementation checks** (added after the plan, at Sam's request). The
+    target teams use Java, so options 1 and 2 are shown on a Java
+    implementation; option 3 needs Rust because Aeneas translates Rust.
+    - The oracle runs the model in Lean's interpreter, loading `Oracle.Handle`
+      from its `.olean` files like `lake exe status` does. Compiling the rules
+      into the executable would link Mathlib's native code.
+    - The JSON shapes are the ones Lean derives for the model's types, so the
+      oracle adds no mapping of its own. The Java tests do the mapping.
+    - Lean's amounts are natural numbers; Java uses `long`. The generators
+      produce only non-negative amounts below 50,000, so the two agree on every
+      generated input.
+    - Inputs are generated close together (instants around expiry, three
+      shared payment IDs) so that boundaries and repeated refunds come up
+      often.
+    - The open theorem's property uses jqwik's `@ExpectFailure`, the Java
+      counterpart of `@[open_question]`.

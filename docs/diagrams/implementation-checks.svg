@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="786" height="478" viewBox="-13 -13 786 478" role="img" aria-label="Three ways to check an implementation against the Lean model">
+<title>Three ways to check an implementation against the Lean model</title>
+<defs><marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8c959f"/></marker></defs>
+<rect x="-12" y="-12" width="784" height="476" rx="12" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<rect x="1" y="1" width="758" height="64" rx="10" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+<text x="17" y="29" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1f2328" text-anchor="start" xml:space="preserve">Lean model: Rules/OfferOrder</text>
+<text x="17" y="57" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">The definitions and theorems; the specification every implementation is checked against</text>
+<rect x="0" y="120" width="230" height="168" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+<text x="216" y="148" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#59636e">FIXED CASES</text>
+<text x="16" y="148" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1f2328" text-anchor="start" xml:space="preserve">1  Test oracle</text>
+<text x="16" y="176" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">lake exe oracle --vectors</text>
+<text x="16" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">writes 24 requests with the</text>
+<text x="16" y="216" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">model's answers. A JUnit test</text>
+<text x="16" y="236" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">runs each one through Java</text>
+<text x="16" y="256" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">and compares.</text>
+<rect x="265" y="120" width="230" height="168" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+<text x="481" y="148" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#59636e">SAMPLED</text>
+<text x="281" y="148" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1f2328" text-anchor="start" xml:space="preserve">2  Property tests</text>
+<text x="281" y="176" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">jqwik generates thousands</text>
+<text x="281" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">of inputs. Java and the</text>
+<text x="281" y="216" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">running oracle must agree,</text>
+<text x="281" y="236" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">and each theorem is checked</text>
+<text x="281" y="256" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">as a property of the Java.</text>
+<rect x="530" y="120" width="230" height="168" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="746" y="148" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#59636e">ALL INPUTS</text>
+<text x="546" y="148" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1f2328" text-anchor="start" xml:space="preserve">3  Aeneas proof</text>
+<text x="546" y="176" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">Charon and Aeneas translate</text>
+<text x="546" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">the Rust code into Lean, and</text>
+<text x="546" y="216" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">a Lean proof shows it</text>
+<text x="546" y="236" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">computes what the model</text>
+<text x="546" y="256" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">computes. Not built yet.</text>
+<rect x="0" y="352" width="495" height="92" rx="10" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.5"/>
+<text x="16" y="380" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1f2328" text-anchor="start" xml:space="preserve">Java: impl/java</text>
+<text x="16" y="408" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">OfferOrderRules.java, written the way a service team would. mvn verify</text>
+<text x="16" y="428" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">runs options 1 and 2 in CI.</text>
+<rect x="530" y="352" width="230" height="92" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="546" y="380" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1f2328" text-anchor="start" xml:space="preserve">Rust: impl/rust</text>
+<text x="546" y="408" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">The same rules in Rust,</text>
+<text x="546" y="428" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#59636e" text-anchor="start" xml:space="preserve">for option 3</text>
+<path d="M115.0,66 L115.0,118" fill="none" stroke="#8c959f" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M115.0,288 L115.0,350" fill="none" stroke="#8c959f" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M380.0,66 L380.0,118" fill="none" stroke="#8c959f" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M380.0,288 L380.0,350" fill="none" stroke="#8c959f" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M645.0,66 L645.0,118" fill="none" stroke="#8c959f" stroke-width="1.6" marker-end="url(#head)"/>
+<path d="M645.0,288 L645.0,350" fill="none" stroke="#8c959f" stroke-width="1.6" marker-end="url(#head)"/>
+<text x="125.0" y="98" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#59636e" text-anchor="start" xml:space="preserve">answers</text>
+<text x="125.0" y="324" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#59636e" text-anchor="start" xml:space="preserve">checks</text>
+</svg>

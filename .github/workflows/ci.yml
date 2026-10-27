@@ -38,6 +38,11 @@ jobs:
             exit 1
           fi
       - run: lake build Review && lake exe review-doc --output build/review
+      # Implementation checks: the Java code against the model's test oracle.
+      - run: lake build Oracle oracle && mkdir -p build/oracle && lake exe oracle --vectors > build/oracle/vectors.jsonl
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21", cache: maven }
+      - run: mvn -B -f impl/java/pom.xml verify
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: sudo apt-get update && sudo apt-get install -y graphviz libgraphviz-dev
@@ -64,6 +69,7 @@ jobs:
           cp blueprint/print/print.pdf site/blueprint/print.pdf
           cp -r .kiro/specs site/specs
           cp build/ears.md build/ears.csv build/ears-criteria.csv build/status.json site/
+          cp build/oracle/vectors.jsonl site/conformance-vectors.jsonl
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
   # Deploys only once Pages is available for the repository: set the

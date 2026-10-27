@@ -41,3 +41,15 @@ roots = ["Review"]
 name = "review-doc"
 srcDir = "Review"
 root = "Main"
+
+# The rules behind a JSON interface, for checking implementations in other
+# languages.  The library holds the handler; the executable loads it into
+# Lean's interpreter (see Oracle/Main.lean).
+[[lean_lib]]
+name = "Oracle"
+roots = ["Oracle.Handle"]
+
+[[lean_exe]]
+name = "oracle"
+root = "Oracle.Main"
+supportInterpreter = true

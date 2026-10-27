@@ -154,7 +154,7 @@ def question_loop(theme):
 
 
 def build(theme):
-    s = Svg(W, 700, theme)
+    s = Svg(W, 720, theme)
     w, gap = 210, 65
     cx = [k * (w + gap) for k in range(3)]
     s.heading(cx[0], 14, "Written by people")
@@ -192,7 +192,7 @@ def build(theme):
         s.arrow([(out, 400), (fx, 400), (fx, ty), (cx[2] - 2, ty)])
 
     t = s.t
-    s.parts.append(f'<rect x="1" y="568" width="{W - 2}" height="124" rx="10" fill="{t["amber"][0]}" '
+    s.parts.append(f'<rect x="1" y="568" width="{W - 2}" height="144" rx="10" fill="{t["amber"][0]}" '
                    f'stroke="{t["amber"][1]}" stroke-width="1.5"/>')
     s.text(17, 596, "CI fails on", size=TITLE_SIZE, weight=600)
     for k, line in enumerate([
@@ -200,6 +200,7 @@ def build(theme):
         "a renamed rule that the review document mentions",
         "an unproven theorem not marked as an open question",
         "an EARS line that fits no template  ·  out-of-date Kiro specs",
+        "Java code that disagrees with the model (see the next section)",
     ]):
         s.text(17, 622 + 20 * k, line, color=t["muted"])
     return s.render("How the build turns the Lean model into documents")
@@ -224,9 +225,36 @@ def namespaces(theme):
     return s.render("Each business group is a namespace that builds on Rules.Core")
 
 
+def implementation_checks(theme):
+    s = Svg(W, 452, theme)
+    w, gap = 230, 35
+    xs = [k * (w + gap) for k in range(3)]
+    s.box(1, 1, W - 2, 64, "Lean model: Rules/OfferOrder", tone="blue",
+          body=["The definitions and theorems; the specification every implementation is checked against"])
+    s.box(xs[0], 120, w, 168, "1  Test oracle", tag="FIXED CASES", body=[
+        "lake exe oracle --vectors", "writes 24 requests with the", "model's answers. A JUnit test",
+        "runs each one through Java", "and compares."])
+    s.box(xs[1], 120, w, 168, "2  Property tests", tag="SAMPLED", body=[
+        "jqwik generates thousands", "of inputs. Java and the", "running oracle must agree,",
+        "and each theorem is checked", "as a property of the Java."])
+    s.box(xs[2], 120, w, 168, "3  Aeneas proof", tag="ALL INPUTS", dashed=True, body=[
+        "Charon and Aeneas translate", "the Rust code into Lean, and", "a Lean proof shows it",
+        "computes what the model", "computes. Not built yet."])
+    s.box(xs[0], 352, xs[1] + w - xs[0], 92, "Java: impl/java", tone="green", body=[
+        "OfferOrderRules.java, written the way a service team would. mvn verify", "runs options 1 and 2 in CI."])
+    s.box(xs[2], 352, w, 92, "Rust: impl/rust", dashed=True, body=["The same rules in Rust,", "for option 3"])
+    for x in xs:
+        s.arrow([(x + w / 2, 66), (x + w / 2, 118)])
+        s.arrow([(x + w / 2, 288), (x + w / 2, 350)])
+    s.text(xs[0] + w / 2 + 10, 98, "answers", size=12.5, color=s.t["muted"], weight=500)
+    s.text(xs[0] + w / 2 + 10, 324, "checks", size=12.5, color=s.t["muted"], weight=500)
+    return s.render("Three ways to check an implementation against the Lean model")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, draw in [("question-loop", question_loop), ("build", build), ("namespaces", namespaces)]:
+    for name, draw in [("question-loop", question_loop), ("build", build), ("namespaces", namespaces),
+                       ("implementation-checks", implementation_checks)]:
         (OUT / f"{name}.svg").write_text(draw("light"))
     print(f"wrote {OUT.relative_to(OUT.parent.parent)}/*.svg")
 
