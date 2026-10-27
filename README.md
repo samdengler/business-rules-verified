@@ -2,10 +2,15 @@
 
 Business rules for airline offers and orders, written as code that a computer
 checks, with the review documents and requirement specs generated from that
-code on every commit. It is a proof of concept with invented data. It covers
-one slice of the Offer and Order domain: an offer with priced items and an
-expiry, the order created when a customer accepts it, payments against the
-order, and refunds against payments.
+code on every commit. It covers one slice of the Offer and Order domain: an
+offer with priced items and an expiry, the order created when a customer
+accepts it, payments against the order, and refunds against payments.
+
+This is a proof of concept built from public material only. The objects
+follow IATA's public Offers and Orders standard,
+[ONE Order](https://www.iata.org/en/programs/airline-distribution/retailing/one-order/).
+The rules, prices and data are simplified and invented. Nothing in this
+repository comes from an airline's proprietary rules, systems or data.
 
 - Review document: <https://samdengler.github.io/business-rules-verified/>
 - Requirement specs for Kiro: [`.kiro/specs/`](.kiro/specs/)

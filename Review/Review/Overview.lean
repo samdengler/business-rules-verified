@@ -13,6 +13,13 @@ The slice is written as a Lean model.
 Each object is a Lean type, each rule is a Lean function, and each guarantee is a Lean theorem.
 A guarantee is either proven, which means Lean checked the proof, or open, which means the model found a case where it fails and the business needs to decide what the rule means.
 
+# Sources
+
+This is a proof of concept built from public material only.
+The objects follow IATA's public Offers and Orders standard, [ONE Order](https://www.iata.org/en/programs/airline-distribution/retailing/one-order/).
+The rules, prices and data are simplified and invented.
+Nothing in this document comes from an airline's proprietary rules, systems or data.
+
 # How to read this document
 
 The chapters follow the model:
