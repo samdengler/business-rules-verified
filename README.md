@@ -260,7 +260,8 @@ python3 -m http.server -d site          # preview at http://localhost:8000
 | JUnit | 5.11.4 |
 | jqwik | 1.9.2 |
 
-`lake-manifest.json` pins every dependency to a commit.
+`lake-manifest.json` pins every Lean dependency to a commit, and
+`impl/java/pom.xml` pins the Java ones.
 
 ## Results
 
