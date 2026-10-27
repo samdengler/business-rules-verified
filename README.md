@@ -106,13 +106,41 @@ yet.
 | 2. Property tests | [jqwik](https://jqwik.net) generates thousands of inputs. [`ModelAgreementProperties`](impl/java/src/test/java/offerorder/ModelAgreementProperties.java) sends each one to the running oracle and to the Java code and compares the answers. [`GuaranteeProperties`](impl/java/src/test/java/offerorder/GuaranteeProperties.java) restates each Lean theorem as a property of the Java code, tagged with its acceptance criterion. | Java is right on every input tried. This is strong evidence, but it is not a proof. |
 | 3. Aeneas proof | [Charon and Aeneas](https://github.com/AeneasVerif/aeneas) translate a Rust implementation into Lean, and a Lean proof shows it computes what the model's definition computes. | The Rust code is right on every input. |
 
+### The test oracle and the conformance vectors
+
 The oracle is the model itself, run by Lean's interpreter behind a JSON
 interface: one request per line in, one answer per line out (see
-[`Oracle/Handle.lean`](Oracle/Handle.lean)). Any language can use it the same
-way. The vectors are also published at
-<https://samdengler.github.io/business-rules-verified/conformance-vectors.jsonl>.
+[`Oracle/Handle.lean`](Oracle/Handle.lean)). The property tests keep it
+running and ask it about each generated input.
 
-What the checks catch. Changing the Java expiry check from `now >= expiresAt`
+The conformance vectors are the oracle's answers to a fixed list of requests,
+saved as a file:
+<https://samdengler.github.io/business-rules-verified/conformance-vectors.jsonl>.
+Each line is one case: a name, a request to one of the rules, and the model's
+answer. For example, shortened:
+
+```json
+{"name": "accept at expiry",
+ "request":  {"rule": "accept", "now": 1793102400, "orderId": "ORD-2",
+              "offer": {"id": "OFF-1", "expiresAt": 1793102400, "currency": "USD", "items": [...]}},
+ "response": {"error": "expired"}}
+```
+
+The 24 cases are the inputs of the six `@[case]` examples in the model; the
+boundaries around them (one second before, at and after expiry; a refund
+below, equal to and one cent above the payment, and one against a different
+payment); and every delivery state paired with every event. The answers come
+from the model, so nobody types an expected value, and a change to a rule
+changes them on the next build.
+
+The file needs nothing but a JSON reader. A team in any language can download
+it and run each case through its own code, without installing Lean. The
+property tests are more thorough, because they try new inputs on every run,
+but they need the oracle running and so need the Lean build.
+
+### What the checks catch
+
+Changing the Java expiry check from `now >= expiresAt`
 to `now > expiresAt` fails all three Java test classes: the vector "accept at
 expiry", the agreement property (which shrinks to an empty offer accepted
 exactly at expiry), and the `accept_rejects_expired` property. The open
@@ -122,7 +150,9 @@ payment and two refunds against it that together exceed it. If the refund rule
 is fixed, that property starts passing and the test fails until the
 expectation is removed, just as the Lean theorem's `sorry` would be.
 
-Run the Java checks locally (the oracle needs the Lean build first):
+### Running the Java checks
+
+The oracle needs the Lean build first:
 
 ```sh
 lake build Oracle oracle
@@ -172,6 +202,20 @@ acceptance criteria in Kiro's `WHEN ... THE SYSTEM SHALL ...` notation. Each
 criterion carries its ID and the status the build computed for it.
 [`.kiro/specs/README.md`](.kiro/specs/README.md) indexes them with every
 criterion's status.
+
+The same requirements are also exported as CSV, for tools that import rows
+rather than read Markdown: a spreadsheet, a requirements tracker such as Jira,
+a dashboard, or a script.
+
+| File | One row per | Columns |
+| --- | --- | --- |
+| [`ears.csv`](https://samdengler.github.io/business-rules-verified/ears.csv) | rule | ID, EARS statement, Lean declaration, status, theorems that prove it |
+| [`ears-criteria.csv`](https://samdengler.github.io/business-rules-verified/ears-criteria.csv) | acceptance criterion | ID, parent rule, EARS statement, EARS template, status, theorems and examples that check it |
+
+Both are rebuilt on every push at fixed URLs, and their IDs never renumber, so
+a tool can pull them on a schedule. Because each row carries a computed status,
+comparing two versions shows which criteria changed, for example OO-003.2
+moving from open to proven once the refund question is answered.
 
 Both layers are built from the same commit and take their status from the same
 file, `build/status.json`, which `lake exe status` computes from the compiled
