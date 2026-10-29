@@ -16,6 +16,7 @@ A guarantee is either proven, which means Lean checked the proof, or open, which
 # Sources
 
 This is a proof of concept built from public material only.
+It is not affiliated with or endorsed by IATA, and it is not an implementation of the standard.
 The objects follow IATA's public Offers and Orders standard, [ONE Order](https://www.iata.org/en/programs/airline-distribution/retailing/one-order/).
 The rules, prices and data are simplified and invented.
 

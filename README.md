@@ -6,10 +6,13 @@ code on every commit. It covers one slice of the Offer and Order domain: an
 offer with priced items and an expiry, the order created when a customer
 accepts it, payments against the order, and refunds against payments.
 
-This is a proof of concept built from public material only. The objects
-follow IATA's public Offers and Orders standard,
+This is a proof of concept built from public material only. It is not
+affiliated with or endorsed by IATA, and it is not an implementation of the
+standard. The objects follow IATA's public Offers and Orders standard,
 [ONE Order](https://www.iata.org/en/programs/airline-distribution/retailing/one-order/).
-The rules, prices and data are simplified and invented.
+The rules, prices and data are simplified and invented. Where a rule is
+taken from IATA's public documentation, it is described in our own words
+with a link to the source page; IATA owns the standard and its documentation.
 
 - Review document: <https://samdengler.github.io/business-rules-verified/>
 - Requirement specs for Kiro: [`.kiro/specs/`](.kiro/specs/)
@@ -22,6 +25,7 @@ The rules, prices and data are simplified and invented.
 | Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/), chapters Overview, Rules and Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
 | See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) (green is proven or defined; no fill is open) |
+| See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
 | Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) and [`impl/rust`](impl/rust/) |
 | Review or change the model | [`Rules/OfferOrder/`](Rules/OfferOrder/), then the rest of this README |
 
@@ -233,6 +237,14 @@ and data are simplified and invented for this proof of concept; they are not
 transcribed from the standard. Writing the standard itself as a Lean namespace,
 and proving where an airline's own rules match or differ from it, is a planned
 next step.
+
+The [ONE Order survey](docs/one-order-survey.md) lists 23 candidate rules for
+the next round, from IATA's public implementation guide and Resolution 797.
+Each is classified as a decision or an invariant, and by whether the source
+states it clearly, vaguely, or not at all; the vague and silent ones are where
+formalizing is expected to raise questions for the business. The guide's
+notice does not permit reproducing its text, so the survey quotes nothing and
+links to each page.
 
 The rules, user stories and acceptance criteria are drafts. The Offer and
 Order team has not reviewed them yet.
