@@ -16,21 +16,21 @@ namespace Rules.OneOrder.Payment
 
 open Rules.Core
 
-/-- A payment is FAILED exactly when the transaction of at least one of its
-payment methods failed. -/
+/-- A payment is FAILED exactly when it has no payment method or the
+transaction of at least one of its payment methods failed. -/
 @[checks "ONE-301.1"]
 theorem status_failed_iff (p : Transaction) :
-    p.status = .failed ↔ ∃ m ∈ p.parts, m.status = .failed := by
+    p.status = .failed ↔ p.parts = [] ∨ ∃ m ∈ p.parts, m.status = .failed := by
   unfold Transaction.status
-  split_ifs with h1 h2 <;> simp_all
+  split_ifs with h0 h1 h2 <;> simp_all
 
-/-- A payment is SUCCESSFUL exactly when the transactions of all its payment
-methods succeeded. -/
+/-- A payment is SUCCESSFUL exactly when it has at least one payment method and
+the transactions of all its payment methods succeeded. -/
 @[checks "ONE-301.2"]
 theorem status_successful_iff (p : Transaction) :
-    p.status = .successful ↔ ∀ m ∈ p.parts, m.status = .successful := by
+    p.status = .successful ↔ p.parts ≠ [] ∧ ∀ m ∈ p.parts, m.status = .successful := by
   unfold Transaction.status
-  split_ifs with h1 h2 <;> simp_all
+  split_ifs with h0 h1 h2 <;> simp_all
   obtain ⟨m, hm, hf⟩ := h1
   exact ⟨m, hm, by simp [hf]⟩
 
@@ -41,11 +41,17 @@ theorem status_pending_iff (p : Transaction) :
     p.status = .pending ↔
       (∀ m ∈ p.parts, m.status ≠ .failed) ∧ ∃ m ∈ p.parts, m.status = .pending := by
   unfold Transaction.status
-  split_ifs with h1 h2 <;> simp_all
+  split_ifs with h0 h1 h2 <;> simp_all
   obtain ⟨m, hm, hs⟩ := h2
   refine ⟨m, hm, ?_⟩
   have hf := h1 m hm
   cases hm' : m.status <;> simp_all
+
+/-- A payment with no payment method is FAILED, so it never counts an order
+item as paid. -/
+@[checks "ONE-301.4"]
+theorem status_without_method (p : Transaction) (h : p.parts = []) : p.status = .failed :=
+  (status_failed_iff p).mpr (Or.inl h)
 
 /-- An order item is counted paid exactly when a SUCCESSFUL payment covers it:
 PENDING and FAILED payments never count. -/
@@ -62,7 +68,7 @@ must send two payments. -/
 theorem failed_method_pays_nothing (p : Transaction) (items : List PayableItem)
     (h : ∃ m ∈ p.parts, m.status = .failed) :
     (∀ ref, p.pays ref = false) ∧ applyOutcome p items = items := by
-  have hf : p.status = .failed := (status_failed_iff p).mpr h
+  have hf : p.status = .failed := (status_failed_iff p).mpr (Or.inr h)
   exact ⟨fun ref => by simp [Transaction.pays, hf], by simp [applyOutcome, hf]⟩
 
 /-- When the airline reports that a method's pending transaction succeeded or
@@ -108,14 +114,18 @@ theorem recordOutcome_final_of_reading (r : OutcomeReading)
   rcases h with h | h
   · rw [h, status_successful_iff]
     rw [status_successful_iff] at h
+    refine ⟨by simpa [recordOutcome] using h.1, ?_⟩
     intro m' hm'
     simp only [recordOutcome, List.mem_map] at hm'
     obtain ⟨m, hm, rfl⟩ := hm'
-    rw [keep m (by simp [h m hm]), h m hm]
+    rw [keep m (by simp [h.2 m hm]), h.2 m hm]
   · rw [h, status_failed_iff]
-    obtain ⟨m, hm, hf⟩ := (status_failed_iff p).mp h
-    refine ⟨_, List.mem_map.mpr ⟨m, hm, rfl⟩, ?_⟩
-    rw [keep m (by simp [hf]), hf]
+    rcases (status_failed_iff p).mp h with h0 | ⟨m, hm, hf⟩
+    · left
+      simp [recordOutcome, h0]
+    · right
+      refine ⟨_, List.mem_map.mpr ⟨m, hm, rfl⟩, ?_⟩
+      rw [keep m (by simp [hf]), hf]
 
 /-- A SUCCESSFUL or FAILED payment keeps its status whatever outcome the airline
 later reports for one of its methods.
@@ -143,7 +153,7 @@ theorem acceptPayment_charges (o : PayableOrder) (p : Transaction) (now : Instan
     (cs : List Money) (h : acceptPayment o p now = .ok cs) :
     cs.map some = p.parts.map fun m => m.requested.add m.surcharge := by
   unfold acceptPayment at h
-  split_ifs at h with h1 h2 h3 h4 h5
+  split_ifs at h with h1 h0 h2 h3 h4 h5
   cases h
   simp only [Bool.or_eq_true, List.any_eq_true, not_or, not_exists, not_and] at h2
   rw [List.map_map]
@@ -160,7 +170,7 @@ theorem acceptPayment_requested_eq_price (o : PayableOrder) (p : Transaction) (n
     (cs : List Money) (h : acceptPayment o p now = .ok cs) :
     p.requestedTotal = priceTotal (o.coveredBy p) := by
   unfold acceptPayment at h
-  split_ifs at h with h1 h2 h3 h4 h5
+  split_ifs at h with h1 h0 h2 h3 h4 h5
   simpa using h5
 
 /-- An accepted payment charges in total the price of the order items it
@@ -189,6 +199,13 @@ theorem acceptPayment_rejects_after_time_limit (o : PayableOrder) (p : Transacti
     List.any_eq_true.mpr ⟨pi, hpi, by simp [ht, hle]⟩
   simp [acceptPayment, this]
 
+/-- A payment with no payment method is never accepted. -/
+@[checks "ONE-304.7"]
+theorem acceptPayment_rejects_without_method (o : PayableOrder) (p : Transaction) (now : Instant)
+    (h : p.parts = []) (cs : List Money) : acceptPayment o p now ≠ .ok cs := by
+  unfold acceptPayment
+  split_ifs <;> simp_all
+
 /-- In an accepted payment, a commitment method carries an amount and a
 surcharge of zero, and every order item the payment covers has nothing to
 pay. -/
@@ -199,7 +216,7 @@ theorem acceptPayment_commitment_zero (o : PayableOrder) (p : Transaction) (now 
     m.requested.amount = 0 ∧ m.surcharge.amount = 0 ∧
       ∀ pi ∈ o.coveredBy p, pi.item.price.amount = 0 := by
   unfold acceptPayment at h
-  split_ifs at h with h1 h2 h3 h4 h5
+  split_ifs at h with h1 h0 h2 h3 h4 h5
   simp only [List.any_eq_true, not_exists, not_and, decide_eq_true_eq] at h3
   have hz := h3 m hm hc
   simp only [not_or, not_not] at hz
@@ -292,7 +309,7 @@ theorem expireUnpaid_fails_pending (r : Removal) (now : Instant) (o : PayableOrd
     exact ⟨p, hp, by simp [hpend, hany]⟩
   · obtain ⟨-, m, hm, hmp⟩ := (status_pending_iff p).mp hpend
     rw [status_failed_iff]
-    exact ⟨_, List.mem_map.mpr ⟨m, hm, rfl⟩, by simp [hmp]⟩
+    exact Or.inr ⟨_, List.mem_map.mpr ⟨m, hm, rfl⟩, by simp [hmp]⟩
 
 /-- An order item that a SUCCESSFUL payment covers is never removed at a
 payment time limit. -/

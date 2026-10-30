@@ -13,9 +13,9 @@ namespace Rules.OneOrder.Payment
 
 open Rules.Core
 
-/-- EARS: The system shall give a payment the status FAILED if the transaction
-of any of its payment methods failed, SUCCESSFUL if all of them succeeded, and
-PENDING otherwise.
+/-- EARS: The system shall give a payment the status FAILED if it has no payment
+method or the transaction of any of its payment methods failed, SUCCESSFUL if
+all of them succeeded, and PENDING otherwise.
 
 Story: As an airline, I want a payment made with several methods to succeed
 only when every method succeeds, so that I never treat an order item as paid
@@ -25,13 +25,22 @@ Acceptance criteria:
 
 * ONE-301.1: If the transaction of any payment method in a payment fails, then
   the system shall mark the whole payment FAILED.
-* ONE-301.2: When the transactions of every payment method in a payment
-  succeed, the system shall mark the payment SUCCESSFUL.
+* ONE-301.2: When a payment has at least one payment method and the
+  transactions of all its payment methods succeed, the system shall mark the
+  payment SUCCESSFUL.
 * ONE-301.3: While no payment method's transaction in a payment has failed and
-  at least one is still pending, the system shall mark the payment PENDING. -/
+  at least one is still pending, the system shall mark the payment PENDING.
+* ONE-301.4: If a payment has no payment method, then the system shall mark it
+  FAILED.
+
+The guide describes a payment as made with one or more payment methods.  A
+payment with none collects nothing, so it is FAILED.  Without that case, every
+method of an empty payment would count as succeeded, and the payment with
+them. -/
 @[ears "ONE-301"]
 def Transaction.status (p : Transaction) : PaymentStatus :=
-  if p.parts.any (·.status = .failed) then .failed
+  if p.parts.isEmpty then .failed
+  else if p.parts.any (·.status = .failed) then .failed
   else if p.parts.all (·.status = .successful) then .successful
   else .pending
 

@@ -18,6 +18,8 @@ open Rules.Core
 inductive PaymentRejection
   /-- An order item the payment covers is at or past its payment time limit. -/
   | timeLimitPassed
+  /-- The payment names no payment method. -/
+  | noMethod
   /-- A price or an amount is in a currency other than the payment's. -/
   | mixedCurrency
   /-- A commitment method carries an amount other than zero. -/
@@ -57,14 +59,18 @@ Acceptance criteria:
   zero, then the system shall reject the payment.
 * ONE-304.6: If a payment uses the commitment method for order items with an
   amount to pay, then the system shall reject the payment.
+* ONE-304.7: If a payment has no payment method, then the system shall reject
+  the payment.
 
-The checks run in this order: payment time limits, currencies, commitment
-amounts, commitments for items with an amount to pay, and the requested total.
-The result is the amount charged to each method, in the order of the methods. -/
+The checks run in this order: payment time limits, a payment method present,
+currencies, commitment amounts, commitments for items with an amount to pay,
+and the requested total.  The result is the amount charged to each method, in
+the order of the methods. -/
 @[ears "ONE-304"]
 def acceptPayment (o : PayableOrder) (p : Transaction) (now : Instant) :
     Except PaymentRejection (List Money) :=
   if (o.coveredBy p).any (fun pi => pi.timeLimit.any (· ≤ now)) then .error .timeLimitPassed
+  else if p.parts.isEmpty then .error .noMethod
   else if (o.coveredBy p).any (·.item.price.currency ≠ p.currency) ||
       p.parts.any (fun m => m.requested.currency ≠ p.currency || m.surcharge.currency ≠ p.currency) then
     .error .mixedCurrency

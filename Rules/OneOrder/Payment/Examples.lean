@@ -188,6 +188,21 @@ def pendingRedirect : OrderView :=
     items := [⟨"TRIP", false, [.confirmed, .confirmed], some payBy⟩,
               ⟨"BAG", false, [.confirmed], some payBy⟩] }
 
+/-- *Given* the trip at 100.00 EUR, unpaid.
+
+*When* a payment for the trip arrives that names no payment method.
+
+*Then* the payment fails, because it collects nothing.  The trip is not paid,
+and its flights stay confirmed with their payment time limit. -/
+@[case, checks "ONE-301.4 ONE-302.2"]
+def paymentWithoutMethod : OrderView :=
+  .of (tripAndBag.after [payment "PAY-1" ["TRIP"] []])
+
+#guard paymentWithoutMethod ==
+  { payments := [.failed],
+    items := [⟨"TRIP", false, [.confirmed, .confirmed], some payBy⟩,
+              ⟨"BAG", false, [.confirmed], some payBy⟩] }
+
 /-! ## Recording outcomes -/
 
 /-- The final reading: a transaction leaves PENDING once and never moves again. -/
