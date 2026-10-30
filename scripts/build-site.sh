@@ -22,10 +22,12 @@ lake build Verify
 leanblueprint web
 leanblueprint checkdecls
 leanblueprint pdf
+python3 scripts/render_progress.py
 
 rm -rf site
-mkdir -p site/blueprint
-cp -r build/review/html-multi/. site/
+mkdir -p site/blueprint site/review
+cp build/progress/index.html site/index.html
+cp -r build/review/html-multi/. site/review/
 cp -r pages/. site/
 cp -r blueprint/web/. site/blueprint/
 cp blueprint/print/print.pdf site/blueprint/print.pdf

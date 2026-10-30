@@ -14,7 +14,8 @@ The rules, prices and data are simplified and invented. Where a rule is
 taken from IATA's public documentation, it is described in our own words
 with a link to the source page; IATA owns the standard and its documentation.
 
-- Review document: <https://samdengler.github.io/business-rules-verified/>
+- Progress page, for business readers: <https://samdengler.github.io/business-rules-verified/>
+- Review document: <https://samdengler.github.io/business-rules-verified/review/>
 - Requirement specs for Kiro: [`.kiro/specs/`](.kiro/specs/)
 - Dependency graph: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
 
@@ -22,7 +23,8 @@ with a link to the source page; IATA owns the standard and its documentation.
 
 | You want to | Read |
 | --- | --- |
-| Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/), chapters Overview, Rules and Open Questions |
+| See at a glance what is proven, what is open, and what needs a business decision | The [progress page](https://samdengler.github.io/business-rules-verified/) |
+| Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/review/), chapters Overview, Rules and Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
 | See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) (green is proven or defined; no fill is open; an orange border is a candidate rule that needs a business decision before it can be written in Lean) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
@@ -86,6 +88,14 @@ If someone renames a rule, the review document fails to build. If an example's
 value changes, `lake build` fails. If a theorem is left unproven without being
 marked as an open question, `lake exe status` fails. CI runs all of these on
 every push.
+
+The site's front page is a progress page for business readers, written by
+`scripts/render_progress.py`. It shows every rule, guarantee and survey
+candidate as a card with a status in plain words (modelled, proven, open
+question, needs a decision, ready to build, waiting), the counterexample behind
+each open question, and a map of which rules depend on which. The statuses come
+from `build/status.json` and the text from the blueprint statements, so the
+page changes when the model does. The review document is under `/review/`.
 
 The model is split by business group. Shared concepts such as money and time
 live in `Rules/Core/`, and each group gets its own directory under `Rules/`.
@@ -328,6 +338,8 @@ Computed by the build, never typed:
   and Aeneas and committed; CI fails if it differs from a fresh translation.
 - The conformance vectors' expected answers (`build/oracle/vectors.jsonl`),
   from the model through `lake exe oracle --vectors`.
+- The progress page at the site root, from `build/status.json` and the
+  blueprint statements, by `scripts/render_progress.py`.
 - `\leanok` markers in the blueprint, and the Verso `Guarantees`, `Examples`
   and EARS sections, written by `scripts/render_status.py` into
   `blueprint/src/*.generated.tex` and `Review/Review/Generated/`.
@@ -404,7 +416,8 @@ Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
 
 **Pages URLs.**
 
-- Verso document: <https://samdengler.github.io/business-rules-verified/>
+- Progress page: <https://samdengler.github.io/business-rules-verified/>
+- Verso document: <https://samdengler.github.io/business-rules-verified/review/>
 - Blueprint: <https://samdengler.github.io/business-rules-verified/blueprint/>
 - Dependency graph: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
 - PDF: <https://samdengler.github.io/business-rules-verified/blueprint/print.pdf>
@@ -563,3 +576,16 @@ Choices made where the plan left room, in the order they came up.
       references.
     - The generated Lean in `Verify/Rust/` is committed, like the Kiro specs,
       and CI checks that it matches a fresh translation.
+28. **A progress page at the site root.** The blueprint's layout is fixed by
+    leanblueprint and reads like a mathematics paper, so business readers get
+    their own page. `scripts/render_progress.py` generates it from the same
+    data as the blueprint, so it adds nothing that can drift. The review
+    document moved from the site root to `/review/`, and its links to the
+    blueprint and the CSV files now go up one level.
+    - Cards are grouped by blueprint section, and the graph colors become
+      words: modelled, proven, open question, needs a decision, ready to
+      build, waiting.
+    - The open refund theorem's blueprint text was split into a counterexample
+      and an open point, the labels the page and the candidate nodes share.
+    - The dependency map is drawn top to bottom without area boxes. With the
+      boxes, Graphviz routed long edges across the areas.

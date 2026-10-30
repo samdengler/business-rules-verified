@@ -234,7 +234,7 @@ def render_ears_verso(decls):
     parts.append(
         "This table lists every EARS statement in the model, with the rule that implements it and the "
         "guarantees that mention that rule. The build generates it from the docstrings; the same table "
-        "is in the blueprint and in [ears.csv](ears.csv)."
+        "is in the blueprint and in [ears.csv](../ears.csv)."
     )
     parts.append("")
     parts += [":::table +header", "*", "  * ID", "  * EARS statement", "  * Rule", "  * Status", "  * Proven by"]

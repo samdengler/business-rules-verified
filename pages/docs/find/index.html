@@ -9,12 +9,12 @@
   // The Verso document resolves names at find/?name=<name>, so translate.
   var m = location.hash.match(/^#doc\/(.+)$/);
   var target = m
-    ? "../../find/?domain=Verso.Genre.Manual.doc&name=" + encodeURIComponent(decodeURIComponent(m[1]))
-    : "../../";
+    ? "../../review/find/?domain=Verso.Genre.Manual.doc&name=" + encodeURIComponent(decodeURIComponent(m[1]))
+    : "../../review/";
   location.replace(target);
 </script>
 </head>
 <body>
-<p>Redirecting to the <a href="../../">review document</a>.</p>
+<p>Redirecting to the <a href="../../review/">review document</a>.</p>
 </body>
 </html>

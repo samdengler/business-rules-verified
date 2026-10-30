@@ -13,7 +13,7 @@ chapter is a Lean declaration.  A green node is defined or proven in Lean; an
 uncolored theorem is open.  The next chapter adds candidate rules from IATA's
 public ONE Order material that have no Lean yet.
 
-The Verso review document at the site root shows the same declarations with
+The review document, under \texttt{review/} on the site, shows the same declarations with
 their docstrings, the examples the build computes, and the open question for
 the Offer/Order team.
 
@@ -223,11 +223,12 @@ the Offer/Order team.
   If every refund was accepted against one of the order's payments, the total
   refunded does not exceed the total paid.
 
-  This is open.  Two refunds of 60.00 against one payment of 100.00 are each
-  accepted and together return 120.00.  The question for the Offer/Order team:
-  does the limit apply per refund, cumulatively per payment, or cumulatively
-  per order, and is a refund above the amount paid ever allowed, for example
-  as a goodwill credit?
+  Counterexample: two refunds of 60.00 against one payment of 100.00 are each
+  accepted and together return 120.00.
+
+  Open point: does the limit apply per refund, cumulatively per payment, or
+  cumulatively per order, and is a refund above the amount paid ever allowed,
+  for example as a goodwill credit?
 \end{theorem}
 \begin{proof}
   \uses{def:accept-refund, def:totals}

@@ -38,5 +38,6 @@ Nobody types a status or an example result by hand: if the model changes, the bu
 
 # The blueprint
 
-The same model is also published as a [blueprint](blueprint/index.html), with a [dependency graph](blueprint/dep_graph_document.html) that colors each declaration green when it is defined or proven and leaves open theorems uncolored.
-A [PDF version](blueprint/print.pdf) is available for printing.
+The same model is also published as a [blueprint](../blueprint/index.html), with a [dependency graph](../blueprint/dep_graph_document.html) that colors each declaration green when it is defined or proven and leaves open theorems uncolored.
+A [PDF version](../blueprint/print.pdf) is available for printing.
+The [progress page](../) shows the status of every rule and candidate rule for readers who do not need the Lean.
