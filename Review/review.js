@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ["../", "Progress"],
     ["./", "Review document", true],
     ["../graph/", "Dependency graph"],
+    ["../history/", "History"],
     ["https://github.com/samdengler/airline-order-verified", "GitHub"],
   ];
   for (const [href, text, current] of links) {

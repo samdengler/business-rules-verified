@@ -36,6 +36,7 @@ LINKS = [
     ("Progress", ""),
     ("Review document", "review/"),
     ("Dependency graph", "graph/"),
+    ("History", "history/"),
     ("GitHub", REPO),
 ]
 

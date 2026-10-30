@@ -335,9 +335,10 @@
   "thm:c16-penalty-net": {
    "x": 1576.0,
    "y": 1941.0,
-   "height": 61,
+   "height": 78,
    "lines": [
-    "Cancellation penalty"
+    "Penalty netted or charged",
+    "separately"
    ]
   },
   "def:c17-refund-methods": {
@@ -1091,8 +1092,8 @@
    "y": 1941.0,
    "height": 78,
    "lines": [
-    "Cancelling a partly paid",
-    "order"
+    "Paid or partly paid",
+    "orders need an offer"
    ]
   },
   "def:change-cancellation-remove-passenger": {
@@ -4083,12 +4084,12 @@
   {
    "from": "def:c15-cancel-order",
    "to": "thm:c16-penalty-net",
-   "path": "M2000.0 1813.0C2000.0 1860.8 1576.0 1860.8 1576.0 1908.5"
+   "path": "M2000.0 1813.0C2000.0 1856.5 1576.0 1856.5 1576.0 1900.0"
   },
   {
    "from": "def:money",
    "to": "thm:c16-penalty-net",
-   "path": "M2530.0 202.5C2530.0 274.5 1576.0 1836.5 1576.0 1908.5"
+   "path": "M2530.0 202.5C2530.0 274.5 1576.0 1828.0 1576.0 1900.0"
   },
   {
    "from": "def:c13-several-methods",
@@ -4423,7 +4424,7 @@
   {
    "from": "thm:c16-penalty-net",
    "to": "def:offers-refund-on-cancellation",
-   "path": "M1576.0 1971.5C1576.0 2043.5 516.0 2312.0 516.0 2384.0"
+   "path": "M1576.0 1980.0C1576.0 2052.0 516.0 2312.0 516.0 2384.0"
   },
   {
    "from": "def:refund",
@@ -5223,7 +5224,7 @@
   {
    "from": "thm:c16-penalty-net",
    "to": "thm:change-cancellation-due-net-identity",
-   "path": "M1576.0 1971.5C1576.0 2043.5 2212.0 2153.5 2212.0 2225.5"
+   "path": "M1576.0 1980.0C1576.0 2052.0 2212.0 2153.5 2212.0 2225.5"
   },
   {
    "from": "def:c18-change",
@@ -5293,7 +5294,7 @@
   {
    "from": "thm:c16-penalty-net",
    "to": "def:change-cancellation-penalty-exceeds-refund",
-   "path": "M1576.0 1971.5C1576.0 2043.5 1364.0 2470.5 1364.0 2542.5"
+   "path": "M1576.0 1980.0C1576.0 2052.0 1364.0 2470.5 1364.0 2542.5"
   },
   {
    "from": "thm:change-cancellation-due-net-identity",
@@ -5458,7 +5459,7 @@
   {
    "from": "thm:c16-penalty-net",
    "to": "thm:change-cancellation-refund-after-penalty",
-   "path": "M1576.0 1971.5C1576.0 2043.5 1576.0 2153.5 1576.0 2225.5"
+   "path": "M1576.0 1980.0C1576.0 2052.0 1576.0 2153.5 1576.0 2225.5"
   },
   {
    "from": "def:refund",
@@ -5538,7 +5539,7 @@
   {
    "from": "thm:c16-penalty-net",
    "to": "thm:change-cancellation-full-equals-items",
-   "path": "M1576.0 1971.5C1576.0 2043.5 2212.0 2470.5 2212.0 2542.5"
+   "path": "M1576.0 1980.0C1576.0 2052.0 2212.0 2470.5 2212.0 2542.5"
   },
   {
    "from": "thm:change-cancellation-full-cancel-no-residual",
@@ -5568,7 +5569,7 @@
   {
    "from": "thm:c16-penalty-net",
    "to": "thm:airline-change-cancel-after-involuntary",
-   "path": "M1576.0 1971.5C1576.0 2043.5 1364.0 2153.5 1364.0 2225.5"
+   "path": "M1576.0 1980.0C1576.0 2052.0 1364.0 2153.5 1364.0 2225.5"
   },
   {
    "from": "def:c15-cancel-order",
@@ -6328,7 +6329,7 @@
   {
    "from": "thm:c16-penalty-net",
    "to": "thm:accounting-order-money-balance",
-   "path": "M1576.0 1971.5C1576.0 2043.5 3060.0 2320.5 3060.0 2392.5"
+   "path": "M1576.0 1980.0C1576.0 2052.0 3060.0 2320.5 3060.0 2392.5"
   },
   {
    "from": "def:money",
@@ -6463,7 +6464,7 @@
   {
    "from": "thm:c16-penalty-net",
    "to": "def:accounting-change-netting",
-   "path": "M1576.0 1971.5C1576.0 2043.5 2636.0 2320.5 2636.0 2392.5"
+   "path": "M1576.0 1980.0C1576.0 2052.0 2636.0 2320.5 2636.0 2392.5"
   },
   {
    "from": "thm:c04-item-unsplit",
@@ -8271,5 +8272,5 @@
    "path": "M940.0 1329.0C940.0 1401.0 940.0 1502.5 940.0 1574.5"
   }
  ],
- "generated": "2026-10-30T10:09:24+00:00"
+ "generated": "2026-10-30T10:30:44+00:00"
 }

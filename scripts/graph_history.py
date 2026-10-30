@@ -88,12 +88,14 @@ MOTION_ROW_MAX = 26
 
 def union_layout():
     """One position for every node that appears in any snapshot."""
-    nodes, seen = [], set()
+    nodes, seen = [], {}
     for m in load_index()["milestones"]:
         for n in json.loads((HISTORY / m["file"]).read_text())["nodes"]:
             if n["id"] not in seen:
-                seen.add(n["id"])
-                nodes.append({"label": n["id"], "lines": wrap(n["title"]), "uses": n["uses"], "section": n["area"]})
+                seen[n["id"]] = {"label": n["id"], "uses": n["uses"], "section": n["area"]}
+                nodes.append(seen[n["id"]])
+            # A card shows its latest title.
+            seen[n["id"]]["lines"] = wrap(n["title"])
     labels = {n["label"] for n in nodes}
     render_graph.ROW_MAX = MOTION_ROW_MAX
     width, height, pos, edges = layout(nodes, labels)

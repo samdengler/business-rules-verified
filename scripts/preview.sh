@@ -23,6 +23,7 @@ lake exe review-doc --output build/review
 leanblueprint web
 python3 scripts/render_progress.py
 python3 scripts/render_graph.py
+python3 scripts/render_history.py
 # The try-it panels need the Rust rules compiled to WebAssembly; skipped
 # without rustup.
 if command -v rustup >/dev/null; then scripts/build-wasm.sh; fi

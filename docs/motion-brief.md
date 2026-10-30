@@ -1,6 +1,6 @@
 # Motion brief: how the dependency graph grows
 
-This brief prepares a motion piece that shows the model growing: nodes are identified from the ONE Order material, wait on business decisions, and turn into Lean rules and proven guarantees, while a few stay open with a counterexample. It describes the story, the data the piece can be built from, and the visual language the site already uses.
+This brief prepares a motion piece that shows the model growing: nodes are identified from the ONE Order material, wait on business decisions, and turn into Lean rules and proven guarantees, while a few stay open with a counterexample. It describes the story, the data the piece can be built from, and the visual language the site already uses. The site's [history page](https://samdengler.github.io/airline-order-verified/history/) plays the same milestones in the browser and is a working draft of the piece.
 
 ## The story, by milestone
 

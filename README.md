@@ -780,3 +780,10 @@ Choices made where the plan left room, in the order they came up.
     criterion. The progress cards link to the dependency graph for anything
     the review document has no page for, using the review's cross-reference
     index, and the Objects chapter has the ONE Order foundation objects.
+37. **A history page.** `/history/` plays the milestones on the dependency
+    graph: cards appear as surveys find them and change color as areas are
+    written in Lean, with the camera easing out as the graph grows. It is
+    in the top bar, reads the same `history/` files as the motion piece
+    (`scripts/render_history.py`), and keeps the milestone in the address
+    (`?m=13`). Card titles in the shared layout come from the latest
+    snapshot that has the card.

@@ -25,6 +25,7 @@ leanblueprint checkdecls
 leanblueprint pdf
 python3 scripts/render_progress.py
 python3 scripts/render_graph.py
+python3 scripts/render_history.py
 scripts/build-wasm.sh
 
 scripts/assemble-site.sh
