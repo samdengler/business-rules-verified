@@ -4,10 +4,13 @@
 
 Each folder is a requirement spec with one `requirements.md`, generated from the rules in one Lean module. The acceptance criteria are in EARS notation, and the folders follow the layout Kiro reads. The rule's docstring holds the user story and the acceptance criteria; the build computes each criterion's status from the theorems and examples tagged `@[checks]` with its ID. To change a requirement, edit the docstring and rebuild.
 
-12 acceptance criteria: 3 proven, 7 example only, 1 open, 1 not checked.
+25 acceptance criteria: 14 proven, 7 example only, 3 open, 1 not checked.
 
 | Spec | Requirement | User story | Criteria | Proven | Example only | Open | Not checked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| [Creating an order from an offer](one-order-creating-an-order-from-an-offer/requirements.md) | ONE-001 | As an airline, I want each accepted offer item to become one order item with a service for every passenger and segment, so that each service can be delivered and accounted for on its own. | 5 | 5 | 0 | 0 | 0 |
+| [Order items and orders](one-order-order-items-and-orders/requirements.md) | ONE-002 | As a revenue accountant, I want each order item's status worked out from its services, so that I know which items still hold value. | 4 | 3 | 0 | 1 | 0 |
+| [Order items and orders](one-order-order-items-and-orders/requirements.md) | ONE-003 | As an airline, I want an order's status worked out from its items and services, so that an order is closed only when nothing in it holds value. | 4 | 3 | 0 | 1 | 0 |
 | [Accepting an offer](offer-order-accepting-an-offer/requirements.md) | OO-001 | As a customer, I want to accept an offer I was shown, so that I get an order for exactly those services at the offered price. | 5 | 2 | 3 | 0 | 0 |
 | [Orders](offer-order-orders/requirements.md) | OO-002 | As an operations agent, I want a service's delivery state to change only along the allowed transitions, so that a delivered service is never cancelled and a service is never refunded before it is cancelled. | 5 | 1 | 4 | 0 | 0 |
 | [Payments and refunds](offer-order-payments-and-refunds/requirements.md) | OO-003 | As a customer service agent, I want each refund checked against the payment it is made against, so that a customer is never refunded more than they paid. | 2 | 0 | 0 | 1 | 1 |
@@ -16,6 +19,19 @@ Each folder is a requirement spec with one `requirements.md`, generated from the
 
 | ID | Criterion | Status | Checked by |
 | --- | --- | --- | --- |
+| ONE-001.1 | WHEN an offer is accepted THE SYSTEM SHALL create exactly one order item for each offer item. | proven | proven theorem `accept_item_per_offer_item`; example `acceptFamilyOffer` |
+| ONE-001.2 | WHEN an order item is created THE SYSTEM SHALL give it one service for each passenger and flight segment of its offer item. | proven | proven theorem `accept_services_per_passenger_segment`; example `acceptFamilyOffer` |
+| ONE-001.3 | WHEN an order is created THE SYSTEM SHALL give its order items distinct references. | proven | proven theorem `accept_item_ids_unique`; example `acceptFamilyOffer` |
+| ONE-001.4 | WHEN an order is created THE SYSTEM SHALL mark it opened. | proven | proven theorem `accept_order_opened`; example `acceptFamilyOffer` |
+| ONE-001.5 | IF a customer accepts an offer at or after its expiry instant THEN THE SYSTEM SHALL reject it as expired. | proven | proven theorem `accept_rejects_expired`; example `acceptFamilyAtExpiry` |
+| ONE-002.1 | WHILE at least one service of an order item holds value THE SYSTEM SHALL mark the item active. | proven | proven theorem `item_active_iff`; example `paidItem` |
+| ONE-002.2 | WHEN every service of an order item is cancelled or transferred and none holds value THE SYSTEM SHALL mark the item cancelled. | proven | proven theorem `item_cancelled_iff`; example `cancelledItem` |
+| ONE-002.3 | WHEN at least one service of an order item is delivered and every other service is delivered or removed THE SYSTEM SHALL mark the item closed. | proven | proven theorem `item_closed_iff`; example `closedItem` |
+| ONE-002.4 | THE SYSTEM SHALL give each order item exactly one status. | open | proven theorem `active_not_cancelled`; proven theorem `active_not_closed`; open theorem `item_has_one_status`; counterexample `deliveredThenTransferred`; counterexample `suspendedService` |
+| ONE-003.1 | WHILE at least one service of an order holds value THE SYSTEM SHALL mark the order opened. | proven | proven theorem `order_opened_iff`; example `acceptFamilyOffer` |
+| ONE-003.2 | WHEN every item of an order is closed or cancelled and every service is delivered or removed THE SYSTEM SHALL mark the order closed. | proven | proven theorem `order_closed_iff`; example `deliveredOrder` |
+| ONE-003.3 | THE SYSTEM SHALL never mark an order both opened and closed. | proven | proven theorem `opened_closed_exclusive` |
+| ONE-003.4 | THE SYSTEM SHALL give every order that has a service either the status opened or the status closed. | open | open theorem `order_opened_or_closed`; counterexample `expiredService` |
 | OO-001.1 | IF a customer accepts an offer at or after its expiry instant THEN THE SYSTEM SHALL reject it as expired. | proven | proven theorem `accept_rejects_expired`; example `acceptAtExpiry` |
 | OO-001.2 | IF a customer accepts an unexpired offer that has no items THEN THE SYSTEM SHALL reject it as empty. | example only | example `acceptEmptyOffer` |
 | OO-001.3 | IF a customer accepts an unexpired offer with an item priced in a currency other than the offer's THEN THE SYSTEM SHALL reject it for mixed currencies. | example only | example `acceptMixedCurrency` |

@@ -9,3 +9,8 @@ import Rules.OfferOrder.Payment
 import Rules.OfferOrder.Accept
 import Rules.OfferOrder.Theorems
 import Rules.OfferOrder.Examples
+import Rules.OneOrder.Service
+import Rules.OneOrder.Order
+import Rules.OneOrder.Accept
+import Rules.OneOrder.Theorems
+import Rules.OneOrder.Examples

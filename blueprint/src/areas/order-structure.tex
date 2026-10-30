@@ -4,6 +4,7 @@
 
 \begin{definition}[Order structure (C-01)]
   \label{def:c01-structure}
+  \lean{Rules.OneOrder.Service, Rules.OneOrder.ServiceStatus, Rules.OneOrder.OrderItem, Rules.OneOrder.Order}
   \uses{def:order, def:order-item, def:passenger}
   An order holds one or more order items, and each order item holds one or
   more services.  A service is for one passenger on one flight segment, and is
@@ -15,22 +16,71 @@
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{definition}
 
+\begin{definition}[Offer items for passengers and segments]
+  \label{def:one-offer}
+  \lean{Rules.OneOrder.OfferItem, Rules.OneOrder.Offer}
+  \uses{def:offer, def:passenger, def:money, def:instant}
+  An offer item is priced for one or more passengers on one or more flight
+  segments.  An offer holds its items, an expiry instant and a currency.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}
+
+\begin{definition}[Creating an order from an offer]
+  \label{def:one-accept}
+  \lean{Rules.OneOrder.accept}
+  \uses{def:one-offer, def:c01-structure, def:rejection}
+  Accepting an offer before it expires creates an order with one order item
+  for each offer item, and one confirmed service for each passenger and
+  segment of that item.  The checks before creating the order are the same as
+  in the pilot rule: expiry, then an empty offer, then mixed currencies.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}
+
 \begin{theorem}[One order item per offer item (C-02)]
   \label{thm:c02-item-per-offer-item}
-  \uses{def:accept, def:c01-structure}
+  \lean{Rules.OneOrder.accept_item_per_offer_item}
+  \uses{def:one-accept, def:c01-structure}
   Accepting an offer creates exactly one order item for each offer item.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{theorem}
+\begin{proof}
+  \uses{def:one-accept}
+  The order's items are the offer's items, each turned into an order item that
+  records where it came from.
+\end{proof}
 
-\begin{theorem}[Order item IDs are unique (C-03)]
-  \label{thm:c03-unique-item-ids}
-  \uses{def:accept, def:c01-structure, def:c18-change}
-  No two order items in an order share an ID, after acceptance and after
-  every change.
+\begin{theorem}[One service per passenger and segment]
+  \label{thm:one-services-per-passenger-segment}
+  \lean{Rules.OneOrder.accept_services_per_passenger_segment}
+  \uses{def:one-accept, def:c01-structure}
+  Each order item created from an offer item holds one service for each
+  passenger and flight segment of that offer item.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{theorem}
+\begin{proof}
+  \uses{def:one-accept}
+  The services are built from the pairs of a passenger and a segment.
+\end{proof}
+
+\begin{theorem}[Order item IDs are unique (C-03)]
+  \label{thm:c03-unique-item-ids}
+  \lean{Rules.OneOrder.accept_item_ids_unique}
+  \uses{def:one-accept, def:c01-structure}
+  Accepting an offer whose item IDs are distinct gives the order's items
+  distinct IDs.  Whether every change keeps them distinct belongs with the
+  change rules (C-18).
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:one-accept}
+  Each order item ID is the order ID, a hyphen and the offer item ID, so
+  distinct offer item IDs give distinct order item IDs.
+\end{proof}
 
 \begin{theorem}[Order items are not split (C-04)]
   \label{thm:c04-item-unsplit}
@@ -43,13 +93,16 @@
 
 \begin{definition}[Services that hold value (C-05)]
   \label{def:c05-holds-value}
+  \lean{Rules.OneOrder.ValueReading}
   \uses{def:c08-delivery-status}
-  \notready
   Whether a service still holds value, decided by its delivery status.  The
-  source settles two statuses: \texttt{REMOVED HOLD VALUE} holds value and
-  \texttt{REMOVED} does not.
+  source settles five statuses: \texttt{CONFIRMED}, \texttt{READY TO PROCEED}
+  and \texttt{REMOVED HOLD VALUE} hold value, and \texttt{DELIVERED} and
+  \texttt{REMOVED} do not.  The model takes the answer for the other eight as a
+  parameter, a reading of the guide, and a guarantee about value counts as
+  proven only when it holds for every reading.
 
-  Open point: which of the other eleven delivery statuses hold value, for
+  Open point: which of the other eight delivery statuses hold value, for
   example \texttt{EXPIRED}, \texttt{NOT CLAIMED} and \texttt{SUSPENDED}.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
@@ -57,30 +110,191 @@
 
 \begin{definition}[Order item status (C-06)]
   \label{def:c06-item-status}
+  \lean{Rules.OneOrder.itemStatuses}
   \uses{def:c01-structure, def:c05-holds-value}
-  \notready
   An order item is \texttt{ACTIVE} while at least one of its services holds
   value.  It is \texttt{CANCELLED} once all its services are cancelled or
   transferred and none holds value.  It is \texttt{CLOSED} once at least one
   service is delivered and every other service is delivered or removed.
 
-  Open point: the conditions overlap.  A delivered service that is later
-  transferred to a new item leaves its original item meeting the conditions
-  for both \texttt{CANCELLED} and \texttt{CLOSED}.
-
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{definition}
+
+\begin{theorem}[Active items are those holding value]
+  \label{thm:one-item-active}
+  \lean{Rules.OneOrder.item_active_iff}
+  \uses{def:c06-item-status}
+  An order item is marked active exactly when at least one of its services
+  holds value.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c06-item-status}
+  Unfold the status rule.
+\end{proof}
+
+\begin{theorem}[Cancelled items as the guide defines them]
+  \label{thm:one-item-cancelled}
+  \lean{Rules.OneOrder.item_cancelled_iff}
+  \uses{def:c06-item-status}
+  An order item is marked cancelled exactly when every service is cancelled
+  or transferred and none holds value.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c06-item-status}
+  Unfold the status rule.
+\end{proof}
+
+\begin{theorem}[Closed items as the guide defines them]
+  \label{thm:one-item-closed}
+  \lean{Rules.OneOrder.item_closed_iff}
+  \uses{def:c06-item-status}
+  An order item is marked closed exactly when at least one service is
+  delivered and every service is delivered or removed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c06-item-status}
+  Unfold the status rule.
+\end{proof}
+
+\begin{theorem}[Active items are never closed]
+  \label{thm:one-active-not-closed}
+  \lean{Rules.OneOrder.active_not_closed}
+  \uses{def:c06-item-status}
+  Under every reading of the guide, an active item is not closed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c06-item-status, def:c05-holds-value}
+  A closed item's services are all delivered or removed, and neither holds
+  value.
+\end{proof}
+
+\begin{theorem}[Active items are never cancelled]
+  \label{thm:one-active-not-cancelled}
+  \lean{Rules.OneOrder.active_not_cancelled}
+  \uses{def:c06-item-status}
+  An active item is not cancelled.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c06-item-status}
+  The cancelled status requires that no service holds value.
+\end{proof}
+
+\begin{theorem}[Each item has exactly one status]
+  \label{thm:one-item-one-status}
+  \lean{Rules.OneOrder.item_has_one_status}
+  \uses{def:c06-item-status, thm:one-active-not-closed, thm:one-active-not-cancelled}
+  Every order item with a service has exactly one of the three statuses.
+
+  Counterexample: an item whose one service was delivered and then
+  transferred meets the conditions for both \texttt{CANCELLED} and
+  \texttt{CLOSED}.  An item whose one service is \texttt{SUSPENDED} has no
+  status at all under a reading where a suspended service holds no value.
+
+  Open point: which status wins when the conditions overlap, whether a
+  delivered service may be transferred at all, and what status an item has
+  when none of the conditions holds.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c06-item-status}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{definition}[Order status (C-07)]
   \label{def:c07-order-status}
+  \lean{Rules.OneOrder.orderStatuses}
   \uses{def:c06-item-status, def:c05-holds-value}
-  \notready
   An order is \texttt{OPENED} while at least one of its services holds value.
   It is \texttt{CLOSED} once all its items are closed or cancelled and all its
-  services are delivered or removed, and \texttt{CLOSED} is final.
-
-  Open point: if \texttt{EXPIRED} and \texttt{UNABLE TO DELIVER} hold no
-  value, an order with a service in either status meets neither condition.
+  services are delivered or removed.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{definition}
+
+\begin{theorem}[Opened orders are those holding value]
+  \label{thm:one-order-opened}
+  \lean{Rules.OneOrder.order_opened_iff}
+  \uses{def:c07-order-status}
+  An order is marked opened exactly when at least one of its services holds
+  value.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c07-order-status}
+  Unfold the status rule.
+\end{proof}
+
+\begin{theorem}[Closed orders as the guide defines them]
+  \label{thm:one-order-closed}
+  \lean{Rules.OneOrder.order_closed_iff}
+  \uses{def:c07-order-status}
+  An order is marked closed exactly when every item is closed or cancelled
+  and every service is delivered or removed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c07-order-status}
+  Unfold the status rule.
+\end{proof}
+
+\begin{theorem}[New orders are opened]
+  \label{thm:one-new-order-opened}
+  \lean{Rules.OneOrder.accept_order_opened}
+  \uses{def:one-accept, def:c07-order-status}
+  Under every reading of the guide, an order created from an offer whose
+  items each have a passenger and a segment is opened and not closed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:one-accept, def:c05-holds-value}
+  Its services start confirmed, and a confirmed service holds value.
+\end{proof}
+
+\begin{theorem}[Orders are never both opened and closed]
+  \label{thm:one-order-exclusive}
+  \lean{Rules.OneOrder.opened_closed_exclusive}
+  \uses{def:c07-order-status}
+  Under every reading of the guide, no order is both opened and closed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c07-order-status, def:c05-holds-value}
+  An opened order has a service that holds value; a closed order's services
+  are all delivered or removed, and neither holds value.
+\end{proof}
+
+\begin{theorem}[Every order is opened or closed]
+  \label{thm:one-order-has-status}
+  \lean{Rules.OneOrder.order_opened_or_closed}
+  \uses{def:c07-order-status}
+  Every order with at least one service is opened or closed.
+
+  Counterexample: under a reading where an expired service holds no value, an
+  order whose only service expired is neither opened nor closed.
+
+  Open point: whether \texttt{EXPIRED} and \texttt{UNABLE TO DELIVER} hold
+  value, and whether an order with such a service should be closed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c07-order-status}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}

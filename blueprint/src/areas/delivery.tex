@@ -4,24 +4,34 @@
 
 \begin{definition}[Delivery status (C-08)]
   \label{def:c08-delivery-status}
-  \uses{def:c01-structure, def:delivery-state, def:step}
-  \notready
-  The delivery status of a service and the moves between statuses.  A service
-  is \texttt{CONFIRMED} while the airline waits for payment, becomes
+  \lean{Rules.OneOrder.DeliveryStatus}
+  \uses{def:c01-structure, def:delivery-state}
+  The thirteen delivery statuses of a service.  A service is
+  \texttt{CONFIRMED} while the airline waits for payment, becomes
   \texttt{READY TO PROCEED} once paid, and ends \texttt{DELIVERED} or in
-  another final status.  This replaces the four delivery states in the
-  current model.
-
-  Open point: the source describes thirteen statuses but does not list every
-  allowed move or say which statuses are final.
+  another final status.  This replaces the four delivery states in the pilot
+  model.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS}.
 \end{definition}
 
+\begin{definition}[Moves between delivery statuses]
+  \label{def:delivery-moves}
+  \uses{def:c08-delivery-status, def:step}
+  \notready
+  The moves a service may make between delivery statuses, and which statuses
+  are final.
+
+  Open point: the source describes thirteen statuses but does not list every
+  allowed move or say which statuses are final.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}
+
 \begin{theorem}[Suspended services (C-09)]
   \label{thm:c09-suspended}
-  \uses{def:c08-delivery-status}
+  \uses{def:c08-delivery-status, def:delivery-moves}
   A suspended service can only return to the status it had before it was
   suspended, or be removed.
 

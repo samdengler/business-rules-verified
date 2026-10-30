@@ -11,8 +11,9 @@ set_option pp.rawOnError true
 tag := "open-questions"
 %%%
 
-One guarantee is open: an example the build computes shows the refund rule as written breaking it, and what the rule should mean is a decision for the business.
+One guarantee in the pilot rules is open: an example the build computes shows the refund rule as written breaking it, and what the rule should mean is a decision for the business.
 The question below is for the Offer/Order team.
+The open guarantees in the ONE Order rules are in the next chapter.
 
 # How much may be refunded against a payment?
 

@@ -33,8 +33,10 @@ GENERATED = ROOT / "Review" / "Review" / "Generated"
 SPECS = ROOT / ".kiro" / "specs"
 REPO = "https://github.com/samdengler/airline-order-verified/blob/main"
 
-# The namespace whose theorems and examples the Verso chapters show.
-SLICE = "Rules.OfferOrder."
+# The pilot's open question is set out by hand in Review/Review/OpenQuestions.lean;
+# every other open guarantee gets a section in the generated questions chapter.
+PILOT = "Rules.OfferOrder."
+QUESTIONS_TITLE = "Questions from the ONE Order rules"
 
 DONE = {"definition", "proven"}
 
@@ -190,13 +192,15 @@ DECL_STATUS = {
 
 
 def blueprint_titles():
-    """The title of each blueprint node, by the Lean names in its \\lean{}."""
+    """The title of each blueprint node, by the Lean names in its \\lean{}.
+    A survey candidate's ID, such as " (C-06)", is left off."""
     src = read_blueprint()
     titles = {}
     for m in re.finditer(r"\\begin\{(?:theorem|lemma|definition)\}\[([^\]]*)\](.*?)\\end", src, re.S):
+        title = re.sub(r"\s*\(C-\d+\)$", "", m.group(1).strip())
         for lm in LEAN_RE.finditer(m.group(2)):
             for n in lm.group(1).split(","):
-                titles[n.strip()] = m.group(1).strip()
+                titles[n.strip()] = title
     return titles
 
 
@@ -467,18 +471,30 @@ def section_tag(kind, name):
     """The Verso tag of a guarantee's or example's section, such as
     guarantee-delivered-not-cancellable.  Links elsewhere on the site find the
     section through Verso's lookup with this tag (scripts/render_progress.py)."""
-    return f"{kind}-" + name.rsplit(".", 1)[-1].replace("_", "-")
+    ns, short = name.rsplit(".", 1)
+    # Pilot tags keep their original form; other namespaces add theirs, since
+    # the ONE Order rules reuse names such as accept_rejects_expired.
+    prefix = "" if name.startswith(PILOT) else kebab(ns.rsplit(".", 1)[-1]) + "-"
+    return f"{kind}-{prefix}" + short.replace("_", "-")
+
+
+def chapter_tag(kind, d, ears_id):
+    """The section tag of a guarantee or example in one requirement's chapter.  A
+    declaration that checks several requirements appears in each chapter; the
+    chapter of its first criterion keeps the plain tag, which other pages link to."""
+    tag = section_tag(kind, d["name"])
+    home = min(d["checks"]).rsplit(".", 1)[0]
+    return tag if home == ears_id else f"{tag}-in-{ears_id.lower()}"
 
 
 def render_requirement(rule, decls, titles):
     ears_id = rule["earsId"]
     prefix = ears_id + "."
-    in_slice = [d for d in decls.values() if d["name"].startswith(SLICE)]
     def checks_this(d):
         return any(c.startswith(prefix) for c in d.get("checks", []))
-    theorems = sorted((d for d in in_slice if d["kind"] == "theorem" and checks_this(d)),
+    theorems = sorted((d for d in decls.values() if d["kind"] == "theorem" and checks_this(d)),
                       key=lambda d: (min(d["checks"]), d["name"]))
-    cases = sorted((d for d in in_slice if d["kind"] == "case" and checks_this(d)),
+    cases = sorted((d for d in decls.values() if d["kind"] == "case" and checks_this(d)),
                    key=lambda d: (min(d["checks"]), d["name"]))
     title = titles.get(rule["name"], humanize(rule["name"].rsplit(".", 1)[-1]))
     criteria = rule.get("criteria", [])
@@ -547,7 +563,7 @@ def render_requirement(rule, decls, titles):
             parts += [
                 f"## {verso_escape(check_title(d['name'], decls, titles))}",
                 "%%%",
-                f'tag := "{section_tag("guarantee", d["name"])}"',
+                f'tag := "{chapter_tag("guarantee", d, ears_id)}"',
                 "%%%",
                 "",
                 f'{{docstring {d["name"]} (label := "guarantee")}}',
@@ -563,7 +579,7 @@ def render_requirement(rule, decls, titles):
             parts += [
                 f"## {humanize(d['name'].rsplit('.', 1)[-1])}",
                 "%%%",
-                f'tag := "{section_tag("example", d["name"])}"',
+                f'tag := "{chapter_tag("example", d, ears_id)}"',
                 "%%%",
                 "",
                 f'{{docstring {d["name"]} (label := "example")}}',
@@ -580,11 +596,13 @@ def render_requirement(rule, decls, titles):
         shown_by = [humanize(c["name"].rsplit(".", 1)[-1]) for c in cases if set(c["checks"]) & set(d["checks"])]
         why = (f"the example {', '.join(shown_by)} shows the rule as written breaking it"
                if shown_by else "it has no proof yet")
+        where = ("[Open Questions](Open-Questions/)" if d["name"].startswith(PILOT)
+                 else f"[{QUESTIONS_TITLE}]({slug(QUESTIONS_TITLE)}/)")
         parts += [
             "# Open question",
             "",
             f"The guarantee {verso_escape(title)} is open: {why}. "
-            "[Open Questions](Open-Questions/) sets out the question for the team.",
+            f"{where} sets out the question for the team.",
             "",
         ]
     module = requirement_module(ears_id)
@@ -601,7 +619,8 @@ CHIP_TEXT = {"proven": "proven", "example": "by example", "open": "open", "not c
 STATUS_CLASS = {"proven": "s-proven", "example": "s-example", "open": "s-open", "not checked": "s-notChecked"}
 REFERENCE_CHAPTERS = [
     ("Overview", "How to read this document, where the material comes from, and what the build computes."),
-    ("Open Questions", "What the model could not settle, and the decisions it needs from the team."),
+    ("Open Questions", "What the pilot model could not settle, and the decision it needs from the team."),
+    (QUESTIONS_TITLE, "The open guarantees in the ONE Order rules, each with the example that breaks it."),
     ("Objects", "The offers, orders, payments and refunds the rules talk about."),
     ("EARS requirements", "Every requirement statement in one table."),
 ]
@@ -653,11 +672,40 @@ def render_requirements(decls):
     titles = blueprint_titles()
     modules = [render_requirement(r, decls, titles) for r in ears_rows(decls)]
     render_front(decls, titles)
+    render_questions(decls, titles)
+    modules.append("Questions")
     review = (ROOT / "Review" / "Review.lean").read_text()
     missing = [m for m in modules if f"{{include 1 Review.Generated.{m}}}" not in review]
     if missing:
         sys.exit("Review/Review.lean does not include " + ", ".join(f"Review.Generated.{m}" for m in missing))
     return modules
+
+
+def render_questions(decls, titles):
+    """A chapter with one section per open guarantee outside the pilot rules."""
+    open_ = sorted((d for d in decls.values()
+                    if d["kind"] == "theorem" and d["status"] == "open" and not d["name"].startswith(PILOT)),
+                   key=lambda d: (min(d["checks"] or ["~"]), d["name"]))
+    rules = {c["id"]: r for r in ears_rows(decls) for c in r.get("criteria", [])}
+    n = len(open_)
+    parts = [VERSO_HEADER, f'#doc (Manual) "{QUESTIONS_TITLE}" =>', "%%%", 'tag := "one-order-questions"', "%%%", ""]
+    parts += [
+        f"{n} {'guarantee is' if n == 1 else 'guarantees are'} open in the ONE Order rules. "
+        "Each is a place where IATA's public material is vague or silent, so the rule as written allows a case "
+        "the guarantee forbids. An example the build computes shows that case, and the question under it is "
+        "for the business to answer. The model does not decide it.",
+        "",
+    ]
+    for d in open_:
+        title = check_title(d["name"], decls, titles)
+        owner = next((rules[c] for c in d["checks"] if c in rules), None)
+        parts += [f"# {verso_escape(title)}", "%%%", f'tag := "{section_tag("question", d["name"])}"', "%%%", ""]
+        parts += [f'{{docstring {d["name"]} (label := "open question")}}', ""]
+        if owner:
+            chapter = titles.get(owner["name"], humanize(owner["name"].rsplit(".", 1)[-1]))
+            parts += [f"It checks acceptance criteria {', '.join(d['checks'])} of requirement {owner['earsId']}, "
+                      f"[{verso_escape(chapter)}]({slug(chapter)}/).", ""]
+    (GENERATED / "Questions.lean").write_text("\n".join(parts))
 
 
 def render_ears_verso(decls):

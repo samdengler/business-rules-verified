@@ -9,8 +9,9 @@ set_option doc.verso false
 # Status executable
 
 `lake exe status` loads the compiled `Rules` environment and reports, for
-every documented declaration under `Rules.Core` and `Rules.OfferOrder`, what
-kind of declaration it is, its docstring and EARS statement, and its status.
+every documented declaration under `Rules.Core`, `Rules.OfferOrder` and
+`Rules.OneOrder`, what kind of declaration it is, its docstring and EARS
+statement, and its status.
 A theorem's status comes from the axioms it depends on, so nobody can mark a
 rule proven by hand.
 
@@ -32,7 +33,7 @@ open Lean Meta
 namespace Status
 
 /-- The namespaces whose declarations make up the model. -/
-def roots : List Name := [`Rules.Core, `Rules.OfferOrder]
+def roots : List Name := [`Rules.Core, `Rules.OfferOrder, `Rules.OneOrder]
 
 /-- One acceptance criterion of a rule. -/
 structure Criterion where
