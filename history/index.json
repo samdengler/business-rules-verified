@@ -194,6 +194,24 @@
     "decision": 87,
     "waiting": 3
    }
+  },
+  {
+   "seq": 12,
+   "name": "ancillaries",
+   "description": "Ancillaries, seats and bundles are in Lean: dependent services, adding and cancelling ancillaries, replacing a flight, seats, a-la-carte items and bundles, with eleven open questions.",
+   "commit": "9597c5701c878a1daae3f4f72c606917c23dd34a",
+   "date": "2026-10-30T01:21:34-04:00",
+   "tag": "milestone/ancillaries",
+   "file": "0012-ancillaries.json",
+   "nodes": 382,
+   "statusCounts": {
+    "modelled": 82,
+    "proven": 163,
+    "open": 48,
+    "ready": 7,
+    "decision": 79,
+    "waiting": 3
+   }
   }
  ]
 }
