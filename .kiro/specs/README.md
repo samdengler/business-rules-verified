@@ -29,4 +29,4 @@ Each folder is a requirement spec with one `requirements.md`, generated from the
 | OO-003.1 | WHEN a refund is requested against a payment THE SYSTEM SHALL accept it only if it names that payment and its amount does not exceed the payment's amount. | not checked | nothing in the build checks this yet |
 | OO-003.2 | THE SYSTEM SHALL not refund more against an order than was paid for it. | open | open theorem `refunds_le_payments`; counterexample `doubleRefund` |
 
-The same rows are in [`ears-criteria.csv`](https://samdengler.github.io/business-rules-verified/ears-criteria.csv), and one row per rule is in [`ears.csv`](https://samdengler.github.io/business-rules-verified/ears.csv).
+The same rows are in [`ears-criteria.csv`](https://samdengler.github.io/airline-order-verified/ears-criteria.csv), and one row per rule is in [`ears.csv`](https://samdengler.github.io/airline-order-verified/ears.csv).

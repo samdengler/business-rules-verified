@@ -33,7 +33,7 @@ ROOT = Path(__file__).resolve().parent.parent
 STATUS = ROOT / "build" / "status.json"
 CONTENT = ROOT / "blueprint" / "src" / "content.tex"
 OUT = ROOT / "build" / "progress" / "index.html"
-REPO = "https://github.com/samdengler/business-rules-verified"
+REPO = "https://github.com/samdengler/airline-order-verified"
 
 DONE = {"definition", "proven"}
 

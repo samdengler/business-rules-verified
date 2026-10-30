@@ -15,7 +15,7 @@ import re
 import sys
 from pathlib import Path
 
-REPO = "https://github.com/samdengler/business-rules-verified"
+REPO = "https://github.com/samdengler/airline-order-verified"
 SITE_NAME = "Offer and Order rules"
 
 # Each link's path from the site root.

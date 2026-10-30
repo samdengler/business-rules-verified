@@ -151,6 +151,6 @@
    "inputRev": "main",
    "inherited": true,
    "configFile": "lakefile.toml"}],
- "name": "«business-rules-verified»",
+ "name": "«airline-order-verified»",
  "lakeDir": ".lake",
  "fixedToolchain": false}

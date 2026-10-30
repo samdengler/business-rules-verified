@@ -1,4 +1,4 @@
-# business-rules-verified
+# airline-order-verified
 
 Business rules for airline offers and orders, written as code that a computer
 checks, with the review documents and requirement specs generated from that
@@ -14,19 +14,19 @@ The rules, prices and data are simplified and invented. Where a rule is
 taken from IATA's public documentation, it is described in our own words
 with a link to the source page; IATA owns the standard and its documentation.
 
-- Progress page, for business readers: <https://samdengler.github.io/business-rules-verified/>
-- Review document: <https://samdengler.github.io/business-rules-verified/review/>
+- Progress page, for business readers: <https://samdengler.github.io/airline-order-verified/>
+- Review document: <https://samdengler.github.io/airline-order-verified/review/>
 - Requirement specs, criteria in EARS, in Kiro's format: [`.kiro/specs/`](.kiro/specs/)
-- Dependency graph: <https://samdengler.github.io/business-rules-verified/graph/>
+- Dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>
 
 ## Where to start
 
 | You want to | Read |
 | --- | --- |
-| See at a glance what is proven, what is open, and what needs a business decision | The [progress page](https://samdengler.github.io/business-rules-verified/) |
-| Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
+| See at a glance what is proven, what is open, and what needs a business decision | The [progress page](https://samdengler.github.io/airline-order-verified/) |
+| Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/airline-order-verified/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
-| See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/graph/): click a card to read it and see what it depends on. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) |
+| See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/airline-order-verified/graph/): click a card to read it and see what it depends on. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
 | Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) and [`impl/rust`](impl/rust/) |
 | Review or change the model | [`Rules/OfferOrder/`](Rules/OfferOrder/), then the rest of this README |
@@ -130,7 +130,7 @@ running and ask it about each generated input.
 
 The conformance vectors are the oracle's answers to a fixed list of requests,
 saved as a file:
-<https://samdengler.github.io/business-rules-verified/conformance-vectors.jsonl>.
+<https://samdengler.github.io/airline-order-verified/conformance-vectors.jsonl>.
 Each line is one case: a name, a request to one of the rules, and the model's
 answer. For example, shortened:
 
@@ -237,7 +237,7 @@ this repository from a written implementation plan. The plan had six steps:
 the Lean project and shared concepts, the Offer and Order rules, the checked
 examples, the review documents, the EARS output, and CI. It also had ten
 acceptance criteria. Claude Code committed after each step; the
-[commit history](https://github.com/samdengler/business-rules-verified/commits/main)
+[commit history](https://github.com/samdengler/airline-order-verified/commits/main)
 shows them in order. The requirement specs and the implementation checks were
 added afterwards on request. Where
 the plan left a choice open, the choice is recorded under
@@ -263,7 +263,7 @@ notice does not permit reproducing its text, so the survey quotes nothing and
 links to each page.
 
 The candidates are also nodes in the second chapter of the
-[blueprint](https://samdengler.github.io/business-rules-verified/blueprint/),
+[blueprint](https://samdengler.github.io/airline-order-verified/blueprint/),
 so they appear on the dependency graph before any of them is written in Lean.
 The 12 vague or silent ones are marked not ready and have an orange border; the
 open point in each says what the business has to decide. The git tag
@@ -297,8 +297,8 @@ a dashboard, or a script.
 
 | File | One row per | Columns |
 | --- | --- | --- |
-| [`ears.csv`](https://samdengler.github.io/business-rules-verified/ears.csv) | rule | ID, EARS statement, Lean declaration, status, theorems that prove it |
-| [`ears-criteria.csv`](https://samdengler.github.io/business-rules-verified/ears-criteria.csv) | acceptance criterion | ID, parent rule, EARS statement, EARS template, status, theorems and examples that check it |
+| [`ears.csv`](https://samdengler.github.io/airline-order-verified/ears.csv) | rule | ID, EARS statement, Lean declaration, status, theorems that prove it |
+| [`ears-criteria.csv`](https://samdengler.github.io/airline-order-verified/ears-criteria.csv) | acceptance criterion | ID, parent rule, EARS statement, EARS template, status, theorems and examples that check it |
 
 Both are rebuilt on every push at fixed URLs, and their IDs never renumber, so
 a tool can pull them on a schedule. Because each row carries a computed status,
@@ -431,7 +431,7 @@ not run CI, since the site does not include them.
 ## Results
 
 Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
-[40113345785](https://github.com/samdengler/business-rules-verified/actions/runs/40113345785).
+[40113345785](https://github.com/samdengler/airline-order-verified/actions/runs/40113345785).
 
 | # | Criterion | Result |
 | --- | --- | --- |
@@ -448,16 +448,16 @@ Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
 
 **Pages URLs.**
 
-- Progress page: <https://samdengler.github.io/business-rules-verified/>
-- Verso document: <https://samdengler.github.io/business-rules-verified/review/>
-- Blueprint: <https://samdengler.github.io/business-rules-verified/blueprint/>
-- Dependency graph: <https://samdengler.github.io/business-rules-verified/graph/>, and the blueprint's own: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
-- PDF: <https://samdengler.github.io/business-rules-verified/blueprint/print.pdf>
-- EARS table, one row per rule: <https://samdengler.github.io/business-rules-verified/ears.csv>
-- Acceptance criteria, one row per criterion: <https://samdengler.github.io/business-rules-verified/ears-criteria.csv>
-- Requirement specs, rendered on GitHub: <https://github.com/samdengler/business-rules-verified/tree/main/.kiro/specs>
+- Progress page: <https://samdengler.github.io/airline-order-verified/>
+- Verso document: <https://samdengler.github.io/airline-order-verified/review/>
+- Blueprint: <https://samdengler.github.io/airline-order-verified/blueprint/>
+- Dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>, and the blueprint's own: <https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html>
+- PDF: <https://samdengler.github.io/airline-order-verified/blueprint/print.pdf>
+- EARS table, one row per rule: <https://samdengler.github.io/airline-order-verified/ears.csv>
+- Acceptance criteria, one row per criterion: <https://samdengler.github.io/airline-order-verified/ears-criteria.csv>
+- Requirement specs, rendered on GitHub: <https://github.com/samdengler/airline-order-verified/tree/main/.kiro/specs>
   (the same files are on Pages under `/specs/`)
-- Conformance vectors for implementation checks: <https://samdengler.github.io/business-rules-verified/conformance-vectors.jsonl>
+- Conformance vectors for implementation checks: <https://samdengler.github.io/airline-order-verified/conformance-vectors.jsonl>
 
 ## Decisions
 
@@ -694,3 +694,9 @@ Choices made where the plan left room, in the order they came up.
       `blueprint/src/extra_styles.css`. In the dependency graph only the
       black edges and text change, and blue borders lighten; the green fills
       keep the meaning the legend gives them.
+30. **Renamed from `business-rules-verified` to `airline-order-verified`.**
+    The new name says what the rules are about without using IATA's name,
+    which could suggest the project is IATA's or endorsed by it. The site
+    moved with the repository to `samdengler.github.io/airline-order-verified/`.
+    GitHub redirects the old repository URLs; GitHub Pages does not redirect
+    a renamed project's site.
