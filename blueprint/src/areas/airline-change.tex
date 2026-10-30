@@ -416,8 +416,9 @@
   \label{thm:airline-change-flight-services-cancelled}
   \lean{Rules.OneOrder.AirlineChange.cancel_flight_marks}
   \uses{def:airline-change-cancel-flight}
-  Every live service on the cancelled flight is replaced, in the same order
-  item, by the same service marked \texttt{CANCELLED} with delivery status
+  Every live service on the cancelled flight that the delivery status table
+  lets become \texttt{UNABLE TO DELIVER} is replaced, in the same order item,
+  by the same service marked \texttt{CANCELLED} with delivery status
   \texttt{UNABLE TO DELIVER}.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order}.
@@ -426,6 +427,34 @@
   \uses{def:airline-change-cancel-flight}
   Each service of each item goes through the same marking, which changes a
   live service on the flight and no other.
+\end{proof}
+
+\begin{theorem}[No live service is left on a cancelled flight]
+  \label{thm:airline-change-no-live-on-cancelled}
+  \lean{Rules.OneOrder.AirlineChange.cancel_flight_leaves_no_live}
+  \uses{def:airline-change-cancel-flight, def:delivery-end-from-area}
+  When the airline cancels a flight and does not move the customer to
+  another one, no live service is left on that flight.
+
+  Counterexample: a paid return trip at 1,000.00 EUR whose bag on the inbound
+  flight is still \texttt{REQUESTED} from the airline.  When the airline
+  cancels the inbound flight, the flight becomes \texttt{CANCELLED} with
+  \texttt{UNABLE TO DELIVER}, and the bag stays \texttt{REQUESTED} and live,
+  because the delivery status table has no move from \texttt{REQUESTED} to
+  \texttt{UNABLE TO DELIVER} (Lean example
+  \texttt{cancelFlightWhileRequested}).
+
+  Open point: The business must decide what delivery status a service takes
+  when its flight is cancelled while it is \texttt{REQUESTED},
+  \texttt{IN PROGRESS} or \texttt{SUSPENDED}.  The open point on the delivery
+  status table asks the same question for every area.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:airline-change-cancel-flight}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
 \end{proof}
 
 \begin{theorem}[Other flights are unchanged]
