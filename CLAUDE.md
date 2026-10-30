@@ -4,7 +4,7 @@ Business rules for airline offers and orders as a Lean model, with review docume
 
 ## Working on the site
 
-- Work locally and publish in batches. `scripts/preview.sh` rebuilds the documents and serves the site at http://localhost:8000; a second run takes a minute or two. CI takes about 15 minutes on a cold cache.
+- Work locally and publish in batches. `scripts/preview.sh` rebuilds the documents and serves the site at http://localhost:8000; a second run takes a minute or two.
 - For a visual change, take screenshots (headless Chrome works) and show them before pushing.
 - Before pushing, run `scripts/build-site.sh`, which runs everything CI runs. Commit `.kiro/specs` whenever `scripts/render_status.py` changes it; CI fails if the committed specs are stale.
 - After changing `impl/rust`, run `scripts/translate-rust.sh` and commit `Verify/Rust/`; CI checks it matches a fresh translation.
