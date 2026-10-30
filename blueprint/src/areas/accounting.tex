@@ -10,6 +10,8 @@
   been delivered or consumed, unless the two have agreed otherwise.
 
   Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+
+  Capabilities: ACCSTS.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-billing}
@@ -40,6 +42,8 @@
   Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185338}{Order Accounting, De-specializing Financial Processes};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order}.
+
+  Capabilities: ACCRE2.
 \end{definition}
 
 \begin{definition}[Billing by service providers]
@@ -84,6 +88,8 @@
   Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653069}{Settlement with Orders, Clearance Overview}.
+
+  Capabilities: ACCSTS.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-billing}
@@ -146,6 +152,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://standards.atlassian.net/wiki/spaces/AIDM/pages/607420437/View+IATA+Codeset+Directory}{IATA code set directory};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages}.
+
+  Capabilities: ACCRE2, ACCREP.
 \end{theorem}
 
 \begin{definition}[Accounting for paid services]
@@ -193,6 +201,8 @@
   \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185391}{Order Accounting, Accounting messages}.
+
+  Capabilities: ACCSTS, ORDSTS.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-books}
@@ -270,6 +280,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333143}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Amount Refunded with a Forfeited amount and a penalty with reporting to Accounting};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844169268}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order}.
+
+  Capabilities: ACCSTS, ACCRE2.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-books}
@@ -371,6 +383,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2588377182}{EASD guide, Consumption Taxes};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List};
   \href{https://retailing.iata.org/armi/docs/PAYCOM/}{IATA capability PAYCOM}.
+
+  Capabilities: PAYCOM.
 \end{definition}
 
 \begin{theorem}[Fixed commission]
@@ -475,6 +489,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478}{Settlement with Orders, Settlement};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881933}{Settlement with Orders, Process Overview};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478/Settlement}{Settlement with Orders, Settlement}.
+
+  Capabilities: PAYCMT, STTCAP, PAYSET, PAYREF.
 \end{definition}
 
 \begin{theorem}[Seller collects and nets the commission]
@@ -588,6 +604,8 @@
 
   Sources: \href{https://retailing.iata.org/armi/docs/PAYCMT/}{IATA capability PAYCMT};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259760}{Settlement with Orders, Request for Clearance}.
+
+  Capabilities: PAYCMT.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-net-clearance-amount}
@@ -611,6 +629,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259760}{Settlement with Orders, Request for Clearance};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881945}{Settlement with Orders, Clearance Information During Shopping};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091}{Settlement with Orders, Enhanced and Simplified Distribution}.
+
+  Capabilities: STTCAP, PAYCMT.
 \end{theorem}
 
 \begin{definition}[Accepting a clearance]
@@ -663,6 +683,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478/Settlement}{Settlement with Orders, Settlement};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574587124/Cancellation+Overview}{Settlement with Orders, Cancellation Overview};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056/Definitions}{Settlement with Orders, Definitions}.
+
+  Capabilities: STTCAP, PAYSET.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-accepting-clearance}
@@ -759,6 +781,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574554300}{Settlement with Orders, Financial and Accounting Systems};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056}{Settlement with Orders, Definitions}.
+
+  Capabilities: STTSUM, STTCAP, STTCAN.
 \end{definition}
 
 \begin{theorem}[Cancelling an accepted clearance]
@@ -843,6 +867,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574685428}{Settlement with Orders, Cancellation Sample Messages};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478}{Settlement with Orders, Settlement}.
+
+  Capabilities: STTCAN.
 \end{definition}
 
 \begin{definition}[Total of a clearing]
@@ -883,6 +909,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881978}{Settlement with Orders, Clearing Sample Messages}.
+
+  Capabilities: STTSUM.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-clearing-total}
@@ -967,6 +995,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488802}{Settlement with Orders, New for release 21.3}.
+
+  Capabilities: STTSUM, STTCAP.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-net-position}
@@ -1071,6 +1101,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881978}{Settlement with Orders, Clearing Sample Messages};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056}{Settlement with Orders, Definitions}.
+
+  Capabilities: STTSUM, STTHST.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-clearance-status}
@@ -1145,6 +1177,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185338}{Order Accounting, De-specializing Financial Processes};
   \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+
+  Capabilities: ACCSTS, ACCRE2.
 \end{theorem}
 
 \begin{theorem}[Commission from offer to order (C-159)]
@@ -1167,6 +1201,8 @@
 
   Sources: \href{https://retailing.iata.org/armi/docs/PAYCOM/}{IATA capability PAYCOM};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849050}{EASD guide, Commission and Margin}.
+
+  Capabilities: PAYCOM.
 \end{theorem}
 
 \begin{definition}[Requesting a clearance (C-160)]
@@ -1192,6 +1228,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816490}{Settlement with Orders, Roles};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091}{Settlement with Orders, Enhanced and Simplified Distribution}.
+
+  Capabilities: STTCAP.
 \end{definition}
 
 \begin{definition}[Allocating a short remittance (C-161)]
@@ -1217,6 +1255,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds}.
+
+  Capabilities: STTSUM.
 \end{definition}
 
 \begin{theorem}[Short remittance within what is owed]

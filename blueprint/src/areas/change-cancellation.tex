@@ -13,6 +13,8 @@
   price, as a change whose new price is zero.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+
+  Capabilities: ORDCAN, ORDCA2.
 \end{definition}
 
 \begin{theorem}[Unpaid orders are cancelled at once]
@@ -56,6 +58,8 @@
   refundable total (C-85).
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+
+  Capabilities: ORDPEN.
 \end{theorem}
 \begin{proof}
   \uses{def:change-cancellation-due-amounts}
@@ -79,6 +83,8 @@
   does not define its sign or how penalties enter it.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782/Modification+of+an+Order}{EASD guide, Modification of an Order}.
+
+  Capabilities: ORDRSH.
 \end{definition}
 
 \begin{theorem}[Kept services keep their references]
@@ -152,6 +158,8 @@
   Open point: the source does not define what keeps an order balanced.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+
+  Capabilities: ORDRSH.
 \end{theorem}
 
 \begin{theorem}[Stored value stays in its order (C-20)]
@@ -165,6 +173,8 @@
   when it expires.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245/Value+Store}{EASD guide, Value Store}.
+
+  Capabilities: ORDREU.
 \end{theorem}
 
 % Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
@@ -192,6 +202,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594369}{EASD guide, Customer requests a cancellation to paid Order or OrderItems};
   \href{https://retailing.iata.org/armi/docs/ORDRSH/}{IATA capability ORDRSH};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554213/Price+Differentials}{EASD guide, Price Differentials}.
+
+  Capabilities: ORDRSH, ORDCAN, ORDCA2, ORDPEN, ORDFOR, ORDREU.
 \end{definition}
 
 \begin{definition}[Amounts due to and by the airline]
@@ -330,6 +342,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594543}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Refund with a Forfeited amount incurred};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594795}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Refund with a Forfeited amount incurred and requiring payment of a penalty};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782}{EASD guide, Modification of an Order}.
+
+  Capabilities: ORDRSH, ORDCAN, ORDPEN, ORDFOR.
 \end{theorem}
 \begin{proof}
   \uses{def:change-cancellation-price-differential}
@@ -390,6 +404,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+additional+collection+and+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594417/Customer+requests+a+cancellation+to+paid+Order+or+OrderItems+resulting+in+full+refund}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in full refund}.
+
+  Capabilities: ORDPEN, ORDFOR, ORDRSH, PAYREF, PAYSUM.
 \end{theorem}
 \begin{proof}
   \uses{def:change-cancellation-ledger, def:c18-change}
@@ -464,6 +480,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+additional+collection+and+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund}.
+
+  Capabilities: ORDRSH, ORDPEN, ORDFOR, PAYREF, PAYORD.
 \end{definition}
 
 \begin{definition}[Penalty larger than the refund (C-85)]
@@ -485,6 +503,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594543}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Refund with a Forfeited amount incurred}.
+
+  Capabilities: ORDCAN, ORDCA2, ORDPEN.
 \end{definition}
 
 \begin{theorem}[Cancelling leaves the customer owing nothing]
@@ -548,6 +568,8 @@
 
   Sources: \href{https://retailing.iata.org/armi/docs/ORDCA2/}{IATA capability ORDCA2};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594669}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store}.
+
+  Capabilities: ORDCA2, ORDREU.
 \end{theorem}
 
 \begin{definition}[Paid or partly paid orders need an offer (C-87)]
@@ -570,6 +592,8 @@
 
   Sources: \href{https://retailing.iata.org/armi/docs/ORDCA2/}{IATA capability ORDCA2};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+
+  Capabilities: ORDCA2, ORDCAN.
 \end{definition}
 
 \begin{theorem}[Cancellation offers stay within payments]
@@ -615,6 +639,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
   \href{https://retailing.iata.org/armi/docs/ORDCAN/}{IATA capability ORDCAN}.
+
+  Capabilities: ORDCAN, ORDRSH.
 \end{definition}
 
 \begin{definition}[Reusable amount on cancellation (C-89)]
@@ -640,6 +666,8 @@
   Sources: \href{https://retailing.iata.org/armi/docs/ORDREU/}{IATA capability ORDREU};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594921}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in a Reusable amount};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+
+  Capabilities: ORDREU, ORDCAN.
 \end{definition}
 
 \begin{definition}[Settling money the airline owes (C-90)]
@@ -669,6 +697,8 @@
   \href{https://retailing.iata.org/armi/docs/ORDCAN/}{IATA capability ORDCAN};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268791}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a value store}.
+
+  Capabilities: ORDCAN, ORDRSH, ORDREU, ORDFOR.
 \end{definition}
 
 \begin{definition}[Value store time windows (C-91)]
@@ -692,6 +722,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594669}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268791}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a value store};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245}{EASD guide, Value Store}.
+
+  Capabilities: ORDCA2, ORDCAN.
 \end{definition}
 
 \begin{theorem}[Stored value is used once (C-92)]
@@ -714,6 +746,8 @@
   use that C-20 leaves open.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245}{EASD guide, Value Store}.
+
+  Capabilities: ORDREU.
 \end{theorem}
 
 \begin{theorem}[Transferred originals hold no value (C-93)]
@@ -748,6 +782,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268712}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a value store}.
+
+  Capabilities: ORDRSH.
 \end{theorem}
 \begin{proof}
   \uses{def:c18-change, def:c06-item-status}
@@ -772,6 +808,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268712}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a value store};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844169238}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a value store}.
+
+  Capabilities: ORDPEN, ORDCAN.
 \end{theorem}
 
 \begin{theorem}[Penalties and forfeits persist (C-95)]
@@ -790,6 +828,8 @@
   Sources: \href{https://retailing.iata.org/armi/docs/ORDPEN/}{IATA capability ORDPEN};
   \href{https://retailing.iata.org/armi/docs/ORDFOR/}{IATA capability ORDFOR};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268673}{EASD guide, Customer requests a change to an Order containing a paid OrderItem}.
+
+  Capabilities: ORDPEN, ORDFOR.
 \end{theorem}
 
 \begin{definition}[Name change through an offer (C-96)]
@@ -816,6 +856,8 @@
   Sources: \href{https://retailing.iata.org/armi/docs/ORDNAM/}{IATA capability ORDNAM};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825346}{EASD guide, Customer Changes Their Name};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672792581}{EASD guide, Paid name changes}.
+
+  Capabilities: ORDNAM.
 \end{definition}
 
 \begin{definition}[Changes made without an offer (C-97)]
@@ -836,6 +878,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554168}{EASD guide, Seller Initiated Change to an Order};
   \href{https://retailing.iata.org/armi/docs/ORDPAX/}{IATA capability ORDPAX};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782}{EASD guide, Modification of an Order}.
+
+  Capabilities: ORDPAX, ORDRSH, ORDNAM, ORDCAN, ORDCA2.
 \end{definition}
 
 \begin{theorem}[Full cancellation equals item cancellations (C-98)]
@@ -856,6 +900,8 @@
   may not.
 
   Source: \href{https://retailing.iata.org/armi/docs/ORDCA2/}{IATA capability ORDCA2}.
+
+  Capabilities: ORDCA2, ORDCAN.
 \end{theorem}
 
 \begin{theorem}[Stored value belongs to payer (C-99)]
@@ -870,4 +916,6 @@
   passenger. The business must decide who may use, move or reclaim it.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245}{EASD guide, Value Store}.
+
+  Capabilities: ORDREU.
 \end{theorem}

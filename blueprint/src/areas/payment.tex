@@ -14,6 +14,8 @@
   limit passes without payment.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+
+  Capabilities: ORDWPM, PAYORD.
 \end{definition}
 
 \begin{definition}[Committing to pay nothing (C-12)]
@@ -27,6 +29,8 @@
   services move to.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593488900/Commitment+to+pay+when+no+amount+due}{EASD guide, Commitment to pay when no amount due}.
+
+  Capabilities: ORDWPM.
 \end{definition}
 
 \begin{definition}[Paying with several methods (C-13)]
@@ -38,6 +42,8 @@
   payment fails.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
+
+  Capabilities: PAYMIX.
 \end{definition}
 
 \begin{theorem}[A failed method fails the payment]
@@ -95,6 +101,8 @@
   price was paid or the price plus surcharges.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
+
+  Capabilities: PAYMIX.
 \end{theorem}
 \begin{proof}
   \uses{def:payment-accept}
@@ -115,6 +123,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+
+  Capabilities: PAYREF.
 \end{definition}
 
 % Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
@@ -144,6 +154,8 @@
   \href{https://retailing.iata.org/armi/docs/PAYORD/}{IATA capability PAYORD};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+additional+collection+and+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+
+  Capabilities: PAYORD, PAYSUM, PAYMIX.
 \end{definition}
 
 \begin{theorem}[Only successful payments pay]
@@ -190,6 +202,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091/Enhanced+and+Simplified+Distribution}{Settlement with Orders, Enhanced and Simplified Distribution};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145/Remittance+of+Funds}{Settlement with Orders, Remittance of Funds}.
+
+  Capabilities: PAYSUM, PAYRCV, PAYGTW, PAYSET.
 \end{definition}
 
 \begin{theorem}[Outcomes of pending transactions are recorded]
@@ -297,6 +311,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/670203914}{EASD guide, Payment Via Redirection with Airline Notification of Payment Success​};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund}.
+
+  Capabilities: PAYORD, PAYGTW, PAYSUM, ORDDEL.
 \end{theorem}
 \begin{proof}
   \uses{def:payment-apply-outcome}
@@ -378,6 +394,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+
+  Capabilities: PAYORD, ORDWPM.
 \end{theorem}
 \begin{proof}
   \uses{def:payment-time-limit-expiry}
@@ -409,6 +427,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/1404665857}{EASD guide, 24.1 Release Notes}.
+
+  Capabilities: PAYORD, PAYGTW.
 \end{definition}
 
 \begin{theorem}[Unpaid items are removed at their time limit]
@@ -530,6 +550,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226556/Pay+for+an+Existing+Order}{EASD guide, Pay for an Existing Order};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574587020/Payment+Errors}{EASD guide, Payment Errors};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+
+  Capabilities: PAYORD, PAYRCV.
 \end{theorem}
 
 \begin{theorem}[No payment at or after the time limit]
@@ -562,6 +584,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593325059/Pay+using+multiple+payment+methods+for+a+single+item}{EASD guide, Pay using multiple payment methods for a single item};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation}.
+
+  Capabilities: PAYMIX.
 \end{theorem}
 \begin{proof}
   \uses{thm:payment-status-failed, def:payment-apply-outcome}
@@ -589,6 +613,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item};
   \href{https://retailing.iata.org/armi/docs/PAYMIX/}{IATA capability PAYMIX}.
+
+  Capabilities: PAYMIX.
 \end{definition}
 
 \begin{definition}[Combinable payment methods (C-134)]
@@ -610,6 +636,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593325059/Pay+using+multiple+payment+methods+for+a+single+item}{EASD guide, Pay using multiple payment methods for a single item}.
+
+  Capabilities: PAYMIX, PAYCPC.
 \end{definition}
 
 \begin{definition}[Surcharge on each payment method (C-135)]
@@ -628,6 +656,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item}.
+
+  Capabilities: PAYMIX, PAYCPC.
 \end{definition}
 
 \begin{definition}[Accepting a payment]
@@ -696,6 +726,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574685328/Payment+Preference}{EASD guide, Payment Preference};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574587020/Payment+Errors}{EASD guide, Payment Errors};
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+
+  Capabilities: PAYCPC, PAYRCV.
 \end{theorem}
 
 \begin{definition}[Refundable payment surcharges (C-137)]
@@ -718,6 +750,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item}.
+
+  Capabilities: PAYREF, PAYMIX.
 \end{definition}
 
 \begin{definition}[Refund as a negative payment (C-138)]
@@ -743,6 +777,8 @@
   \href{https://retailing.iata.org/armi/docs/PAYSUM/}{IATA capability PAYSUM};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594417/Customer+requests+a+cancellation+to+paid+Order+or+OrderItems+resulting+in+full+refund}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in full refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+additional+collection+and+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund}.
+
+  Capabilities: PAYREF, PAYSUM.
 \end{definition}
 
 \begin{definition}[Retrying a failed payment (C-139)]
@@ -769,6 +805,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226627/Payer+Authentication}{EASD guide, Payer Authentication};
   \href{https://retailing.iata.org/armi/docs/PAYRCV/}{IATA capability PAYRCV}.
+
+  Capabilities: PAYRCV, PAY3D2.
 \end{definition}
 
 \begin{theorem}[Commitment only when nothing due (C-140)]
@@ -790,6 +828,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2533031964/26.1+Release+Notes}{EASD guide, 26.1 Release Notes};
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund}.
+
+  Capabilities: PAYORD, PAYMIX.
 \end{theorem}
 \begin{proof}
   \uses{def:payment-accept}
@@ -820,4 +860,6 @@
   \href{https://retailing.iata.org/armi/docs/PAYMIX/}{IATA capability PAYMIX};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245/Value+Store}{EASD guide, Value Store};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619671/Payment+Concepts}{EASD guide, Payment Concepts}.
+
+  Capabilities: PAYVCH, PAYMIX.
 \end{definition}

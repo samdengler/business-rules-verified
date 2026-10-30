@@ -10,6 +10,8 @@
   so the version is always one more than the number of change groups applied.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
+
+  Capabilities: ORDHIS.
 \end{theorem}
 \begin{proof}
   \uses{def:order-creation-record-changes}
@@ -66,6 +68,8 @@
   takes how 13 months are counted on UTC instants as a parameter.
 
   Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+
+  Capabilities: ORDRET.
 \end{definition}
 
 \begin{theorem}[Orders kept 13 months from creation]
@@ -125,6 +129,8 @@
   \href{https://retailing.iata.org/armi/docs/SHPBND/}{IATA capability SHPBND};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464}{EASD guide, Offers};
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980}{ARMI, General Guidance}.
+
+  Capabilities: ORDCRE, ORDWPM, ORDCWT, SHPANC, SHPBND.
 \end{definition}
 
 \begin{theorem}[Unknown items are rejected]
@@ -232,6 +238,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+
+  Capabilities: ORDCRE, ORDWPM.
 \end{theorem}
 \begin{proof}
   \uses{def:order-creation-create-order}
@@ -356,6 +364,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619727/Create+Order+With+Instant+Payment}{EASD guide, Create Order With Instant Payment};
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+
+  Capabilities: ORDCRE, ORDWPM.
 \end{theorem}
 \begin{proof}
   \uses{def:order-creation-create-order}
@@ -398,6 +408,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619727/Create+Order+With+Instant+Payment}{EASD guide, Create Order With Instant Payment};
   \href{https://retailing.iata.org/armi/docs/ORDCRE/}{IATA capability ORDCRE}.
+
+  Capabilities: ORDCRE.
 \end{definition}
 
 \begin{theorem}[One order per offer (C-66)]
@@ -427,6 +439,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226512/Identifier+Usage}{EASD guide, Identifier Usage};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619693/Payload+Attributes}{EASD guide, Payload Attributes}.
+
+  Capabilities: ORDCRE, ORDWPM.
 \end{theorem}
 \begin{proof}
   \uses{def:order-creation-repeat}
@@ -530,6 +544,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619727/Create+Order+With+Instant+Payment}{EASD guide, Create Order With Instant Payment}.
+
+  Capabilities: ORDWPM, ORDCRE.
 \end{theorem}
 
 \begin{definition}[Paying for part of an order (C-68)]
@@ -551,6 +567,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+
+  Capabilities: ORDWPM, ORDCRE.
 \end{definition}
 
 \begin{definition}[Order items in a retrieved order (C-69)]
@@ -575,6 +593,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+
+  Capabilities: ORDRET.
 \end{definition}
 
 \begin{definition}[Read access to an order (C-70)]
@@ -601,6 +621,8 @@
   \href{https://retailing.iata.org/armi/docs/ORDLST/}{IATA capability ORDLST};
   \href{https://retailing.iata.org/armi/docs/ORDHIS/}{IATA capability ORDHIS};
   \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+
+  Capabilities: ORDRET, ORDLST, ORDHIS.
 \end{definition}
 
 \begin{definition}[Group order limits (C-71)]
@@ -621,6 +643,8 @@
   the count falls below the minimum.
 
   Source: \href{https://retailing.iata.org/armi/docs/ORDGRP/}{IATA capability ORDGRP}.
+
+  Capabilities: ORDGRP.
 \end{definition}
 
 \begin{theorem}[History rebuilds every version (C-72)]
@@ -655,6 +679,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652557}{EASD guide, Order History};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659}{EASD guide, Order Versioning};
   \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
+
+  Capabilities: ORDHIS, ORDRET, ORDOC2.
 \end{theorem}
 \begin{proof}
   \uses{def:order-creation-history}
@@ -726,6 +752,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659}{EASD guide, Order Versioning};
   \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
+
+  Capabilities: ORDRET, ORDHIS, ORDOC2.
 \end{theorem}
 
 \begin{definition}[Change against a stale version (C-74)]
@@ -750,6 +778,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659}{EASD guide, Order Versioning};
   \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
+
+  Capabilities: ORDRET, ORDHIS, ORDOC2.
 \end{definition}
 
 \begin{theorem}[Changes on the current version are applied]
@@ -841,6 +871,8 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062}{EASD guide, Order};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order};
   \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
+
+  Capabilities: ORDCRE, ORDRET, ORDOC2.
 \end{theorem}
 
 \begin{definition}[Retention after first usage (C-76)]
@@ -864,6 +896,8 @@
   periods.
 
   Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+
+  Capabilities: ORDRET, ORDHIS.
 \end{definition}
 
 \begin{theorem}[Orders holding value stay accessible]
@@ -913,6 +947,8 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259647/Order+ID}{EASD guide, Order ID};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226512/Identifier+Usage}{EASD guide, Identifier Usage};
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+
+  Capabilities: ORDCRE, ORDWPM, ORDRET.
 \end{definition}
 
 \begin{theorem}[Order owner is the offer owner (C-78)]
@@ -935,6 +971,8 @@
   Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259647/Order+ID}{EASD guide, Order ID};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment}.
+
+  Capabilities: ORDCRE, ORDWPM.
 \end{theorem}
 
 \begin{theorem}[Order total from item prices (C-79)]
@@ -961,6 +999,8 @@
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+
+  Capabilities: ORDCRE, ORDWPM.
 \end{theorem}
 \begin{proof}
   \uses{def:order-creation-create-order}
@@ -989,4 +1029,6 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815464449/Verification+of+Identities+in+Distribution+Chain}{EASD guide, Verification of Identities in Distribution Chain};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574488619/Distribution+Chain}{EASD guide, Distribution Chain};
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+
+  Capabilities: ORDCRE, ORDWPM.
 \end{definition}
