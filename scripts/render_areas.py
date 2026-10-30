@@ -183,9 +183,10 @@ def page(m, area, titles):
     rd_html = "".join(rd) if rd else '<p class="empty">No open guarantee in this area has a proven version for one reading.</p>'
     current = ' aria-current="page"'
     nav = "".join(f'<a href="../{slug(a)}/"{current if a == area else ""}>{esc(short(a))}</a>' for a in m.order)
-    lede = (f"{n} cards in the blueprint's section {esc(area)}: {in_lean} are in Lean, "
-            f"{counts['open']} {'is an open question' if counts['open'] == 1 else 'are open questions'} and "
-            f"{counts['decision']} {'needs' if counts['decision'] == 1 else 'need'} a business decision.")
+    o, d = counts["open"], counts["decision"]
+    opens = "none is an open question" if not o else f"{o} {'is an open question' if o == 1 else 'are open questions'}"
+    decide = "none needs a business decision" if not d else f"{d} {'needs' if d == 1 else 'need'} a business decision"
+    lede = f"{n} cards in the blueprint's section {esc(area)}: {in_lean} are in Lean, {opens} and {decide}."
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
