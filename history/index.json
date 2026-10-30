@@ -68,6 +68,24 @@
     "ready": 4,
     "decision": 9
    }
+  },
+  {
+   "seq": 5,
+   "name": "second-survey",
+   "description": "The second survey round read every area in full and added 138 candidate rules, most of them decisions for the business.",
+   "commit": "4cba4366b48401bf11c0fb363f521205b4004792",
+   "date": "2026-10-29T23:41:25-04:00",
+   "tag": "milestone/second-survey",
+   "file": "0005-second-survey.json",
+   "nodes": 201,
+   "statusCounts": {
+    "modelled": 27,
+    "proven": 16,
+    "open": 3,
+    "waiting": 12,
+    "decision": 133,
+    "ready": 10
+   }
   }
  ]
 }
