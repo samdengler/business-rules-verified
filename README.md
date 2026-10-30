@@ -758,3 +758,11 @@ Choices made where the plan left room, in the order they came up.
     now places cards itself, in rows of at most 14 below the cards they use,
     ordered to keep connectors short. The progress page links to the graph
     instead of drawing its own map.
+35. **Lenses on the dependency graph.** The whole graph shows how much there
+    is; a reader needs a smaller view to follow it. The graph page lays out
+    the cards in the browser, with the same row layout, so it can redraw a
+    subset: one area with the cards it builds on (faded), or one card with
+    everything it depends on and the cards that use it. The lens is kept in
+    the address (`?area=Payment`, `?focus=<label>`), so a view can be shared.
+    Areas are the blueprint sections. A lens by IATA capability code would
+    need the codes on the blueprint nodes; they are in the survey data only.
