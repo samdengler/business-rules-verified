@@ -314,6 +314,7 @@ function select(id) {
     `<li><a href="../review/find/?domain=Verso.Genre.Manual.doc&name=${encodeURIComponent(n)}"><code>${esc(n)}</code></a></li>`).join("") + "</ul>";
   body += `<h3>Depends on</h3>${relatedList(d.deps)}<h3>Used by</h3>${relatedList(d.users)}`;
   panel.querySelector(".body").innerHTML = body;
+  history.replaceState(null, "", "#" + encodeURIComponent(id));
   panel.classList.add("open");
   panel.querySelectorAll("[data-go]").forEach((b) => b.onclick = () => select(b.dataset.go));
 }
@@ -332,6 +333,7 @@ function clear() {
   svg.querySelectorAll(".chosen, .near, .hot").forEach((n) => n.classList.remove("chosen", "near", "hot"));
   svg.querySelectorAll(".edge").forEach((p) => p.setAttribute("marker-end", "url(#arrow)"));
   panel.classList.remove("open");
+  history.replaceState(null, "", location.pathname + location.search);
 }
 svg.querySelectorAll(".node").forEach((n) => {
   n.addEventListener("click", () => select(n.dataset.id));
@@ -340,6 +342,21 @@ svg.querySelectorAll(".node").forEach((n) => {
 panel.querySelector(".close").onclick = clear;
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") clear(); });
 fit();
+// A link such as graph/#def:c08-delivery-status opens with that node selected
+// and zoomed to a readable size.
+function openFromHash() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (!data[id]) return;
+  const r = svg.getBoundingClientRect(), b = nodeEl(id).getBoundingClientRect();
+  const k = view.w / r.width;
+  const cx = view.x + ((b.left + b.right) / 2 - r.left) * k, cy = view.y + ((b.top + b.bottom) / 2 - r.top) * k;
+  view.w = r.width / 1.1; view.h = r.height / 1.1;
+  view.x = cx - view.w * 0.35; view.y = cy - view.h / 2;
+  moved = true; apply();
+  select(id);
+}
+openFromHash();
+window.addEventListener("hashchange", openFromHash);
 window.addEventListener("resize", () => {
   if (!moved) return fit();
   const r = svg.getBoundingClientRect();

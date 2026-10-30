@@ -25,6 +25,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from site_nav import TOPBAR_CSS, topbar  # noqa: E402
@@ -159,6 +160,14 @@ def chip(status):
     return f'<span class="chip s-{status}"><span class="ico" aria-hidden="true">{icon}</span>{label}</span>'
 
 
+def card_href(n):
+    """Where a card leads: its card in the review document, found by Verso's own
+    name lookup, or for a candidate without Lean, its node in the dependency graph."""
+    if n["lean"]:
+        return "./review/find/?domain=Verso.Genre.Manual.doc&name=" + quote(n["lean"][0])
+    return "./graph/#" + quote(n["label"])
+
+
 def card(n):
     desc, found, question, source = split_question(n)
     tag = f'<span class="tag">{html.escape(n["tag"])}</span>' if n["tag"] else ""
@@ -167,7 +176,7 @@ def card(n):
     src = f'<p class="source">Source: {source}</p>' if source else ""
     return f"""<article class="card s-{n['status']}">
   <header>{tag}{chip(n['status'])}</header>
-  <h4>{html.escape(n['title'])}</h4>
+  <h4><a class="card-link" href="{html.escape(card_href(n))}">{html.escape(n['title'])}</a></h4>
   <p>{' '.join(desc)}</p>
   {q}{src}
 </article>"""
@@ -194,7 +203,8 @@ def dep_map(show, by_label):
     ]
     for n in show:
         tip = plain(" ".join(split_question(n)[0])).replace('"', "'")
-        lines.append(f'  {ids[n["label"]]} [label="{wrap(n["title"])}", class="s-{n["status"]}", tooltip="{tip}"];')
+        lines.append(f'  {ids[n["label"]]} [label="{wrap(n["title"])}", class="s-{n["status"]}", tooltip="{tip}", '
+                     f'href="{card_href(n)}"];')
     for n in show:
         for u in n["uses"]:
             if u in ids:
@@ -261,6 +271,13 @@ h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600
 .card.s-open { border-top-color: var(--critical); }
 .card.s-decision { border-top-color: var(--warning); }
 .card.s-ready { border-top-color: var(--ready); }
+/* The title's link covers the whole card; links inside it sit above. */
+.card { position: relative; transition: border-color .15s; }
+.card:hover { border-color: color-mix(in srgb, var(--ready) 45%, var(--ring)); }
+.card h4 a.card-link, .card h4 a.card-link:visited { color: var(--ink); text-decoration: none; }
+.card h4 a.card-link::after { content: ""; position: absolute; inset: 0; border-radius: 10px; }
+.card h4 a.card-link:focus-visible::after { outline: 2px solid var(--ready); outline-offset: 2px; }
+.card .source a, .card .question a, .card .found-line a { position: relative; z-index: 1; }
 .card header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .card h4 { margin: 8px 0 4px; font-size: 15px; line-height: 1.3; }
 .card p { margin: 4px 0; color: var(--ink-2); }
