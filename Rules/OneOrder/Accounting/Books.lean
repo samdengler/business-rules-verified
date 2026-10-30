@@ -162,6 +162,18 @@ inductive BookEvent
   | cancel (refund penalty forfeited : Nat)
   deriving DecidableEq, Repr, Inhabited
 
+/-- What accounting does with a cancellation whose refund, penalty and
+forfeited amount do not add up to the amount paid for the service.  The
+sources send the three amounts to accounting without saying they must add up,
+so the model takes the answer as a parameter: a reading of the sources. -/
+inductive CancelCheck
+  /-- The airline checks the amounts and refuses a report that does not add
+  up, as the worked examples would. -/
+  | checked
+  /-- Accounting records the amounts as the airline sends them. -/
+  | asSent
+  deriving DecidableEq, Repr, Inhabited
+
 /-- The part of the amount paid for a service held as a liability. -/
 def ServiceBooks.liability (r : RevenueReading) (b : ServiceBooks) : Nat :=
   if !isFinal b.delivery then b.paid
@@ -198,9 +210,9 @@ Acceptance criteria:
   forfeited amounts.
 * ONE-809.5: The system shall never refund more for an order than was paid
   for it.
-* ONE-809.6: If the refund, penalty and forfeited amount reported for a
-  cancelled service do not add up to the amount paid for it, then the system
-  shall refuse the report.
+* ONE-809.6: Where the airline checks the amounts of a cancellation, the
+  system shall refuse a report whose refund, penalty and forfeited amount do
+  not add up to the amount paid for the service.
 
 The final statuses are those of ONE-103 ({name}`isFinal`).  Whether a final
 status other than DELIVERED earns revenue, refunds the amount paid or keeps it
@@ -208,17 +220,19 @@ as a liability, and whether a penalty is recognized at cancellation, are a
 reading of the sources ({name}`RevenueReading`).  Payments for a
 service in a final status are refused, and a service is cancelled only before
 it reaches one.  The sources send payments, refunds, penalties and forfeited
-amounts to accounting but state no balance; the check in ONE-809.6 is the one
-the worked examples fit.  The result is the books afterwards, or {lean}`none`
+amounts to accounting but state no balance, and do not say whether the
+amounts of a cancellation must add up to what was paid; that is a reading too
+({name}`CancelCheck`).  The result is the books afterwards, or {lean}`none`
 when the event is refused. -/
 @[ears "ONE-809"]
-def bookStep (r : RevenueReading) (b : ServiceBooks) : BookEvent → Option ServiceBooks
+def bookStep (r : RevenueReading) (k : CancelCheck) (b : ServiceBooks) :
+    BookEvent → Option ServiceBooks
   | .pay x => if isFinal b.delivery then none else some { b with paid := b.paid + x }
   | .finish s =>
     if isFinal b.delivery || !isFinal s || s == .removed then none
     else some { b with delivery := s, refunded := if r.treat s = .refund then b.paid else b.refunded }
   | .cancel rf pen forf =>
-    if isFinal b.delivery || rf + pen + forf != b.paid then none
+    if isFinal b.delivery || (k == .checked && rf + pen + forf != b.paid) then none
     else some { b with delivery := .removed, refunded := rf, penalty := pen, forfeited := forf }
 
 /-- An order's books: the books of each of its services. -/
@@ -226,14 +240,15 @@ abbrev OrderBooks := List ServiceBooks
 
 /-- The order's books after an event for one of its services.  A refused event
 leaves them as they were. -/
-def OrderBooks.apply (r : RevenueReading) (o : OrderBooks) (serviceId : String) (e : BookEvent) :
-    OrderBooks :=
-  o.map fun b => if b.id = serviceId then (bookStep r b e).getD b else b
+def OrderBooks.apply (r : RevenueReading) (k : CancelCheck) (o : OrderBooks) (serviceId : String)
+    (e : BookEvent) : OrderBooks :=
+  o.map fun b => if b.id = serviceId then (bookStep r k b e).getD b else b
 
 /-- The order's books after a sequence of events, each for one service. -/
-def OrderBooks.run (r : RevenueReading) (o : OrderBooks) : List (String × BookEvent) → OrderBooks
+def OrderBooks.run (r : RevenueReading) (k : CancelCheck) (o : OrderBooks) :
+    List (String × BookEvent) → OrderBooks
   | [] => o
-  | (id, e) :: es => OrderBooks.run r (o.apply r id e) es
+  | (id, e) :: es => OrderBooks.run r k (o.apply r k id e) es
 
 /-- The order's payments, refunds, liability, revenue and forfeited amounts:
 the totals over its services. -/

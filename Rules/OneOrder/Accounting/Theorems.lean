@@ -762,14 +762,16 @@ For DELIVERED, NOT CLAIMED, EXPIRED and FAILED TO DELIVER, does the amount
 paid earn revenue, go back as a refund or stay a liability, and when is a
 penalty reported at cancellation recognized? -/
 @[open_question, checks "ONE-809.3"]
-theorem final_status_no_liability (r : RevenueReading) (b b' : ServiceBooks) (e : BookEvent)
-    (h : bookStep r b e = some b') (hf : isFinal b'.delivery = true) : b'.liability r = 0 := by
+theorem final_status_no_liability (r : RevenueReading) (k : CancelCheck) (b b' : ServiceBooks)
+    (e : BookEvent) (h : bookStep r k b e = some b') (hf : isFinal b'.delivery = true) :
+    b'.liability r = 0 := by
   sorry
 
-/-- Every event keeps a service's books balanced, under every reading. -/
-theorem bookStep_balanced (r : RevenueReading) (b : ServiceBooks) (e : BookEvent)
-    (h : b.Balanced r) : ((bookStep r b e).getD b).Balanced r := by
-  cases hstep : bookStep r b e with
+/-- Where the airline checks the amounts of a cancellation, every event keeps
+a service's books balanced, under every reading of revenue. -/
+theorem bookStep_balanced_of_checked (r : RevenueReading) (b : ServiceBooks) (e : BookEvent)
+    (h : b.Balanced r) : ((bookStep r .checked b e).getD b).Balanced r := by
+  cases hstep : bookStep r .checked b e with
   | none => exact h
   | some b' =>
     simp only [Option.getD_some]
@@ -816,10 +818,11 @@ theorem totals_balanced (r : RevenueReading) (o : OrderBooks) (h : ∀ b ∈ o, 
     unfold ServiceBooks.Balanced at hb
     omega
 
-/-- Running events over an order's books keeps every service's books
-balanced. -/
-theorem run_balanced (r : RevenueReading) (o : OrderBooks) (es : List (String × BookEvent))
-    (h : ∀ b ∈ o, b.Balanced r) : ∀ b ∈ o.run r es, b.Balanced r := by
+/-- Where the airline checks the amounts of a cancellation, running events
+over an order's books keeps every service's books balanced. -/
+theorem run_balanced_of_checked (r : RevenueReading) (o : OrderBooks)
+    (es : List (String × BookEvent)) (h : ∀ b ∈ o, b.Balanced r) :
+    ∀ b ∈ o.run r .checked es, b.Balanced r := by
   induction es generalizing o with
   | nil => exact h
   | cons e es ih =>
@@ -829,40 +832,76 @@ theorem run_balanced (r : RevenueReading) (o : OrderBooks) (es : List (String ×
     simp only [OrderBooks.apply, List.mem_map] at hb
     obtain ⟨b0, hb0, rfl⟩ := hb
     split_ifs
-    · exact bookStep_balanced r b0 ev (h b0 hb0)
+    · exact bookStep_balanced_of_checked r b0 ev (h b0 hb0)
     · exact h b0 hb0
 
-/-- Whatever accounting is told about an order's services, its payments equal
-its refunds, plus the amount held as liability, plus the revenue recognized,
-plus the forfeited amounts, under every reading. -/
-@[checks "ONE-809.4"]
-theorem order_books_balance (r : RevenueReading) (ids : List String)
+/-- Where the airline checks the amounts of a cancellation, whatever
+accounting is told about an order's services, its payments equal its refunds,
+plus the amount held as liability, plus the revenue recognized, plus the
+forfeited amounts, under every reading of revenue. -/
+theorem order_books_balance_of_checked (r : RevenueReading) (ids : List String)
     (es : List (String × BookEvent)) :
-    ((OrderBooks.run r (ids.map ServiceBooks.new) es).totals r).Balanced := by
+    ((OrderBooks.run r .checked (ids.map ServiceBooks.new) es).totals r).Balanced := by
   apply totals_balanced
-  apply run_balanced
+  apply run_balanced_of_checked
   intro b hb
   simp only [List.mem_map] at hb
   obtain ⟨id, -, rfl⟩ := hb
   simp [ServiceBooks.Balanced, ServiceBooks.new, ServiceBooks.liability, ServiceBooks.revenue,
     isFinal]
 
-/-- Whatever accounting is told about an order's services, it never refunds
-more than was paid, under every reading. -/
-@[checks "ONE-809.5"]
-theorem refunds_within_payments (r : RevenueReading) (ids : List String)
+/-- Whatever accounting is told about an order's services, its payments equal
+its refunds, plus the amount held as liability, plus the revenue recognized,
+plus the forfeited amounts.
+
+Open question for the business.  Under the reading where accounting records a
+cancellation as the airline sends it, a refund, penalty and forfeited amount
+that do not add up to what was paid break the balance.  The examples
+{lit}`goodwillRefund` and {lit}`cancelNotAddingUp` show it: a goodwill refund
+of 120.00 on a 100.00 flight leaves 100.00 paid against 120.00 refunded.
+Where the airline checks the amounts, the balance holds
+({name}`order_books_balance_of_checked`).  Must the amounts of a cancellation
+add up to what was paid, and if not, where does the difference go? -/
+@[open_question, checks "ONE-809.4"]
+theorem order_books_balance (r : RevenueReading) (k : CancelCheck) (ids : List String)
     (es : List (String × BookEvent)) :
-    ((OrderBooks.run r (ids.map ServiceBooks.new) es).totals r).refunded ≤
-      ((OrderBooks.run r (ids.map ServiceBooks.new) es).totals r).paid := by
-  have := order_books_balance r ids es
+    ((OrderBooks.run r k (ids.map ServiceBooks.new) es).totals r).Balanced := by
+  sorry
+
+/-- Where the airline checks the amounts of a cancellation, whatever
+accounting is told about an order's services, it never refunds more than was
+paid, under every reading of revenue. -/
+theorem refunds_within_payments_of_checked (r : RevenueReading) (ids : List String)
+    (es : List (String × BookEvent)) :
+    ((OrderBooks.run r .checked (ids.map ServiceBooks.new) es).totals r).refunded ≤
+      ((OrderBooks.run r .checked (ids.map ServiceBooks.new) es).totals r).paid := by
+  have := order_books_balance_of_checked r ids es
   unfold OrderTotals.Balanced at this
   omega
 
-/-- A cancellation whose refund, penalty and forfeited amount do not add up to
-the amount paid for the service is refused, under every reading. -/
+/-- Whatever accounting is told about an order's services, it never refunds
+more than was paid.
+
+Open question for the business.  Under the reading where accounting records a
+cancellation as the airline sends it, nothing stops a refund larger than what
+was paid.  The example {lit}`goodwillRefund` shows it: a goodwill refund of
+120.00 on a flight paid at 100.00.  Where the airline checks the amounts, a
+refund never exceeds what was paid
+({name}`refunds_within_payments_of_checked`).  May a refund exceed what was
+paid, for example as goodwill, and how is the excess accounted for? -/
+@[open_question, checks "ONE-809.5"]
+theorem refunds_within_payments (r : RevenueReading) (k : CancelCheck) (ids : List String)
+    (es : List (String × BookEvent)) :
+    ((OrderBooks.run r k (ids.map ServiceBooks.new) es).totals r).refunded ≤
+      ((OrderBooks.run r k (ids.map ServiceBooks.new) es).totals r).paid := by
+  sorry
+
+/-- Where the airline checks the amounts of a cancellation, a report whose
+refund, penalty and forfeited amount do not add up to the amount paid for the
+service is refused, under every reading of revenue. -/
 @[checks "ONE-809.6"]
 theorem cancel_must_add_up (r : RevenueReading) (b : ServiceBooks) (rf pen forf : Nat)
-    (h : rf + pen + forf ≠ b.paid) : bookStep r b (.cancel rf pen forf) = none := by
+    (h : rf + pen + forf ≠ b.paid) : bookStep r .checked b (.cancel rf pen forf) = none := by
   simp [bookStep, h]
 
 end Rules.OneOrder.Accounting

@@ -150,17 +150,18 @@
 
 \begin{definition}[Accounting for paid services]
   \label{def:accounting-books}
-  \lean{Rules.OneOrder.Accounting.bookStep, Rules.OneOrder.Accounting.ServiceBooks, Rules.OneOrder.Accounting.BookEvent, Rules.OneOrder.Accounting.RevenueReading, Rules.OneOrder.Accounting.Treatment, Rules.OneOrder.Accounting.ServiceBooks.liability, Rules.OneOrder.Accounting.ServiceBooks.revenue, Rules.OneOrder.Accounting.OrderBooks.run, Rules.OneOrder.Accounting.OrderBooks.totals}
+  \lean{Rules.OneOrder.Accounting.bookStep, Rules.OneOrder.Accounting.ServiceBooks, Rules.OneOrder.Accounting.BookEvent, Rules.OneOrder.Accounting.RevenueReading, Rules.OneOrder.Accounting.Treatment, Rules.OneOrder.Accounting.ServiceBooks.liability, Rules.OneOrder.Accounting.ServiceBooks.revenue, Rules.OneOrder.Accounting.OrderBooks.run, Rules.OneOrder.Accounting.OrderBooks.totals, Rules.OneOrder.Accounting.CancelCheck}
   \uses{def:c08-delivery-status, def:delivery-final-statuses, def:payment, def:refund}
   Accounting holds the amount paid for a service as a liability until the
   service reaches a final delivery status.  A \texttt{DELIVERED} service then
   earns its amount as revenue.  For the other final statuses reached
   without cancellation the model takes as a parameter, a reading of the
   sources, whether the amount earns revenue, is refunded or stays a
-  liability.  A cancellation splits the amount paid into a refund, a
-  penalty and a forfeited amount, and is refused when the three do not add
-  up to it.  Whether the penalty is recognized as revenue at cancellation is
-  part of the reading.
+  liability.  A cancellation reports a refund, a penalty and a forfeited
+  amount.  Whether the penalty is recognized as revenue at cancellation is
+  part of the reading.  Whether a report whose three amounts do not add up
+  to the amount paid is refused or recorded as the airline sends it is
+  another parameter, a reading of the sources.
 
   Sources: \href{https://retailing.iata.org/armi/docs/ACCSTS/}{IATA capability ACCSTS};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/579272705}{Order Accounting, Service Consumption};
@@ -253,15 +254,39 @@
   a 10.00 tax is non-refundable. Without a forfeited term the 10.00 is
   neither refunded, held nor earned, and the balance fails.
 
+  Counterexample: under the reading where accounting records a
+  cancellation as the airline sends it, a flight paid at 100.00 and
+  cancelled with a goodwill refund of 120.00 leaves 100.00 paid against
+  120.00 refunded.  A refund of 100.00 with a penalty of 25.00 on the same
+  flight leaves 100.00 paid against 125.00 refunded and recognized.
+
   Open point: The sources send payments, refunds as negative payments,
   penalties and forfeited amounts to accounting but never state a balance.
   The business must decide whether forfeited non-refundable taxes form their
-  own term and whether a value store counts as held liability.
+  own term, whether a value store counts as held liability, and whether the
+  amounts reported at cancellation must add up to what was paid.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333086}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333143}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Amount Refunded with a Forfeited amount and a penalty with reporting to Accounting};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844169268}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-books}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
+
+\begin{theorem}[Money balance when cancellation amounts are checked]
+  \label{thm:accounting-balance-checked}
+  \lean{Rules.OneOrder.Accounting.order_books_balance_of_checked}
+  \uses{def:accounting-books, thm:accounting-order-money-balance}
+  Under every reading where the airline checks that a cancellation's
+  refund, penalty and forfeited amount add up to the amount paid, an
+  order's payments equal its refunds, plus the amount held as liability,
+  plus the revenue recognized, plus the forfeited amounts.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333086}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems}.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-books}
@@ -273,28 +298,51 @@
   \label{thm:accounting-refunds-within-payments}
   \lean{Rules.OneOrder.Accounting.refunds_within_payments}
   \uses{thm:accounting-order-money-balance}
-  Under every reading, accounting never refunds more for an order than was
-  paid for it.
+  Accounting never refunds more for an order than was paid for it.
+
+  Counterexample: under the reading where accounting records a
+  cancellation as the airline sends it, a goodwill refund of 120.00 on a
+  flight paid at 100.00 is recorded as it is.
+
+  Open point: whether a refund may exceed what was paid, for example as
+  goodwill, and how the excess is accounted for.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333086}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems}.
 \end{theorem}
 \begin{proof}
   \uses{thm:accounting-order-money-balance}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
+
+\begin{theorem}[Refunds within payments when cancellation amounts are checked]
+  \label{thm:accounting-refunds-checked}
+  \lean{Rules.OneOrder.Accounting.refunds_within_payments_of_checked}
+  \uses{thm:accounting-balance-checked}
+  Under every reading where the airline checks that a cancellation's
+  amounts add up to the amount paid, accounting never refunds more for an
+  order than was paid for it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333086}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:accounting-balance-checked}
   Every term of the balance is zero or more.
 \end{proof}
 
-\begin{theorem}[Cancellation amounts add up]
+\begin{theorem}[Checking a cancellation's amounts]
   \label{thm:accounting-cancel-adds-up}
   \lean{Rules.OneOrder.Accounting.cancel_must_add_up}
   \uses{def:accounting-books}
-  Under every reading, a cancellation whose refund, penalty and forfeited
-  amount do not add up to the amount paid for the service is refused.
+  Where the airline checks the amounts of a cancellation, a report whose
+  refund, penalty and forfeited amount do not add up to the amount paid for
+  the service is refused, under every reading of revenue.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333143}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Amount Refunded with a Forfeited amount and a penalty with reporting to Accounting}.
 \end{theorem}
 \begin{proof}
   \uses{def:accounting-books}
-  The cancellation checks the sum.
+  The checking reading compares the sum with the amount paid.
 \end{proof}
 
 \begin{definition}[Commission on an item (C-147)]

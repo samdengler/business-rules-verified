@@ -46,11 +46,11 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Account
 3. WHEN a paid service reaches a final delivery status THE SYSTEM SHALL hold none of the amount paid for it as a liability.
    - ONE-809.3, open: open theorem `final_status_no_liability`; counterexample `cancelWithPenalty`; counterexample `noShowTreatments`
 4. THE SYSTEM SHALL keep each order's payments equal to its refunds, plus the amount held as liability, plus the revenue recognized, plus the forfeited amounts.
-   - ONE-809.4, proven: proven theorem `order_books_balance`; example `cancelWithPenalty`; example `deliveredFlightBooks`; example `noShowTreatments`; example `nonRefundableTax`
+   - ONE-809.4, open: open theorem `order_books_balance`; counterexample `cancelNotAddingUp`; counterexample `cancelWithPenalty`; counterexample `deliveredFlightBooks`; counterexample `goodwillRefund`; counterexample `noShowTreatments`; counterexample `nonRefundableTax`
 5. THE SYSTEM SHALL never refund more for an order than was paid for it.
-   - ONE-809.5, proven: proven theorem `refunds_within_payments`; example `cancelWithPenalty`; example `nonRefundableTax`
-6. IF the refund, penalty and forfeited amount reported for a cancelled service do not add up to the amount paid for it THEN THE SYSTEM SHALL refuse the report.
-   - ONE-809.6, proven: proven theorem `cancel_must_add_up`; example `cancelNotAddingUp`
+   - ONE-809.5, open: open theorem `refunds_within_payments`; counterexample `cancelWithPenalty`; counterexample `goodwillRefund`; counterexample `nonRefundableTax`
+6. WHERE the airline checks the amounts of a cancellation THE SYSTEM SHALL refuse a report whose refund, penalty and forfeited amount do not add up to the amount paid for the service.
+   - ONE-809.6, proven: proven theorem `cancel_must_add_up`; example `cancelNotAddingUp`; example `goodwillRefund`
 
 #### Open question on ONE-809.3
 
@@ -65,3 +65,31 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Account
 > For DELIVERED, NOT CLAIMED, EXPIRED and FAILED TO DELIVER, does the amount
 > paid earn revenue, go back as a refund or stay a liability, and when is a
 > penalty reported at cancellation recognized?
+
+#### Open question on ONE-809.4
+
+> Whatever accounting is told about an order's services, its payments equal
+> its refunds, plus the amount held as liability, plus the revenue recognized,
+> plus the forfeited amounts.
+>
+> Open question for the business.  Under the reading where accounting records a
+> cancellation as the airline sends it, a refund, penalty and forfeited amount
+> that do not add up to what was paid break the balance.  The examples
+> `goodwillRefund` and `cancelNotAddingUp` show it: a goodwill refund
+> of 120.00 on a 100.00 flight leaves 100.00 paid against 120.00 refunded.
+> Where the airline checks the amounts, the balance holds
+> \(`order_books_balance_of_checked`\).  Must the amounts of a cancellation
+> add up to what was paid, and if not, where does the difference go?
+
+#### Open question on ONE-809.5
+
+> Whatever accounting is told about an order's services, it never refunds
+> more than was paid.
+>
+> Open question for the business.  Under the reading where accounting records a
+> cancellation as the airline sends it, nothing stops a refund larger than what
+> was paid.  The example `goodwillRefund` shows it: a goodwill refund of
+> 120.00 on a flight paid at 100.00.  Where the airline checks the amounts, a
+> refund never exceeds what was paid
+> \(`refunds_within_payments_of_checked`\).  May a refund exceed what was
+> paid, for example as goodwill, and how is the excess accounted for?

@@ -656,9 +656,11 @@ def revenueReading (others : Treatment) (penaltyEarned : Bool) : RevenueReading 
   delivered := by simp
   penaltyEarned := penaltyEarned
 
-/-- The books of a one-flight order after a sequence of events. -/
-def flightBooks (r : RevenueReading) (es : List BookEvent) : OrderTotals :=
-  (OrderBooks.run r [.new "SVC-1"] (es.map ("SVC-1", ·))).totals r
+/-- The books of a one-flight order after a sequence of events, where the
+airline checks the amounts of a cancellation unless told otherwise. -/
+def flightBooks (r : RevenueReading) (es : List BookEvent) (k : CancelCheck := .checked) :
+    OrderTotals :=
+  (OrderBooks.run r k [.new "SVC-1"] (es.map ("SVC-1", ·))).totals r
 
 /-- An order's totals after each step. -/
 structure BookSteps where
@@ -754,17 +756,47 @@ def noShowTreatments : NoShowBooks :=
     refund := { paid := 10000, refunded := 10000, liability := 0, revenue := 0, forfeited := 0 },
     keep := { paid := 10000, refunded := 0, liability := 10000, revenue := 0, forfeited := 0 } }
 
+/-- An order's totals under the two readings of the cancellation check. -/
+structure CheckedOrAsSent where
+  /-- Where the airline checks that the amounts add up to what was paid. -/
+  checked : OrderTotals
+  /-- Where accounting records the amounts as the airline sends them. -/
+  asSent : OrderTotals
+  deriving DecidableEq, Repr
+
+/-- Run a one-flight order's events under both readings of the check. -/
+def CheckedOrAsSent.of (es : List BookEvent) : CheckedOrAsSent :=
+  { checked := flightBooks (revenueReading .earn true) es .checked,
+    asSent := flightBooks (revenueReading .earn true) es .asSent }
+
 /-- *Given* an order with one flight paid at 100.00 EUR.
 
 *When* a cancellation is reported with a refund of 100.00 EUR and a penalty of
 25.00 EUR, which add up to more than was paid.
 
-*Then* the report is refused and the books are unchanged: the flight is still a
-100.00 EUR liability. -/
-@[case, checks "ONE-809.6"]
-def cancelNotAddingUp : OrderTotals :=
-  flightBooks (revenueReading .earn true) [.pay 10000, .cancel 10000 2500 0]
+*Then* where the airline checks the amounts, the report is refused and the
+flight is still a 100.00 EUR liability.  Where accounting records it as sent,
+the books show 100.00 EUR paid against 100.00 EUR refunded and 25.00 EUR of
+revenue: they do not balance. -/
+@[case, checks "ONE-809.4 ONE-809.6"]
+def cancelNotAddingUp : CheckedOrAsSent := .of [.pay 10000, .cancel 10000 2500 0]
 
-#guard cancelNotAddingUp == { paid := 10000, refunded := 0, liability := 10000, revenue := 0, forfeited := 0 }
+#guard cancelNotAddingUp ==
+  { checked := { paid := 10000, refunded := 0, liability := 10000, revenue := 0, forfeited := 0 },
+    asSent := { paid := 10000, refunded := 10000, liability := 0, revenue := 2500, forfeited := 0 } }
+
+/-- *Given* an order with one flight paid at 100.00 EUR.
+
+*When* the airline cancels it and reports a goodwill refund of 120.00 EUR.
+
+*Then* where the airline checks the amounts, the report is refused.  Where
+accounting records it as sent, 120.00 EUR is refunded against 100.00 EUR paid:
+the refunds exceed the payments and the books do not balance. -/
+@[case, checks "ONE-809.4 ONE-809.5 ONE-809.6"]
+def goodwillRefund : CheckedOrAsSent := .of [.pay 10000, .cancel 12000 0 0]
+
+#guard goodwillRefund ==
+  { checked := { paid := 10000, refunded := 0, liability := 10000, revenue := 0, forfeited := 0 },
+    asSent := { paid := 10000, refunded := 12000, liability := 0, revenue := 0, forfeited := 0 } }
 
 end Rules.OneOrder.Accounting
