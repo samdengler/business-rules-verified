@@ -104,6 +104,24 @@
     "decision": 126,
     "waiting": 8
    }
+  },
+  {
+   "seq": 7,
+   "name": "payment",
+   "description": "Payment is in Lean: payment status, paid items, accepting a payment with surcharges, payment outcomes and unpaid items at their time limit, with three open questions.",
+   "commit": "26db0cda24b005e371befed52952fd40e828ef19",
+   "date": "2026-10-30T00:12:54-04:00",
+   "tag": "milestone/payment",
+   "file": "0007-payment.json",
+   "nodes": 243,
+   "statusCounts": {
+    "modelled": 42,
+    "proven": 55,
+    "open": 11,
+    "ready": 11,
+    "decision": 118,
+    "waiting": 6
+   }
   }
  ]
 }
