@@ -158,6 +158,24 @@
     "decision": 105,
     "waiting": 4
    }
+  },
+  {
+   "seq": 10,
+   "name": "airline-change",
+   "description": "Airline-initiated change is in Lean: answering a change notice, missed time limits, declining a change, cancelling a flight and re-accommodation, with eight open questions.",
+   "commit": "34233916fe954ba31f419e40c05c0d81cf201f53",
+   "date": "2026-10-30T00:46:44-04:00",
+   "tag": "milestone/airline-change",
+   "file": "0010-airline-change.json",
+   "nodes": 314,
+   "statusCounts": {
+    "modelled": 66,
+    "proven": 111,
+    "open": 30,
+    "ready": 8,
+    "decision": 95,
+    "waiting": 4
+   }
   }
  ]
 }
