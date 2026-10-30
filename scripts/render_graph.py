@@ -9,7 +9,8 @@ address:
   matrix      areas by areas, with the number of dependencies in each cell;
   all-cards   every card, with an arrow from each one to the cards that build
               on it, and lenses by area and by IATA capability;
-  history     the milestones in history/, as clusters of dots by area;
+  history     the milestones in history/, as the film from motion/ and as
+              clusters of dots by area;
   card        one card's neighbourhood: what it depends on and what builds
               on it.  A link ending in #<label> opens it.
 
@@ -420,6 +421,15 @@ def page(m, history):
     </div>
     <div class="legend">{status_legend}</div>
   </div>
+  <figure class="film">
+    <video controls preload="metadata" playsinline width="1920" height="1080" poster="../motion/history-poster.jpg"
+      aria-describedby="film-caption">
+      <source src="../motion/history.mp4" type="video/mp4">
+      <a href="../motion/history.mp4">Download the film</a>
+    </video>
+    <figcaption id="film-caption">A film of the graph growing card by card over the {len(ms)} milestones; the step
+    control below goes through them one milestone at a time.</figcaption>
+  </figure>
   <div class="player">
     <button class="play">Play</button>
     <button data-step="prev" aria-label="Previous milestone">&larr;</button>
@@ -429,8 +439,8 @@ def page(m, history):
   </div>
   <div class="history-stage">{cluster_svg}</div>
   <p class="hnote">Each milestone is a tagged commit, <code>milestone/&lt;name&gt;</code>; its snapshot is in
-  <a href="{REPO}/tree/main/history">history/</a>. The <a href="{REPO}/blob/main/docs/motion-brief.md">motion brief</a>
-  tells the same story for a motion piece.</p>
+  <a href="{REPO}/tree/main/history">history/</a>. The film follows the
+  <a href="{REPO}/blob/main/docs/motion-brief.md">motion brief</a> and is drawn from the same snapshots.</p>
 </section>
 
 <section class="view" id="view-card" role="tabpanel" aria-labelledby="tab-card" hidden>

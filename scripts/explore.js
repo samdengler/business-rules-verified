@@ -434,6 +434,10 @@ const History = (() => {
   const IDX = Object.fromEntries(H.ids.map((id, i) => [id, i]));
   const stage = view.querySelector(".history-stage");
   const playBtn = view.querySelector(".play");
+  // The film above the step control.  It never starts by itself, so a reader
+  // who asks for reduced motion sees only its poster until they press play.
+  // Playing one stops the other.
+  const film = view.querySelector(".film video");
   let at = -1, timer = null;
   function paint(i) {
     const m = H.milestones[i], prev = i > 0 ? H.milestones[i - 1] : null;
@@ -478,8 +482,10 @@ const History = (() => {
   }
   function stop() { clearInterval(timer); timer = null; playBtn.textContent = at === H.milestones.length - 1 ? "Replay" : "Play"; }
   function step(i) { paint(i); setQuiet({ m: String(H.milestones[i].seq) }); }
+  if (film) film.addEventListener("play", () => { if (timer) stop(); });
   playBtn.onclick = () => {
     if (timer) return stop();
+    if (film) film.pause();
     if (at === H.milestones.length - 1) step(0);
     playBtn.textContent = "Pause";
     timer = setInterval(() => { if (at + 1 >= H.milestones.length) return stop(); step(at + 1); }, 2600);
@@ -503,7 +509,7 @@ const History = (() => {
     }
     if (!timer) stop();
   }
-  return { show, pause: () => { if (timer) stop(); } };
+  return { show, pause: () => { if (timer) stop(); if (film) film.pause(); } };
 })();
 
 // ------------------------------------------------- one card's neighbourhood

@@ -3,8 +3,9 @@
 # the progress page at the root, the Explore page under graph/, a summary page
 # per area under area/, the tour under tour/, the review document under
 # review/, the blueprint under blueprint/, the try-it panels' WebAssembly
-# under try/, and the specs and exports beside them.  history/ sends readers
-# to the Explore page's History tab.
+# under try/, the motion piece under motion/, and the specs and exports beside
+# them.  history/ sends readers to the Explore page's History tab, which shows
+# the motion piece.
 #
 #   scripts/assemble-site.sh
 #
@@ -28,6 +29,10 @@ mkdir -p site/blueprint site/review
 cp build/progress/index.html site/index.html
 mkdir -p site/graph
 cp build/graph/index.html build/graph/graph.json site/graph/
+# The motion piece is rendered by scripts/render-motion.sh and committed; CI
+# does not render video.
+mkdir -p site/motion
+cp motion/out/history.mp4 motion/out/history-poster.jpg site/motion/
 mkdir -p site/history site/tour
 cp build/history/index.html site/history/
 cp -r build/area site/area

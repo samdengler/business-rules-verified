@@ -372,6 +372,10 @@ Computed by the build, never typed:
   all come from `build/status.json`.
 - The try-it panels' answers, from the Rust functions compiled to
   WebAssembly by `scripts/build-wasm.sh`.
+- The motion piece, `motion/out/history.mp4` and its poster, drawn from
+  `history/` by `scripts/render-motion.sh`. It is committed, since CI does not
+  render video; its storyboard and captions are authored in
+  `motion/src/story.ts`.
 
 `lake exe status` exits nonzero if any declaration depends on `sorry` without
 the `@[open_question]` tag, if an EARS statement or acceptance criterion does
@@ -400,6 +404,7 @@ pip install leanblueprint               # on macOS with Homebrew graphviz, set
                                         # LDFLAGS=-L$(brew --prefix graphviz)/lib
 scripts/preview.sh                      # the documents only, served at http://localhost:8000
 scripts/build-site.sh                   # everything CI builds, assembled in site/
+scripts/render-motion.sh                # the motion piece in motion/out/ (Node 24); commit it
 ```
 
 `scripts/preview.sh` is the quick loop for changes to the documents: it
@@ -866,3 +871,20 @@ Choices made where the plan left room, in the order they came up.
     it, and the cards that depend on that question. The progress page links
     to it. The build stops if the refund guarantee is no longer open, since
     the tour's text would then be wrong.
+44. **A motion piece rendered with Remotion.** `docs/motion-brief.md` left
+    the tool open. Remotion renders a React composition frame by frame in
+    headless Chrome, so the piece is code that reads the history files.
+    `motion/` imports the snapshots, `history/layout.json` and
+    `build/frames/frames.json`, checks them against each other, and draws the
+    cards, connectors and counters from them, so no count or status is typed
+    by hand. It follows the storyboard; the brief lists where it departs.
+    Rendering needs Node and a headless Chrome and takes about a minute, so CI
+    does not do it: `scripts/render-motion.sh` writes
+    `motion/out/history.mp4` (1920 by 1080, H.264, about 9 MB) and its poster,
+    both are committed, and `scripts/assemble-site.sh` copies them to
+    `/motion/`. They are rendered again after each milestone. The History tab
+    of the Explore page shows the film above the step control. It never
+    starts by itself, so a reader who asks for reduced motion sees the poster
+    until they press play. Remotion is free for individuals, for-profit
+    companies of up to three employees and non-profits, and a larger company
+    needs a company licence (`motion/README.md` links the terms).

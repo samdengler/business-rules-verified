@@ -1,6 +1,8 @@
 # Motion brief: how the dependency graph grows
 
-This brief prepares a motion piece that shows the model growing: nodes are identified from the ONE Order material, wait on business decisions, and turn into Lean rules and proven guarantees, while a few stay open with a counterexample. It describes the story, the data the piece can be built from, and the visual language the site already uses. The History tab of the site's [Explore page](https://samdengler.github.io/airline-order-verified/graph/?view=history) plays the same milestones in the browser, with each area as a box of dots that appear and change color, and is a working draft of the piece. The old `/history/` address sends readers there.
+This brief prepares a motion piece that shows the model growing: nodes are identified from the ONE Order material, wait on business decisions, and turn into Lean rules and proven guarantees, while a few stay open with a counterexample. It describes the story, the data the piece can be built from, and the visual language the site already uses. The History tab of the site's [Explore page](https://samdengler.github.io/airline-order-verified/graph/?view=history) plays the same milestones in the browser, with each area as a box of dots that appear and change color. The old `/history/` address sends readers there.
+
+The piece exists and follows the storyboard below. [`motion/`](../motion/) is a [Remotion](https://www.remotion.dev) project: a React composition that reads `history/` and `build/frames/frames.json` when it is bundled, draws the cards and connectors on the shared canvas, and is rendered frame by frame in headless Chrome. `scripts/render-motion.sh` renders it to `motion/out/history.mp4` (1920 by 1080, 30 fps, H.264, 70 seconds) and its poster, the final state, to `motion/out/history-poster.jpg`. Both are committed, since CI does not render video, and the History tab shows the film above its step control. [`motion/README.md`](../motion/README.md) explains how it is made. [The piece as rendered](#the-piece-as-rendered) lists where it departs from the storyboard.
 
 ## The story, by milestone
 
@@ -11,7 +13,7 @@ Each milestone is a commit with a git tag `milestone/<name>` and a snapshot in [
 | 1 | `first-slice` | 25 | The pilot appears: shared definitions (money, time, passenger), offers and orders, payments and refunds. Rules are In Lean; four guarantees turn Proven. One turns red: two refunds of 60.00 against one payment of 100.00 return 120.00. |
 | 2 | `candidates-identified` | 48 | The first survey of IATA's public pages adds 23 candidates: 12 amber (needs a decision), 2 blue (ready to build), 9 grey and dashed (waiting). |
 | 3 | `starting-small` | 48 | No change. The state to propose for an internal pilot, and the place to pause on "what if we kept going?". |
-| 4 | `oneorder-foundations` | 63 | ONE Order's own structure arrives: services, order items, orders and their statuses. Ten candidates change color as they turn In Lean or Proven, and two new red cards appear: an item can have two statuses at once, and an order with an expired service can be neither opened nor closed. |
+| 4 | `oneorder-foundations` | 63 | ONE Order's own structure arrives: services, order items, orders and their statuses. Ten candidates change color, seven to In Lean or Proven and three to Ready to build, and two new red cards appear: an item can have two statuses at once, and an order with an expired service can be neither opened nor closed. |
 | 5 | `second-survey` | 201 | The second survey reads every area in full. 138 cards arrive, almost all amber, and fill the canvas. This is the moment that shows how much the public material leaves to each airline. |
 | 6 | `change-cancellation` | 221 | Change and cancellation is written in Lean: 20 cards appear, 17 more guarantees turn green, 5 turn red. |
 | 7 | `payment` | 243 | Payment: 22 cards appear, 22 more green, 3 red. |
@@ -31,8 +33,8 @@ About 70 seconds. Every frame uses the same canvas, so cards never move; they ap
 1. **The pilot** (0 to 8 s). Milestone 1 fades in at the top centre, zoomed to its box. The red card pulses once, with the caption "Two refunds of 60.00 against a payment of 100.00 return 120.00."
 2. **First survey** (8 to 14 s). Milestone 2's candidates fade in amber, grey and blue. The camera eases out to milestone 2's box.
 3. **Starting small** (14 to 18 s). Hold on milestone 3. Caption: "Where a pilot could stop."
-4. **Foundations** (18 to 24 s). Milestone 4: ten cards recolor to magenta and green; two red cards pulse.
-5. **The whole standard** (24 to 33 s). Milestone 5: 138 amber cards cascade in, row by row from the top, while the camera pulls back to the full canvas. Caption: "138 rules the public material leaves to the business to decide."
+4. **Foundations** (18 to 24 s). Milestone 4: ten cards recolor to magenta, green and blue; two red cards pulse.
+5. **The whole standard** (24 to 33 s). Milestone 5: 138 cards, 124 of them amber, cascade in, row by row from the top, while the camera pulls back to the full canvas. Caption: "The second survey reads every area: 138 candidate rules, 124 of them left to the business to decide."
 6. **Eight areas** (33 to 60 s). Milestones 6 to 13, about 3 seconds each. Dim every area except the one being written, as the site's area lens does; its new cards fade in, its amber cards turn green, and its new red cards pulse. A caption names the area and one of its open questions:
    * Change and cancellation: a partly paid order is offered a refund of its full price.
    * Payment: a redirected payment captured a minute after its time limit leaves the trip removed.
@@ -86,8 +88,21 @@ git push origin main --follow-tags
 
 `--commit REF` records an earlier commit. Name milestones by what they add, such as `orders-change-identified` for a survey round or `ordpen-formalized` when a capability's rules are in Lean.
 
+## The piece as rendered
+
+The beats run as the storyboard times them: the pilot 0 to 8 s, the first survey 8 to 14 s, starting small 14 to 18 s, the foundations 18 to 24 s, the second survey 24 to 33 s, the eight areas 3.375 s each from 33 to 60 s, and where it stands 60 to 70 s. A new area milestone adds a beat of the same length. Where the piece departs from the storyboard:
+
+* The captions, the milestone and the counts of each status are in a band at the top of the frame. A browser's video controls sit at the bottom, so on the paused poster they cover cards and leave the captions readable.
+* The counters count the cards on screen as they appear and change, with the change from the previous milestone beside each count. At the end of every beat they equal that milestone's counts in `history/index.json`; the composition stops if they do not.
+* Every number in a caption that counts cards is computed from the snapshots. The storyboard's caption for milestone 5, "138 rules the public material leaves to the business to decide", was wrong: 124 of the 138 need a decision, 8 are waiting and 6 are ready to build. The caption and the storyboard above now say so. Milestone 4's ten recolored cards include three that turn Ready to build.
+* The storyboard gives no caption for the first survey or the foundations. The piece says that the first survey adds 23 candidate rules, 12 of which need a business decision, and names the foundations' two open questions. The pilot opens with a line on what it covers before the refund example, and the camera moves in a little toward the refund card while that example is on screen.
+* Each area's caption shows its example with an "Open question" label, and a callout beside the card gives the card's title at a readable size, since on the full canvas a card's text is too small to read. Two captions are reworded to match the Lean examples: for payment, the late payment succeeds and the trip stays removed; for accounting, the two pages split a short payment of 100.00 between two airlines.
+* During an area's beat, cards of other areas that change status in that milestone stay bright with the area's own cards. Change and cancellation recolors two such cards.
+* Every card that becomes an open question pulses once, a moment after it turns red. In the pilot and the foundations, the red cards the caption is about pulse when it appears.
+* On the full canvas a card is about a quarter of its size on the site, so rims are kept at least about a pixel wide, tints are stronger and card text is lighter. Close up, the cards are drawn exactly as on the site.
+
 ## Open for the follow-up
 
-* The motion tool's input format is not settled. The SVG frames and `frames.json` cover a tool that takes frames plus a list of changes; a tool that takes code can draw the cards from `history/layout.json` and the snapshots directly.
 * The captions above are our own words about the model's examples. They quote nothing from IATA's material.
-* The counts above will change as open questions are answered. Rerun `frames` after a new milestone.
+* The counts above will change as open questions are answered. After a new milestone, run `scripts/render-motion.sh` (which reruns `frames`) and commit `motion/out/`.
+* The film is rendered in the light theme. The composition takes `theme: "dark"`, and the page could offer a dark film with `<source media="(prefers-color-scheme: dark)">`, at the cost of a second file of about the same size in the repository.
