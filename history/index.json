@@ -176,6 +176,24 @@
     "decision": 95,
     "waiting": 4
    }
+  },
+  {
+   "seq": 11,
+   "name": "offers-prices",
+   "description": "Offers, prices and conditions are in Lean: price guarantees, time limits of a new order, restriction rules, voluntary changes, cancellation refunds and price totals, with seven open questions.",
+   "commit": "ac90d22983010c57fb50ba1f1988ae710f9bbed4",
+   "date": "2026-10-30T00:50:06-04:00",
+   "tag": "milestone/offers-prices",
+   "file": "0011-offers-prices.json",
+   "nodes": 348,
+   "statusCounts": {
+    "modelled": 74,
+    "proven": 139,
+    "open": 37,
+    "ready": 8,
+    "decision": 87,
+    "waiting": 3
+   }
   }
  ]
 }
