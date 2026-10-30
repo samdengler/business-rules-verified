@@ -230,6 +230,24 @@
     "decision": 67,
     "waiting": 1
    }
+  },
+  {
+   "seq": 14,
+   "name": "critique-before-fixes",
+   "description": "The model as the independent critique found it: 30 problems on the first two questions, 10 of them high, before any fix",
+   "commit": "4dbd267205be6879f594053c4c5b688242580e0d",
+   "date": "2026-10-30T07:34:31-04:00",
+   "tag": null,
+   "file": "0014-critique-before-fixes.json",
+   "nodes": 429,
+   "statusCounts": {
+    "modelled": 92,
+    "proven": 204,
+    "open": 58,
+    "ready": 7,
+    "decision": 67,
+    "waiting": 1
+   }
   }
  ]
 }
