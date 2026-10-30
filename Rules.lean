@@ -42,3 +42,8 @@ import Rules.OneOrder.AirlineChange.FlightCancel
 import Rules.OneOrder.AirlineChange.Reaccommodate
 import Rules.OneOrder.AirlineChange.Theorems
 import Rules.OneOrder.AirlineChange.Examples
+import Rules.OneOrder.Offers.TimeLimits
+import Rules.OneOrder.Offers.Price
+import Rules.OneOrder.Offers.Restrictions
+import Rules.OneOrder.Offers.Theorems
+import Rules.OneOrder.Offers.Examples

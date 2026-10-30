@@ -29,6 +29,12 @@ import Review.Generated.ONE403
 import Review.Generated.ONE404
 import Review.Generated.ONE405
 import Review.Generated.ONE406
+import Review.Generated.ONE501
+import Review.Generated.ONE502
+import Review.Generated.ONE503
+import Review.Generated.ONE504
+import Review.Generated.ONE505
+import Review.Generated.ONE506
 import Review.Generated.ONE701
 import Review.Generated.ONE702
 import Review.Generated.ONE703
@@ -111,6 +117,18 @@ Review.Generated.Front.html
 {include 1 Review.Generated.ONE405}
 
 {include 1 Review.Generated.ONE406}
+
+{include 1 Review.Generated.ONE501}
+
+{include 1 Review.Generated.ONE502}
+
+{include 1 Review.Generated.ONE503}
+
+{include 1 Review.Generated.ONE504}
+
+{include 1 Review.Generated.ONE505}
+
+{include 1 Review.Generated.ONE506}
 
 {include 1 Review.Generated.ONE701}
 

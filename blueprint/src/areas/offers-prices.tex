@@ -6,12 +6,12 @@
 
 \begin{theorem}[Offer expiry ends other limits (C-24)]
   \label{thm:offers-offer-expiry-ends-limits}
-  \uses{def:offer, def:instant, thm:accept-rejects-expired}
-  \notready
-  Before an order exists, no other time limit on an offer outlasts the
-  offer's expiry. Once the offer has expired, its inventory guarantee, price
-  guarantee and payment time limit have lapsed too, unless an order was
-  created from it.
+  \lean{Rules.OneOrder.Offers.guarantees_end_by_expiry}
+  \uses{def:offer, def:instant, thm:accept-rejects-expired, def:offers-price-guarantee}
+  Before an order exists, no price or inventory guarantee on an offer
+  outlasts the offer's expiry. Once the offer's expiry instant has passed,
+  both have lapsed too, unless an order was created from it. A payment time
+  limit takes effect only once an order exists.
 
   Case to check: An offer item whose price guarantee ends an hour after the
   offer expires. A model that reads the guarantee field alone treats the
@@ -25,14 +25,22 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464/Offers}{EASD guide, Offers};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
 \end{theorem}
+\begin{proof}
+  \uses{def:offers-price-guarantee}
+  A guarantee runs until the earlier of its own limit and the offer's
+  expiry, so under either reading it holds at no instant after the expiry.
+\end{proof}
 
 \begin{definition}[Price guarantee at an instant (C-25)]
   \label{def:offers-price-guarantee}
+  \lean{Rules.OneOrder.Offers.guaranteesAt, Rules.OneOrder.Offers.GuaranteeEnd, Rules.OneOrder.Offers.Guarantees, Rules.OneOrder.Offers.TimedOffer, Rules.OneOrder.Offers.TimedOfferItem, Rules.OneOrder.Offers.ItemLimits, Rules.OneOrder.Offers.TimedOffer.holds}
   \uses{def:offer-item, def:instant}
   An offer item's price is guaranteed at an instant only when the item
-  carries a price guarantee time limit and the instant is before that limit.
-  With no such limit the price is unguaranteed. The offer's expiry on its
-  own guarantees neither price nor inventory.
+  carries a price guarantee time limit and the instant is inside both that
+  limit and the offer's expiry. With no such limit the price is
+  unguaranteed. The offer's expiry on its own guarantees neither price nor
+  inventory. Whether a limit's own instant is inside is a reading of the
+  guide, which the model takes as a parameter.
 
   Case to check: An item whose price guarantee ends at the same instant as
   the offer. Accepted at that instant, the offer is rejected as expired, yet
@@ -43,13 +51,98 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464/Offers}{EASD guide, Offers}.
 \end{definition}
 
+\begin{theorem}[No price guarantee without a limit]
+  \label{thm:offers-no-limit-no-guarantee}
+  \lean{Rules.OneOrder.Offers.no_limit_no_guarantee}
+  \uses{def:offers-price-guarantee}
+  Under every reading, an offer item with no price guarantee time limit has
+  no guaranteed price at any instant.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-guarantee}
+  Unfold the rule: a missing limit holds nothing.
+\end{proof}
+
+\begin{theorem}[Price guaranteed before its limit]
+  \label{thm:offers-price-guaranteed-before}
+  \lean{Rules.OneOrder.Offers.price_guaranteed_before}
+  \uses{def:offers-price-guarantee}
+  Under every reading, an offer item's price is guaranteed at every instant
+  before both its price guarantee time limit and the offer's expiry.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-guarantee}
+  An instant before both is before the earlier of the two.
+\end{proof}
+
+\begin{theorem}[Inventory guaranteed before its limit]
+  \label{thm:offers-inventory-guaranteed-before}
+  \lean{Rules.OneOrder.Offers.inventory_guaranteed_before}
+  \uses{def:offers-price-guarantee}
+  Under every reading, an offer item's inventory is guaranteed at every
+  instant before both its inventory guarantee time limit and the offer's
+  expiry.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-guarantee}
+  An instant before both is before the earlier of the two.
+\end{proof}
+
+\begin{theorem}[Guarantee ending at its instant]
+  \label{thm:offers-guarantee-exclusive-acceptable}
+  \lean{Rules.OneOrder.Offers.guaranteed_while_acceptable_of_exclusive}
+  \uses{def:offers-price-guarantee, def:one-accept}
+  Under the reading that a guarantee ends at its instant, an offer item's
+  price is guaranteed only at instants at which the offer can still be
+  accepted.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-guarantee, def:one-accept}
+  A guaranteed price means the instant is before the offer's expiry, and
+  acceptance is rejected as expired only at or after it.
+\end{proof}
+
+\begin{theorem}[Guaranteed prices only on offers that can be accepted]
+  \label{thm:offers-guaranteed-while-acceptable}
+  \lean{Rules.OneOrder.Offers.guaranteed_while_acceptable}
+  \uses{def:offers-price-guarantee, def:one-accept, thm:offers-guarantee-exclusive-acceptable}
+  Under every reading, an offer item's price is guaranteed only at instants
+  at which the offer can still be accepted.
+
+  Counterexample: an offer valid until 12:00 whose flight's price guarantee
+  also ends at 12:00. At 12:00 the offer is rejected as expired. Under the
+  reading that a guarantee still holds at its instant, the price is
+  guaranteed at that instant. The example \texttt{guaranteeAtExpiry}
+  computes both.
+
+  Open point: does a price guarantee still hold at the instant its time
+  limit names?
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-guarantee}
+  Not proven. The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
 \begin{definition}[Accepting after the guarantee lapses (C-26)]
   \label{def:offers-accept-after-guarantee-lapse}
+  \lean{Rules.OneOrder.Offers.LapsedPrice, Rules.OneOrder.Offers.TimedOffer.guaranteeLapsed}
   \uses{def:accept, thm:accept-price-eq-sum, thm:accept-rejects-expired, def:offers-price-guarantee}
-  \notready
   When a customer accepts an unexpired offer after an item's price guarantee
   has lapsed, the airline decides the order price for that item. The source
-  recommends repricing into a new offer before payment.
+  recommends repricing into a new offer before payment. The model takes the
+  answer as a parameter: the acceptance is refused and sent back for a new
+  offer, or the order is created at the offered price.
 
   Case to check: thm:accept-price-eq-sum makes the order price equal the
   offer item prices. An offer with a 30 minute price guarantee accepted two
@@ -82,12 +175,14 @@
 
 \begin{definition}[Payment time limit at creation (C-28)]
   \label{def:offers-payment-limit-at-creation}
+  \lean{Rules.OneOrder.Offers.paymentLimitAt, Rules.OneOrder.Offers.BothForms, Rules.OneOrder.Offers.secondsAfter}
   \uses{def:accept, def:instant, def:c11-payment-time-limit, def:c12-zero-commitment}
-  \notready
   An offer item states its payment time limit as a duration or as a fixed
   date and time. At order creation the order item's limit becomes the
   creation instant plus the duration, or the fixed date and time. A zero
-  duration means payment is due at creation.
+  duration means payment is due at creation. Which form applies when an
+  offer item states both is a reading of the guide, which the model takes
+  as a parameter.
 
   Case to check: A fixed offer limit that falls before the order is created
   gives an order item that is overdue the moment it exists.
@@ -98,6 +193,163 @@
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
 \end{definition}
+
+\begin{definition}[Time limits of a new order]
+  \label{def:offers-create-order}
+  \lean{Rules.OneOrder.Offers.createOrder, Rules.OneOrder.Offers.CreationReading, Rules.OneOrder.Offers.NewOrder, Rules.OneOrder.Offers.NewOrderItem, Rules.OneOrder.Offers.CreateRejection, Rules.OneOrder.Offers.newItem, Rules.OneOrder.Offers.NewOrder.toOrder, Rules.OneOrder.Offers.NewOrder.payable, Rules.OneOrder.Offers.TimedOffer.toOffer}
+  \uses{def:one-accept, def:offers-price-guarantee, def:offers-accept-after-guarantee-lapse, def:offers-payment-limit-at-creation, def:c11-payment-time-limit}
+  Accepting an offer whose items carry time limits runs the checks of
+  ONE-001, then, under the reading that asks for a new offer, refuses the
+  acceptance if an item's price guarantee has lapsed. Each order item takes
+  its payment time limit and its price guarantee from its offer item.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{definition}
+
+\begin{theorem}[New order matches ONE-001]
+  \label{thm:offers-create-order-is-accept}
+  \lean{Rules.OneOrder.Offers.createOrder_toOrder}
+  \uses{def:offers-create-order, def:one-accept}
+  An order created from a timed offer, without its time limits, is the order
+  ONE-001 creates from the same offer, so every guarantee of ONE-001 holds
+  for it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-create-order, def:one-accept}
+  The rule creates the order only when ONE-001 does, with the same items.
+\end{proof}
+
+\begin{theorem}[Payment time limit from a duration]
+  \label{thm:offers-create-duration}
+  \lean{Rules.OneOrder.Offers.createOrder_duration}
+  \uses{def:offers-create-order, def:offers-payment-limit-at-creation}
+  An order item created from an offer item whose payment time limit is
+  stated only as a duration must be paid by the creation instant plus that
+  duration.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-create-order}
+  Unfold the rule for that offer item.
+\end{proof}
+
+\begin{theorem}[Payment time limit from a fixed instant]
+  \label{thm:offers-create-fixed}
+  \lean{Rules.OneOrder.Offers.createOrder_fixed}
+  \uses{def:offers-create-order, def:offers-payment-limit-at-creation}
+  An order item created from an offer item whose payment time limit is
+  stated only as a fixed date and time must be paid by that instant.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-create-order}
+  Unfold the rule for that offer item.
+\end{proof}
+
+\begin{theorem}[Price guarantee carried into the order]
+  \label{thm:offers-create-keeps-guarantee}
+  \lean{Rules.OneOrder.Offers.createOrder_keeps_guarantee}
+  \uses{def:offers-create-order}
+  Each order item keeps the price guarantee time limit of its offer item.
+  This is the first half of C-27; moving limits after creation is not
+  modelled.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-create-order}
+  The order items are the offer items mapped one by one, each keeping its
+  limit.
+\end{proof}
+
+\begin{theorem}[No order after a lapse when repricing]
+  \label{thm:offers-create-reprice}
+  \lean{Rules.OneOrder.Offers.createOrder_guaranteed_of_reprice}
+  \uses{def:offers-create-order, def:offers-accept-after-guarantee-lapse}
+  Under the reading that asks for a new offer, no order is created while
+  the price guarantee of one of the offer's items has lapsed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423098/Pricing+Offers}{EASD guide, Pricing Offers}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-create-order}
+  The rule refuses the acceptance when any item's guarantee has lapsed.
+\end{proof}
+
+\begin{theorem}[No order at a lapsed price]
+  \label{thm:offers-create-price-guaranteed}
+  \lean{Rules.OneOrder.Offers.createOrder_price_guaranteed}
+  \uses{def:offers-create-order, thm:offers-create-reprice}
+  Under every reading, no order is created at the offered price while the
+  price guarantee of one of the offer's items has lapsed.
+
+  Counterexample: an offer valid from 10:00 to 12:00 whose flight's price
+  is guaranteed until 10:30, accepted at 11:59. Under the reading that
+  keeps the offered price, the order is created with the flight at
+  300.00 EUR. The example \texttt{lapsedGuaranteeAccepted} computes both
+  readings.
+
+  Open point: is acceptance after a lapsed price guarantee refused, sent
+  back for a new offer, or honoured at the offered price?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423098/Pricing+Offers}{EASD guide, Pricing Offers}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-create-order}
+  Not proven. The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[No order item overdue at creation]
+  \label{thm:offers-create-limit-after-creation}
+  \lean{Rules.OneOrder.Offers.createOrder_limit_not_before_creation}
+  \uses{def:offers-create-order, def:offers-payment-limit-at-creation}
+  No order item starts with a payment time limit before the order's
+  creation.
+
+  Counterexample: an offer valid until 12:00 whose bag must be paid by
+  10:30, accepted at 11:00. The bag's order item must be paid half an hour
+  before the order existed. The example \texttt{fixedLimitBeforeCreation}
+  computes it.
+
+  Open point: is an acceptance after a fixed payment time limit refused, or
+  does the order item get a new payment time limit?
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-create-order}
+  Not proven. The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Payment due at creation can be made]
+  \label{thm:offers-zero-duration-payable}
+  \lean{Rules.OneOrder.Offers.zero_duration_payable}
+  \uses{def:offers-create-order, def:offers-payment-limit-at-creation, def:payment-accept}
+  An order item whose offer item's payment time limit is a duration of zero
+  can be paid at the instant the order is created.
+
+  Counterexample: a flight at 300.00 EUR with a payment time limit of zero,
+  accepted at 11:00 and paid in full by card at 11:00. The order item's
+  limit is 11:00, and the payment rule of ONE-304 rejects a payment made at
+  or after the limit. The example \texttt{zeroDurationPayment} computes it.
+
+  Open point: is a payment made at the creation instant on time, or must it
+  come with the request that creates the order?
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-create-order, def:payment-accept}
+  Not proven. The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{theorem}[Nesting of guarantee time limits (C-29)]
   \label{thm:offers-guarantee-limits-nest}
@@ -124,13 +376,15 @@
 
 \begin{definition}[Restriction rule in force (C-30)]
   \label{def:offers-restriction-in-force}
+  \lean{Rules.OneOrder.Offers.ruleInForce, Rules.OneOrder.Offers.Restriction, Rules.OneOrder.Offers.Stage, Rules.OneOrder.Offers.Journey, Rules.OneOrder.Offers.Journey.stageAt, Rules.OneOrder.Offers.Action, Rules.OneOrder.Offers.ChangeKind, Rules.OneOrder.Offers.ExpiryReading, Rules.OneOrder.Offers.Restriction.live, Rules.OneOrder.Offers.latestOf, Rules.OneOrder.Offers.candidates}
   \uses{def:offer-item, def:instant}
-  \notready
   Each change or cancel rule on an offer item belongs to one journey stage
   (before payment, before departure, after departure, no show) and starts at
   its effective date. At a given instant the rule in force is the one in the
   current stage with the latest effective date not after that instant. A
-  rule stops when its stage ends or a later rule takes over.
+  rule stops when its stage ends or a later rule takes over. Whether a
+  rule's expiration date also ends it is a reading of the guide, which the
+  model takes as a parameter.
 
   Case to check: In the source example (payment 1 Jan 2019, departure 1 Feb
   2019) the no-change rule described as 7 days before departure starts on 24
@@ -141,20 +395,162 @@
   Open point: The message examples also give rules an expiration date, which
   the stage and override reading never uses. The business must decide which
   governs, and what applies before the first effective date or in a gap
-  between one rule's expiration and the next rule.
+  between one rule's expiration and the next rule. The source also does not
+  say which of two rules of a stage applies when they start at the same
+  instant.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574816307/Offer+Conditions+and+Restrictions}{EASD guide, Offer Conditions and Restrictions}.
 \end{definition}
 
+\begin{theorem}[Rule in force belongs to the current stage]
+  \label{thm:offers-rule-stage}
+  \lean{Rules.OneOrder.Offers.ruleInForce_stage}
+  \uses{def:offers-restriction-in-force}
+  The rule in force for an action at an instant is one of the rules for
+  that action and for the stage the journey is in at that instant.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-restriction-in-force}
+  The rule picks from the rules filtered by action and stage.
+\end{proof}
+
+\begin{theorem}[Rule in force has started]
+  \label{thm:offers-rule-started}
+  \lean{Rules.OneOrder.Offers.ruleInForce_started}
+  \uses{def:offers-restriction-in-force}
+  The rule in force at an instant has its effective date at or before that
+  instant.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-restriction-in-force}
+  The rule picks only from rules that have started.
+\end{proof}
+
+\begin{theorem}[Latest started rule is in force]
+  \label{thm:offers-rule-latest}
+  \lean{Rules.OneOrder.Offers.ruleInForce_latest}
+  \uses{def:offers-restriction-in-force}
+  When rules for an action and the current stage have started, and have not
+  expired where expiration dates end rules, one of them is in force, and
+  none of them starts later than it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-restriction-in-force}
+  By induction on the list of rules: the latest of a list is one of them and
+  starts no earlier than any of them.
+\end{proof}
+
+\begin{theorem}[Expired rules are not in force]
+  \label{thm:offers-rule-not-expired}
+  \lean{Rules.OneOrder.Offers.ruleInForce_not_expired}
+  \uses{def:offers-restriction-in-force}
+  Under the reading that expiration dates end rules, the rule in force at an
+  instant has not reached its expiration date.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574816307/Offer+Conditions+and+Restrictions}{EASD guide, Offer Conditions and Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-restriction-in-force}
+  Under that reading the rule picks only from rules before their expiration
+  date.
+\end{proof}
+
+\begin{theorem}[Every stage with rules has a rule in force]
+  \label{thm:offers-rule-covers-stage}
+  \lean{Rules.OneOrder.Offers.ruleInForce_covers_stage}
+  \uses{def:offers-restriction-in-force, thm:offers-rule-latest}
+  While a journey is in a stage for which an action has rules, a rule is in
+  force for that action.
+
+  Counterexample: a journey paid at 10:00 on 1 January whose only flight
+  change rule before departure starts on 2 January has no rule in force at
+  18:00 on 1 January, under either reading. Under the reading that
+  expiration dates end rules, a rule whose effective and expiration dates
+  are equal is never in force. The example \texttt{noRuleInForce} computes
+  both.
+
+  Open point: what applies to a change or cancellation when no rule of the
+  current stage is in force?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574816307/Offer+Conditions+and+Restrictions}{EASD guide, Offer Conditions and Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-restriction-in-force}
+  Not proven. The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{definition}[Voluntary change under the rule in force]
+  \label{def:offers-voluntary-change}
+  \lean{Rules.OneOrder.Offers.voluntaryChange, Rules.OneOrder.Offers.ChangeRequest, Rules.OneOrder.Offers.ChangeDecision, Rules.OneOrder.Offers.Restriction.feeOr}
+  \uses{def:offers-restriction-in-force, def:change-cancellation-price-differential}
+  A voluntary change is refused when the rule in force forbids it. When the
+  rule allows it, the change goes to the airline's pricing of ONE-201 with
+  the old and new prices, the rule's fee as the penalty and nothing
+  forfeited. When no rule is in force, the decision says so.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{definition}
+
+\begin{theorem}[Forbidden changes are refused]
+  \label{thm:offers-change-refused}
+  \lean{Rules.OneOrder.Offers.change_refused}
+  \uses{def:offers-voluntary-change}
+  A change the rule in force forbids is refused.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-voluntary-change}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Rule's fee is the penalty]
+  \label{thm:offers-change-fee}
+  \lean{Rules.OneOrder.Offers.change_fee_is_penalty}
+  \uses{def:offers-voluntary-change}
+  A change the rule in force allows with a fee is quoted with that fee as
+  its penalty.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-voluntary-change}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[No fee, no penalty]
+  \label{thm:offers-change-no-fee}
+  \lean{Rules.OneOrder.Offers.change_no_fee}
+  \uses{def:offers-voluntary-change}
+  A change the rule in force allows without a fee is quoted with no
+  penalty.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-voluntary-change}
+  Unfold the rule.
+\end{proof}
+
 \begin{theorem}[Voluntary change under a restriction (C-31)]
   \label{thm:offers-change-under-restriction}
-  \uses{def:offers-restriction-in-force, def:c18-change, def:change-cancellation-price-differential}
-  \notready
+  \lean{Rules.OneOrder.Offers.change_net_is_fee_plus_difference}
+  \uses{def:offers-restriction-in-force, def:offers-voluntary-change, def:c18-change, def:change-cancellation-price-differential, def:change-cancellation-due-amounts}
   A voluntary change of a given type, such as flight or name, is rejected
   when the rule in force forbids it. When the rule allows it, the customer
   pays the rule's fee, or nothing if the rule states no fee, plus any fare
-  difference.
+  difference. The model proves the payment for a fee no larger than the
+  price of the items changed, when the seller does not ask to keep the value
+  for later use.
 
   Case to check: The source example described as a no-show change with total
   loss of fare carries a name change rule with a 1 CHF fee and no stage, so
@@ -168,15 +564,23 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574816307/Offer+Conditions+and+Restrictions}{EASD guide, Offer Conditions and Restrictions}.
 \end{theorem}
+\begin{proof}
+  \uses{def:offers-voluntary-change, def:change-cancellation-due-amounts}
+  The quote's price difference is the new price less the old, and a fee no
+  larger than the old price is charged in full under both readings of
+  ONE-202, netted or separate.
+\end{proof}
 
 \begin{definition}[Refund owed on voluntary cancellation (C-32)]
   \label{def:offers-refund-on-cancellation}
+  \lean{Rules.OneOrder.Offers.cancellationRefund, Rules.OneOrder.Offers.RefundTerms, Rules.OneOrder.Offers.RefundTerms.amount, Rules.OneOrder.Offers.FullOrFixed, Rules.OneOrder.Offers.RefundDecision, Rules.OneOrder.Offers.CancelledItem, Rules.OneOrder.Offers.CancelledItem.refundableCharges}
   \uses{def:offers-restriction-in-force, def:c15-cancel-order, thm:c16-penalty-net, def:refund}
-  \notready
   The cancel rule in force decides what a voluntary cancellation returns. A
   rule that forbids cancellation returns nothing. A rule that allows it
   returns a full or a fixed refund, paid to the original form of payment
-  when the rule says so.
+  when the rule says so. Which amount a refund marked full and also given a
+  fixed amount returns is a reading of the guide, which the model takes as
+  a parameter.
 
   Case to check: Reading that example as the full item price and reading it
   as 1.00 CHF give two different refunds for the same rule.
@@ -189,13 +593,76 @@
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
 \end{definition}
 
+\begin{theorem}[Forbidden cancellation returns nothing]
+  \label{thm:offers-cancel-forbidden}
+  \lean{Rules.OneOrder.Offers.cancel_forbidden_nothing}
+  \uses{def:offers-refund-on-cancellation}
+  A cancellation the rule in force forbids returns nothing.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-refund-on-cancellation}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Full refund returns the whole price]
+  \label{thm:offers-cancel-full}
+  \lean{Rules.OneOrder.Offers.cancel_full_refund}
+  \uses{def:offers-refund-on-cancellation}
+  A cancellation the rule in force allows with a full refund and no fixed
+  amount returns the item's whole price.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-refund-on-cancellation}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Fixed refund returns its amount]
+  \label{thm:offers-cancel-fixed}
+  \lean{Rules.OneOrder.Offers.cancel_fixed_refund}
+  \uses{def:offers-refund-on-cancellation}
+  A cancellation the rule in force allows with a fixed refund not marked
+  full returns that amount.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-refund-on-cancellation}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Refund to the original form of payment]
+  \label{thm:offers-cancel-original-form}
+  \lean{Rules.OneOrder.Offers.cancel_to_original_form}
+  \uses{def:offers-refund-on-cancellation}
+  A cancellation the rule in force allows, with the refund sent to the
+  original form of payment, is refunded to the original form of payment.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-refund-on-cancellation}
+  Unfold the rule.
+\end{proof}
+
 \begin{theorem}[Taxes on a non-refundable fare (C-33)]
   \label{thm:offers-refundable-taxes}
+  \lean{Rules.OneOrder.Offers.cancel_returns_refundable_charges}
   \uses{def:offers-refund-on-cancellation, thm:offers-tax-summary-total, def:refund}
-  \notready
   Each tax, fee and charge on a price carries its own refund flag. When an
   unused item is cancelled under a rule that forfeits the fare, the customer
   is still owed the taxes, fees and charges flagged refundable.
+
+  Counterexample: a trip at 500.00 EUR with a refundable airport tax of
+  25.00 EUR, cancelled on 25 January under a rule that forbids
+  cancellation, returns nothing; so does a cancellation after a no show.
+  Under the reading that a refund marked full with a fixed amount of
+  1.00 EUR returns the fixed amount, the cancellation returns 1.00 EUR. The
+  examples \texttt{nonRefundableFareTaxes} and \texttt{fullMarkedWithAmount}
+  compute them.
 
   Open point: The source gives refund flags per tax and per fee and refund
   rules per offer item, but never says how they combine. The business must
@@ -206,11 +673,118 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574914636/Fees}{EASD guide, Fees};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
 \end{theorem}
+\begin{proof}
+  \uses{def:offers-refund-on-cancellation}
+  Not proven. The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{definition}[Totalling a price from its parts]
+  \label{def:offers-price-parts}
+  \lean{Rules.OneOrder.Offers.priceTotal, Rules.OneOrder.Offers.PriceParts, Rules.OneOrder.Offers.PriceTotal, Rules.OneOrder.Offers.PriceTotal.of, Rules.OneOrder.Offers.PriceRejection, Rules.OneOrder.Offers.Charge, Rules.OneOrder.Offers.ConsumptionTax, Rules.OneOrder.Offers.ExcludedTax, Rules.OneOrder.Offers.ExcludedTax.amount, Rules.OneOrder.Offers.PriceParts.lineExcluded, Rules.OneOrder.Offers.PriceParts.amounts, Rules.OneOrder.Offers.sumOf}
+  \uses{def:money, def:money-add, def:offer-item}
+  A price stated with its parts is rejected when its amounts are not all in
+  one currency or its discount is larger than the amount before discounts.
+  Otherwise its base amount is the amount before discounts less the
+  discount, its tax summary total is the sum of its entries, and its total
+  adds the base amount, the surcharges, the fees, the tax summary total and
+  the consumption tax not included in it. Whether that tax comes from the
+  lines marked as not included or from the stated total of excluded tax is
+  a reading of the guide, which the model takes as a parameter. Discounts
+  are stated as amounts.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455915/Taxes+Fees+and+Charges}{EASD guide, Taxes, Fees, and Charges};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2588377182/Consumption+Taxes}{EASD guide, Consumption Taxes}.
+\end{definition}
+
+\begin{theorem}[Mixed-currency prices are rejected]
+  \label{thm:offers-price-mixed-currency}
+  \lean{Rules.OneOrder.Offers.price_rejects_mixed_currency}
+  \uses{def:offers-price-parts}
+  A price with an amount in a currency other than that of its amount before
+  discounts is rejected.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/749305864/Currency+in+Monetary+Amounts}{EASD guide, Currency in Monetary Amounts}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-parts}
+  The currency check runs first.
+\end{proof}
+
+\begin{theorem}[Discount above the base is rejected]
+  \label{thm:offers-price-large-discount}
+  \lean{Rules.OneOrder.Offers.price_rejects_large_discount}
+  \uses{def:offers-price-parts}
+  A price whose discount is larger than its amount before discounts is never
+  totalled.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849038/Discounts}{EASD guide, Discounts}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-parts}
+  Every branch the rule can reach for such a price is a rejection.
+\end{proof}
+
+\begin{theorem}[Base amount after discounts]
+  \label{thm:offers-price-base}
+  \lean{Rules.OneOrder.Offers.price_base}
+  \uses{def:offers-price-parts}
+  A totalled price's base amount is its amount before discounts less its
+  discount.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849038/Discounts}{EASD guide, Discounts}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-parts}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Tax summary total from its entries]
+  \label{thm:offers-price-tax-total}
+  \lean{Rules.OneOrder.Offers.price_tax_total}
+  \uses{def:offers-price-parts}
+  A totalled price's tax summary total is the sum of its entries.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455915/Taxes+Fees+and+Charges}{EASD guide, Taxes, Fees, and Charges}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-parts}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Total from base, surcharges, fees and taxes]
+  \label{thm:offers-price-total-adds}
+  \lean{Rules.OneOrder.Offers.price_total_from_parts}
+  \uses{def:offers-price-parts}
+  A totalled price's total is its base amount plus its surcharges, its
+  fees, its tax summary total and the consumption tax not included in it,
+  as the reading takes that tax, all in the price's currency.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455915/Taxes+Fees+and+Charges}{EASD guide, Taxes, Fees, and Charges}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-parts}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Excluded tax from the lines]
+  \label{thm:offers-price-lines-reading}
+  \lean{Rules.OneOrder.Offers.price_adds_excluded_lines_of_lines}
+  \uses{def:offers-price-parts}
+  Under the reading that takes the excluded consumption tax from the lines,
+  a totalled price adds the tax of every line marked as not included.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2588377182/Consumption+Taxes}{EASD guide, Consumption Taxes}.
+\end{theorem}
+\begin{proof}
+  \uses{def:offers-price-parts}
+  Unfold the rule under that reading.
+\end{proof}
 
 \begin{theorem}[Price total from its parts (C-34)]
   \label{thm:offers-price-total-from-parts}
-  \uses{def:money-add, def:offer-item, thm:offers-tax-summary-total, thm:offers-consumption-tax-lines}
-  \notready
+  \lean{Rules.OneOrder.Offers.price_adds_excluded_lines}
+  \uses{def:money-add, def:offer-item, def:offers-price-parts, thm:offers-price-total-adds, thm:offers-price-lines-reading, thm:offers-tax-summary-total, thm:offers-consumption-tax-lines}
   A price's total equals its base amount plus surcharges, fees, the tax
   summary total and any consumption tax not already included. The base
   amount is stated after discounts: the pre-discount amount minus the
@@ -222,17 +796,30 @@
   raises the total by 58.78 CAD; trusting the zero totals leaves it
   unchanged.
 
+  Counterexample: a base of 452.15 with an HST line of 58.78 marked as not
+  included and a stated total of excluded tax of zero, in US dollars since
+  the model has no Canadian dollar. Taking the tax from the lines gives a
+  total of 510.93; trusting the stated total gives 452.15. The example
+  \texttt{excludedTaxReadings} computes both.
+
   Open point: The source names the parts and gives one example that adds up
   (95.00 base and 20.00 tax give 115.00), but states no formula. The
   business must decide whether fees and surcharges sit inside the tax
   summary or add separately, whether a discount applies before taxes are
-  computed, and whether excluded consumption tax adds to the total.
+  computed, and whether excluded consumption tax adds to the total. The
+  model states discounts as amounts, so a percentage discount and its
+  rounding are not modelled.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455915/Taxes+Fees+and+Charges}{EASD guide, Taxes, Fees, and Charges};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574914636/Fees}{EASD guide, Fees};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849038/Discounts}{EASD guide, Discounts};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2588377182/Consumption+Taxes}{EASD guide, Consumption Taxes}.
 \end{theorem}
+\begin{proof}
+  \uses{def:offers-price-parts}
+  Not proven. The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{theorem}[Tax summary total and detail (C-35)]
   \label{thm:offers-tax-summary-total}
