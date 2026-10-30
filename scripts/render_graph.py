@@ -428,7 +428,7 @@ def page(m, history):
     <div class="caption-live" aria-live="polite"><h2></h2><span class="when"></span><p></p><div class="counts"></div></div>
   </div>
   <div class="history-stage">{cluster_svg}</div>
-  <p class="note">Each milestone is a tagged commit, <code>milestone/&lt;name&gt;</code>; its snapshot is in
+  <p class="hnote">Each milestone is a tagged commit, <code>milestone/&lt;name&gt;</code>; its snapshot is in
   <a href="{REPO}/tree/main/history">history/</a>. The <a href="{REPO}/blob/main/docs/motion-brief.md">motion brief</a>
   tells the same story for a motion piece.</p>
 </section>

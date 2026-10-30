@@ -42,6 +42,9 @@ function urlFor(s) {
   return location.pathname + "?" + q.toString() + (withId ? "#" + encodeURIComponent(s.id) : "");
 }
 let state = readURL();
+// Older links (?focus=, ?area= without a view) take the current form.
+if (new URLSearchParams(location.search).has("focus") || !new URLSearchParams(location.search).has("view"))
+  history.replaceState(null, "", urlFor(state));
 function go(next, push = true) {
   state = { ...state, ...next };
   const url = urlFor(state);
@@ -135,6 +138,12 @@ function render() {
   if (state.view === "history") History.show(); else History.pause();
   if (state.view === "card") Nb.show();
   if (state.view === "matrix") Matrix.show();
+  // A figure wider than a narrow screen starts scrolled to its middle.
+  const fig = document.querySelector(`#view-${state.view} .figure`);
+  if (fig && !fig.dataset.centred && fig.scrollWidth > fig.clientWidth) {
+    fig.scrollLeft = (fig.scrollWidth - fig.clientWidth) / 2;
+    fig.dataset.centred = "1";
+  }
   document.title = `${state.view === "card" && state.id ? C[state.id].title : TITLES[state.view]}: Explore: ${D.site}`;
 }
 
@@ -527,7 +536,9 @@ const Nb = (() => {
         inner += pill(id);
       }
     } else inner = ids.map((id) => pill(id)).join("");
-    return `<section class="nb-col" data-side="${side}" data-k="${k}"><h3>${title}</h3>${inner}</section>`;
+    // On a narrow screen the columns stack: the card, then what it depends on, then what builds on it.
+    const o = side === "up" ? k : 100 + k;
+    return `<section class="nb-col" data-side="${side}" data-k="${k}" style="--o: ${o}"><h3>${title}</h3>${inner}</section>`;
   }
   function show() {
     const id = state.id;
@@ -567,13 +578,13 @@ const Nb = (() => {
       const ids = [...up].filter(([, d]) => d === k).map(([x]) => x).sort(byArea);
       cols += column(k === 1 ? "Depends on directly" : `${k} steps back`, ids, "up", k, false);
     }
-    if (!maxu) cols += `<section class="nb-col nb-none" data-side="up"><h3>Depends on</h3><p class="hint">Nothing: it builds on no other card.</p></section>`;
-    cols += `<section class="nb-col nb-centre" data-side="centre"><h3>This card</h3>${pill(id, " centre")}</section>`;
+    if (!maxu) cols += `<section class="nb-col nb-none" data-side="up" style="--o: 1"><h3>Depends on</h3><p class="hint">Nothing: it builds on no other card.</p></section>`;
+    cols += `<section class="nb-col nb-centre" data-side="centre" style="--o: 0"><h3>This card</h3>${pill(id, " centre")}</section>`;
     for (let k = 1; k <= maxd; k++) {
       const ids = [...down].filter(([, d]) => d === k).map(([x]) => x).sort(byArea);
       cols += column(k === 1 ? "Builds on it directly" : `${k} steps on`, ids, "down", k, true);
     }
-    if (!maxd) cols += `<section class="nb-col nb-none" data-side="down"><h3>Builds on it</h3><p class="hint">No card builds on it yet.</p></section>`;
+    if (!maxd) cols += `<section class="nb-col nb-none" data-side="down" style="--o: 101"><h3>Builds on it</h3><p class="hint">No card builds on it yet.</p></section>`;
     summaryEl.innerHTML = summary + toggle;
     scroll.innerHTML = `<div class="nb-grid">${cols}<svg class="nb-links" aria-hidden="true"></svg></div>`;
     const t = summaryEl.querySelector(".toggle");
@@ -596,8 +607,16 @@ const Nb = (() => {
         scroll.scrollLeft = from.getBoundingClientRect().left - r.left - 20;
       }
       links();
+      edges();
     });
   }
+  // A fade at an edge with more to scroll to.
+  function edges() {
+    const more = scroll.scrollWidth - scroll.clientWidth;
+    scroll.classList.toggle("more-left", scroll.scrollLeft > 2);
+    scroll.classList.toggle("more-right", scroll.scrollLeft < more - 2);
+  }
+  scroll.addEventListener("scroll", edges, { passive: true });
   // The connectors: from each card to the cards that use it, drawn between
   // the columns.
   function links() {

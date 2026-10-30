@@ -335,7 +335,7 @@ def neighbourhood(m, center, words, href, down_all=True, up_steps=None, pill_w=P
     out += heads
     for u, (x, y) in pos.items():
         n = m.by[u]
-        chars = int((pill_w - 24) / 6.2)
+        chars = int((pill_w - 24) / 6.0)
         t = n["title"] if len(n["title"]) <= chars else n["title"][:chars - 2].rstrip() + "…"
         sub = (n["cid"] + " · " if n["cid"] else "") + words[n["status"]]
         cls = "nbp center" if u == center else "nbp"

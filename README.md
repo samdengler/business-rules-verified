@@ -17,7 +17,8 @@ with a link to the source page; IATA owns the standard and its documentation.
 - Progress page, for business readers: <https://samdengler.github.io/airline-order-verified/>
 - Review document: <https://samdengler.github.io/airline-order-verified/review/>
 - Requirement specs, criteria in EARS, in Kiro's format: [`.kiro/specs/`](.kiro/specs/)
-- Dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>
+- Explore page, with the dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>
+- A five-step tour for business readers: <https://samdengler.github.io/airline-order-verified/tour/>
 
 ## Where to start
 
@@ -26,7 +27,8 @@ with a link to the source page; IATA owns the standard and its documentation.
 | See at a glance what is proven, what is open, and what needs a business decision | The [progress page](https://samdengler.github.io/airline-order-verified/) |
 | Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/airline-order-verified/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
-| See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/airline-order-verified/graph/): click a card to read it and see what it depends on. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html) |
+| Get the model explained in five steps | The [tour](https://samdengler.github.io/airline-order-verified/tour/) |
+| See which rules rest on which definitions, and what is proven | The [Explore page](https://samdengler.github.io/airline-order-verified/graph/): a map of the areas, a matrix of the dependencies between them, every card, the history, and any card's neighbourhood. Each area has a summary page under `/area/`. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
 | See how much of ONE Order the model covers | [`docs/one-order-coverage.md`](docs/one-order-coverage.md): IATA's 63 business capabilities, each marked in Lean, candidate or not started |
 | Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) and [`impl/rust`](impl/rust/) |
@@ -94,7 +96,9 @@ The site's front page is a progress page for business readers, written by
 `scripts/render_progress.py`. It shows every rule, guarantee and survey
 candidate as a card with a status in plain words (modelled, proven, open
 question, needs a decision, ready to build, waiting), the counterexample behind
-each open question, and a link to the dependency graph at `/graph/`. The statuses come
+each open question, the open questions and decisions with the most cards
+depending on them, and links to the Explore page at `/graph/` and the tour at
+`/tour/`. The statuses come
 from `build/status.json` and the text from the blueprint statements, so the
 page changes when the model does. The review document is under `/review/`.
 
@@ -354,8 +358,12 @@ Computed by the build, never typed:
 - The conformance vectors' expected answers (`build/oracle/vectors.jsonl`),
   from the model through `lake exe oracle --vectors`.
 - The progress page at the site root, from `build/status.json` and the
-  blueprint statements, by `scripts/render_progress.py`, and the dependency
-  graph page at `/graph/`, from the same sources, by `scripts/render_graph.py`.
+  blueprint statements, by `scripts/render_progress.py`; the Explore page at
+  `/graph/`, from the same sources, by `scripts/render_graph.py`; a summary
+  page per area under `/area/`, by `scripts/render_areas.py`; and the tour at
+  `/tour/`, by `scripts/render_tour.py`. What they share (counts by area,
+  dependencies between areas, how many cards depend on each card) is computed
+  once, in `scripts/graph_model.py`.
 - `\leanok` markers in the blueprint, and the review document's requirement
   chapters and EARS table, written by `scripts/render_status.py` into
   `blueprint/src/*.generated.tex` and `Review/Review/Generated/`. A
@@ -452,7 +460,8 @@ Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
 - Progress page: <https://samdengler.github.io/airline-order-verified/>
 - Verso document: <https://samdengler.github.io/airline-order-verified/review/>
 - Blueprint: <https://samdengler.github.io/airline-order-verified/blueprint/>
-- Dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>, and the blueprint's own: <https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html>
+- Explore page, with the dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>, and the blueprint's own graph: <https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html>
+- Tour: <https://samdengler.github.io/airline-order-verified/tour/>
 - PDF: <https://samdengler.github.io/airline-order-verified/blueprint/print.pdf>
 - EARS table, one row per rule: <https://samdengler.github.io/airline-order-verified/ears.csv>
 - Acceptance criteria, one row per criterion: <https://samdengler.github.io/airline-order-verified/ears-criteria.csv>
@@ -787,3 +796,73 @@ Choices made where the plan left room, in the order they came up.
     (`scripts/render_history.py`), and keeps the milestone in the address
     (`?m=13`). Card titles in the shared layout come from the latest
     snapshot that has the card.
+38. **An Explore page in place of the dependency graph and history pages.**
+    With 429 cards the full graph shows how much there is and little else.
+    Most of its dependencies stay inside one area, so the ones between areas
+    reduce to a graph a reader can follow. The top bar's Dependency graph and
+    History links become one link, Explore, which stays at `/graph/` so older
+    links keep working. It has five views, kept in the address as
+    `?view=area-map`, `matrix`, `all-cards`, `history` and `card`, with a
+    selected card in the hash as before.
+    - The area map is the first view: one box per blueprint section, with its
+      status bar and counts, in layers from the foundations down, and an
+      arrow to each area that builds on it, as thick as the number of
+      dependencies. A box opens the area's summary page. Arrows for fewer
+      than five dependencies are left out; the matrix counts them all.
+    - The layers are set by hand in `AREA_LAYERS` in `scripts/graph_model.py`,
+      since no ordering of the areas has every dependency pointing one way.
+      A new blueprint section stops the build until it is placed there. A
+      dependency on an area listed later points back: dashed on the map, and
+      outlined in the matrix, where it sits above the diagonal.
+    - The dependency matrix counts the dependencies between each pair of
+      areas. Clicking a cell lists the cards behind the count.
+    - All cards is the earlier graph page, with its area lens, and a lens by
+      IATA capability.
+    - History is the earlier `/history/` page drawn as clusters of dots: a
+      box per area and a dot per card, which appear and change color by
+      milestone. `/history/` sends readers to this view and keeps `?m=`.
+    - A card's neighbourhood replaces the focus lens: the card in the middle,
+      what it depends on to the left by distance, and what builds on it to the
+      right, grouped by area, with the side panel's text beside it. Any card
+      link (`graph/#<label>`) and the search box open it. The neighbourhood
+      shows the cards that build on it directly, and all of them on request.
+    - The area map, the matrix and the clusters are drawn by the build
+      (`scripts/area_views.py`); the page's script (`scripts/explore.js`)
+      draws the full graph and the neighbourhood, and is written into the
+      page with `scripts/explore.css`.
+39. **Decide these first.** The progress page ranks the ten open questions
+    and decisions with the most cards depending on them, directly or through
+    other cards, above the open question cards. Ties go to the one whose
+    dependent cards span more areas. Each links to its neighbourhood.
+40. **A summary page per area.** `/area/<slug>/` shows an area's cards by
+    status, the areas it builds on and the areas that build on it, its open
+    questions and decisions with the number of cards depending on each, its
+    requirements with links to their chapters, and its IATA capabilities.
+    Requirements are found through the Lean names on the area's blueprint
+    nodes.
+41. **If we decide this.** Many open guarantees have a version proven for
+    one reading of the sources, named `<open name>_of_<reading>` and tagged
+    with no criterion. The build pairs them by name only, and shows the
+    proven theorem's docstring beside the open question, on the card's panel
+    and on its area page, as a choice the business can make. When this was
+    written, 18 of the 58 open guarantees had a pair; `python3 scripts/render_areas.py --unpaired`
+    lists the others. Three proven `_of_` theorems name no open theorem
+    (`history_rebuilds_of_oldestFirst`, `createOrder_guaranteed_of_reprice`,
+    `recordOutcome_final_of_reading`), so their open guarantees show no pair
+    until one of the names changes.
+42. **IATA capability codes on the blueprint nodes.** Decision 35 noted that
+    a lens by capability needed the codes on the nodes. Each candidate node
+    now ends with a paragraph such as "Capabilities: ORDCAN, ORDCA2.", which
+    `scripts/render_progress.py` reads like "Source:". The codes for C-24 to
+    C-161 come from the survey data; those for C-01 to C-23 come from the
+    coverage map's "In the model or blueprint" column, leaving out the two
+    rows that say a capability is only close to a node. The names come from
+    `docs/one-order-coverage.md`, and the build fails on a code it does not
+    list. The All cards view filters by capability, and the area pages list
+    their codes.
+43. **A guided tour.** `/tour/` takes a business reader through the model in
+    five static steps: the cards by status, the area map, the decisions that
+    reach the most cards, the refund question with the example that breaks
+    it, and the cards that depend on that question. The progress page links
+    to it. The build stops if the refund guarantee is no longer open, since
+    the tour's text would then be wrong.

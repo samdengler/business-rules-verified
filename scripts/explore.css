@@ -126,8 +126,8 @@
 .counts .s-modelled i { background: var(--lean); } .counts .s-proven i { background: var(--good); }
 .counts .s-open i { background: var(--critical); } .counts .s-decision i { background: var(--warning); }
 .counts .s-ready i { background: var(--ready); }
-.note { padding: 0 28px 18px; margin: 0; font-size: 13px; color: var(--muted); flex-shrink: 0; }
-.note a { color: var(--ready); }
+.hnote { padding: 0 28px 18px; margin: 0; font-size: 13px; color: var(--muted); flex-shrink: 0; }
+.hnote a { color: var(--ready); }
 .lens select { font: 13px system-ui, sans-serif; color: var(--ink); background: var(--surface); border: 1px solid var(--ring);
   border-radius: 999px; padding: 3px 10px; max-width: 340px; }
 .lens .sep { width: 1px; height: 20px; background: var(--ring); margin: 0 6px; }
@@ -137,6 +137,10 @@
 .box.reading .lean { margin: 4px 0 0; font-size: 13px; }
 :is(.panel, .nb-panel) .impact { color: var(--ink-2); font-size: 13.5px; }
 :is(.panel, .nb-panel) ul.also { list-style: none; padding: 0; }
+.nb-scroll.more-left { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 96px); mask-image: linear-gradient(to right, transparent 0, #000 96px); }
+.nb-scroll.more-right { -webkit-mask-image: linear-gradient(to left, transparent 0, #000 96px); mask-image: linear-gradient(to left, transparent 0, #000 96px); }
+.nb-scroll.more-left.more-right { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 96px, #000 calc(100% - 96px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 96px, #000 calc(100% - 96px), transparent 100%); }
 @media (max-width: 900px) {
   .nb-stage { flex-direction: column; overflow: auto; }
   .nb-main { flex: none; }
@@ -148,4 +152,16 @@
 @media (prefers-reduced-motion: reduce) {
   .history-stage .dot, .history-stage .cluster, .history-stage .bundle { transition: none; }
   .history-stage .dot.pulse { animation: none; }
+}
+@media (max-width: 700px) {
+  .site-topbar .local { display: none; }
+  .site-topbar { padding: 0 16px; }
+  .explore-bar, .intro, .lens, .player { padding-left: 16px; padding-right: 16px; }
+  .figure, .caption, .stage, .nb-stage, .history-stage, .matrix-wrap { margin-left: 16px; margin-right: 16px; }
+  .nb-grid { flex-direction: column; width: auto; gap: 18px; }
+  .nb-col { order: var(--o); width: 100%; }
+  .nb-col h3 { text-align: left; }
+  .pill, .pill.centre, .nb-none { width: 100%; }
+  .nb-links { display: none; }
+  .nb-scroll { -webkit-mask-image: none !important; mask-image: none !important; }
 }

@@ -23,11 +23,13 @@ Business rules for airline offers and orders as a Lean model, with review docume
 | Authored | Generated |
 | --- | --- |
 | `Rules/**/*.lean`: rule docstrings carry `EARS:`, `Story:` and `* OO-00n.m:` criteria; examples state Given, When and Then and return records whose fields label each part | `Review/Review/Generated/` (`scripts/render_status.py`): a chapter per requirement, the front page cards, the EARS table |
-| `blueprint/src/content.tex`, without `\leanok`; candidate nodes use `Open point:`, `Counterexample:` and `Source:` paragraphs, which the progress page reads | `blueprint/src/*.generated.tex`, `.kiro/specs/` (committed) |
-| `Review/Review/{Overview,OpenQuestions,Objects}.lean`, `Review/Review.lean`, `Review/Review/Status.lean`, `Review/review.css`, `Review/review.js` | `build/progress/index.html` (`scripts/render_progress.py`), the site root; `build/graph/index.html` (`scripts/render_graph.py`), `/graph/` |
+| `blueprint/src/content.tex`, without `\leanok`; candidate nodes use `Open point:`, `Counterexample:`, `Source:` and `Capabilities:` paragraphs, which the progress page reads; capability codes must be in `docs/one-order-coverage.md` | `blueprint/src/*.generated.tex`, `.kiro/specs/` (committed) |
+| `Review/Review/{Overview,OpenQuestions,Objects}.lean`, `Review/Review.lean`, `Review/Review/Status.lean`, `Review/review.css`, `Review/review.js` | `build/progress/index.html` (`scripts/render_progress.py`), the site root; `build/graph/index.html` (`scripts/render_graph.py` with `scripts/explore.js` and `scripts/explore.css`), the Explore page at `/graph/`; `build/area/<slug>/` (`scripts/render_areas.py`); `build/tour/` (`scripts/render_tour.py`); `build/history/` (`scripts/render_history.py`), which sends readers to the Explore page's History tab |
 | `impl/java`, `impl/rust`, `impl/wasm`, `scripts/` | `Verify/Rust/` (committed), `build/try/rules.wasm` |
 
-The bar at the top of every page is defined once in `scripts/site_nav.py`; `Review/review.js` repeats its links for the review document, so change both together.
+The bar at the top of every page is defined once in `scripts/site_nav.py`: Progress, Review document, Explore and GitHub. `Review/review.js` repeats its links for the review document, so change both together.
+
+The Explore page, the area pages, the tour and the progress page's "Decide these first" list read the graph through `scripts/graph_model.py`, so their counts agree. Its `AREA_LAYERS` places each blueprint section in a layer of the area map; a new section stops the build until it is added there. The tour's step 4 is the open refund guarantee; if it is proven, pick another open question in `scripts/render_tour.py`.
 
 A new requirement needs `{include 1 Review.Generated.<ID without the dash>}` (such as `ONE301`) in `Review/Review.lean`; `render_status.py` fails until it is there.
 
@@ -51,7 +53,7 @@ A new requirement needs `{include 1 Review.Generated.<ID without the dash>}` (su
   | Airline-initiated change | `Rules.OneOrder.AirlineChange` | ONE-701 to ONE-799 | `areas/airline-change.tex` |
   | Commission, accounting and settlement | `Rules.OneOrder.Accounting` | ONE-801 to ONE-899 | `areas/accounting.tex` |
 
-- Where the sources are vague or silent, the rule takes the undecided part as a parameter (a reading, such as `ValueReading` or `RepeatHandling`). A guarantee is proven only if it holds under every reading; otherwise it is open, with an example under the reading that breaks it. A proven version for one reading may follow, named with `_of_` and tagged with no criterion. Never pick a reading for the business and then prove the guarantee.
+- Where the sources are vague or silent, the rule takes the undecided part as a parameter (a reading, such as `ValueReading` or `RepeatHandling`). A guarantee is proven only if it holds under every reading; otherwise it is open, with an example under the reading that breaks it. A proven version for one reading may follow, named `<open theorem's name>_of_<reading>` and tagged with no criterion; the site pairs the two by that name and shows the proven docstring under "If we decide this", so its docstring should say which reading it assumes. Never pick a reading for the business and then prove the guarantee.
 - Tag a theorem `@[checks "ID"]` only if it proves that criterion for every input. A theorem that two statuses never overlap does not prove "mark X when Y".
 - Several areas can be written at once in git worktrees, each with `.lake/packages` linked to the main checkout's. Merge by rebasing onto `main`; conflicts in `Rules.lean`, `Review/Review.lean` and `.kiro/specs/README.md` are additive. Keep the requirement chapters in ID order, run `scripts/build-site.sh`, and commit the regenerated specs index.
 
