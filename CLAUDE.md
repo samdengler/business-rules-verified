@@ -65,7 +65,9 @@ A new requirement needs `{include 1 Review.Generated.<ID without the dash>}` (su
   | Commission, accounting and settlement | `Rules.OneOrder.Accounting` | ONE-801 to ONE-899 | `areas/accounting.tex` |
 
 - Where the sources are vague or silent, the rule takes the undecided part as a parameter (a reading, such as `ValueReading` or `RepeatHandling`). A guarantee is proven only if it holds under every reading; otherwise it is open, with an example under the reading that breaks it. A proven version for one reading may follow, named `<open theorem's name>_of_<reading>` and tagged with no criterion; the site pairs the two by that name and shows the proven docstring under "If we decide this", so its docstring should say which reading it assumes. Never pick a reading for the business and then prove the guarantee.
-- Tag a theorem `@[checks "ID"]` only if it proves that criterion for every input. A theorem that two statuses never overlap does not prove "mark X when Y".
+- Tag a theorem `@[checks "ID"]` only if it proves that criterion for every input. A theorem that two statuses never overlap does not prove "mark X when Y". A criterion written as "Where <one reading>" is the same as a proven version for that reading: write the `_of_` theorem instead, with no criterion.
+- A rule in any area that changes a service's delivery status does it through `Delivery.endWith`, never by setting `delivery` directly, and is added to `delivery_moves_follow_table` in `Rules/OneOrder/Consistency.lean`. That theorem is what keeps ONE-101 to ONE-104 true for whole orders.
+- A concept used by more than one area (paid, the live items of an order, a service being live) is defined once, in the area that owns it, and the other areas import it.
 - Several areas can be written at once in git worktrees, each with `.lake/packages` linked to the main checkout's. Merge by rebasing onto `main`; conflicts in `Rules.lean`, `Review/Review.lean` and `.kiro/specs/README.md` are additive. Keep the requirement chapters in ID order, run `scripts/build-site.sh`, and commit the regenerated specs index.
 
 ## Versions
