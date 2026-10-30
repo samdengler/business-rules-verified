@@ -10,6 +10,11 @@ cd "$(dirname "$0")/.."
 
 lake build
 lake exe status
+# Parliament Air's fares, evaluated by the model (Airline/); fails if two
+# readings of the guide disagree.
+lake build Airline airline-facts
+mkdir -p build/airline
+lake exe airline-facts > build/airline/facts.json
 python3 scripts/render_status.py
 lake build Review
 rm -rf build/review
@@ -28,6 +33,7 @@ python3 scripts/render_graph.py
 python3 scripts/render_history.py
 python3 scripts/render_areas.py
 python3 scripts/render_tour.py
+python3 scripts/render_airline.py
 scripts/build-wasm.sh
 
 scripts/assemble-site.sh

@@ -19,6 +19,7 @@ with a link to the source page; IATA owns the standard and its documentation.
 - Requirement specs, criteria in EARS, in Kiro's format: [`.kiro/specs/`](.kiro/specs/)
 - Explore page, with the dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>
 - A five-step tour for business readers: <https://samdengler.github.io/airline-order-verified/tour/>
+- Parliament Air, a fictional airline's policy pages written from the model: <https://samdengler.github.io/airline-order-verified/airline/>
 
 ## Where to start
 
@@ -28,6 +29,7 @@ with a link to the source page; IATA owns the standard and its documentation.
 | Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/airline-order-verified/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
 | Get the model explained in five steps | The [tour](https://samdengler.github.io/airline-order-verified/tour/) |
+| See the rules as an airline's customer policies | The [Parliament Air pages](https://samdengler.github.io/airline-order-verified/airline/): fares, payment, changes, refunds, extras and schedule changes in a traveler's words. Show the Lean model to see the requirement behind each answer; [Parliament Air, the airline demo](#parliament-air-the-airline-demo) explains them |
 | See which rules rest on which definitions, and what is proven | The [Explore page](https://samdengler.github.io/airline-order-verified/graph/): a map of the areas, a matrix of the dependencies between them, every card, the history, and any card's neighbourhood. Each area has a summary page under `/area/`. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
 | See how much of ONE Order the model covers | [`docs/one-order-coverage.md`](docs/one-order-coverage.md): IATA's 63 business capabilities, each marked in Lean, candidate or not started |
@@ -235,6 +237,52 @@ lake build Verify             # the proofs
 includes Charon, into `.aeneas/`, and installs the nightly Rust toolchain
 Charon needs with rustup.
 
+## Parliament Air, the airline demo
+
+Parliament Air is a fictional airline whose policy pages, under
+[`/airline/`](https://samdengler.github.io/airline-order-verified/airline/),
+answer a traveler's questions from the model: a home page, a travel policies
+hub, and six policy pages on fares, payment, changes and cancellations,
+refunds, extras, and schedule changes. They read as an ordinary airline's
+pages. The button "Show the Lean model" (or `?lean=1` in the address, for a
+demo link) adds a ∀ marker beside each section. A marker opens the
+requirement behind the section: its EARS statement, how many of its criteria
+are proven or open, the Lean definition, and a link to its chapter in the
+review document. A marker is blue when every criterion is proven and amber
+when any is open. Where a criterion is open, the page says the point is still
+being decided and tells the traveler to contact the airline; its marker shows
+the open question and links to it.
+
+Three sources feed the pages, and nothing on them is typed by hand:
+
+- `Airline/Fares.lean` writes the three fares, Basic, Main and Flex, as change
+  and cancel rules of the model (`Restriction`), one for each action and
+  stage of a journey after payment. `lake exe airline-facts` loads them in
+  Lean's interpreter, as `lake exe oracle` loads the rules, and evaluates
+  `ruleInForce`, `voluntaryChange` and `cancellationRefund` for every fare and
+  stage, and `priceDifferential` for the worked change. It does so under every
+  reading the model leaves open (whether expiration dates end rules, which
+  amount a refund marked full and fixed returns, what happens to a penalty
+  above the refundable value) and both ways of charging a fee, and fails if
+  any two give different answers. The fares avoid those points, so no reading
+  is chosen for the business. The output is `build/airline/facts.json`,
+  published beside the pages.
+- `build/status.json` gives every status and count.
+- `airline-site/content/` holds the wording, one file per page. Each section
+  names the requirements it rests on (`{model: ONE-504}`), each "still being
+  decided" item its open criterion (`{open: ONE-503.5}`), and every amount is
+  a placeholder such as `{{examples.mainChange.youPay}}`.
+
+`scripts/render_airline.py` fails the build if a content file cites a
+requirement or criterion the model does not have, lists as still being
+decided a criterion that is no longer open, uses a placeholder the facts do
+not have, types an amount, or leaves a section without a marker; and if a
+page shows a requirement ID or the words rule, theorem or criterion while the
+model is hidden. So a proof that closes an open question stops the build
+until the wording is updated, and a change of status changes the badges with
+no edit to the pages. The `Airline` namespace is outside `Rules`, so the
+status counts and the specs do not include it.
+
 ## How this repository was made
 
 [Claude Code](https://claude.com/claude-code), Anthropic's coding agent, built
@@ -336,6 +384,9 @@ Authored, and reviewed against the Lean by a second person:
   interface and vector inputs in `Oracle/Handle.lean`.
 - The Rust implementation in `impl/rust/`, and the proofs about it in
   `Verify/RustRules.lean`.
+- Parliament Air's fares in `Airline/Fares.lean`, and the wording of its
+  policy pages in `airline-site/content/`, with their stylesheet and script in
+  `airline-site/assets/`.
 
 Computed by the build, never typed:
 
@@ -376,6 +427,10 @@ Computed by the build, never typed:
   `history/` by `scripts/render-motion.sh`. It is committed, since CI does not
   render video; its storyboard and captions are authored in
   `motion/src/story.ts`.
+- Every amount on Parliament Air's pages, in `build/airline/facts.json`, from
+  the model's functions by `lake exe airline-facts`; and the pages
+  themselves, with their statuses from `build/status.json`, by
+  `scripts/render_airline.py`.
 
 `lake exe status` exits nonzero if any declaration depends on `sorry` without
 the `@[open_question]` tag, if an EARS statement or acceptance criterion does
@@ -396,6 +451,8 @@ lake exe status                         # build/status.json, ears.md, ears.csv, 
 python3 scripts/render_status.py        # .kiro/specs and the generated review sections
 python3 scripts/diagrams.py             # the README diagrams in docs/diagrams/
 lake build Oracle oracle                # the test oracle for implementation checks
+lake build Airline airline-facts        # Parliament Air's fares, then:
+lake exe airline-facts > build/airline/facts.json
 lake build Verify                       # the proofs about the Rust implementation
 
 python3 -m venv .venv && . .venv/bin/activate
@@ -888,3 +945,20 @@ Choices made where the plan left room, in the order they came up.
     until they press play. Remotion is free for individuals, for-profit
     companies of up to three employees and non-profits, and a larger company
     needs a company licence (`motion/README.md` links the terms).
+45. **A fictional airline's policy pages.** `/airline/` shows the model as a
+    traveler would meet it: Parliament Air's policies in plain words, with the
+    Lean model hidden until a reader asks for it. The pages are static HTML
+    with every popover already in the page, so they need no data fetching and
+    read with scripts off. The fares are values of the model's existing
+    `Restriction` type, evaluated by the model's own functions, so the fare
+    table and worked examples could not be written without the model
+    changing. The model's readings stay open: `lake exe airline-facts`
+    evaluates every reading and fails if two disagree, and the fares are
+    written so they do not (no expiration dates, no refund that is both full
+    and fixed). The fares are invented. The six rows of the fare table extend
+    the design mockup's four with changes after a missed flight and
+    cancellations after the first flight. The page sources are in
+    `airline-site/` because `airline/` and the Lean directory `Airline/` are
+    one directory on macOS's default file system. A "still being decided"
+    item names its open criterion, and the build stops when that criterion
+    is proven, so the pages never keep a stale caveat.

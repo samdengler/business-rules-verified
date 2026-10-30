@@ -18,7 +18,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .lake/build
-          key: lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml', '*.lean', 'Rules/**/*.lean', 'Review/**/*.lean', 'Oracle/**/*.lean', 'Status/**/*.lean', 'Verify/**/*.lean') }}
+          key: lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml', '*.lean', 'Rules/**/*.lean', 'Review/**/*.lean', 'Oracle/**/*.lean', 'Airline/**/*.lean', 'Status/**/*.lean', 'Verify/**/*.lean') }}
           restore-keys: lake-build-${{ runner.os }}-
       - uses: leanprover/lean-action@v1
         with: { use-mathlib-cache: true }
@@ -39,6 +39,9 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y graphviz libgraphviz-dev
       # Fails on any sorry not tagged @[open_question], before anything renders.
       - run: lake exe status
+      # Parliament Air's fares, evaluated by the model's functions for the
+      # airline pages.  Fails if two readings of the guide disagree.
+      - run: lake build Airline airline-facts && mkdir -p build/airline && lake exe airline-facts > build/airline/facts.json
       - run: python3 scripts/render_status.py
       # The Kiro specs are committed; a change to the model must commit them too.
       - name: Check .kiro/specs is up to date
@@ -84,6 +87,10 @@ jobs:
       # A summary page per area, and the guided tour.
       - run: python3 scripts/render_areas.py
       - run: python3 scripts/render_tour.py
+      # Parliament Air's policy pages at /airline/.  Fails if the wording cites
+      # a requirement the model lacks, a criterion no longer open, or an
+      # amount the facts lack.
+      - run: python3 scripts/render_airline.py
       # The try-it panels: the Rust rules compiled to WebAssembly.
       - run: scripts/build-wasm.sh
       - run: scripts/assemble-site.sh

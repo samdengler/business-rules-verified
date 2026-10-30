@@ -33,11 +33,14 @@ FAVICON = ('<link rel="icon" href="data:image/svg+xml,'
 
 # Each link's path from the site root.  Explore is the dependency graph's
 # page, with the area map, the matrix, every card, the history and a card's
-# neighbourhood as views; it stays at graph/ so older links keep working.
+# neighbourhood as views; it stays at graph/ so older links keep working.  The
+# airline demo is Parliament Air's policy pages (scripts/render_airline.py),
+# which have their own header.
 LINKS = [
     ("Progress", ""),
     ("Review document", "review/"),
     ("Explore", "graph/"),
+    ("Airline demo", "airline/"),
     ("GitHub", REPO),
 ]
 
@@ -52,7 +55,8 @@ TOPBAR_CSS = """
   font-weight: 650; font-size: 16px; color: var(--ink, #0b0b0b); text-decoration: none; white-space: nowrap; }
 .site-topbar .brand .mark { width: 20px; height: 20px; flex: none; }
 .site-topbar a { margin: 0; }
-.site-topbar .site-nav { display: flex; gap: 18px; white-space: nowrap; }
+/* On a narrow screen the links scroll sideways. */
+.site-topbar .site-nav { display: flex; gap: 18px; white-space: nowrap; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .site-topbar .site-nav a, .site-topbar .site-nav a:visited, .site-topbar .local, .site-topbar .local:visited {
   color: var(--ink-2, #52514e); text-decoration: none; }
 .site-topbar .site-nav a:hover, .site-topbar .local:hover { color: var(--ink, #0b0b0b); }

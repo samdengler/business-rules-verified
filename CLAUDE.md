@@ -26,13 +26,22 @@ Business rules for airline offers and orders as a Lean model, with review docume
 | `blueprint/src/content.tex`, without `\leanok`; candidate nodes use `Open point:`, `Counterexample:`, `Source:` and `Capabilities:` paragraphs, which the progress page reads; capability codes must be in `docs/one-order-coverage.md` | `blueprint/src/*.generated.tex`, `.kiro/specs/` (committed) |
 | `Review/Review/{Overview,OpenQuestions,Objects}.lean`, `Review/Review.lean`, `Review/Review/Status.lean`, `Review/review.css`, `Review/review.js` | `build/progress/index.html` (`scripts/render_progress.py`), the site root; `build/graph/index.html` (`scripts/render_graph.py` with `scripts/explore.js` and `scripts/explore.css`), the Explore page at `/graph/`; `build/area/<slug>/` (`scripts/render_areas.py`); `build/tour/` (`scripts/render_tour.py`); `build/history/` (`scripts/render_history.py`), which sends readers to the Explore page's History tab |
 | `impl/java`, `impl/rust`, `impl/wasm`, `scripts/` | `Verify/Rust/` (committed), `build/try/rules.wasm` |
+| `Airline/Fares.lean` (Parliament Air's fares), `airline-site/content/*.md` (the wording of each page), `airline-site/assets/` | `build/airline/facts.json` (`lake exe airline-facts`), `build/airline/` pages (`scripts/render_airline.py`), served at `/airline/` |
 | `motion/src/` (the storyboard and captions are in `story.ts`) | `motion/out/history.mp4` and `history-poster.jpg` (`scripts/render-motion.sh`, committed) |
 
-The bar at the top of every page is defined once in `scripts/site_nav.py`: Progress, Review document, Explore and GitHub. `Review/review.js` repeats its links for the review document, so change both together.
+The bar at the top of every page is defined once in `scripts/site_nav.py`: Progress, Review document, Explore, Airline demo and GitHub. `Review/review.js` repeats its links for the review document, so change both together.
 
 The Explore page, the area pages, the tour and the progress page's "Decide these first" list read the graph through `scripts/graph_model.py`, so their counts agree. Its `AREA_LAYERS` places each blueprint section in a layer of the area map; a new section stops the build until it is added there. The tour's step 4 is the open refund guarantee; if it is proven, pick another open question in `scripts/render_tour.py`.
 
 A new requirement needs `{include 1 Review.Generated.<ID without the dash>}` (such as `ONE301`) in `Review/Review.lean`; `render_status.py` fails until it is there.
+
+## Parliament Air pages
+
+- The pages under `/airline/` are a fictional airline's policies, written from the model. Every amount is a `{{placeholder}}` from `build/airline/facts.json`; never type one. To change a fee or refund, change `Airline/Fares.lean` and rebuild. The `Airline` namespace stays outside `Rules`, so the status counts do not change.
+- The fares must not depend on a reading of the guide: no expiration dates, no refund both full and fixed. `lake exe airline-facts` fails if two readings disagree.
+- Each `##` section of a policy page ends with `{model: ID, ...}` and each item under "Still being decided" with `{open: criterion}`. When a cited criterion is proven, `scripts/render_airline.py` stops the build: rewrite that item's wording.
+- Traveler-facing wording never says rule, theorem or criterion, and shows no requirement ID; the build checks the pages with the Lean model hidden. Those words belong in the popovers.
+- The page sources are in `airline-site/`, since `airline/` and `Airline/` are one directory on macOS.
 
 ## Branches, tags and milestones
 
