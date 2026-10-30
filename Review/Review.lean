@@ -12,13 +12,13 @@ import Review.Generated.Ears
 open Verso.Genre Manual
 open Review
 
-#doc (Manual) "Offer Acceptance: Business Rules for Review" =>
+#doc (Manual) "Airline Order: Business Rules for Review" =>
 %%%
 authors := ["Sam Dengler"]
-shortTitle := "Offer acceptance"
+shortTitle := "Airline Order"
 %%%
 
-This document describes the Offer acceptance rules as a Lean model, for review by the Offer/Order team.
+This document describes the offer and order rules as a Lean model, for review by the Offer/Order team.
 There is one chapter per requirement. Every rule, guarantee, and example in them is drawn from the model and checked when the document is built.
 
 ```rawHtmlDef

@@ -24,7 +24,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const brand = document.createElement("a");
   brand.className = "brand";
   brand.href = "../";
-  brand.textContent = "Offer and Order rules";
+  brand.innerHTML = '<svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path transform="rotate(-30 12 12)" '
+    + 'fill="currentColor" d="M21.6 12c0-.85-.7-1.45-1.55-1.45H14.3L9.4 3.2H7.6l2.35 7.35H5.5L3.75 8.1H2.4l1.05 3.9-1.05 3.9h1.35l1.75-2.45h4.45L7.6 20.8h1.8l4.9-7.35h5.75c.85 0 1.55-.6 1.55-1.45z"/></svg>Airline Order';
+  // The same plane as the browser tab's icon (FAVICON in scripts/site_nav.py).
+  const icon = document.createElement("link");
+  icon.rel = "icon";
+  icon.href = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+    + '<path transform="rotate(-30 12 12)" fill="#2a78d6" d="M21.6 12c0-.85-.7-1.45-1.55-1.45H14.3L9.4 3.2H7.6l2.35 7.35H5.5L3.75 8.1H2.4l1.05 3.9-1.05 3.9h1.35l1.75-2.45h4.45L7.6 20.8h1.8l4.9-7.35h5.75c.85 0 1.55-.6 1.55-1.45z"/></svg>');
+  document.head.appendChild(icon);
   // Inside the title area: Verso's search box overlaps anything placed after it.
   const wrapper = header.querySelector(".header-title-wrapper") || header;
   wrapper.append(brand, nav);

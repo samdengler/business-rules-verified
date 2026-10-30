@@ -29,7 +29,7 @@ from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from render_status import section_tag  # noqa: E402
-from site_nav import TOPBAR_CSS, topbar  # noqa: E402
+from site_nav import FAVICON, SITE_NAME, TOPBAR_CSS, topbar  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 STATUS = ROOT / "build" / "status.json"
@@ -345,14 +345,15 @@ def page(show, by_label, decls):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Offer and Order rules: progress</title>
+<title>{SITE_NAME}: progress</title>
+{FAVICON}
 <style>{CSS}{TOPBAR_CSS}</style>
 </head>
 <body>
 {topbar("Progress", "./")}
 <main>
 <p class="kicker">Proof of concept · built from public IATA ONE Order material · not affiliated with IATA</p>
-<h1>Offer and Order rules, checked by Lean</h1>
+<h1>{SITE_NAME} rules, checked by Lean</h1>
 <p class="lede">Each business rule here is written as code in Lean, a language that checks proofs.
 A <strong>proven</strong> guarantee holds for every possible input, not only the cases someone thought to test.
 An <strong>open question</strong> is a guarantee the rules as written do not meet. An example the build computes shows the failing case, and the business decides what the rule should do.

@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from render_progress import classify, load_decls, parse_nodes, split_question  # noqa: E402
-from site_nav import TOPBAR_CSS, topbar  # noqa: E402
+from site_nav import FAVICON, SITE_NAME, TOPBAR_CSS, topbar  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "build" / "graph" / "index.html"
@@ -378,7 +378,8 @@ def page(nodes, labels, decls):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dependency graph: Offer and Order rules</title>
+<title>Dependency graph: {SITE_NAME}</title>
+{FAVICON}
 <style>{CSS}{TOPBAR_CSS}</style>
 </head>
 <body>

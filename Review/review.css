@@ -170,8 +170,9 @@ header { box-shadow: none; }
 .header-logo-wrapper { display: none; }
 .header-title-wrapper { display: flex; align-items: center; gap: 24px; padding-left: 28px; }
 .header-title-wrapper > .header-title { display: none; }
-.header-title-wrapper > .brand, .header-title-wrapper > .brand:visited { font: 650 16px var(--verso-structure-font-family);
-  color: var(--ink); text-decoration: none; white-space: nowrap; }
+.header-title-wrapper > .brand, .header-title-wrapper > .brand:visited { display: inline-flex; align-items: center; gap: 8px;
+  font: 650 16px var(--verso-structure-font-family); color: var(--ink); text-decoration: none; white-space: nowrap; }
+.header-title-wrapper > .brand .mark { width: 20px; height: 20px; flex: none; }
 .site-nav { display: flex; align-items: center; gap: 18px; font: 14px var(--verso-structure-font-family); white-space: nowrap; }
 .site-nav a, .site-nav a:visited { color: var(--ink-2); text-decoration: none; }
 .site-nav a:hover { color: var(--ink); }

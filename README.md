@@ -707,7 +707,10 @@ Choices made where the plan left room, in the order they came up.
     which could suggest the project is IATA's or endorsed by it. The site
     moved with the repository to `samdengler.github.io/airline-order-verified/`.
     GitHub redirects the old repository URLs; GitHub Pages does not redirect
-    a renamed project's site.
+    a renamed project's site. The site is called Airline Order in its top
+    bar, page titles and document titles, with a plane as its mark and tab
+    icon (`PLANE_PATH` in `scripts/site_nav.py`, repeated in
+    `Review/review.js`).
 31. **The review-doc program loads the document when it runs.** CI spent most
     of its time compiling about 2,800 Mathlib modules to native code so that
     `review-doc` could link the document, whose rules import `Mathlib.Tactic`.
