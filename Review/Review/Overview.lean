@@ -7,11 +7,12 @@ open Verso.Genre Manual
 tag := "overview"
 %%%
 
-This document covers one slice of the Offer and Order domain: an offer with priced items and an expiry, the order created when a customer accepts it, payments against the order, and refunds against payments.
+This document covers one slice of the Offer and Order domain: an offer with priced items and an expiry, the order created when a customer accepts it, the delivery of each service in the order, payments against the order, and refunds against payments.
 
 The slice is written as a Lean model.
 Each object is a Lean type, each rule is a Lean function, and each guarantee is a Lean theorem.
-A guarantee is either proven, which means Lean checked the proof, or open, which means the model found a case where it fails and the business needs to decide what the rule means.
+A guarantee is either proven, which means Lean checked a proof that it holds for every input, or open, which means it has no proof and is marked as a question for the business.
+The one open guarantee has a counterexample: an example the build computes shows the rule as written breaking it.
 
 # Sources
 
@@ -22,13 +23,15 @@ The rules, prices and data are simplified and invented.
 
 # How to read this document
 
-The chapters follow the model:
+Each requirement has its own chapter: *Accepting an offer*, *Delivery transitions* and *Accepting a refund*.
+A requirement chapter gives:
 
- * *Objects* describes the offers, orders, payments, and refunds the rules talk about.
- * *Rules* gives each decision the system makes, with its EARS requirement statement.
- * *Guarantees* lists the properties claimed for the rules and whether each is proven.
- * *Examples* shows concrete scenarios and the result the model computes for each.
- * *Open questions* lists what the model could not settle and needs the team to decide.
+ * the rule, with its EARS statement, user story and acceptance criteria;
+ * how each acceptance criterion is checked, and its status;
+ * the guarantees Lean proves about the rule;
+ * the examples the build computes, as Given, When and Then, with the result Lean computed.
+
+After the requirements, *Open questions* lists what the model could not settle and needs the team to decide, *Objects* describes the offers, orders, payments, and refunds the rules talk about, and *EARS requirements* lists every requirement statement in one table.
 
 # What is authored and what is computed
 
@@ -40,4 +43,4 @@ Nobody types a status or an example result by hand: if the model changes, the bu
 
 The same model is also published as a [blueprint](../blueprint/index.html), with a [dependency graph](../blueprint/dep_graph_document.html) that colors each declaration green when it is defined or proven and leaves open theorems uncolored.
 A [PDF version](../blueprint/print.pdf) is available for printing.
-The [progress page](../) shows the status of every rule and candidate rule for readers who do not need the Lean.
+The [progress page](../) shows the status of every rule and candidate rule for readers who do not need the Lean, and the [dependency graph](../graph/) shows what each rule depends on.

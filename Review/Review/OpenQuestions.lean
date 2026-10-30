@@ -11,7 +11,7 @@ set_option pp.rawOnError true
 tag := "open-questions"
 %%%
 
-The model found one rule whose intended meaning it cannot settle.
+One guarantee is open: an example the build computes shows the refund rule as written breaking it, and what the rule should mean is a decision for the business.
 The question below is for the Offer/Order team.
 
 # How much may be refunded against a payment?

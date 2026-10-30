@@ -2,14 +2,14 @@
 
 # Specs generated from the Lean model
 
-Each folder is a Kiro spec with one `requirements.md`, generated from the rules in one Lean module. The rule's docstring holds the user story and the acceptance criteria; the build computes each criterion's status from the theorems and examples tagged `@[checks]` with its ID. To change a requirement, edit the docstring and rebuild.
+Each folder is a requirement spec with one `requirements.md`, generated from the rules in one Lean module. The acceptance criteria are in EARS notation, and the folders follow the layout Kiro reads. The rule's docstring holds the user story and the acceptance criteria; the build computes each criterion's status from the theorems and examples tagged `@[checks]` with its ID. To change a requirement, edit the docstring and rebuild.
 
-12 acceptance criteria: 3 proven, 4 example only, 1 open, 4 not checked.
+12 acceptance criteria: 3 proven, 7 example only, 1 open, 1 not checked.
 
 | Spec | Requirement | User story | Criteria | Proven | Example only | Open | Not checked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Accepting an offer](offer-order-accepting-an-offer/requirements.md) | OO-001 | As a customer, I want to accept an offer I was shown, so that I get an order for exactly those services at the offered price. | 5 | 2 | 3 | 0 | 0 |
-| [Orders](offer-order-orders/requirements.md) | OO-002 | As an operations agent, I want a service's delivery state to change only along the allowed transitions, so that a delivered service is never cancelled and a service is never refunded before it is cancelled. | 5 | 1 | 1 | 0 | 3 |
+| [Orders](offer-order-orders/requirements.md) | OO-002 | As an operations agent, I want a service's delivery state to change only along the allowed transitions, so that a delivered service is never cancelled and a service is never refunded before it is cancelled. | 5 | 1 | 4 | 0 | 0 |
 | [Payments and refunds](offer-order-payments-and-refunds/requirements.md) | OO-003 | As a customer service agent, I want each refund checked against the payment it is made against, so that a customer is never refunded more than they paid. | 2 | 0 | 0 | 1 | 1 |
 
 ## Acceptance criteria
@@ -21,11 +21,11 @@ Each folder is a Kiro spec with one `requirements.md`, generated from the rules 
 | OO-001.3 | IF a customer accepts an unexpired offer with an item priced in a currency other than the offer's THEN THE SYSTEM SHALL reject it for mixed currencies. | example only | example `acceptMixedCurrency` |
 | OO-001.4 | WHEN a customer accepts an unexpired offer with at least one item and every item priced in the offer's currency THE SYSTEM SHALL create an order. | example only | example `acceptBeforeExpiry` |
 | OO-001.5 | WHEN an order is created from an offer THE SYSTEM SHALL price the order at the sum of the offer's item prices. | proven | proven theorem `accept_price_eq_sum`; example `acceptBeforeExpiry` |
-| OO-002.1 | WHEN a ready service is delivered THE SYSTEM SHALL mark it delivered. | example only | example `deliveryWalk` |
-| OO-002.2 | WHEN a ready service is cancelled THE SYSTEM SHALL mark it cancelled. | not checked | nothing in the build checks this yet |
-| OO-002.3 | WHEN a cancelled service is refunded THE SYSTEM SHALL mark it refunded. | not checked | nothing in the build checks this yet |
-| OO-002.4 | IF a delivered service is cancelled THEN THE SYSTEM SHALL refuse the event. | proven | proven theorem `delivered_not_cancellable`; example `deliveryWalk` |
-| OO-002.5 | IF any other event is applied to a service THEN THE SYSTEM SHALL refuse the event. | not checked | nothing in the build checks this yet |
+| OO-002.1 | WHEN a ready service is delivered THE SYSTEM SHALL mark it delivered. | example only | example `deliveryWalk`; example `transitionTable` |
+| OO-002.2 | WHEN a ready service is cancelled THE SYSTEM SHALL mark it cancelled. | example only | example `transitionTable` |
+| OO-002.3 | WHEN a cancelled service is refunded THE SYSTEM SHALL mark it refunded. | example only | example `transitionTable` |
+| OO-002.4 | IF a delivered service is cancelled THEN THE SYSTEM SHALL refuse the event. | proven | proven theorem `delivered_not_cancellable`; example `deliveryWalk`; example `transitionTable` |
+| OO-002.5 | IF any other event is applied to a service THEN THE SYSTEM SHALL refuse the event. | example only | example `transitionTable` |
 | OO-003.1 | WHEN a refund is requested against a payment THE SYSTEM SHALL accept it only if it names that payment and its amount does not exceed the payment's amount. | not checked | nothing in the build checks this yet |
 | OO-003.2 | THE SYSTEM SHALL not refund more against an order than was paid for it. | open | open theorem `refunds_le_payments`; counterexample `doubleRefund` |
 

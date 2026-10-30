@@ -23,3 +23,45 @@ div.corollary_thmcontent {
 div.proof_content {
 	border-left: .08rem solid grey;
 }
+
+/* Dark mode, following the reader's system setting like the progress page and
+ * the review document.  The colors are the same tokens those pages use.  In the
+ * dependency graph only black lines and text change, and blue borders lighten;
+ * the green fills and the colored borders keep their meaning from the legend. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --hair: #2c2c2a; --ring: rgba(255, 255, 255, 0.10); --link: #3987e5;
+  }
+  body, body > div.wrapper { background-color: var(--page); color: var(--ink); }
+  a, a:visited { color: var(--link); }
+  h1, h2, h3, h4, h5, h6, h1#doc_title, #doc_title a, #doc_title a:visited { color: var(--ink); }
+  hr { color: var(--hair); }
+  ::selection { color: var(--page); background: var(--ink); }
+
+  nav.toc, .toc ul li, .toc ul li.current { background-color: var(--page); border-right-color: var(--hair); }
+  .toc ul a, .toc ul a:visited, .local_toc ul a, span.expand-toc, svg.close-toc { color: var(--ink-2); }
+  .toc ul a:hover { background: var(--surface); }
+  nav.prev_up_next { background: var(--surface); }
+  nav.prev_up_next a, a.icon, #toc-toggle { color: var(--ink); fill: var(--ink); }
+
+  .tabular, table { color: var(--ink); background-color: var(--surface); }
+  pre.verbatim { background-color: var(--surface); }
+  div.theorem_thmcontent, div.proposition_thmcontent, div.lemma_thmcontent, div.corollary_thmcontent,
+  div.proof_content { border-left-color: var(--ink-2); }
+
+  div.modal-content, div.dep-modal-content, ul.tooltip_list { background-color: var(--surface); color: var(--ink); }
+  div.modal-content header { background: var(--page); color: var(--ink); }
+  div.modal-content header h1, div.modal-content header button.closebtn, button.dep-closebtn { color: var(--ink); }
+  div#statements { background-color: var(--surface); }
+  #Legend dl { background: var(--surface); color: var(--ink); }
+  div.bar { background: var(--ink); }
+
+  #graph g.edge path { stroke: var(--ink-2); }
+  #graph g.edge polygon { fill: var(--ink-2); stroke: var(--ink-2); }
+  #graph g.node text { fill: var(--ink); }
+  #graph g.node:has([fill="#b0eca3" i], [fill="#1cac78" i]) text { fill: #0b0b0b; }
+  #graph g.node [stroke="black" i] { stroke: var(--ink-2); }
+  #graph g.node [stroke="blue" i] { stroke: var(--link); }
+}

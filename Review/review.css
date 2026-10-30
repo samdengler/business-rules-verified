@@ -1,0 +1,210 @@
+/* The review document in the style of the progress page (scripts/render_progress.py):
+   the same surfaces, ink, status colors and type, in light and dark mode. */
+
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --hair: #e1e0d9; --ring: rgba(11, 11, 11, 0.10);
+  --good: #0ca30c; --lean: #e87ba4; --warning: #fab219; --critical: #d03b3b; --ready: #2a78d6; --waiting: #898781;
+
+  --verso-structure-font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --verso-text-font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --verso-code-font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --verso-text-color: var(--ink);
+  --verso-code-color: var(--ink);
+  --verso-structure-color: var(--ink);
+  --verso-selected-color: color-mix(in srgb, var(--ready) 14%, var(--surface));
+  --verso-toc-background-color: var(--page);
+  --verso-toc-border-color: var(--hair);
+  --verso-tooltip-color: var(--ink);
+  --verso-tooltip-bg-color: var(--surface);
+  --verso-tooltip-border-color: var(--hair);
+  --verso-tooltip-separator-color: var(--hair);
+  --verso-code-hover-bg-color: color-mix(in srgb, var(--ink) 6%, transparent);
+  --verso-code-info-hover-bg-color: color-mix(in srgb, var(--ready) 18%, transparent);
+  --verso-info-indicator-color: var(--ready);
+  --verso-tooltip-info-border-color: var(--ready);
+  --verso-tactic-state-color: var(--ink);
+  --verso-tactic-state-bg-color: var(--surface);
+  --verso-tactic-state-border-color: var(--hair);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --hair: #2c2c2a; --ring: rgba(255, 255, 255, 0.10); --ready: #3987e5;
+  }
+}
+
+body { background: var(--page); color: var(--ink); font-family: var(--verso-text-font-family); }
+main { font-size: 15px; line-height: 1.55; }
+main p, main li, main dd { color: var(--ink); }
+a, a:visited { color: var(--ready); }
+
+/* Header bar */
+header { background: var(--surface); box-shadow: none; border-bottom: 1px solid var(--ring); }
+.header-title h1 { font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
+header input[type="search"], header input { background: var(--page); color: var(--ink);
+  border: 1px solid var(--ring); border-radius: 8px; padding: 6px 10px; }
+
+/* Table of contents */
+#toc { border-right: 1px solid var(--hair); }
+#toc a { color: var(--ink-2); }
+#toc a:hover { color: var(--ink); }
+#toc .split-toc .current td:not(.num), #toc .split-toc .title .current { color: var(--ink); font-weight: 600; }
+.toc-title h1 { font-size: 14px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+
+/* Headings */
+main h1 { font-size: 30px; font-weight: 650; letter-spacing: -0.01em; line-height: 1.2; }
+main h2 { font-size: 21px; font-weight: 650; }
+main h3 { font-size: 17px; font-weight: 650; }
+main .titlepage h1 { font-size: 32px; }
+main .authors { color: var(--ink-2); }
+.prev-next-buttons a, .prev-next-buttons a:visited { color: var(--ink-2); font-weight: 600; }
+
+/* Inline code and code blocks outside the cards */
+main code { font-size: 0.88em; }
+main p code, main li code, main td code {
+  background: color-mix(in srgb, var(--ink) 6%, transparent); padding: 0 4px; border-radius: 4px; }
+main section > pre, main section > .hl.lean.block {
+  background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 10px 14px; font-size: 13px; }
+.lean-output { border-radius: 8px; }
+
+/* Docstring cards, laid out like the progress page's cards: a small label, the
+   description, fields or values as a plain list, and the Lean form in a footer. */
+main .namedocs { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--ring);
+  border-top: 3px solid var(--ready); border-radius: 10px; padding: 12px 16px; margin: 14px 0 16px; }
+main section:has(> p > .status.s-proven) > .namedocs { border-top-color: var(--good); }
+main section:has(> p > .status.s-open) > .namedocs { border-top-color: var(--critical); }
+main .namedocs > .permalink-widget { display: none; }
+main .namedocs > .label { order: 0; position: static; align-self: flex-start; background: none; border: none;
+  padding: 0; margin: 0 0 4px; font: 600 11.5px/1.4 var(--verso-structure-font-family); letter-spacing: .05em;
+  text-transform: uppercase; color: var(--muted); }
+main .namedocs > .text { order: 1; border: none !important; padding: 0 !important; background: transparent !important; }
+main .namedocs > .text > :first-child { margin-top: 0 !important; }
+main .namedocs > .text > :last-child { margin-bottom: 0 !important; }
+main .namedocs > .text p { color: var(--ink); }
+main .namedocs > .signature { order: 2; margin: 12px 0 0 !important; padding: 8px 0 0; border: none;
+  border-top: 1px solid var(--hair); border-radius: 0; background: transparent; font-size: 12px;
+  line-height: 1.5; white-space: pre-wrap; }
+main .namedocs > .signature::before { content: "In Lean"; display: block; margin-bottom: 2px;
+  font: 600 10.5px/1.4 var(--verso-structure-font-family); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+main .namedocs > .signature, main .namedocs > .signature * { color: var(--muted) !important; text-decoration: none !important; }
+
+/* Fields and values inside a card */
+main .namedocs .docstring-section { margin: 12px 0 0; }
+main .namedocs .docstring-section-label { font: 600 11px/1.4 var(--verso-structure-font-family); letter-spacing: .05em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+main .namedocs .name-and-type { background: transparent; border: none; border-radius: 0; padding: 0; margin: 0;
+  float: none; font-size: 13px; color: var(--ink); }
+main .namedocs .name-and-type, main .namedocs .name-and-type * { text-decoration: none !important; }
+main .namedocs .subdocs .name-and-type > :not(:first-child) { color: var(--muted); }
+main .namedocs > .text .constructor::before { content: none; }
+main .namedocs .constructor .name-and-type > a ~ * { display: none; }
+main .namedocs > .text .constructor, main .namedocs .subdocs { margin: 0 0 8px; padding: 0; }
+main .namedocs > .text .constructor .docs, main .namedocs .subdocs .docs { clear: none; margin: 1px 0 0; padding: 0; }
+main .namedocs .constructor .docs p, main .namedocs .subdocs .docs p { margin: 0; color: var(--ink-2); }
+
+main .namedocs .subdocs .name-and-type, main .namedocs > .text .constructor .name-and-type {
+  display: block; float: none; max-width: none; padding-left: 0; font-size: 13px; margin: 0; }
+main .namedocs .subdocs .docs, main .namedocs > .text .constructor .docs { margin: 1px 0 0; }
+main .namedocs .subdocs, main .namedocs > .text .constructor { margin: 0 0 10px; }
+main .namedocs [id="docstring-section-Constructors"] { font-size: 0; }
+main .namedocs [id="docstring-section-Constructors"]::after { content: "Values"; font-size: 11px; }
+
+/* The sidebar lists chapters and sections, not every Lean name */
+#toc li:has(> a > code) { display: none; }
+
+/* Tables, such as the EARS table */
+table.tabular { border-collapse: collapse; background: var(--surface); border: 1px solid var(--ring);
+  border-radius: 10px; overflow: hidden; font-size: 14px; }
+table.tabular th, table.tabular td { padding: 8px 10px; border-bottom: 1px solid var(--hair); vertical-align: top; text-align: left; }
+table.tabular th { color: var(--ink-2); font-weight: 600; background: var(--page); }
+
+/* Status labels from the status role (Review/Review/Status.lean) */
+.status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ink);
+  font-size: 13px; vertical-align: 1px; }
+.status .ico { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%;
+  font-size: 11px; font-weight: 800; color: #fff; background: var(--waiting); }
+.status.s-proven .ico { background: var(--good); }
+.status.s-modelled .ico { background: var(--lean); }
+.status.s-open .ico { background: var(--critical); }
+.status.s-example .ico { background: var(--ready); }
+main section > p:has(> .status.s-open) { background: color-mix(in srgb, var(--critical) 10%, transparent);
+  border-radius: 8px; padding: 8px 10px; }
+
+/* Header title in ink; links elsewhere keep the accent */
+header a.header-title, header a.header-title:visited, header a.header-title h1 { color: var(--ink); text-decoration: none; }
+
+/* Front page: requirement cards (Review/Review/Generated/Front.lean) replace
+   Verso's list of chapters, which the sidebar already shows */
+main .titlepage h1, main .titlepage .authors { text-align: left; }
+main:has(.front) section:has(> ol.section-toc) { display: none; }
+.front h2 { margin-top: 28px; }
+.front .front-note { color: var(--ink-2); margin: 0 0 14px; }
+.front .req-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.front a.req-card { display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--ring);
+  border-top: 3px solid var(--ready); border-radius: 10px; padding: 14px 16px; color: var(--ink); text-decoration: none; }
+.front a.req-card:hover { border-color: color-mix(in srgb, var(--ready) 50%, var(--ring)); }
+.front a.req-card:has(.s-open) { border-top-color: var(--critical); }
+.front .req-id { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.front .req-title { font-size: 17px; font-weight: 650; }
+.front .req-story { font-size: 14px; color: var(--ink-2); }
+.front .req-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 4px; }
+.front .ref-list { padding-left: 18px; }
+.front .ref-list li { margin: 6px 0; color: var(--ink-2); }
+.front .ref-list a { font-weight: 600; }
+
+/* Search box and sidebar arrows follow the theme */
+:root { --verso-background-color: var(--surface); --verso-muted-color: var(--muted); }
+#search-wrapper .combobox .cb_edit { border-radius: 8px; }
+#toc .split-toc label.toggle-split-toc::before { background-color: var(--ink-2); }
+table.tabular td:first-child { white-space: nowrap; }
+main table.tabular { margin-left: 0 !important; margin-right: auto !important; }
+
+/* The site's bar (Review/review.js): the same as the progress page's and the
+   blueprint's (scripts/site_nav.py).  Verso's document title gives way to the
+   site name; the search box stays on the right. */
+header { box-shadow: none; }
+.header-logo-wrapper { display: none; }
+.header-title-wrapper { display: flex; align-items: center; gap: 24px; padding-left: 28px; }
+.header-title-wrapper > .header-title { display: none; }
+.header-title-wrapper > .brand, .header-title-wrapper > .brand:visited { font: 650 16px var(--verso-structure-font-family);
+  color: var(--ink); text-decoration: none; white-space: nowrap; }
+.site-nav { display: flex; align-items: center; gap: 18px; font: 14px var(--verso-structure-font-family); white-space: nowrap; }
+.site-nav a, .site-nav a:visited { color: var(--ink-2); text-decoration: none; }
+.site-nav a:hover { color: var(--ink); }
+.site-nav a[aria-current] { color: var(--ink); font-weight: 600; }
+@media (max-width: 1000px) { .site-nav { display: none; } }
+@media screen and (max-width: 700px) {
+  .header-title-wrapper { padding-left: calc(var(--verso-burger-width) + 2rem); }
+}
+
+/* Diagrams the build draws, such as the delivery state diagram */
+figure.diagram { margin: 12px 0 20px; background: var(--surface); border: 1px solid var(--ring);
+  border-radius: 10px; padding: 18px; text-align: center; }
+svg.state-diagram { max-width: 100%; height: auto; }
+svg.state-diagram text { fill: var(--ink); font-family: var(--verso-text-font-family); }
+svg.state-diagram .node path, svg.state-diagram .node polygon {
+  fill: color-mix(in srgb, var(--ready) 10%, var(--surface)); stroke: var(--ready); stroke-width: 1.4; }
+svg.state-diagram .edge path { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+svg.state-diagram .edge polygon { fill: var(--muted); stroke: var(--muted); }
+svg.state-diagram .edge text { fill: var(--ink-2); }
+.status.s-notChecked .ico { background: var(--waiting); }
+
+/* Try-it panels (Review/review.js) */
+.try-it { font-family: var(--verso-text-font-family); background: var(--surface); border: 1px solid var(--ring); border-top: 3px solid var(--ready);
+  border-radius: 10px; padding: 14px 16px; margin: 12px 0 20px; }
+.try-it .try-title { margin: 0 0 10px; font: 600 11.5px/1.4 var(--verso-structure-font-family); letter-spacing: .05em;
+  text-transform: uppercase; color: var(--muted); }
+.try-it .try-row { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 0 0 10px; }
+.try-it label { display: flex; align-items: center; gap: 8px; font-size: 14.5px; color: var(--ink); }
+.try-it select, .try-it input { font: inherit; color: var(--ink); background: var(--page); border: 1px solid var(--ring);
+  border-radius: 8px; padding: 5px 8px; }
+.try-it input { width: 7em; }
+.try-it .try-result { margin: 4px 0 10px; padding: 10px 12px; border-radius: 8px; font-weight: 600; color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.try-it .try-result.ok { background: color-mix(in srgb, var(--good) 13%, transparent); }
+.try-it .try-result.no { background: color-mix(in srgb, var(--critical) 11%, transparent); }
+.try-it .try-note { margin: 4px 0 0; font-size: 13px; color: var(--muted); }

@@ -21,12 +21,12 @@ These requirements are generated from the Lean model in [`Rules/OfferOrder/Order
 #### Acceptance Criteria
 
 1. WHEN a ready service is delivered THE SYSTEM SHALL mark it delivered.
-   - OO-002.1, example only: example `deliveryWalk`
+   - OO-002.1, example only: example `deliveryWalk`; example `transitionTable`
 2. WHEN a ready service is cancelled THE SYSTEM SHALL mark it cancelled.
-   - OO-002.2, not checked: nothing in the build checks this yet
+   - OO-002.2, example only: example `transitionTable`
 3. WHEN a cancelled service is refunded THE SYSTEM SHALL mark it refunded.
-   - OO-002.3, not checked: nothing in the build checks this yet
+   - OO-002.3, example only: example `transitionTable`
 4. IF a delivered service is cancelled THEN THE SYSTEM SHALL refuse the event.
-   - OO-002.4, proven: proven theorem `delivered_not_cancellable`; example `deliveryWalk`
+   - OO-002.4, proven: proven theorem `delivered_not_cancellable`; example `deliveryWalk`; example `transitionTable`
 5. IF any other event is applied to a service THEN THE SYSTEM SHALL refuse the event.
-   - OO-002.5, not checked: nothing in the build checks this yet
+   - OO-002.5, example only: example `transitionTable`

@@ -12,6 +12,7 @@ lake build
 lake exe status
 python3 scripts/render_status.py
 lake build Review
+rm -rf build/review
 lake exe review-doc --output build/review
 lake build Oracle oracle
 mkdir -p build/oracle
@@ -23,15 +24,8 @@ leanblueprint web
 leanblueprint checkdecls
 leanblueprint pdf
 python3 scripts/render_progress.py
+python3 scripts/render_graph.py
+scripts/build-wasm.sh
 
-rm -rf site
-mkdir -p site/blueprint site/review
-cp build/progress/index.html site/index.html
-cp -r build/review/html-multi/. site/review/
-cp -r pages/. site/
-cp -r blueprint/web/. site/blueprint/
-cp blueprint/print/print.pdf site/blueprint/print.pdf
-cp -r .kiro/specs site/specs
-cp build/ears.md build/ears.csv build/ears-criteria.csv build/status.json site/
-cp build/oracle/vectors.jsonl site/conformance-vectors.jsonl
+scripts/assemble-site.sh
 echo "site/ is ready; preview with: python3 -m http.server -d site"

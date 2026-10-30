@@ -1,12 +1,16 @@
 import VersoManual
+import Review.Status
+import Review.Generated.Front
 import Review.Overview
-import Review.Objects
-import Review.Rules
-import Review.Generated.Guarantees
-import Review.Generated.Examples
+import Review.Generated.OO001
+import Review.Generated.OO002
+import Review.Generated.OO003
 import Review.OpenQuestions
+import Review.Objects
+import Review.Generated.Ears
 
 open Verso.Genre Manual
+open Review
 
 #doc (Manual) "Offer Acceptance: Business Rules for Review" =>
 %%%
@@ -15,16 +19,22 @@ shortTitle := "Offer acceptance"
 %%%
 
 This document describes the Offer acceptance rules as a Lean model, for review by the Offer/Order team.
-Every rule, guarantee, and example below is drawn from the model and checked when the document is built.
+There is one chapter per requirement. Every rule, guarantee, and example in them is drawn from the model and checked when the document is built.
+
+```rawHtmlDef
+Review.Generated.Front.html
+```
 
 {include 1 Review.Overview}
 
-{include 1 Review.Objects}
+{include 1 Review.Generated.OO001}
 
-{include 1 Review.Rules}
+{include 1 Review.Generated.OO002}
 
-{include 1 Review.Generated.Guarantees}
-
-{include 1 Review.Generated.Examples}
+{include 1 Review.Generated.OO003}
 
 {include 1 Review.OpenQuestions}
+
+{include 1 Review.Objects}
+
+{include 1 Review.Generated.Ears}

@@ -1,6 +1,7 @@
 name: CI
 on:
-  push: { branches: [main] }
+  # A push that changes only the README or docs/ leaves the site unchanged.
+  push: { branches: [main], paths-ignore: ["README.md", "docs/**"] }
   pull_request:
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
@@ -12,10 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # This repository's compiled Lean from the last run.  Lake rebuilds only
+      # the modules whose sources changed; the review-doc link is the slow step.
+      - uses: actions/cache@v4
+        with:
+          path: .lake/build
+          key: lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml', '*.lean', 'Rules/**/*.lean', 'Review/**/*.lean', 'Oracle/**/*.lean', 'Status/**/*.lean', 'Verify/**/*.lean') }}
+          restore-keys: lake-build-${{ runner.os }}-
       - uses: leanprover/lean-action@v1
         with: { use-mathlib-cache: true }
-      # Compiled Verso and checkdecls, restored after lake has cloned the
-      # packages.  Mathlib comes from its own cache above.
+      # Compiled Verso, checkdecls and Aeneas's Lean library, restored after
+      # lake has cloned the packages.  Mathlib comes from its own cache above.
       - uses: actions/cache@v4
         with:
           path: |
@@ -24,7 +32,11 @@ jobs:
             .lake/packages/MD4Lean/.lake
             .lake/packages/illuminate/.lake
             .lake/packages/checkdecls/.lake
-          key: lake-deps-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
+            .lake/packages/aeneas/backends/lean/.lake
+          key: lake-deps-v2-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
+      # Graphviz draws the delivery state diagram (render_status.py), the
+      # progress page's map and the blueprint's dependency graph.
+      - run: sudo apt-get update && sudo apt-get install -y graphviz libgraphviz-dev
       # Fails on any sorry not tagged @[open_question], before anything renders.
       - run: lake exe status
       - run: python3 scripts/render_status.py
@@ -47,7 +59,6 @@ jobs:
       - run: lake build Verify
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: sudo apt-get update && sudo apt-get install -y graphviz libgraphviz-dev
       - name: Install TinyTeX
         run: |
           curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh
@@ -65,16 +76,11 @@ jobs:
       - run: leanblueprint web && leanblueprint checkdecls && leanblueprint pdf
       # The progress page for business readers; needs graphviz, installed above.
       - run: python3 scripts/render_progress.py
-      - run: |
-          mkdir -p site/blueprint site/review
-          cp build/progress/index.html site/index.html
-          cp -r build/review/html-multi/. site/review/
-          cp -r pages/. site/
-          cp -r blueprint/web/. site/blueprint/
-          cp blueprint/print/print.pdf site/blueprint/print.pdf
-          cp -r .kiro/specs site/specs
-          cp build/ears.md build/ears.csv build/ears-criteria.csv build/status.json site/
-          cp build/oracle/vectors.jsonl site/conformance-vectors.jsonl
+      # The dependency graph page; needs graphviz.
+      - run: python3 scripts/render_graph.py
+      # The try-it panels: the Rust rules compiled to WebAssembly.
+      - run: scripts/build-wasm.sh
+      - run: scripts/assemble-site.sh
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
   # Option 3, the Rust side: unit tests, and a check that the committed Lean

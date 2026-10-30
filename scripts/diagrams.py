@@ -171,12 +171,14 @@ def build(theme):
     s.box(cx[1], 172, w, 132, "lake exe status", body=[
         "Proven or open for each", "theorem; a status for", "each acceptance criterion"])
     s.box(cx[1], 334, w, 132, "render_status.py", body=[
-        "Writes the generated", "chapters, the graph's", "proof markers and the", "Kiro specs"])
+        "Writes the generated", "chapters, the graph's", "proof markers and the", "requirement specs"])
 
+    s.box(cx[2], 30, w, 112, "Progress page", body=[
+        "Site root, for business", "readers: the status of", "every rule and candidate"])
     s.box(cx[2], 172, w, 92, "CSV exports", body=["ears.csv", "ears-criteria.csv"])
-    s.box(cx[2], 296, w, 72, "Review document", body=["Verso, site root"])
+    s.box(cx[2], 296, w, 72, "Review document", body=["Verso, /review/"])
     s.box(cx[2], 384, w, 72, "Dependency graph", body=["leanblueprint, /blueprint/"])
-    s.box(cx[2], 472, w, 72, "Kiro specs", body=[".kiro/specs/"])
+    s.box(cx[2], 472, w, 72, "Requirement specs", body=[".kiro/specs/"])
 
     s.arrow([(cx[0] + w, 86), (cx[1] - 2, 86)])
     mx = cx[1] + w / 2
@@ -187,6 +189,7 @@ def build(theme):
     s.arrow([(cx[0] + w, 488), (gx, 488), (gx, 426), (cx[1] - 2, 426)])
     s.arrow([(cx[1] + w, 218), (cx[2] - 2, 218)])
     fx = cx[1] + w + gap / 2
+    s.arrow([(cx[1] + w, 190), (fx, 190), (fx, 86), (cx[2] - 2, 86)])
     out = cx[1] + w
     for ty in (332, 420, 508):
         s.arrow([(out, 400), (fx, 400), (fx, ty), (cx[2] - 2, ty)])
@@ -199,7 +202,7 @@ def build(theme):
         "a proof Lean rejects  ·  a changed example value",
         "a renamed rule that the review document mentions",
         "an unproven theorem not marked as an open question",
-        "an EARS line that fits no template  ·  out-of-date Kiro specs",
+        "an EARS line that fits no template  ·  out-of-date requirement specs",
         "Java that disagrees with the model  ·  Rust whose proof fails",
     ]):
         s.text(17, 622 + 20 * k, line, color=t["muted"])

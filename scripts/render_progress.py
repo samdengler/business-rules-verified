@@ -9,7 +9,7 @@ rules from the ONE Order survey, each with a status in plain words:
 
   Modelled         a rule written in Lean
   Proven           a guarantee Lean has checked for every input
-  Open question    a guarantee Lean found a counterexample to
+  Open question    a guarantee with no proof, marked as a question for the business
   Needs a decision a candidate the source states vaguely or not at all
   Ready to build   a candidate whose dependencies are all in Lean
   Waiting          a candidate that depends on candidates not yet in Lean
@@ -25,6 +25,9 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from site_nav import TOPBAR_CSS, topbar  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 STATUS = ROOT / "build" / "status.json"
@@ -159,7 +162,7 @@ def chip(status):
 def card(n):
     desc, found, question, source = split_question(n)
     tag = f'<span class="tag">{html.escape(n["tag"])}</span>' if n["tag"] else ""
-    q = (f'<p class="found-line"><strong>Lean found:</strong> {found}</p>' if found else "") + (
+    q = (f'<p class="found-line"><strong>Counterexample:</strong> {found}</p>' if found else "") + (
         f'<p class="question"><strong>Open point:</strong> {question}</p>' if question else "")
     src = f'<p class="source">Source: {source}</p>' if source else ""
     return f"""<article class="card s-{n['status']}">
@@ -199,6 +202,9 @@ def dep_map(show, by_label):
     lines.append("}")
     svg = subprocess.run(["dot", "-Tsvg"], input="\n".join(lines), capture_output=True, text=True, check=True).stdout
     svg = svg[svg.index("<svg"):]
+    # Graphviz titles every element with its internal ID ("n0", "n0->n2"), which browsers
+    # show on hover; the node tooltips carry the descriptions instead.
+    svg = re.sub(r"<title>[^<]*</title>\n?", "", svg)
     # Colors come from the page's stylesheet so the map follows light and dark mode.
     svg = re.sub(r' (fill|stroke)="(?!none)[^"]*"', "", svg)
     return svg.replace("<svg ", '<svg class="map" ', 1)
@@ -208,14 +214,15 @@ CSS = """
 :root { color-scheme: light;
   --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
   --hair: #e1e0d9; --ring: rgba(11,11,11,0.10);
-  --good: #0ca30c; --warning: #fab219; --critical: #d03b3b; --ready: #2a78d6; --waiting: #898781; }
+  --good: #0ca30c; --lean: #e87ba4; --warning: #fab219; --critical: #d03b3b; --ready: #2a78d6; --waiting: #898781; }
 @media (prefers-color-scheme: dark) { :root { color-scheme: dark;
   --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
   --hair: #2c2c2a; --ring: rgba(255,255,255,0.10); --ready: #3987e5; } }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--ink);
   font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-main { max-width: 1180px; margin: 0 auto; padding: 40px 28px 64px; }
+main { max-width: 1180px; margin: 0 auto; padding: 32px 28px 64px; }
+.site-topbar { position: sticky; top: 0; z-index: 10; }
 a { color: var(--ready); }
 code { font: 0.86em ui-monospace, SFMono-Regular, Menlo, monospace; background: color-mix(in srgb, var(--ink) 6%, transparent);
   padding: 0 4px; border-radius: 4px; white-space: nowrap; }
@@ -236,7 +243,8 @@ h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600
 .ico { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%;
   font-size: 11px; font-weight: 800; color: #fff; flex: none; }
 .tile .ico { width: 22px; height: 22px; font-size: 13px; }
-.s-modelled .ico, .s-proven .ico, .bar .s-modelled, .bar .s-proven { background: var(--good); }
+.s-modelled .ico, .bar .s-modelled { background: var(--lean); }
+.s-proven .ico, .bar .s-proven { background: var(--good); }
 .s-open .ico, .bar .s-open { background: var(--critical); }
 .s-decision .ico, .bar .s-decision { background: var(--warning); color: #0b0b0b; }
 .s-ready .ico, .bar .s-ready { background: var(--ready); }
@@ -248,7 +256,8 @@ h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600
 .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 10px; }
 .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 12px 14px;
   border-top: 3px solid var(--waiting); font-size: 14px; }
-.card.s-modelled, .card.s-proven { border-top-color: var(--good); }
+.card.s-modelled { border-top-color: var(--lean); }
+.card.s-proven { border-top-color: var(--good); }
 .card.s-open { border-top-color: var(--critical); }
 .card.s-decision { border-top-color: var(--warning); }
 .card.s-ready { border-top-color: var(--ready); }
@@ -270,7 +279,8 @@ svg.map .cluster path, svg.map .cluster polygon { fill: none; stroke: var(--hair
 svg.map .cluster text { fill: var(--muted); font-weight: 600; }
 svg.map .edge path { stroke: var(--muted); fill: none; } svg.map .edge polygon { fill: var(--muted); stroke: var(--muted); }
 svg.map .node path, svg.map .node polygon { fill: var(--surface); stroke: var(--waiting); }
-svg.map .node.s-modelled path, svg.map .node.s-proven path { fill: color-mix(in srgb, var(--good) 16%, var(--surface)); stroke: var(--good); }
+svg.map .node.s-modelled path { fill: color-mix(in srgb, var(--lean) 14%, var(--surface)); stroke: var(--lean); }
+svg.map .node.s-proven path { fill: color-mix(in srgb, var(--good) 16%, var(--surface)); stroke: var(--good); }
 svg.map .node.s-open path { fill: color-mix(in srgb, var(--critical) 14%, var(--surface)); stroke: var(--critical); }
 svg.map .node.s-decision path { fill: color-mix(in srgb, var(--warning) 20%, var(--surface)); stroke: var(--warning); }
 svg.map .node.s-ready path { fill: color-mix(in srgb, var(--ready) 12%, var(--surface)); stroke: var(--ready); }
@@ -292,7 +302,7 @@ def page(show, by_label, decls):
     def found_box(n):
         desc, ce, question, _ = split_question(n)
         return (f'<div class="found"><h4>{html.escape(n["title"])}</h4><p>{" ".join(desc)}</p>'
-                f'<p><strong>Lean found:</strong> {ce}</p><p><strong>Open point:</strong> {question}</p></div>')
+                f'<p><strong>Counterexample:</strong> {ce}</p><p><strong>Open point:</strong> {question}</p></div>')
     found = "".join(found_box(n) for n in show if n["status"] == "open")
     groups = []
     for chapter in dict.fromkeys(n["chapter"] for n in show):
@@ -309,35 +319,34 @@ def page(show, by_label, decls):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Offer and Order rules: progress</title>
-<style>{CSS}</style>
+<style>{CSS}{TOPBAR_CSS}</style>
 </head>
 <body>
+{topbar("Progress", "./")}
 <main>
 <p class="kicker">Proof of concept · built from public IATA ONE Order material · not affiliated with IATA</p>
 <h1>Offer and Order rules, checked by Lean</h1>
 <p class="lede">Each business rule here is written as code in Lean, a language that checks proofs.
 A <strong>proven</strong> guarantee holds for every possible input, not only the cases someone thought to test.
-An <strong>open question</strong> is a case Lean found where the rule as written gives an answer the business needs to decide on.
+An <strong>open question</strong> is a guarantee the rules as written do not meet. An example the build computes shows the failing case, and the business decides what the rule should do.
 This page is generated from the model on every build.</p>
-<nav class="links">
-  <a href="./review/">Review document</a>
-  <a href="./blueprint/dep_graph_document.html">Technical dependency graph</a>
+<nav class="links" aria-label="Also on this site">
+  <a href="./review/">Read the rules in the review document</a>
+  <a href="{REPO}/tree/main/.kiro/specs">Requirement specs</a>
   <a href="./ears-criteria.csv">Acceptance criteria (CSV)</a>
-  <a href="{REPO}/tree/main/.kiro/specs">Kiro specs</a>
   <a href="{REPO}/blob/main/docs/one-order-survey.md">ONE Order survey</a>
-  <a href="{REPO}">Source on GitHub</a>
 </nav>
 <div class="tiles">{tiles}</div>
 <div class="bar" role="img" aria-label="Status of {total} rules and guarantees">{bar}</div>
 
-<h2 id="found">What Lean found</h2>
-<p class="sub">A guarantee the business expected to hold, and a concrete case where the rules as written break it.</p>
+<h2 id="found">Open questions</h2>
+<p class="sub">A guarantee the business expected to hold, and an example where the rules as written break it.</p>
 {found}
 {''.join(groups)}
 
 <h2 id="map">How the rules depend on each other</h2>
 <p class="sub">An arrow points from a rule to the rules that build on it. A rule can only be written in Lean once
-everything it depends on is, so the map shows what to build next. Hover over a box for its description.</p>
+everything it depends on is, so the map shows what to build next. Hover over a box for its description, or open the <a href="./graph/">dependency graph</a> to read every rule and definition.</p>
 <div class="legend">{legend}</div>
 <div class="mapwrap">{dep_map(show, by_label)}</div>
 

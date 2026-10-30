@@ -16,17 +16,17 @@ with a link to the source page; IATA owns the standard and its documentation.
 
 - Progress page, for business readers: <https://samdengler.github.io/business-rules-verified/>
 - Review document: <https://samdengler.github.io/business-rules-verified/review/>
-- Requirement specs for Kiro: [`.kiro/specs/`](.kiro/specs/)
-- Dependency graph: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
+- Requirement specs, criteria in EARS, in Kiro's format: [`.kiro/specs/`](.kiro/specs/)
+- Dependency graph: <https://samdengler.github.io/business-rules-verified/graph/>
 
 ## Where to start
 
 | You want to | Read |
 | --- | --- |
 | See at a glance what is proven, what is open, and what needs a business decision | The [progress page](https://samdengler.github.io/business-rules-verified/) |
-| Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/review/), chapters Overview, Rules and Open Questions |
+| Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
-| See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) (green is proven or defined; no fill is open; an orange border is a candidate rule that needs a business decision before it can be written in Lean) |
+| See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/graph/): click a card to read it and see what it depends on. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
 | Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) and [`impl/rust`](impl/rust/) |
 | Review or change the model | [`Rules/OfferOrder/`](Rules/OfferOrder/), then the rest of this README |
@@ -82,7 +82,7 @@ step.
 People write the Lean files, the prose chapters and the blueprint statements.
 Everything else is computed, so no status or example value is typed by hand.
 
-<img alt="Diagram: people write Rules/*.lean, the Review chapters and the blueprint statements. lake build checks the proofs and example values, lake exe status computes each theorem's and criterion's status, and render_status.py writes the review document, the dependency graph and PDF, and the Kiro specs. CSV exports come from the status step. CI fails on a rejected proof, a changed example value, a renamed rule, an unmarked open theorem, a malformed EARS line, or out-of-date Kiro specs." src="docs/diagrams/build.svg" width="100%">
+<img alt="Diagram: people write Rules/*.lean, the Review chapters and the blueprint statements. lake build checks the proofs and example values, lake exe status computes each theorem's and criterion's status, and render_status.py writes the review document, the dependency graph and PDF, and the requirement specs; the progress page at the site root shows the status of every rule and candidate. CSV exports come from the status step. CI fails on a rejected proof, a changed example value, a renamed rule, an unmarked open theorem, a malformed EARS line, or out-of-date requirement specs." src="docs/diagrams/build.svg" width="100%">
 
 If someone renames a rule, the review document fails to build. If an example's
 value changes, `lake build` fails. If a theorem is left unproven without being
@@ -141,10 +141,11 @@ answer. For example, shortened:
  "response": {"error": "expired"}}
 ```
 
-The 24 cases are the inputs of the six `@[case]` examples in the model; the
+The 24 cases are the inputs of the first six `@[case]` examples in the model; the
 boundaries around them (one second before, at and after expiry; a refund
 below, equal to and one cent above the payment, and one against a different
-payment); and every delivery state paired with every event. The answers come
+payment); and every delivery state paired with every event, which are also the inputs
+of the seventh example, `transitionTable`. The answers come
 from the model, so nobody types an expected value, and a change to a rule
 changes them on the next build.
 
@@ -212,6 +213,11 @@ the pinned Aeneas release and fails if the result differs from the committed
 file, so a change to the Rust code has to be translated and proved again
 before it can be merged.
 
+The review document's try-it panels run the same two functions in the
+reader's browser: `scripts/build-wasm.sh` compiles them to WebAssembly through
+`impl/wasm`, a wrapper that passes the panels' inputs to them and is not part
+of the proof.
+
 ### Running the Rust checks
 
 ```sh
@@ -232,7 +238,7 @@ the Lean project and shared concepts, the Offer and Order rules, the checked
 examples, the review documents, the EARS output, and CI. It also had ten
 acceptance criteria. Claude Code committed after each step; the
 [commit history](https://github.com/samdengler/business-rules-verified/commits/main)
-shows them in order. The Kiro specs and the implementation checks were
+shows them in order. The requirement specs and the implementation checks were
 added afterwards on request. Where
 the plan left a choice open, the choice is recorded under
 [Decisions](#decisions). [Results](#results) gives the check of each
@@ -271,12 +277,14 @@ Order team has not reviewed them yet.
 
 | Layer | Source | Published at |
 | --- | --- | --- |
-| Verso document: prose with checked Lean inside it | `Review/` | site root |
+| Verso document: prose with checked Lean inside it | `Review/` | `/review/` |
 | leanblueprint: dependency graph colored by status, plus a PDF | `blueprint/src/content.tex` | `/blueprint/` and `/blueprint/print.pdf` |
 
-The requirements are also published as Kiro specs, one folder per Lean module
-that holds rules, in [`.kiro/specs/`](.kiro/specs/). Opening this repository in
-Kiro shows them as specs. Each `requirements.md` has the module's
+The requirements are also published as requirement specs, one folder per Lean
+module that holds rules, in [`.kiro/specs/`](.kiro/specs/). The acceptance
+criteria are written in EARS, and the files follow the layout Kiro reads, so
+opening this repository in Kiro shows them as specs; other spec-driven tools
+can read the same Markdown. Each `requirements.md` has the module's
 introduction, and for each rule its user story, its EARS statement, and its
 acceptance criteria in Kiro's `WHEN ... THE SYSTEM SHALL ...` notation. Each
 criterion carries its ID and the status the build computed for it.
@@ -312,6 +320,12 @@ Authored, and reviewed against the Lean by a second person:
   criteria each one checks.
 - The Verso chapters `Overview`, `Objects`, `Rules` and `Open Questions` in
   `Review/Review/`.
+- The review document's stylesheet and script, `Review/review.css` and
+  `Review/review.js`, and `Review/Review/Status.lean`, which adds the status
+  labels and the block that places generated HTML in a page.
+- The Given, When and Then lines in each example's docstring.
+- The WebAssembly wrapper in `impl/wasm/`, which passes the try-it panels'
+  inputs to the Rust rules.
 - The blueprint statements in `blueprint/src/content.tex` (without `\leanok`).
 - The Java implementation and its tests in `impl/java/`, and the oracle's JSON
   interface and vector inputs in `Oracle/Handle.lean`.
@@ -330,8 +344,8 @@ Computed by the build, never typed:
 - Each acceptance criterion's status, from the theorems and examples that
   check it: open if a checking theorem is open, proven if one is proven,
   example only if only examples check it, and not checked otherwise. The
-  criteria go to `build/ears-criteria.csv` and into the Kiro specs.
-- The Kiro specs in `.kiro/specs/`. These are committed so they can be read on
+  criteria go to `build/ears-criteria.csv` and into the requirement specs.
+- The requirement specs in `.kiro/specs/`. These are committed so they can be read on
   GitHub and opened in Kiro, and CI fails if the committed copies differ from
   what `scripts/render_status.py` writes.
 - The Lean translation of the Rust code in `Verify/Rust/`, generated by Charon
@@ -339,10 +353,16 @@ Computed by the build, never typed:
 - The conformance vectors' expected answers (`build/oracle/vectors.jsonl`),
   from the model through `lake exe oracle --vectors`.
 - The progress page at the site root, from `build/status.json` and the
-  blueprint statements, by `scripts/render_progress.py`.
-- `\leanok` markers in the blueprint, and the Verso `Guarantees`, `Examples`
-  and EARS sections, written by `scripts/render_status.py` into
-  `blueprint/src/*.generated.tex` and `Review/Review/Generated/`.
+  blueprint statements, by `scripts/render_progress.py`, and the dependency
+  graph page at `/graph/`, from the same sources, by `scripts/render_graph.py`.
+- `\leanok` markers in the blueprint, and the review document's requirement
+  chapters and EARS table, written by `scripts/render_status.py` into
+  `blueprint/src/*.generated.tex` and `Review/Review/Generated/`. A
+  requirement chapter's criteria table, its guarantee and example sections,
+  the readable form of each example's result, and the delivery state diagram
+  all come from `build/status.json`.
+- The try-it panels' answers, from the Rust functions compiled to
+  WebAssembly by `scripts/build-wasm.sh`.
 
 `lake exe status` exits nonzero if any declaration depends on `sorry` without
 the `@[open_question]` tag, if an EARS statement or acceptance criterion does
@@ -369,13 +389,25 @@ python3 -m venv .venv && . .venv/bin/activate
 pip install leanblueprint               # on macOS with Homebrew graphviz, set
                                         # CFLAGS=-I$(brew --prefix graphviz)/include
                                         # LDFLAGS=-L$(brew --prefix graphviz)/lib
+scripts/preview.sh                      # the documents only, served at http://localhost:8000
 scripts/build-site.sh                   # everything CI builds, assembled in site/
-python3 -m http.server -d site          # preview at http://localhost:8000
 ```
 
-`scripts/build-site.sh` runs, in order: `lake build`, `lake exe status`,
-`scripts/render_status.py`, `lake build Review`, `lake exe review-doc`,
-`leanblueprint web`, `leanblueprint checkdecls`, `leanblueprint pdf`.
+`scripts/preview.sh` is the quick loop for changes to the documents: it
+rebuilds the model, the status, the review document, the blueprint web pages
+and the progress page, assembles `site/`, and serves it. It skips the Java
+checks, the Rust proofs and the blueprint PDF, which take the longest; a PDF
+or conformance vectors from an earlier full build are included if present.
+Lake rebuilds only what changed, so a second run takes a minute or two.
+
+`scripts/build-site.sh` runs everything CI runs, in CI's order, and
+assembles `site/` the same way. Both scripts and CI lay out the site with
+`scripts/assemble-site.sh`.
+
+CI keeps the compiled Lean from its last run and the compiled Verso,
+checkdecls and Aeneas libraries in GitHub's cache, so a push rebuilds only
+the modules that changed. A push that changes only the README or `docs/` does
+not run CI, since the site does not include them.
 
 ## Versions
 
@@ -419,11 +451,11 @@ Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
 - Progress page: <https://samdengler.github.io/business-rules-verified/>
 - Verso document: <https://samdengler.github.io/business-rules-verified/review/>
 - Blueprint: <https://samdengler.github.io/business-rules-verified/blueprint/>
-- Dependency graph: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
+- Dependency graph: <https://samdengler.github.io/business-rules-verified/graph/>, and the blueprint's own: <https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html>
 - PDF: <https://samdengler.github.io/business-rules-verified/blueprint/print.pdf>
 - EARS table, one row per rule: <https://samdengler.github.io/business-rules-verified/ears.csv>
 - Acceptance criteria, one row per criterion: <https://samdengler.github.io/business-rules-verified/ears-criteria.csv>
-- Kiro specs, rendered on GitHub: <https://github.com/samdengler/business-rules-verified/tree/main/.kiro/specs>
+- Requirement specs, rendered on GitHub: <https://github.com/samdengler/business-rules-verified/tree/main/.kiro/specs>
   (the same files are on Pages under `/specs/`)
 - Conformance vectors for implementation checks: <https://samdengler.github.io/business-rules-verified/conformance-vectors.jsonl>
 
@@ -476,14 +508,16 @@ Choices made where the plan left room, in the order they came up.
     chapter is its own module, so the script writes three:
     `Review/Review/Generated/Guarantees.lean`, `Examples.lean` and `Ears.lean`.
     They are gitignored and regenerated on every build, as are
-    `blueprint/src/*.generated.tex`.
+    `blueprint/src/*.generated.tex`. (Decision 29 later replaced the Guarantees
+    and Examples chapters with one chapter per requirement.)
 13. **Verso layout.** The `Review` library has `srcDir = "Review"`, so its
     chapters sit in `Review/Review/`. The `review-doc` executable's root is
     `Review/Main.lean`. Verso writes `build/review/html-multi/`, and that
     directory becomes the site root.
 14. **Statement in the Guarantees chapter.** Each guarantee shows its Lean
     statement twice: in the `{docstring}` box, which renders the full signature,
-    and in a checked ```` ```lean ```` block (`#check @name`).
+    and in a checked ```` ```lean ```` block (`#check @name`). (Decision 28
+    later removed the `#check` block.)
 15. **`leanblueprint new` answers:** checkdecls yes; doc-gen4 no (the Verso
     document takes the place of API docs); Jekyll home page no; CI yes. The
     generated `blueprint.yml` and the template's other three workflows were
@@ -525,9 +559,11 @@ Choices made where the plan left room, in the order they came up.
 24. **Acceptance demos.** The demos (fixing the refund rule, changing a
     `#guard`, renaming `accept`) were run locally on a branch or as uncommitted
     edits, then discarded, as the plan says.
-25. **Kiro specs and acceptance criteria** (added after the plan, at Sam's
-    request). The Kiro specs are Markdown so they can be used with Kiro's
-    spec-driven flow; `ears.csv` stays as an extra export. Decisions:
+25. **Requirement specs and acceptance criteria** (added after the plan, at
+    Sam's request). The requirement specs are Markdown in the layout Kiro
+    reads, so they can be used with Kiro's spec-driven flow; `ears.csv` stays
+    as an extra export. They were first called Kiro specs; the name changed so
+    that it does not suggest Kiro is required. Decisions:
     - One spec folder per Lean module that holds rules, named from the
       namespace and the module's title, for example
       `offer-order-accepting-an-offer`. The module docstring becomes the
@@ -535,7 +571,7 @@ Choices made where the plan left room, in the order they came up.
     - Criterion IDs extend the rule's ID (`OO-001.1`) and are written by hand
       in the docstring, like the rule IDs, so they never renumber.
     - The EARS text stays in standard form in the docstrings ("When X, the
-      system shall Y"). The Kiro files print it in Kiro's notation
+      system shall Y"). The spec files print it in Kiro's notation
       (`WHEN X THE SYSTEM SHALL Y`, `IF X THEN THE SYSTEM SHALL Y`).
     - A criterion's status is computed from what checks it, but whether a
       theorem's statement covers the criterion's wording is a review question:
@@ -543,7 +579,8 @@ Choices made where the plan left room, in the order they came up.
     - An example that checks an open criterion is labelled a counterexample.
     - Four criteria (OO-002.2, OO-002.3, OO-002.5, OO-003.1) have no theorem or
       example yet and are shown as not checked. Adding theorems for them would
-      change the proven count the acceptance criteria fix at three.
+      change the proven count the acceptance criteria fix at three. (Decision
+      29's `transitionTable` example later checks the first three.)
     - Only `requirements.md` is generated; `design.md` and `tasks.md` belong to
       the team using the spec.
 26. **Implementation checks** (added after the plan, at Sam's request). The
@@ -574,7 +611,7 @@ Choices made where the plan left room, in the order they came up.
       one-to-one naming of numbers as strings.
     - `accept` has no Rust version, because it joins strings to make order
       references.
-    - The generated Lean in `Verify/Rust/` is committed, like the Kiro specs,
+    - The generated Lean in `Verify/Rust/` is committed, like the requirement specs,
       and CI checks that it matches a fresh translation.
 28. **A progress page at the site root.** The blueprint's layout is fixed by
     leanblueprint and reads like a mathematics paper, so business readers get
@@ -589,3 +626,71 @@ Choices made where the plan left room, in the order they came up.
       and an open point, the labels the page and the candidate nodes share.
     - The dependency map is drawn top to bottom without area boxes. With the
       boxes, Graphviz routed long edges across the areas.
+    - The review document has the same look. `Review/review.css` overrides
+      Verso's theme variables and is read by `lake exe review-doc` when it
+      runs, so a change to the stylesheet needs no Lean rebuild. A small Verso
+      role, `{status "proven"}[Proven]`, gives the generated chapters the
+      same status labels as the progress page.
+    - Each docstring is shown as a card: a plain label (object, rule,
+      calculation, guarantee, example), the description, the fields or
+      values as a list, and the Lean form in a small footer. Guarantees are
+      titled with their blueprint titles and examples with their names in
+      words, and the sidebar lists sections without every Lean name. The
+      Guarantees chapter no longer repeats each statement in a `#check`
+      block, since the docstring card already fails the build if the name is
+      wrong.
+29. **The review document is organized by requirement** (added at Sam's
+    request, with the readable examples, the state diagram and the try-it
+    panels). Business readers think one rule at a time, so each requirement
+    gets a chapter: the rule, a table of how each acceptance criterion is
+    checked and its status, the guarantees, the examples and any open
+    question. Objects and the EARS table follow as reference chapters.
+    - `scripts/render_status.py` writes the chapters as
+      `Review/Review/Generated/OO00n.lean` and fails if `Review/Review.lean`
+      does not include one of them.
+    - Examples state Given, When and Then in their docstrings. Their results
+      are parsed from the value Lean prints and shown in business terms:
+      amounts as 245.00 USD, instants as UTC times, lists of records as
+      tables. A result that does not parse is shown as Lean printed it. The
+      two examples that returned tuples now return records whose field names
+      label each part.
+    - A new example, `transitionTable`, runs every delivery state and event
+      through `step`. Its `#guard`s fix the three allowed moves and the count
+      of 12, and the review document draws the state diagram from its value.
+      It also checks OO-002.2, OO-002.3 and OO-002.5, which no example
+      checked before.
+    - The try-it panels call `step` and `accept_refund` from `impl/rust`,
+      compiled to WebAssembly through a wrapper crate, `impl/wasm`. The
+      proofs in `Verify/RustRules.lean` are about those two functions; the
+      wrapper and the page's script are not proved, and the panels say so.
+      The refund panel adds up the accepted refunds itself to show the open
+      question.
+    - The review document's front page shows a card per requirement, with its
+      user story and the computed status of its criteria, then the reference
+      chapters as a list. `scripts/render_status.py` writes the cards into
+      `Review/Review/Generated/Front.lean`. Verso's own chapter list is
+      hidden there, since the sidebar shows it.
+    - Every page has the same bar at the top: the site name and links to the
+      progress page, the review document, the dependency graph and GitHub.
+      `scripts/site_nav.py` defines it. The progress page uses it directly,
+      `scripts/assemble-site.sh` runs it on the blueprint's pages to replace
+      their header (keeping the blueprint's contents button), and
+      `Review/review.js` builds the same bar inside Verso's header, which
+      keeps Verso's search box.
+    - The dependency graph has its own page, `/graph/`, drawn by
+      `scripts/render_graph.py` in the style of the progress page. Graphviz
+      places the nodes; the page draws flat cards with a status line and
+      light connectors. Every status has its own color, used the same way on
+      every page: In Lean magenta, Proven green, Open question red, Needs a
+      decision amber, Ready to build blue, Waiting grey and dashed. Finished
+      states get a lighter rim than the ones that need attention. The colors
+      were checked against each other for color-blind readers, and every
+      status also carries its label. A reader
+      can move and zoom, and clicking a card dims the rest and opens a panel
+      with its statement, open point, source, Lean names, and what it
+      depends on and what uses it. leanblueprint's graph stays at
+      `/blueprint/dep_graph_document.html` for the blueprint's own legend.
+    - The blueprint follows the reader's dark-mode setting too, through
+      `blueprint/src/extra_styles.css`. In the dependency graph only the
+      black edges and text change, and blue borders lighten; the green fills
+      keep the meaning the legend gives them.

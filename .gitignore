@@ -14,3 +14,5 @@
 /impl/java/.jqwik-database
 /impl/rust/target
 /.aeneas
+/impl/wasm/target
+__pycache__/

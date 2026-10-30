@@ -1,0 +1,17 @@
+[package]
+name = "offer_order_rules_wasm"
+version = "0.1.0"
+edition = "2021"
+description = "The Rust rules from impl/rust, compiled to WebAssembly for the review document's try-it panels"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+offer_order_rules = { path = "../rust" }
+
+[profile.release]
+opt-level = "s"
+lto = true
