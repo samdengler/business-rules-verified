@@ -163,19 +163,39 @@ def chip(status):
     return f'<span class="chip s-{status}"><span class="ico" aria-hidden="true">{icon}</span>{label}</span>'
 
 
+def review_index():
+    """The section tags and Lean names the review document has a page for,
+    from the cross-reference index `lake exe review-doc` writes.  Empty when
+    the review document has not been built."""
+    path = ROOT / "build" / "review" / "html-multi" / "xref.json"
+    if not path.exists():
+        return None
+    x = json.loads(path.read_text())
+    return (set(x.get("Verso.Genre.Manual.section", {}).get("contents", {})),
+            set(x.get("Verso.Genre.Manual.doc", {}).get("contents", {})))
+
+
+REVIEW = review_index()
+
+
 def card_href(n, decls):
     """Where a card leads, found by Verso's own lookup so a moved chapter keeps
     working: a rule opens its requirement chapter at the top, a guarantee its
-    section in that chapter (tags from scripts/render_status.py), and a
-    candidate without Lean its node in the dependency graph."""
+    section in that chapter (tags from scripts/render_status.py), an object
+    its card in the review document, and anything the review document does not
+    show, such as a candidate without Lean, its node in the dependency graph."""
+    sections, names = REVIEW or (None, None)
     find = "./review/find/?domain=Verso.Genre.Manual.section&name="
     if n["lean"]:
         ears = decls.get(n["lean"][0], {}).get("earsId")
         if ears:
             return find + quote(ears.lower())
         if n["env"] != "definition":
-            return find + quote(section_tag("guarantee", n["lean"][0]))
-        return "./review/find/?domain=Verso.Genre.Manual.doc&name=" + quote(n["lean"][0])
+            tag = section_tag("guarantee", n["lean"][0])
+            if sections is None or tag in sections:
+                return find + quote(tag)
+        elif names is None or n["lean"][0] in names:
+            return "./review/find/?domain=Verso.Genre.Manual.doc&name=" + quote(n["lean"][0])
     return "./graph/#" + quote(n["label"])
 
 

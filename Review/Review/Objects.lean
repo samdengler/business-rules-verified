@@ -12,7 +12,7 @@ tag := "objects"
 %%%
 
 The objects are the things the rules talk about.
-Shared concepts such as money and time live in the `Core` namespace, which every business group uses; the Offer and Order objects live in the `OfferOrder` namespace.
+Shared concepts such as money and time live in the `Core` namespace, which every business group uses; the pilot's Offer and Order objects live in the `OfferOrder` namespace, and the ONE Order objects in the `OneOrder` namespace.
 Each card gives an object's description from its Lean docstring, then its fields, then the object as Lean states it.
 
 # Money and time
@@ -56,6 +56,28 @@ Each card gives an object's description from its Lean docstring, then its fields
 {docstring Rules.OfferOrder.totalPaid +hideStructureConstructor (label := "calculation")}
 
 {docstring Rules.OfferOrder.totalRefunded +hideStructureConstructor (label := "calculation")}
+
+# ONE Order objects
+
+The ONE Order rules follow the standard as IATA's public guide describes it, in the `OneOrder` namespace.
+An order holds order items, and each order item holds services, one for each passenger and flight segment.
+Each area of the standard adds its own objects; their cards are in the requirement chapters that use them.
+
+{docstring Rules.OneOrder.OfferItem +hideStructureConstructor (label := "object")}
+
+{docstring Rules.OneOrder.Offer +hideStructureConstructor (label := "object")}
+
+{docstring Rules.OneOrder.Order +hideStructureConstructor (label := "object")}
+
+{docstring Rules.OneOrder.OrderItem +hideStructureConstructor (label := "object")}
+
+{docstring Rules.OneOrder.Service +hideStructureConstructor (label := "object")}
+
+{docstring Rules.OneOrder.ServiceStatus +hideStructureConstructor (label := "object")}
+
+{docstring Rules.OneOrder.DeliveryStatus +hideStructureConstructor (label := "object")}
+
+{docstring Rules.OneOrder.ValueReading +hideStructureConstructor (label := "reading")}
 
 # Placeholders for later namespaces
 
