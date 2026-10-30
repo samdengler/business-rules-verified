@@ -1,0 +1,3 @@
+node_modules/
+# Stills from checking a render; the published files are out/history.mp4 and out/history-poster.jpg.
+out/*.png

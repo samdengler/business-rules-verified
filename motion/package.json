@@ -1,0 +1,21 @@
+{
+  "name": "airline-order-motion",
+  "private": true,
+  "description": "The motion piece about how the Airline Order model grew, rendered with Remotion from history/.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts History out/history.mp4",
+    "poster": "remotion still src/index.ts Poster out/history-poster.jpg --image-format=jpeg --jpeg-quality=85",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.539",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.539"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "5.9.3"
+  }
+}
