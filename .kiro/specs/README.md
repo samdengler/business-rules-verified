@@ -4,7 +4,7 @@
 
 Each folder is a requirement spec with one `requirements.md`, generated from the rules in one Lean module. The acceptance criteria are in EARS notation, and the folders follow the layout Kiro reads. The rule's docstring holds the user story and the acceptance criteria; the build computes each criterion's status from the theorems and examples tagged `@[checks]` with its ID. To change a requirement, edit the docstring and rebuild.
 
-189 acceptance criteria: 140 proven, 8 example only, 40 open, 1 not checked.
+251 acceptance criteria: 184 proven, 8 example only, 58 open, 1 not checked.
 
 | Spec | Requirement | User story | Criteria | Proven | Example only | Open | Not checked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
