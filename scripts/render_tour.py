@@ -140,7 +140,7 @@ def page(m):
          and {plural(counts["decision"], "candidate rule needs", "candidate rules need")} a business decision before
          {"it" if counts["decision"] == 1 else "they"} can be written.</p>
          <figure>{tiles(counts)}</figure>""",
-         '<a href="../">See every rule and guarantee on the progress page</a>'),
+         '<a href="../progress/">See every rule and guarantee on the progress page</a>'),
         ("How the areas build on each other",
          f"""<p>The cards fall into {len(m.order)} areas, the sections of the blueprint. The foundations sit at the top, and each
          layer builds on the ones above it. An arrow runs from an area to an area that builds on it, thicker for more
@@ -153,7 +153,7 @@ def page(m):
          "candidate rules")} wait for the business. Some sit under many other cards, so an answer to them reaches further.
          These five have the most cards depending on them, directly or through other cards.</p>
          {decide_first(m, "../", 5)}""",
-         '<a href="../#decide">See the top ten on the progress page</a>'),
+         '<a href="../progress/#decide">See the top ten on the progress page</a>'),
         (esc(card["title"]),
          f"""<p>{" ".join(desc)} This guarantee is open: the rule as written does not meet it. An example shows the rule
          breaking it.</p>
@@ -199,7 +199,7 @@ links to the page where you can look further.</p>
 <section class="step" id="next">
 <h2>Other pages</h2>
 <ul class="ends">
-  <li><a href="../">Progress</a>Every rule, guarantee and candidate with its status, and the open questions.</li>
+  <li><a href="../progress/">Progress</a>Every rule, guarantee and candidate with its status, and the open questions.</li>
   <li><a href="../graph/">Explore</a>The area map, the dependency matrix, every card, the history, and any card's neighbourhood.</li>
   <li><a href="../review/">Review document</a>A chapter per requirement, with its guarantees, examples and questions.</li>
 </ul>

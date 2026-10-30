@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Assemble site/ from the build outputs, in the layout GitHub Pages serves:
-# the progress page at the root, the Explore page under graph/, a summary page
-# per area under area/, the tour under tour/, the review document under
-# review/, the blueprint under blueprint/, the try-it panels' WebAssembly
-# under try/, the motion piece under motion/, Parliament Air's policy pages
-# under airline/, and the specs and exports beside them.  history/ sends readers to the Explore page's History tab, which shows
-# the motion piece.
+# the home page at the root, the progress page under progress/, the Explore
+# page under graph/, a summary page per area under area/, the tour under
+# tour/, the review document under review/, the blueprint under blueprint/,
+# the try-it panels' WebAssembly under try/, the motion piece under motion/,
+# Parliament Air's policy pages under airline/, and the specs and exports
+# beside them.  history/ sends readers to the Explore page's History tab,
+# which shows the motion piece.
 #
 #   scripts/assemble-site.sh
 #
@@ -26,7 +27,9 @@ optional() {
 
 rm -rf site
 mkdir -p site/blueprint site/review
-cp build/progress/index.html site/index.html
+cp build/home/index.html site/index.html
+mkdir -p site/progress
+cp build/progress/index.html site/progress/
 mkdir -p site/graph
 cp build/graph/index.html build/graph/graph.json site/graph/
 # The motion piece is rendered by scripts/render-motion.sh and committed; CI

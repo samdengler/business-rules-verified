@@ -77,8 +77,10 @@ jobs:
       - run: pip install leanblueprint
       # web writes blueprint/lean_decls, which checkdecls reads.
       - run: leanblueprint web && leanblueprint checkdecls && leanblueprint pdf
-      # The progress page for business readers.
+      # The progress page for business readers, at /progress/, and the home
+      # page, which shares its counts.
       - run: python3 scripts/render_progress.py
+      - run: python3 scripts/render_home.py
       # The Explore page at /graph/: the area map, the dependency matrix, every
       # card, the history of milestones, and a card's neighbourhood.
       - run: python3 scripts/render_graph.py

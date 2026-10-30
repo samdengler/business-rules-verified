@@ -29,6 +29,7 @@ leanblueprint web
 leanblueprint checkdecls
 leanblueprint pdf
 python3 scripts/render_progress.py
+python3 scripts/render_home.py
 python3 scripts/render_graph.py
 python3 scripts/render_history.py
 python3 scripts/render_areas.py

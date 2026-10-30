@@ -14,7 +14,8 @@ The rules, prices and data are simplified and invented. Where a rule is
 taken from IATA's public documentation, it is described in our own words
 with a link to the source page; IATA owns the standard and its documentation.
 
-- Progress page, for business readers: <https://samdengler.github.io/airline-order-verified/>
+- Home page, with the model's status and a guide to the site: <https://samdengler.github.io/airline-order-verified/>
+- Progress page, for business readers: <https://samdengler.github.io/airline-order-verified/progress/>
 - Review document: <https://samdengler.github.io/airline-order-verified/review/>
 - Requirement specs, criteria in EARS, in Kiro's format: [`.kiro/specs/`](.kiro/specs/)
 - Explore page, with the dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>
@@ -25,7 +26,7 @@ with a link to the source page; IATA owns the standard and its documentation.
 
 | You want to | Read |
 | --- | --- |
-| See at a glance what is proven, what is open, and what needs a business decision | The [progress page](https://samdengler.github.io/airline-order-verified/) |
+| See at a glance what is proven, what is open, and what needs a business decision | The [home page](https://samdengler.github.io/airline-order-verified/), then the [progress page](https://samdengler.github.io/airline-order-verified/progress/) for every card |
 | Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/airline-order-verified/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
 | Get the model explained in five steps | The [tour](https://samdengler.github.io/airline-order-verified/tour/) |
@@ -87,22 +88,24 @@ step.
 People write the Lean files, the prose chapters and the blueprint statements.
 Everything else is computed, so no status or example value is typed by hand.
 
-<img alt="Diagram: people write Rules/*.lean, the Review chapters and the blueprint statements. lake build checks the proofs and example values, lake exe status computes each theorem's and criterion's status, and render_status.py writes the review document, the dependency graph and PDF, and the requirement specs; the progress page at the site root shows the status of every rule and candidate. CSV exports come from the status step. CI fails on a rejected proof, a changed example value, a renamed rule, an unmarked open theorem, a malformed EARS line, or out-of-date requirement specs." src="docs/diagrams/build.svg" width="100%">
+<img alt="Diagram: people write Rules/*.lean, the Review chapters and the blueprint statements. lake build checks the proofs and example values, lake exe status computes each theorem's and criterion's status, and render_status.py writes the review document, the dependency graph and PDF, and the requirement specs; the progress page shows the status of every rule and candidate. CSV exports come from the status step. CI fails on a rejected proof, a changed example value, a renamed rule, an unmarked open theorem, a malformed EARS line, or out-of-date requirement specs." src="docs/diagrams/build.svg" width="100%">
 
 If someone renames a rule, the review document fails to build. If an example's
 value changes, `lake build` fails. If a theorem is left unproven without being
 marked as an open question, `lake exe status` fails. CI runs all of these on
 every push.
 
-The site's front page is a progress page for business readers, written by
-`scripts/render_progress.py`. It shows every rule, guarantee and survey
-candidate as a card with a status in plain words (modelled, proven, open
-question, needs a decision, ready to build, waiting), the counterexample behind
-each open question, the open questions and decisions with the most cards
-depending on them, and links to the Explore page at `/graph/` and the tour at
-`/tour/`. The statuses come
-from `build/status.json` and the text from the blueprint statements, so the
-page changes when the model does. The review document is under `/review/`.
+The site's home page, written by `scripts/render_home.py`, shows the counts
+by status, describes each part of the site with a link to it, and lists the
+three questions whose answers reach the most cards. The progress page at
+`/progress/`, written by `scripts/render_progress.py`, is for business
+readers. It shows every rule, guarantee and survey candidate as a card with a
+status in plain words (modelled, proven, open question, needs a decision,
+ready to build, waiting), the open questions grouped by area with the
+counterexample behind each, and the open questions and decisions with the
+most cards depending on them. The statuses come from `build/status.json` and
+the text from the blueprint statements, so both pages change when the model
+does. The review document is under `/review/`.
 
 The model is split by business group. Shared concepts such as money and time
 live in `Rules/Core/`, and each group gets its own directory under `Rules/`.
@@ -408,7 +411,8 @@ Computed by the build, never typed:
   and Aeneas and committed; CI fails if it differs from a fresh translation.
 - The conformance vectors' expected answers (`build/oracle/vectors.jsonl`),
   from the model through `lake exe oracle --vectors`.
-- The progress page at the site root, from `build/status.json` and the
+- The home page at the site root, by `scripts/render_home.py`, and the
+  progress page at `/progress/`, from `build/status.json` and the
   blueprint statements, by `scripts/render_progress.py`; the Explore page at
   `/graph/`, from the same sources, by `scripts/render_graph.py`; a summary
   page per area under `/area/`, by `scripts/render_areas.py`; and the tour at
@@ -962,3 +966,16 @@ Choices made where the plan left room, in the order they came up.
     one directory on macOS's default file system. A "still being decided"
     item names its open criterion, and the build stops when that criterion
     is proven, so the pages never keep a stale caveat.
+46. **A home page, with the progress page at `/progress/`.** Decision 28 put
+    the progress page at the site root. By the time the model had 58 open
+    questions and over 400 cards, the page was about 100 screens long, and
+    the open questions alone took 15, each in full and again as a card
+    further down. The root is now a home page: the introduction and status
+    tiles, a card for each part of the site with counts from the build, and
+    the top three of "Decide these first". The progress page keeps every
+    card. Its open questions are one line each, grouped by area, with the
+    example and open point behind a click, and a table of contents beside
+    the page (across its top on a phone) links every section. A script on
+    the home page sends links to the old sections, such as `/#found`, to
+    the same section of `/progress/`. On a phone the site bar keeps the
+    plane, which leads home, and drops the site name.

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """The bar at the top of every page: the site name and links to its parts.
 
-The progress page (scripts/render_progress.py) builds its bar from
-`topbar()`.  Run as a script, this adds the same bar to the blueprint's pages
+The home page, the progress page and the other generated pages build their
+bar from `topbar()`.  The site name leads to the home page
+(scripts/render_home.py); Progress leads to /progress/.  Run as a script, this adds the same bar to the blueprint's pages
 after leanblueprint has written them:
 
   python3 scripts/site_nav.py site/blueprint
@@ -37,7 +38,7 @@ FAVICON = ('<link rel="icon" href="data:image/svg+xml,'
 # airline demo is Parliament Air's policy pages (scripts/render_airline.py),
 # which have their own header.
 LINKS = [
-    ("Progress", ""),
+    ("Progress", "progress/"),
     ("Review document", "review/"),
     ("Explore", "graph/"),
     ("Airline demo", "airline/"),
@@ -62,7 +63,8 @@ TOPBAR_CSS = """
 .site-topbar .site-nav a:hover, .site-topbar .local:hover { color: var(--ink, #0b0b0b); }
 .site-topbar .site-nav a[aria-current] { color: var(--ink, #0b0b0b); font-weight: 600; }
 .site-topbar .local { margin-left: auto; white-space: nowrap; }
-@media (max-width: 700px) { .site-topbar .brand { display: none; } }
+/* On a phone the bar keeps the plane, which leads home, and drops the name. */
+@media (max-width: 700px) { .site-topbar { gap: 16px; padding: 0 16px; } .site-topbar .brand .name { display: none; } }
 """
 
 
@@ -74,7 +76,8 @@ def topbar(current, root, extra=""):
         href = path if path.startswith("http") else (root + path or "./")
         cur = ' aria-current="page"' if name == current else ""
         links.append(f'<a href="{href}"{cur}>{name}</a>')
-    return (f'<header class="site-topbar"><a class="brand" href="{root or "./"}">{PLANE_SVG}{SITE_NAME}</a>'
+    return (f'<header class="site-topbar"><a class="brand" href="{root or "./"}" aria-label="{SITE_NAME}, home">'
+            f'{PLANE_SVG}<span class="name">{SITE_NAME}</span></a>'
             f'<nav class="site-nav" aria-label="Site">{"".join(links)}</nav>{extra}</header>')
 
 

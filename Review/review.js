@@ -1,6 +1,6 @@
 // The site's bar: the site name and links between the parts of the site, added
 // to the header of every page of the review document.  The page's <base> is the document root, so "../" is
-// the site root, where the progress page is.
+// the site root, where the home page is; the progress page is at ../progress/.
 document.addEventListener("DOMContentLoaded", () => {
   const header = document.querySelector("header");
   if (!header || header.querySelector(".site-nav")) return;
@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   nav.className = "site-nav";
   nav.setAttribute("aria-label", "Site");
   const links = [
-    ["../", "Progress"],
+    ["../progress/", "Progress"],
     ["./", "Review document", true],
     ["../graph/", "Explore"],
     ["../airline/", "Airline demo"],
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (current) a.setAttribute("aria-current", "page");
     nav.appendChild(a);
   }
-  // The site name, as on the progress page and the blueprint (scripts/site_nav.py).
+  // The site name, leading home, as on every other page (scripts/site_nav.py).
   const brand = document.createElement("a");
   brand.className = "brand";
   brand.href = "../";
