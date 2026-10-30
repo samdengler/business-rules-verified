@@ -65,6 +65,20 @@ name = "oracle"
 root = "Oracle.Main"
 supportInterpreter = true
 
+# Parliament Air, the fictional airline of the policy pages at /airline/: its
+# fares as rules of the model, evaluated by the model's functions.  The
+# executable loads the library into Lean's interpreter (see Airline/Facts.lean)
+# and prints the facts the pages read.  The names are outside Rules, so the
+# status counts do not include them.
+[[lean_lib]]
+name = "Airline"
+roots = ["Airline.Fares", "Airline.Evaluate"]
+
+[[lean_exe]]
+name = "airline-facts"
+root = "Airline.Facts"
+supportInterpreter = true
+
 # Option 3: the Rust implementation, translated to Lean by Charon and Aeneas
 # (Verify/Rust/, generated), and the proofs that it computes what the model
 # computes (Verify/RustRules.lean).  Generated docstrings are plain text.
