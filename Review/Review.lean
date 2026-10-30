@@ -29,6 +29,11 @@ import Review.Generated.ONE403
 import Review.Generated.ONE404
 import Review.Generated.ONE405
 import Review.Generated.ONE406
+import Review.Generated.ONE701
+import Review.Generated.ONE702
+import Review.Generated.ONE703
+import Review.Generated.ONE704
+import Review.Generated.ONE705
 import Review.OpenQuestions
 import Review.Generated.Questions
 import Review.Objects
@@ -106,6 +111,16 @@ Review.Generated.Front.html
 {include 1 Review.Generated.ONE405}
 
 {include 1 Review.Generated.ONE406}
+
+{include 1 Review.Generated.ONE701}
+
+{include 1 Review.Generated.ONE702}
+
+{include 1 Review.Generated.ONE703}
+
+{include 1 Review.Generated.ONE704}
+
+{include 1 Review.Generated.ONE705}
 
 {include 1 Review.OpenQuestions}
 
