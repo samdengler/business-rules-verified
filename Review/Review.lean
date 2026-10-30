@@ -8,6 +8,11 @@ import Review.Generated.OO003
 import Review.Generated.ONE001
 import Review.Generated.ONE002
 import Review.Generated.ONE003
+import Review.Generated.ONE201
+import Review.Generated.ONE202
+import Review.Generated.ONE203
+import Review.Generated.ONE204
+import Review.Generated.ONE205
 import Review.OpenQuestions
 import Review.Generated.Questions
 import Review.Objects
@@ -43,6 +48,16 @@ Review.Generated.Front.html
 {include 1 Review.Generated.ONE002}
 
 {include 1 Review.Generated.ONE003}
+
+{include 1 Review.Generated.ONE201}
+
+{include 1 Review.Generated.ONE202}
+
+{include 1 Review.Generated.ONE203}
+
+{include 1 Review.Generated.ONE204}
+
+{include 1 Review.Generated.ONE205}
 
 {include 1 Review.OpenQuestions}
 

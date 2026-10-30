@@ -14,3 +14,9 @@ import Rules.OneOrder.Order
 import Rules.OneOrder.Accept
 import Rules.OneOrder.Theorems
 import Rules.OneOrder.Examples
+import Rules.OneOrder.Change.Differential
+import Rules.OneOrder.Change.Cancel
+import Rules.OneOrder.Change.Transfer
+import Rules.OneOrder.Change.Balance
+import Rules.OneOrder.Change.Theorems
+import Rules.OneOrder.Change.Examples

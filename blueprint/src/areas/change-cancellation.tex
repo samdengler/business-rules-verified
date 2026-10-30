@@ -4,36 +4,142 @@
 
 \begin{definition}[Cancelling an order (C-15)]
   \label{def:c15-cancel-order}
-  \uses{def:c06-item-status, def:payment}
+  \lean{Rules.OneOrder.Change.requestCancellation, Rules.OneOrder.Change.cancelDirect, Rules.OneOrder.Change.CancelTerms, Rules.OneOrder.Change.cancellationQuote}
+  \uses{def:c06-item-status, def:payment, def:totals}
   An unpaid order can be cancelled directly.  A paid order is cancelled only by
-  accepting a cancellation offer from the airline.
+  accepting a cancellation offer from the airline.  The model cancels an order
+  at once when no payment has been received for it, cancelling and removing
+  every service.  Otherwise it prices a cancellation offer from the order's
+  price, as a change whose new price is zero.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
 \end{definition}
 
-\begin{theorem}[Cancellation penalty (C-16)]
-  \label{thm:c16-penalty-net}
-  \uses{def:c15-cancel-order, def:money}
-  A cancellation penalty is either deducted from the refund or charged
-  separately, and the customer's net amount is the same either way: the
-  refundable total minus the penalty.  For example, with 625.00 refundable and
-  a penalty of 100.00, the customer is 525.00 better off in both cases.
+\begin{theorem}[Unpaid orders are cancelled at once]
+  \label{thm:change-cancellation-unpaid-at-once}
+  \lean{Rules.OneOrder.Change.unpaid_cancelled_at_once}
+  \uses{def:c15-cancel-order}
+  When no payment has been received for an order, a request to cancel it
+  cancels and removes every service at once, and the order keeps its items.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
 \end{theorem}
+\begin{proof}
+  \uses{def:c15-cancel-order}
+  Unfold the rule: with nothing paid it cancels the order directly.
+\end{proof}
+
+\begin{theorem}[Orders cancelled at once are closed]
+  \label{thm:change-cancellation-cancelled-closed}
+  \lean{Rules.OneOrder.Change.cancelled_at_once_closed}
+  \uses{def:c15-cancel-order, def:c06-item-status, def:c07-order-status}
+  Under every reading of the guide, an order cancelled at once has every item
+  \texttt{CANCELLED} and is \texttt{CLOSED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c15-cancel-order, def:c05-holds-value}
+  Every service is cancelled and removed, and a removed service holds no value
+  under any reading.
+\end{proof}
+
+\begin{theorem}[Penalty netted or charged separately (C-16)]
+  \label{thm:c16-penalty-net}
+  \lean{Rules.OneOrder.Change.net_same_either_way}
+  \uses{def:c15-cancel-order, def:money, def:change-cancellation-due-amounts}
+  A cancellation penalty is either deducted from the refund or charged
+  separately, and the customer's net amount is the same either way.  For
+  example, with 625.00 refundable and a penalty of 100.00, the customer is
+  525.00 better off in both cases.  The model proves the two ways equal for
+  changes and cancellations, under both readings of a penalty larger than the
+  refundable total (C-85).
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-due-amounts}
+  Both ways, what the customer pays less what the airline returns is the price
+  difference plus the penalty charged.
+\end{proof}
 
 \begin{definition}[Changing an order item (C-18)]
   \label{def:c18-change}
+  \lean{Rules.OneOrder.Change.changeItem, Rules.OneOrder.Change.ItemChange, Rules.OneOrder.Change.originalAfterChange, Rules.OneOrder.Change.afterChange, Rules.OneOrder.Change.newItemOf}
   \uses{def:c01-structure, def:c06-item-status}
-  \notready
   Changing an order item cancels the original item's services, creates a new
-  item, and charges or refunds the difference in price.
+  item, and charges or refunds the difference in price.  The model covers the
+  change once it is paid: the services the change keeps move to the new item
+  under the same references, their copies in the original item are marked
+  \texttt{TRANSFERRED} with their delivery status unchanged, and the other
+  services are cancelled and removed.  The money is priced by the price
+  differential.
 
   Open point: the source shows the difference only in a worked example, and
   does not define its sign or how penalties enter it.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782/Modification+of+an+Order}{EASD guide, Modification of an Order}.
 \end{definition}
+
+\begin{theorem}[Kept services keep their references]
+  \label{thm:change-cancellation-kept-references}
+  \lean{Rules.OneOrder.Change.change_keeps_services}
+  \uses{def:c18-change}
+  Every service a change keeps has a copy in the new item with the same
+  reference, passenger, segment and delivery status.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782/Modification+of+an+Order}{EASD guide, Modification of an Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c18-change}
+  The new item takes the kept services of the changed item and confirms them.
+\end{proof}
+
+\begin{theorem}[Originals of kept services are transferred]
+  \label{thm:change-cancellation-originals-transferred}
+  \lean{Rules.OneOrder.Change.change_marks_transferred}
+  \uses{def:c18-change}
+  Every service a change keeps stays in the changed item, marked
+  \texttt{TRANSFERRED}, with its delivery status unchanged.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782/Modification+of+an+Order}{EASD guide, Modification of an Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c18-change}
+  The changed item marks each service it keeps as transferred and changes
+  nothing else about it.
+\end{proof}
+
+\begin{theorem}[Services not kept are cancelled]
+  \label{thm:change-cancellation-others-cancelled}
+  \lean{Rules.OneOrder.Change.change_cancels_others}
+  \uses{def:c18-change}
+  Every service of the changed item that the change does not keep is
+  cancelled and removed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782/Modification+of+an+Order}{EASD guide, Modification of an Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c18-change}
+  The changed item marks each service it does not keep as cancelled and
+  removed.
+\end{proof}
+
+\begin{theorem}[Changes keep item references distinct]
+  \label{thm:change-cancellation-refs-distinct}
+  \lean{Rules.OneOrder.Change.change_item_refs_unique}
+  \uses{def:c18-change, thm:c03-unique-item-ids}
+  If an order's item references are distinct before a change, they are
+  distinct after it.  A change whose new item would reuse a reference is
+  refused.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782/Modification+of+an+Order}{EASD guide, Modification of an Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c18-change}
+  The changed item keeps its reference, and the new item's reference is not
+  already in the order.
+\end{proof}
 
 \begin{theorem}[Transferred services keep the order balanced (C-19)]
   \label{thm:c19-transfer-balanced}
@@ -65,8 +171,8 @@
 
 \begin{definition}[Price differential of a change (C-81)]
   \label{def:change-cancellation-price-differential}
-  \uses{def:money, def:c18-change, def:c15-cancel-order}
-  \notready
+  \lean{Rules.OneOrder.Change.priceDifferential, Rules.OneOrder.Change.ChangeQuote, Rules.OneOrder.Change.PriceDifferential, Rules.OneOrder.Change.DifferentialType, Rules.OneOrder.Change.statedDue, Rules.OneOrder.Change.typeOf}
+  \uses{def:money, def:c18-change, def:c15-cancel-order, def:change-cancellation-due-amounts}
   Every change or cancellation offer carries a price differential: the old
   price, the new price (zero for a cancellation), the penalties, the
   forfeited amounts, and two non-negative amounts, one due to the airline
@@ -78,7 +184,8 @@
   Cancellation of Order Items page shows a refund with a positive total of
   625.00, while the worked examples show refunds with negative totals, such
   as minus 1,000.00 in \texttt{EXM\_ORD\_030A}. The business must fix one
-  sign rule, or model only the two non-negative due amounts.
+  sign rule, or model only the two non-negative due amounts. The model states
+  only the two due amounts until the business decides.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268673}{EASD guide, Customer requests a change to an Order containing a paid OrderItem};
@@ -87,10 +194,109 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554213/Price+Differentials}{EASD guide, Price Differentials}.
 \end{definition}
 
+\begin{definition}[Amounts due to and by the airline]
+  \label{def:change-cancellation-due-amounts}
+  \lean{Rules.OneOrder.Change.dueAmounts, Rules.OneOrder.Change.DueAmounts, Rules.OneOrder.Change.ChangeQuote.difference, Rules.OneOrder.Change.ChangeQuote.refundable, Rules.OneOrder.Change.ExcessPenalty.charged, Rules.OneOrder.Change.PenaltyHandling, Rules.OneOrder.Change.Settlement}
+  \uses{def:money, def:change-cancellation-penalty-exceeds-refund}
+  The price difference of a change is the new price, less the old price, plus
+  the forfeited amount.  With a netted penalty, the penalty charged is added
+  to the difference, and the result is due to the airline when positive and
+  by the airline when negative.  With a separate penalty, the penalty charged
+  is due to the airline on its own, and the difference is settled on its own.
+  The worked examples fit this formula; the guide does not state it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554213/Price+Differentials}{EASD guide, Price Differentials}.
+\end{definition}
+
+\begin{theorem}[Mixed currencies are rejected]
+  \label{thm:change-cancellation-mixed-currency}
+  \lean{Rules.OneOrder.Change.differential_rejects_mixed_currency}
+  \uses{def:change-cancellation-price-differential}
+  A change whose prices, penalty and forfeited amount are not all in one
+  currency is rejected unpriced.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782/Modification+of+an+Order}{EASD guide, Modification of an Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-price-differential}
+  The rule checks the currencies first.
+\end{proof}
+
+\begin{theorem}[Type code names a collection]
+  \label{thm:change-cancellation-type-collects}
+  \lean{Rules.OneOrder.Change.differential_collects_iff}
+  \uses{def:change-cancellation-price-differential}
+  A differential's type code is AddCol, AddColAndRefund or AddColAndResidual
+  exactly when an amount is due to the airline.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554213/Price+Differentials}{EASD guide, Price Differentials}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-price-differential}
+  Check each branch of the type code against the due amounts.
+\end{proof}
+
+\begin{theorem}[Type code names a refund or a value store]
+  \label{thm:change-cancellation-type-pays}
+  \lean{Rules.OneOrder.Change.differential_pays_iff}
+  \uses{def:change-cancellation-price-differential}
+  A differential's type code is Refund, Residual, AddColAndRefund or
+  AddColAndResidual exactly when an amount is due by the airline.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554213/Price+Differentials}{EASD guide, Price Differentials}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-price-differential}
+  Check each branch of the type code against the due amounts.
+\end{proof}
+
+\begin{theorem}[Value kept for later use is typed Reusable]
+  \label{thm:change-cancellation-respend-reusable}
+  \lean{Rules.OneOrder.Change.respend_reusable}
+  \uses{def:change-cancellation-price-differential, def:change-cancellation-reusable-amount}
+  When the seller asks to keep the value of cancelled items for later use, the
+  differential is typed Reusable and both due amounts are zero.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594921}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in a Reusable amount}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-price-differential}
+  Unfold the rule: a request to keep the value states both amounts as zero.
+\end{proof}
+
+\begin{theorem}[Netted penalty gives one amount]
+  \label{thm:change-cancellation-netted-one-amount}
+  \lean{Rules.OneOrder.Change.netted_single_amount}
+  \uses{def:change-cancellation-due-amounts}
+  With a netted penalty, the due amounts net to the price difference plus the
+  penalty charged, and at most one of them is above zero.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-due-amounts}
+  A netted result is split by its sign.
+\end{proof}
+
+\begin{theorem}[Separate penalty is added to the amount due]
+  \label{thm:change-cancellation-separate-added}
+  \lean{Rules.OneOrder.Change.separate_penalty_added}
+  \uses{def:change-cancellation-due-amounts}
+  With a separate penalty, the amount due to the airline is the penalty
+  charged plus any price difference the customer pays, and the amount due by
+  the airline is any price difference the airline returns.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-due-amounts}
+  Unfold the rule.
+\end{proof}
+
 \begin{theorem}[Due amounts net to the difference (C-82)]
   \label{thm:change-cancellation-due-net-identity}
+  \lean{Rules.OneOrder.Change.differential_nets}
   \uses{def:change-cancellation-price-differential, thm:c16-penalty-net, def:c18-change, def:money}
-  \notready
   For every change or cancellation offer, the amount due to the airline
   minus the amount due by the airline equals the new price minus the old
   price, plus penalties, plus forfeited amounts. Netting of penalties or
@@ -105,6 +311,14 @@
   amount as zero, so the identity holds only if the value kept on the
   cancelled item counts as the new price.
 
+  Counterexample: a paid order at 1,000.00 cancelled with a request to keep
+  the value for later use is typed Reusable with both amounts zero, where the
+  formula gives 1,000.00 due by the airline (Lean example
+  \texttt{respendCancellation}, after \texttt{EXM\_ORD\_030E}).  Under the
+  reading that waives a penalty above the refundable value, a cancellation of
+  1,000.00 with 20.00 forfeited and a 1,000.00 penalty has nothing due, where
+  the formula gives 20.00 due to the airline (\texttt{penaltyAboveRefund}).
+
   Open point: The equation holds in all eleven worked examples that settle
   money, but the guide never states it, and C-18 leaves the sign and the
   penalty term open. The business must adopt this formula, or another one,
@@ -117,11 +331,32 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594795}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Refund with a Forfeited amount incurred and requiring payment of a penalty};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782}{EASD guide, Modification of an Order}.
 \end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-price-differential}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Collecting the whole penalty keeps the formula]
+  \label{thm:change-cancellation-net-of-collect}
+  \lean{Rules.OneOrder.Change.due_amounts_net_of_collect}
+  \uses{def:change-cancellation-due-amounts, def:change-cancellation-penalty-exceeds-refund}
+  Under the reading that collects the whole penalty, the due amounts net to
+  the new price, less the old price, plus the penalty, plus the forfeited
+  amount, whether the penalty is netted or charged separately.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-due-amounts}
+  The penalty charged is the whole penalty, and either way the net is the
+  price difference plus the penalty charged.
+\end{proof}
 
 \begin{theorem}[Order balance after servicing (C-83)]
   \label{thm:change-cancellation-order-balance}
-  \uses{def:totals, def:payment, def:refund, thm:c19-transfer-balanced, def:c06-item-status, thm:change-cancellation-penalties-persist, thm:change-cancellation-due-net-identity}
-  \notready
+  \lean{Rules.OneOrder.Change.change_keeps_balance}
+  \uses{def:totals, def:payment, def:refund, thm:c19-transfer-balanced, def:c06-item-status, thm:change-cancellation-penalties-persist, thm:change-cancellation-due-net-identity, def:change-cancellation-ledger, def:c18-change}
   At every point in an order's life, payments minus refunds equal the prices
   of its live order items plus all recorded penalties plus all recorded
   forfeited amounts. Value store and reusable items count as live at their
@@ -134,6 +369,12 @@
   old item stops counting. In the Modification of an Order illustration,
   payments total 3,100 while the new item shows a price of 3,000 against a
   quoted new price of 3,100.
+
+  Counterexample: a paid trip at 1,000.00 changed to a trip at 900.00 that
+  keeps the outbound flight, with a 40.00 penalty and 120.00 forfeited, leaves
+  1,060.00 paid against 1,900.00 of live items plus 160.00 recorded, because
+  the original item still holds value.  The same change keeping nothing
+  balances (Lean example \texttt{changeBalance}).
 
   Open point: The ORDPEN and ORDFOR guidance requires that sellers can
   reconcile all order values against payments and refunds but gives no
@@ -150,6 +391,53 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+additional+collection+and+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594417/Customer+requests+a+cancellation+to+paid+Order+or+OrderItems+resulting+in+full+refund}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in full refund}.
 \end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-ledger, def:c18-change}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{definition}[Money recorded on an order]
+  \label{def:change-cancellation-ledger}
+  \lean{Rules.OneOrder.Change.settle, Rules.OneOrder.Change.Ledger, Rules.OneOrder.Change.liveValue, Rules.OneOrder.Change.Ledger.Balanced}
+  \uses{def:money, def:change-cancellation-price-differential, def:c05-holds-value}
+  An order records everything the customer paid, everything the airline
+  returned, and every penalty and forfeited amount, at order level.  Settling
+  a change or cancellation offer adds its amount due to the airline to the
+  payments, its amount due by the airline to the refunds, and its penalty and
+  forfeited amount to those recorded.  The live items are the order's active
+  items.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDPEN/}{IATA capability ORDPEN}.
+\end{definition}
+
+\begin{theorem}[Settling adds to payments and refunds]
+  \label{thm:change-cancellation-settle-payments}
+  \lean{Rules.OneOrder.Change.settle_adds_payments}
+  \uses{def:change-cancellation-ledger}
+  Settling an offer adds the amount due to the airline to the payments and the
+  amount due by the airline to the refunds.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDPEN/}{IATA capability ORDPEN}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-ledger}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Settling records penalties and forfeits]
+  \label{thm:change-cancellation-settle-records}
+  \lean{Rules.OneOrder.Change.settle_records_penalty}
+  \uses{def:change-cancellation-ledger}
+  Settling an offer adds its penalty and forfeited amount to those recorded on
+  the order, and lowers no amount recorded before.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDPEN/}{IATA capability ORDPEN}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-ledger}
+  Settling only adds.
+\end{proof}
 
 \begin{definition}[Change accepted before payment (C-84)]
   \label{def:change-cancellation-deferred-payment-change}
@@ -180,8 +468,8 @@
 
 \begin{definition}[Penalty larger than the refund (C-85)]
   \label{def:change-cancellation-penalty-exceeds-refund}
-  \uses{thm:c16-penalty-net, thm:change-cancellation-due-net-identity, def:c15-cancel-order}
-  \notready
+  \lean{Rules.OneOrder.Change.ExcessPenalty}
+  \uses{def:money, def:c15-cancel-order}
   With a netted penalty, the amount due by the airline is the refundable
   value of the cancelled items minus the penalty. The source has no case
   where the penalty is larger than the refundable value.
@@ -192,11 +480,53 @@
 
   Open point: The business must decide whether a penalty is capped at the
   refundable value, so that cancelling never leaves the customer owing
-  money, or whether the excess is collected.
+  money, or whether the excess is collected. The model takes the answer as a
+  parameter with two readings: collect the excess, or waive it.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594543}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Refund with a Forfeited amount incurred}.
 \end{definition}
+
+\begin{theorem}[Cancelling leaves the customer owing nothing]
+  \label{thm:change-cancellation-cancel-not-owing}
+  \lean{Rules.OneOrder.Change.cancel_not_owing}
+  \uses{def:change-cancellation-due-amounts, def:change-cancellation-penalty-exceeds-refund}
+  On a cancellation whose forfeited amount is part of the old price, the
+  amount due to the airline is no larger than the amount due by the airline,
+  under both readings of a penalty above the refundable value.
+
+  Counterexample: a paid order at 1,000.00 with 20.00 forfeited, cancelled
+  with a netted penalty of 1,000.00, leaves 20.00 due to the airline under the
+  reading that collects the whole penalty (Lean example
+  \texttt{penaltyAboveRefund}).
+
+  Open point: under the other reading the guarantee holds, but the due
+  amounts no longer net to the formula of C-82.  The business must decide
+  whether a penalty is capped at the refundable value or the excess is
+  collected.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-due-amounts}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Waiving the excess penalty leaves nothing owing]
+  \label{thm:change-cancellation-not-owing-of-waive}
+  \lean{Rules.OneOrder.Change.cancel_not_owing_of_waive}
+  \uses{def:change-cancellation-due-amounts, def:change-cancellation-penalty-exceeds-refund}
+  Under the reading that waives a penalty above the refundable value, a
+  cancellation never leaves the customer owing the airline money.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:change-cancellation-due-amounts}
+  The penalty charged is at most the refundable value, and a cancellation
+  returns the refundable value.
+\end{proof}
 
 \begin{theorem}[Full cancellation keeps no residual (C-86)]
   \label{thm:change-cancellation-full-cancel-no-residual}
@@ -220,10 +550,10 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594669}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store}.
 \end{theorem}
 
-\begin{definition}[Cancelling a partly paid order (C-87)]
+\begin{definition}[Paid or partly paid orders need an offer (C-87)]
   \label{def:change-cancellation-partly-paid-cancel}
+  \lean{Rules.OneOrder.Change.paid_needs_offer}
   \uses{def:c15-cancel-order, thm:refunds-le-payments, def:payment}
-  \notready
   An order with any payment, full or partial, is cancelled through a
   cancellation offer. Only an order with no payment at all may be cancelled
   directly.
@@ -241,6 +571,29 @@
   Sources: \href{https://retailing.iata.org/armi/docs/ORDCA2/}{IATA capability ORDCA2};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
 \end{definition}
+
+\begin{theorem}[Cancellation offers stay within payments]
+  \label{thm:change-cancellation-offer-within-payments}
+  \lean{Rules.OneOrder.Change.offer_within_payments}
+  \uses{def:c15-cancel-order, def:change-cancellation-partly-paid-cancel, def:change-cancellation-price-differential, def:totals}
+  A cancellation offer never makes the amount due by the airline larger than
+  the payments received for the order.
+
+  Counterexample: an order at 1,000.00 with 300.00 received is cancelled
+  through an offer priced from the order's price, with 1,000.00 due by the
+  airline (Lean example \texttt{partlyPaidCancellation}).
+
+  Open point: the business must decide whether the refundable amount is
+  capped at the payments received, and which route applies when some items
+  are paid and others are not.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDCA2/}{IATA capability ORDCA2}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c15-cancel-order, def:change-cancellation-price-differential}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{definition}[Removing one passenger from an item (C-88)]
   \label{def:change-cancellation-remove-passenger}
@@ -365,8 +718,8 @@
 
 \begin{theorem}[Transferred originals hold no value (C-93)]
   \label{thm:change-cancellation-transferred-original-no-value}
-  \uses{def:c05-holds-value, def:c06-item-status, thm:c19-transfer-balanced, def:c08-delivery-status}
-  \notready
+  \lean{Rules.OneOrder.Change.change_original_cancelled}
+  \uses{def:c05-holds-value, def:c06-item-status, thm:c19-transfer-balanced, def:c08-delivery-status, def:c18-change}
   A service transferred to a new item holds value only in the new item. The
   original copy, with status \texttt{TRANSFERRED}, holds no value, so its
   old item can be \texttt{CANCELLED}.
@@ -376,6 +729,12 @@
   with \texttt{READY TO PROCEED}. The same six service IDs appear in
   \texttt{ORDITM02\_NEW} as \texttt{READY TO PROCEED}, so their value is
   counted twice.
+
+  Counterexample: a paid return trip changed to keep the outbound flight
+  leaves the original item with the outbound service \texttt{TRANSFERRED} and
+  \texttt{READY TO PROCEED}.  Under both readings the original item is
+  \texttt{ACTIVE}, and the outbound service holds value in both items (Lean
+  example \texttt{changeKeepingOutbound}).
 
   Open point: In the worked examples the original copy keeps delivery status
   \texttt{READY TO PROCEED} while its item is \texttt{CANCELLED}. C-05
@@ -390,6 +749,11 @@
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268712}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a value store}.
 \end{theorem}
+\begin{proof}
+  \uses{def:c18-change, def:c06-item-status}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{theorem}[Refund waits for separate penalty (C-94)]
   \label{thm:change-cancellation-refund-after-penalty}
