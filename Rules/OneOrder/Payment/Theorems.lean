@@ -3,6 +3,7 @@ import Rules.OneOrder.Payment.Status
 import Rules.OneOrder.Payment.Accept
 import Rules.OneOrder.Payment.Outcome
 import Rules.OneOrder.Payment.TimeLimit
+import Rules.OneOrder.Delivery.Theorems
 
 /-!
 # Guarantees about payments
@@ -15,6 +16,7 @@ question for the business.
 namespace Rules.OneOrder.Payment
 
 open Rules.Core
+open Rules.OneOrder.Delivery (MoveReading)
 
 /-- A payment is FAILED exactly when it has no payment method or the
 transaction of at least one of its payment methods failed. -/
@@ -281,26 +283,34 @@ theorem applyOutcome_uncovered (p : Transaction) (items : List PayableItem) :
   · rfl
 
 /-- An order item whose payment time limit has passed, with no SUCCESSFUL
-payment covering it, is removed: its services take the statuses of the
-removal. -/
+payment covering it, is removed: each of its services that the delivery status
+table lets end is cancelled and no longer live, under every reading. -/
 @[checks "ONE-306.1"]
-theorem expireUnpaid_removes (r : Removal) (now : Instant) (o : PayableOrder)
+theorem expireUnpaid_removes (m : MoveReading) (r : Removal) (now : Instant) (o : PayableOrder)
     (pi : PayableItem) (hpi : pi ∈ o.items) (t : Instant) (ht : pi.timeLimit = some t)
     (hle : now ≥ t) (hunpaid : isPaid o.payments pi.item.id = false) :
-    pi.remove r ∈ (expireUnpaid r now o).items := by
+    ∃ pi' ∈ (expireUnpaid m r now o).items, pi'.item.id = pi.item.id ∧
+      ∀ s ∈ pi.item.services, (Delivery.nextDelivery m r.event s).isSome →
+        ∃ s' ∈ pi'.item.services, s'.id = s.id ∧ s'.status = .cancelled ∧ Delivery.isLive s' = false := by
   have hl : o.lapses now pi = true := by simp [PayableOrder.lapses, ht, hle, hunpaid]
-  simp only [expireUnpaid, List.mem_map]
-  exact ⟨pi, hpi, by simp [hl]⟩
+  refine ⟨pi.remove m r, ?_, rfl, ?_⟩
+  · simp only [expireUnpaid, List.mem_map]
+    exact ⟨pi, hpi, by simp [hl]⟩
+  · intro s hs hend
+    obtain ⟨d, hd⟩ := Option.isSome_iff_exists.mp hend
+    refine ⟨Delivery.endWith m r.event .cancelled s, List.mem_map.mpr ⟨s, hs, rfl⟩,
+      (Delivery.endWith_follows m r.event .cancelled s).1,
+      by simp [Delivery.endWith, hd], Delivery.endWith_cancelled_not_live m r.event s hend⟩
 
 /-- When an order item is removed at its payment time limit, every payment
 covering it that was PENDING is FAILED afterwards. -/
 @[checks "ONE-306.2"]
-theorem expireUnpaid_fails_pending (r : Removal) (now : Instant) (o : PayableOrder)
+theorem expireUnpaid_fails_pending (mr : MoveReading) (r : Removal) (now : Instant) (o : PayableOrder)
     (pi : PayableItem) (hpi : pi ∈ o.items) (t : Instant) (ht : pi.timeLimit = some t)
     (hle : now ≥ t) (hunpaid : isPaid o.payments pi.item.id = false)
     (p : Transaction) (hp : p ∈ o.payments) (hpend : p.status = .pending)
     (hc : pi.item.id ∈ p.covers) :
-    ∃ p' ∈ (expireUnpaid r now o).payments, p'.id = p.id ∧ p'.status = .failed := by
+    ∃ p' ∈ (expireUnpaid mr r now o).payments, p'.id = p.id ∧ p'.status = .failed := by
   have hl : o.lapses now pi = true := by simp [PayableOrder.lapses, ht, hle, hunpaid]
   have hany : o.items.any (fun pi => o.lapses now pi && decide (pi.item.id ∈ p.covers)) = true :=
     List.any_eq_true.mpr ⟨pi, hpi, by simp [hl, hc]⟩
@@ -314,9 +324,9 @@ theorem expireUnpaid_fails_pending (r : Removal) (now : Instant) (o : PayableOrd
 /-- An order item that a SUCCESSFUL payment covers is never removed at a
 payment time limit. -/
 @[checks "ONE-306.3"]
-theorem expireUnpaid_keeps_paid (r : Removal) (now : Instant) (o : PayableOrder)
+theorem expireUnpaid_keeps_paid (m : MoveReading) (r : Removal) (now : Instant) (o : PayableOrder)
     (pi : PayableItem) (hpi : pi ∈ o.items) (hpaid : isPaid o.payments pi.item.id = true) :
-    pi ∈ (expireUnpaid r now o).items := by
+    pi ∈ (expireUnpaid m r now o).items := by
   have hl : o.lapses now pi = false := by simp [PayableOrder.lapses, hpaid]
   simp only [expireUnpaid, List.mem_map]
   exact ⟨pi, hpi, by simp [hl]⟩
@@ -324,9 +334,10 @@ theorem expireUnpaid_keeps_paid (r : Removal) (now : Instant) (o : PayableOrder)
 /-- An order item whose payment time limit has not passed, or that has none,
 is left as it was. -/
 @[checks "ONE-306.4"]
-theorem expireUnpaid_keeps_before_limit (r : Removal) (now : Instant) (o : PayableOrder)
+theorem expireUnpaid_keeps_before_limit (m : MoveReading) (r : Removal) (now : Instant)
+    (o : PayableOrder)
     (pi : PayableItem) (hpi : pi ∈ o.items) (hbefore : ∀ t, pi.timeLimit = some t → now < t) :
-    pi ∈ (expireUnpaid r now o).items := by
+    pi ∈ (expireUnpaid m r now o).items := by
   have hl : o.lapses now pi = false := by
     cases ht : pi.timeLimit with
     | none => simp [PayableOrder.lapses, ht]
@@ -348,17 +359,26 @@ example {lit}`noTimeLimit` shows it a year after the order was created.  May
 an unpaid order item exist without a payment time limit, and if so, may it stay
 unpaid indefinitely? -/
 @[open_question, checks "ONE-306.5"]
-theorem unpaid_item_removed_eventually (r : Removal) (o : PayableOrder) (pi : PayableItem)
+theorem unpaid_item_removed_eventually (m : MoveReading) (r : Removal) (o : PayableOrder)
+    (pi : PayableItem)
     (hpi : pi ∈ o.items) (hunpaid : isPaid o.payments pi.item.id = false) :
-    ∃ t : Instant, ∀ now ≥ t, pi.remove r ∈ (expireUnpaid r now o).items := by
+    ∃ t : Instant, ∀ now ≥ t, pi.remove m r ∈ (expireUnpaid m r now o).items := by
   sorry
 
-/-- When the removal gives a removed item's services the delivery status
-REMOVED, none of them holds value, under every reading of the guide. -/
-theorem removed_item_holds_no_value_of_removed (v : ValueReading) (r : Removal)
-    (hr : r.delivery = .removed) (pi : PayableItem) :
-    (pi.remove r).item.isActive v = false := by
-  simp [PayableItem.remove, OrderItem.isActive, Service.holdsValue, hr, v.removed]
+/-- When the removal cancels a removed item's services as REMOVED, and the
+delivery status table lets each of them be removed, none of them holds value,
+under every reading of the guide. -/
+theorem removed_item_holds_no_value_of_removed (m : MoveReading) (v : ValueReading) (r : Removal)
+    (hr : r.event = .remove) (pi : PayableItem)
+    (hall : ∀ s ∈ pi.item.services, (Delivery.nextDelivery m .remove s).isSome) :
+    (pi.remove m r).item.isActive v = false := by
+  simp only [PayableItem.remove, OrderItem.isActive, List.any_map, List.any_eq_false,
+    Function.comp_apply, Bool.not_eq_true]
+  intro s hs
+  obtain ⟨d, hd⟩ := Option.isSome_iff_exists.mp (hall s hs)
+  have hdr := Delivery.nextDelivery_remove m s d hd
+  subst hdr
+  simp [Delivery.endWith, hr, hd, Service.holdsValue, v.removed]
 
 /-- An order item removed at its payment time limit holds no value: none of its
 services holds value afterwards.
@@ -367,13 +387,15 @@ Open question for the business.  The guide says such an item is removed and
 names no resulting statuses.  If its services become REMOVED, none holds value
 under every reading of the guide.  If they become EXPIRED, whether they hold
 value is itself unsettled: under the cautious reading an expired service holds
-value, so the removed item stays active and keeps its order opened.  The
-example {lit}`removalStatuses` shows both.  Which service status and delivery
-status does an item take when its payment time limit passes unpaid? -/
+value, so the removed item stays active and keeps its order opened.  If they
+become REMOVED HOLD VALUE, they hold value under every reading.  The example
+{lit}`removalStatuses` shows all three.  Which delivery status does an item's
+service take when its payment time limit passes unpaid? -/
 @[open_question, checks "ONE-306.6"]
-theorem removed_item_holds_no_value (v : ValueReading) (r : Removal) (now : Instant)
+theorem removed_item_holds_no_value (m : MoveReading) (v : ValueReading) (r : Removal)
+    (now : Instant)
     (o : PayableOrder) (pi : PayableItem) (hpi : pi ∈ o.items) (hl : o.lapses now pi = true) :
-    (pi.remove r).item.isActive v = false := by
+    (pi.remove m r).item.isActive v = false := by
   sorry
 
 end Rules.OneOrder.Payment

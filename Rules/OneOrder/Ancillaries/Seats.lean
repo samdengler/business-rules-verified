@@ -15,7 +15,7 @@ segment; the model checks each choice against the seat map and nothing else.
 namespace Rules.OneOrder.Ancillaries
 
 open Rules.Core
-open Rules.OneOrder.AirlineChange (isLive)
+open Rules.OneOrder.Delivery (isLive)
 
 /-- A seat held by a passenger on a flight segment. -/
 structure SeatAssignment where

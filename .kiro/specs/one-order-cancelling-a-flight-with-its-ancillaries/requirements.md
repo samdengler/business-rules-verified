@@ -23,7 +23,7 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Ancilla
 
 #### Acceptance Criteria
 
-1. WHEN a seller cancels order items THE SYSTEM SHALL mark every live service of each named item CANCELLED with delivery status REMOVED.
+1. WHEN a seller cancels order items THE SYSTEM SHALL mark every live service of each named item that the delivery status table lets be removed CANCELLED with delivery status REMOVED.
    - ONE-603.1, proven: proven theorem `cancel_items_named`; example `cancelFlightWithBag`
 2. IF a seller names an order item whose conditions do not allow cancellation THEN THE SYSTEM SHALL refuse the request.
    - ONE-603.2, proven: proven theorem `cancel_items_refuses_not_cancellable`; example `refuseUntilNamedBlocks`
@@ -43,10 +43,13 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Ancilla
 > Open question for the business.  Under the reading where the dependents stay
 > as they are, a cancelled flight leaves its bag confirmed on a segment the
 > passenger no longer flies.  The example `cancelFlightWithBag` shows it.
-> The other two readings keep the guarantee
-> \(`cancel_items_no_live_dependents_of_not_leave`\).  Should cancelling a
-> flight cancel its bag and seat, refuse until the seller names them, or leave
-> them in place?
+> The other two readings keep the guarantee when every live service of the order
+> can be removed \(`cancel_items_no_live_dependents_of_not_leave`\).  A bag
+> still REQUESTED from the airline cannot be: the delivery status table has no
+> move out of REQUESTED but confirmation, so it stays live under every reading.
+> Should cancelling a flight cancel its bag and seat, refuse until the seller
+> names them, or leave them in place, and what happens to one the airline has
+> not yet confirmed?
 
 #### Open question on ONE-603.5
 

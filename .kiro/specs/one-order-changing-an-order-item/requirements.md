@@ -26,8 +26,8 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Change/
    - ONE-204.1, proven: proven theorem `change_keeps_services`; example `changeKeepingOutbound`
 2. WHEN a change keeps a service of the changed item THE SYSTEM SHALL mark the original copy transferred and leave its delivery status as it was.
    - ONE-204.2, proven: proven theorem `change_marks_transferred`; example `changeKeepingOutbound`
-3. WHEN a change does not keep a service of the changed item THE SYSTEM SHALL mark it cancelled and removed.
-   - ONE-204.3, proven: proven theorem `change_cancels_others`; example `changeKeepingOutbound`; example `changeReplacingAll`
+3. WHEN a change does not keep a service of the changed item and the delivery status table lets it be removed THE SYSTEM SHALL mark it cancelled and removed.
+   - ONE-204.3, proven: proven theorem `change_cancels_others`; example `changeAfterOutboundFlown`; example `changeKeepingOutbound`; example `changeReplacingAll`
 4. WHEN a change is made THE SYSTEM SHALL keep the order's item references distinct.
    - ONE-204.4, proven: proven theorem `change_item_refs_unique`; example `changeReusingReference`
 5. WHEN a change is made THE SYSTEM SHALL mark the changed item cancelled.

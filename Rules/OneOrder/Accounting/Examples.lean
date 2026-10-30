@@ -242,7 +242,7 @@ by both parties, with clearance IDs CLR-1 and CLR-2.
 *Then* when signed clearances are checked only for a repeated ID, both are
 accepted and the payment can be settled twice.  When they are also checked for
 a repeated payment, only CLR-1 is accepted. -/
-@[case, checks "ONE-803.4 ONE-803.5"]
+@[case, checks "ONE-803.4"]
 def signedTwice : AcceptedUnderReadings :=
   let cs := [{ clearance "CLR-1" with signed := true }, { clearance "CLR-2" with signed := true }]
   { idOnly := (submitAll ⟨false⟩ [] cs).map (·.id), idAndPayment := (submitAll ⟨true⟩ [] cs).map (·.id) }
@@ -362,7 +362,7 @@ to Clawed Back and then Final Settlement, and all 300.00 EUR is accounted for.
 Where it does not, the later clearing is refused: the clearance stays Clawed
 Back with 300.00 EUR settled, 100.00 EUR clawed back and nothing unsettled, so
 100.00 EUR of the agreed amount is accounted for nowhere. -/
-@[case, checks "ONE-804.5 ONE-804.6"]
+@[case, checks "ONE-804.5"]
 def clawedBackThenCollected : ClawbackTraces :=
   let es := [.settle 30000, .clawBack 10000, .settle 10000]
   { reopens := .of reopening 30000 es, doesNotReopen := .of notReopening 30000 es }
@@ -436,7 +436,7 @@ and 50.00 EUR through EasyPay, both due on 2026-11-16.
 position, the positions sum to 50.00 EUR.  Where the EasyPay provider takes
 the payer's place, it is a remittance payer for 50.00 EUR and the positions
 sum to zero. -/
-@[case, checks "ONE-805.4 ONE-805.5 ONE-805.6"]
+@[case, checks "ONE-805.4 ONE-805.5"]
 def easyPayNetting : EasyPayNetting :=
   let cs := [owes "1" "S" "A" 10000 .settlementPlan, owes "2" "S" "A" 5000 .easyPay]
   let ps := [Party.org "S", .org "A", .easyPayProvider]

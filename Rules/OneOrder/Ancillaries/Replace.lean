@@ -14,7 +14,7 @@ is cancelled with its value refunded or stored, or must be reshopped.
 namespace Rules.OneOrder.Ancillaries
 
 open Rules.Core
-open Rules.OneOrder.AirlineChange (isLive)
+open Rules.OneOrder.Delivery (isLive)
 
 /-- What happens to a dependent service when its flight is replaced. -/
 inductive DependentEffect

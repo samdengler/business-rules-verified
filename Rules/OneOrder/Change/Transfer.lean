@@ -1,5 +1,6 @@
 import Rules.Core.Attributes
 import Rules.OneOrder.Order
+import Rules.OneOrder.Delivery.Services
 
 /-!
 # Changing an order item
@@ -14,6 +15,7 @@ once it is paid, as the worked examples show it after payment.
 namespace Rules.OneOrder.Change
 
 open Rules.Core
+open Rules.OneOrder.Delivery (MoveReading endWith)
 
 /-- A change to one order item that the seller has accepted and paid. -/
 structure ItemChange where
@@ -41,15 +43,15 @@ inductive ChangeRejection
 
 /-- A service of the changed item after the change: marked transferred if the
 change keeps it, with its delivery status as it was; otherwise cancelled and
-removed. -/
-def originalAfterChange (kept : List String) (s : Service) : Service :=
+removed, where the delivery status table lets it be removed. -/
+def originalAfterChange (m : MoveReading) (kept : List String) (s : Service) : Service :=
   if s.id ∈ kept then { s with status := .transferred }
-  else { s with status := .cancelled, delivery := .removed }
+  else endWith m .remove .cancelled s
 
 /-- An order item after a change: the changed item has its services marked,
 and every other item is unchanged. -/
-def afterChange (c : ItemChange) (i : OrderItem) : OrderItem :=
-  if i.id = c.item then { i with services := i.services.map (originalAfterChange c.kept) } else i
+def afterChange (m : MoveReading) (c : ItemChange) (i : OrderItem) : OrderItem :=
+  if i.id = c.item then { i with services := i.services.map (originalAfterChange m c.kept) } else i
 
 /-- The new order item of a change: the kept services of the original item,
 confirmed and with the same references, then the added services. -/
@@ -74,21 +76,25 @@ Acceptance criteria:
 * ONE-204.2: When a change keeps a service of the changed item, the system
   shall mark the original copy transferred and leave its delivery status as it
   was.
-* ONE-204.3: When a change does not keep a service of the changed item, the
-  system shall mark it cancelled and removed.
+* ONE-204.3: When a change does not keep a service of the changed item and the
+  delivery status table lets it be removed, the system shall mark it cancelled
+  and removed.
 * ONE-204.4: When a change is made, the system shall keep the order's item
   references distinct.
 * ONE-204.5: When a change is made, the system shall mark the changed item
   cancelled.
 
 The original copy keeps its delivery status because the worked examples show
-it so: after the change, the transferred copies are still READY TO PROCEED. -/
+it so: after the change, the transferred copies are still READY TO PROCEED.  A
+service the change does not keep is removed through the delivery status table
+({name}`Delivery.endWith`), so a service already DELIVERED, such as an
+outbound flight already flown, stays as it was. -/
 @[ears "ONE-204"]
-def changeItem (o : Order) (c : ItemChange) : Except ChangeRejection Order :=
+def changeItem (m : MoveReading) (o : Order) (c : ItemChange) : Except ChangeRejection Order :=
   match o.items.find? (·.id = c.item) with
   | none => .error .unknownItem
   | some old =>
     if o.items.any (·.id = c.newItem) then .error .duplicateItemReference
-    else .ok { o with items := o.items.map (afterChange c) ++ [newItemOf c old] }
+    else .ok { o with items := o.items.map (afterChange m c) ++ [newItemOf c old] }
 
 end Rules.OneOrder.Change

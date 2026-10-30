@@ -1,6 +1,6 @@
 import Rules.Core.Attributes
 import Rules.OneOrder.Order
-import Rules.OneOrder.Delivery.Moves
+import Rules.OneOrder.Delivery.Services
 
 /-!
 # A flight the airline cancels
@@ -17,6 +17,7 @@ the sources.
 namespace Rules.OneOrder.AirlineChange
 
 open Rules.Core
+open Rules.OneOrder.Delivery (isLive MoveReading endWith)
 
 /-- What the airline refunds when it cancels a flight and does not move the
 customer to another one.  The worked example shows no refund, and no source
@@ -30,17 +31,11 @@ structure FlightRefund where
   /-- No more than the item's price is refunded. -/
   le_price : ∀ i seg, refund i seg ≤ i.price.amount
 
-/-- Whether a service is live: neither cancelled nor transferred, and not in a
-final delivery status. -/
-def isLive (s : Service) : Bool :=
-  s.status != .cancelled && s.status != .transferred && !Delivery.isFinal s.delivery
-
-/-- A service after the airline cancels a flight: cancelled with delivery
-status UNABLE TO DELIVER if it is a live service on that flight, and otherwise
-as it was. -/
-def cancelOnFlight (seg : String) (s : Service) : Service :=
-  if s.segment = seg ∧ isLive s = true then
-    { s with status := .cancelled, delivery := .unableToDeliver }
+/-- A service after the airline cancels a flight: if it is a live service on
+that flight, it is ended through the delivery status table as cancelled and
+unable to be delivered; otherwise it is as it was. -/
+def cancelOnFlight (m : MoveReading) (seg : String) (s : Service) : Service :=
+  if s.segment = seg ∧ isLive s = true then endWith m .unable .cancelled s
   else s
 
 /-- Whether an order item has a live service on a flight segment. -/
@@ -67,8 +62,9 @@ that will not operate.
 Acceptance criteria:
 
 * ONE-704.1: When the airline cancels a flight and does not re-accommodate the
-  customer, the system shall mark every live service on that flight, in every
-  order item, CANCELLED with delivery status UNABLE TO DELIVER.
+  customer, the system shall mark CANCELLED with delivery status UNABLE TO
+  DELIVER every live service on that flight, in every order item, that the
+  delivery status table lets become UNABLE TO DELIVER.
 * ONE-704.2: When the airline cancels a flight, the system shall leave every
   service on other flights unchanged.
 * ONE-704.3: When the airline cancels a flight, the system shall keep every
@@ -78,13 +74,18 @@ Acceptance criteria:
   of the item's price.
 * ONE-704.5: When the airline cancels a flight, the system shall mark
   CANCELLED every order item that holds a CANCELLED service.
+* ONE-704.6: When the airline cancels a flight and does not re-accommodate the
+  customer, the system shall leave no live service on that flight.
 
 A service is for one passenger on one flight segment, so the services that
 depend on a flight, such as a bag or a seat on it, are services on the same
-segment.  How much is refunded is the reading's ({name}`FlightRefund`). -/
+segment.  How much is refunded is the reading's ({name}`FlightRefund`).  The
+delivery status table has no move to UNABLE TO DELIVER from REQUESTED, IN
+PROGRESS or SUSPENDED, so a service in one of those statuses keeps it
+({name}`Delivery.endWith`). -/
 @[ears "ONE-704"]
-def cancelFlight (r : FlightRefund) (seg : String) (o : Order) : FlightCancellation where
-  order := { o with items := o.items.map fun i => { i with services := i.services.map (cancelOnFlight seg) } }
+def cancelFlight (m : MoveReading) (r : FlightRefund) (seg : String) (o : Order) : FlightCancellation where
+  order := { o with items := o.items.map fun i => { i with services := i.services.map (cancelOnFlight m seg) } }
   refunds := (o.items.filter (flies seg)).map fun i => (i.id, ⟨r.refund i seg, i.price.currency⟩)
 
 end Rules.OneOrder.AirlineChange

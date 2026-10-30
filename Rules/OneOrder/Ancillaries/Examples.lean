@@ -5,6 +5,7 @@ import Rules.OneOrder.Ancillaries.Replace
 import Rules.OneOrder.Ancillaries.Seats
 import Rules.OneOrder.Ancillaries.AlaCarte
 import Rules.OneOrder.Ancillaries.Bundle
+import Rules.OneOrder.Delivery.Examples
 
 /-!
 # Examples of ancillaries, seats and a-la-carte items
@@ -17,7 +18,7 @@ and other prices are our own.
 namespace Rules.OneOrder.Ancillaries
 
 open Rules.Core
-open Rules.OneOrder.AirlineChange (isLive)
+open Rules.OneOrder.Delivery (isLive)
 
 /-! ## Orders, services and details -/
 
@@ -183,7 +184,7 @@ which the passenger no longer flies.  Before the change every bag had its
 flight; afterwards the bag has none. -/
 @[case, checks "ONE-602.4"]
 def bagLeftByFlightChange : Except Change.ChangeRejection CoverAfterChange :=
-  (Change.changeItem flightAndBagOrder moveToNewFlight).map fun o =>
+  (Change.changeItem Delivery.strictMoves flightAndBagOrder moveToNewFlight).map fun o =>
     { ancillariesWithoutFlightBefore := (uncovered taxonomyRelated addDetails flightAndBagOrder).map (·.id),
       oldFlight := statusIn o "FLT-OUT",
       bag := statusIn o "BAG-OUT",
@@ -227,7 +228,7 @@ structure CancelCase where
 
 /-- Cancel items of the extra bag order under a reading and summarise. -/
 def CancelCase.of (reading : String) (h : DependentHandling) (named : List String) : CancelCase :=
-  match cancelItems h .passengerSegment extraBagDetails extraBagConditions extraBagOrder named with
+  match cancelItems Delivery.strictMoves h .passengerSegment extraBagDetails extraBagConditions extraBagOrder named with
   | .ok o => { reading, named, refusal := none, flight := statusIn o "FLT-OUT", bag := statusIn o "XBAG-OUT" }
   | .error e => { reading, named, refusal := some e, flight := statusIn extraBagOrder "FLT-OUT",
                   bag := statusIn extraBagOrder "XBAG-OUT" }
@@ -526,7 +527,7 @@ structure BundleCase where
 def BundleCase.of (reading : String) (sh : BundleShare) (removed : String) (ids : List String) :
     BundleCase :=
   { reading, removed,
-    returned := match removeFromBundle sh bundleOrder "ITM-BUNDLE" ids with
+    returned := match removeFromBundle Delivery.strictMoves sh bundleOrder "ITM-BUNDLE" ids with
       | .ok (_, m) => m
       | .error _ => eur 0 }
 
@@ -582,7 +583,7 @@ PAX01's flight and bag are as they were, and the item keeps its price of
 1,000.00 EUR. -/
 @[case, checks "ONE-607.1"]
 def bundleAfterRemoval : Except BundleRejection BundleAfter :=
-  (removeFromBundle statedComponents bundleOrder "ITM-BUNDLE" ["FLT-2", "BAG-2"]).map fun (o, _) =>
+  (removeFromBundle Delivery.strictMoves statedComponents bundleOrder "ITM-BUNDLE" ["FLT-2", "BAG-2"]).map fun (o, _) =>
     let i := o.items.headD default
     { price := i.price, services := i.services.map fun s => ⟨s.id, s.status, s.delivery⟩ }
 

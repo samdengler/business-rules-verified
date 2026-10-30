@@ -94,12 +94,13 @@ Acceptance criteria:
 
 The replacement is the change rule for a paid change ({name}`changeItem`):
 kept services move to the new item, their originals are marked transferred,
-and the other services of the original item are cancelled and removed.  When
-the change takes effect is the reading's ({name}`ApplyAt`); under the reading
-where it waits for acceptance, applying it once the seller accepts is the same
-replacement, which this rule does not model. -/
+and the other services of the original item are cancelled and removed, through
+the delivery status table.  When the change takes effect is the reading's
+({name}`ApplyAt`); under the reading where it waits for acceptance, applying
+it once the seller accepts is the same replacement, which this rule does not
+model. -/
 @[ears "ONE-705"]
-def notifyChange (a : ApplyAt) (vo : VersionedOrder) (c : Reaccommodation) :
+def notifyChange (m : Delivery.MoveReading) (a : ApplyAt) (vo : VersionedOrder) (c : Reaccommodation) :
     Except ChangeRejection VersionedOrder :=
   match vo.order.items.find? (·.id = c.item) with
   | none => .error .unknownItem
@@ -107,6 +108,6 @@ def notifyChange (a : ApplyAt) (vo : VersionedOrder) (c : Reaccommodation) :
     match a with
     | .acceptance => .ok vo
     | .notice =>
-      (changeItem vo.order (c.toItemChange old)).map fun o => { order := o, version := vo.version + 1 }
+      (changeItem m vo.order (c.toItemChange old)).map fun o => { order := o, version := vo.version + 1 }
 
 end Rules.OneOrder.AirlineChange

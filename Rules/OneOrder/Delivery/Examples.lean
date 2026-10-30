@@ -144,7 +144,7 @@ def paidFlightDelivered : Walk := .of .confirmed [.pay, .deliver]
 *Then* under the strict reading the report is refused and the bag stays
 CONFIRMED.  Under the loose reading the bag is DELIVERED though nobody paid
 for it. -/
-@[case, checks "ONE-101.4 ONE-101.5"]
+@[case, checks "ONE-101.4"]
 def deliveredBeforePayment : Walk := .of .confirmed [.deliver]
 
 #guard deliveredBeforePayment == { strict := [.confirmed], loose := [.delivered] }
@@ -158,7 +158,7 @@ the passenger flies.
 *Then* under the strict reading the flight stays UNABLE TO DELIVER.  Under the
 loose reading it returns to READY TO PROCEED when the constraint lifts and is
 then DELIVERED, though nobody paid for it. -/
-@[case, checks "ONE-101.4 ONE-101.5"]
+@[case, checks "ONE-101.4"]
 def unpaidAfterForceMajeure : Walk := .of .confirmed [.unable, .constraintLifted, .deliver]
 
 #guard unpaidAfterForceMajeure ==

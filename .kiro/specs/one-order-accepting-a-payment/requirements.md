@@ -33,3 +33,5 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Payment
    - ONE-304.5, proven: proven theorem `acceptPayment_commitment_zero`; example `commitmentForFreeSeat`
 6. IF a payment uses the commitment method for order items with an amount to pay THEN THE SYSTEM SHALL reject the payment.
    - ONE-304.6, proven: proven theorem `acceptPayment_commitment_zero`; example `commitmentBesideCard`; example `commitmentForFreeSeat`
+7. IF a payment has no payment method THEN THE SYSTEM SHALL reject the payment.
+   - ONE-304.7, proven: proven theorem `acceptPayment_rejects_without_method`

@@ -2,6 +2,7 @@ import Rules.Core.Attributes
 import Rules.OneOrder.Change.Balance
 import Rules.OneOrder.Change.Cancel
 import Rules.OneOrder.Change.Transfer
+import Rules.OneOrder.Delivery.Theorems
 
 /-!
 # Guarantees of the change and cancellation rules
@@ -160,51 +161,54 @@ theorem cancel_not_owing_of_waive (q : ChangeQuote) (hnew : q.newPrice.amount = 
 
 /-! ## Cancelling an order -/
 
-/-- An order with no payment is cancelled at once: every service is cancelled
-and removed, and the order keeps its items. -/
+/-- An order with no payment is cancelled at once and keeps its items: every
+service that the delivery status table lets be removed is cancelled and
+removed, under every reading of the sources. -/
 @[checks "ONE-203.1"]
-theorem unpaid_cancelled_at_once (r : ExcessPenalty) (o : Order)
+theorem unpaid_cancelled_at_once (m : Delivery.MoveReading) (r : ExcessPenalty) (o : Order)
     (payments : List Rules.OfferOrder.Payment) (t : CancelTerms)
     (h : Rules.OfferOrder.totalPaid payments o.id = 0) :
-    ∃ o', requestCancellation r o payments t = .cancelled o' ∧
+    ∃ o', requestCancellation m r o payments t = .cancelled o' ∧
       o'.items.map (·.id) = o.items.map (·.id) ∧
-      ∀ i ∈ o'.items, ∀ s ∈ i.services, s.status = .cancelled ∧ s.delivery = .removed := by
-  refine ⟨cancelDirect o, by simp [requestCancellation, h], ?_, ?_⟩
-  · simp [cancelDirect, Function.comp_def]
-  · simp [cancelDirect]
+      ∀ i ∈ o.items, ∀ s ∈ i.services, (Delivery.nextDelivery m .remove s).isSome →
+        ∃ i' ∈ o'.items, i'.id = i.id ∧
+          { s with status := .cancelled, delivery := .removed } ∈ i'.services := by
+  refine ⟨cancelDirect m o, by simp [requestCancellation, h], by simp [cancelDirect, Function.comp_def], ?_⟩
+  intro i hi s hs hrem
+  obtain ⟨d, hd⟩ := Option.isSome_iff_exists.mp hrem
+  have hdr := Delivery.nextDelivery_remove m s d hd
+  subst hdr
+  refine ⟨{ i with services := i.services.map (Delivery.endWith m .remove .cancelled) },
+    List.mem_map.mpr ⟨i, hi, rfl⟩, rfl, List.mem_map.mpr ⟨s, hs, ?_⟩⟩
+  simp [Delivery.endWith, hd]
 
 /-- An order cancelled at once has every item cancelled and is closed, under
-every reading of the guide. -/
-@[checks "ONE-203.2"]
-theorem cancelled_at_once_closed (v : ValueReading) (r : ExcessPenalty) (o o' : Order)
-    (payments : List Rules.OfferOrder.Payment) (t : CancelTerms)
-    (h : requestCancellation r o payments t = .cancelled o') :
+every reading of the guide.
+
+Open question for the business.  A cancellation removes each service through
+the delivery status table, and the table has no move out of REQUESTED but the
+airline's confirmation.  A service the airline has not yet confirmed therefore
+stays REQUESTED, and its item is not cancelled.  The example
+{lit}`unpaidCancellationWhileRequested` shows it.  Under the reading that
+allows delivery before payment, a service already DELIVERED stays delivered
+too.  Can a seller cancel a service the airline is still deciding on, and what
+delivery status does it take? -/
+@[open_question, checks "ONE-203.2"]
+theorem cancelled_at_once_closed (m : Delivery.MoveReading) (v : ValueReading) (r : ExcessPenalty)
+    (o o' : Order) (payments : List Rules.OfferOrder.Payment) (t : CancelTerms)
+    (h : requestCancellation m r o payments t = .cancelled o') :
     (∀ i ∈ o'.items, itemStatuses v i = [.cancelled]) ∧ orderStatuses v o' = [.closed] := by
-  have ho' : o' = cancelDirect o := by
-    unfold requestCancellation at h
-    split_ifs at h
-    · cases h; rfl
-    · split at h
-      · cases h
-      · split at h <;> cases h
-  subst ho'
-  constructor
-  · intro i hi
-    simp only [cancelDirect, List.mem_map] at hi
-    obtain ⟨i₀, -, rfl⟩ := hi
-    simp [itemStatuses, OrderItem.isActive, OrderItem.isCancelled, OrderItem.isClosed,
-      Service.holdsValue, v.removed]
-  · simp [orderStatuses, Order.isOpened, Order.isClosed, cancelDirect, OrderItem.isActive,
-      OrderItem.isCancelled, OrderItem.isClosed, Service.holdsValue, v.removed]
+  sorry
 
 /-- An order with any payment is never cancelled at once.  The request leads
 to a cancellation offer, or to a rejection when the cancellation cannot be
 priced. -/
 @[checks "ONE-203.3"]
-theorem paid_needs_offer (r : ExcessPenalty) (o : Order) (payments : List Rules.OfferOrder.Payment)
+theorem paid_needs_offer (m : Delivery.MoveReading) (r : ExcessPenalty) (o : Order)
+    (payments : List Rules.OfferOrder.Payment)
     (t : CancelTerms) (h : 0 < Rules.OfferOrder.totalPaid payments o.id) :
-    (∃ d, requestCancellation r o payments t = .offer d) ∨
-      ∃ e, requestCancellation r o payments t = .rejected e := by
+    (∃ d, requestCancellation m r o payments t = .offer d) ∨
+      ∃ e, requestCancellation m r o payments t = .rejected e := by
   unfold requestCancellation
   simp only [show Rules.OfferOrder.totalPaid payments o.id ≠ 0 by omega, ↓reduceIte]
   split
@@ -216,26 +220,54 @@ theorem paid_needs_offer (r : ExcessPenalty) (o : Order) (payments : List Rules.
 /-- A cancellation offer never makes the amount due by the airline larger than
 the payments received for the order.
 
-Open question for the business.  The offer is priced from the order's price,
-as in the worked examples, and the payments received do not enter it.  A
-partly paid order is cancelled through an offer that returns its whole price.
-The example {lit}`partlyPaidCancellation` shows it: a 1,000.00 order with
-300.00 received gets an offer of 1,000.00 due by the airline.  Is the
-refundable amount capped at the payments received, and which route applies
-when some items are paid and others are not? -/
+Open question for the business.  The offer is priced from the price of the
+order's live items, as in the worked examples, and the payments received do
+not enter it.  A partly paid order is cancelled through an offer that returns
+its whole price.  The example {lit}`partlyPaidCancellation` shows it: a
+1,000.00 order with 300.00 received gets an offer of 1,000.00 due by the
+airline.  Is the refundable amount capped at the payments received, and which
+route applies when some items are paid and others are not? -/
 @[open_question, checks "ONE-203.4"]
-theorem offer_within_payments (r : ExcessPenalty) (o : Order)
+theorem offer_within_payments (m : Delivery.MoveReading) (r : ExcessPenalty) (o : Order)
     (payments : List Rules.OfferOrder.Payment) (t : CancelTerms) (d : PriceDifferential)
-    (h : requestCancellation r o payments t = .offer d) :
+    (h : requestCancellation m r o payments t = .offer d) :
     d.dueByAirline.amount ≤ Rules.OfferOrder.totalPaid payments o.id := by
   sorry
+
+/-- A cancellation offer is priced from the order items that still hold a live
+service, so an item that a change replaced is not counted a second time. -/
+@[checks "ONE-203.5"]
+theorem offer_priced_from_live_items (m : Delivery.MoveReading) (r : ExcessPenalty) (o : Order)
+    (payments : List Rules.OfferOrder.Payment) (t : CancelTerms) (d : PriceDifferential)
+    (h : requestCancellation m r o payments t = .offer d) :
+    d.oldPrice.amount = ((liveItems o).map (·.price.amount)).sum := by
+  unfold requestCancellation at h
+  split_ifs at h
+  cases hq : cancellationQuote o t with
+  | none => simp [hq] at h
+  | some q =>
+    simp only [hq] at h
+    cases hd : priceDifferential r q with
+    | error e => simp [hd] at h
+    | ok d' =>
+      simp only [hd, CancelOutcome.offer.injEq] at h
+      subst h
+      unfold priceDifferential at hd
+      split_ifs at hd
+      cases hd
+      simp only [cancellationQuote, livePrice, orderPrice] at hq
+      split_ifs at hq
+      · cases hq
+        rfl
+      · simp at hq
 
 /-! ## Changing an order item -/
 
 /-- The item a change finds, and the order after it. -/
-theorem changeItem_ok (o o' : Order) (c : ItemChange) (h : changeItem o c = .ok o') :
+theorem changeItem_ok (m : Delivery.MoveReading) (o o' : Order) (c : ItemChange)
+    (h : changeItem m o c = .ok o') :
     ∃ old, o.items.find? (·.id = c.item) = some old ∧ o.items.all (·.id ≠ c.newItem) ∧
-      o' = { o with items := o.items.map (afterChange c) ++ [newItemOf c old] } := by
+      o' = { o with items := o.items.map (afterChange m c) ++ [newItemOf c old] } := by
   unfold changeItem at h
   split at h
   · cases h
@@ -248,11 +280,12 @@ theorem changeItem_ok (o o' : Order) (c : ItemChange) (h : changeItem o c = .ok 
 /-- Every service a change keeps has a copy in the new item with the same
 reference, passenger, segment and delivery status, confirmed. -/
 @[checks "ONE-204.1"]
-theorem change_keeps_services (o o' : Order) (c : ItemChange) (h : changeItem o c = .ok o')
+theorem change_keeps_services (m : Delivery.MoveReading) (o o' : Order) (c : ItemChange)
+    (h : changeItem m o c = .ok o')
     (old : OrderItem) (hold : o.items.find? (·.id = c.item) = some old)
     (s : Service) (hs : s ∈ old.services) (hk : s.id ∈ c.kept) :
     ∃ i ∈ o'.items, i.id = c.newItem ∧ { s with status := .confirmed } ∈ i.services := by
-  obtain ⟨old', hold', -, rfl⟩ := changeItem_ok o o' c h
+  obtain ⟨old', hold', -, rfl⟩ := changeItem_ok m o o' c h
   rw [hold] at hold'
   cases hold'
   refine ⟨newItemOf c old, by simp, rfl, ?_⟩
@@ -262,46 +295,54 @@ theorem change_keeps_services (o o' : Order) (c : ItemChange) (h : changeItem o 
 /-- Every service a change keeps stays in the changed item marked transferred,
 with everything else about it, its delivery status included, as it was. -/
 @[checks "ONE-204.2"]
-theorem change_marks_transferred (o o' : Order) (c : ItemChange) (h : changeItem o c = .ok o')
+theorem change_marks_transferred (m : Delivery.MoveReading) (o o' : Order) (c : ItemChange)
+    (h : changeItem m o c = .ok o')
     (old : OrderItem) (hold : o.items.find? (·.id = c.item) = some old)
     (s : Service) (hs : s ∈ old.services) (hk : s.id ∈ c.kept) :
     ∃ i ∈ o'.items, i.id = c.item ∧ { s with status := .transferred } ∈ i.services := by
-  obtain ⟨old', hold', -, rfl⟩ := changeItem_ok o o' c h
+  obtain ⟨old', hold', -, rfl⟩ := changeItem_ok m o o' c h
   rw [hold] at hold'
   cases hold'
   have hid : old.id = c.item := by simpa using List.find?_some hold
-  refine ⟨afterChange c old, ?_, by simp [afterChange, hid], ?_⟩
+  refine ⟨afterChange m c old, ?_, by simp [afterChange, hid], ?_⟩
   · simp only [List.mem_append, List.mem_map]
     exact Or.inl ⟨old, List.mem_of_find?_eq_some hold, rfl⟩
   · simp only [afterChange, hid, ↓reduceIte, List.mem_map]
     exact ⟨s, hs, by simp [originalAfterChange, hk]⟩
 
-/-- Every service a change does not keep stays in the changed item, cancelled
-and removed. -/
+/-- Every service a change does not keep, and that the delivery status table
+lets be removed, stays in the changed item, cancelled and removed, under every
+reading of the sources. -/
 @[checks "ONE-204.3"]
-theorem change_cancels_others (o o' : Order) (c : ItemChange) (h : changeItem o c = .ok o')
+theorem change_cancels_others (m : Delivery.MoveReading) (o o' : Order) (c : ItemChange)
+    (h : changeItem m o c = .ok o')
     (old : OrderItem) (hold : o.items.find? (·.id = c.item) = some old)
-    (s : Service) (hs : s ∈ old.services) (hk : s.id ∉ c.kept) :
+    (s : Service) (hs : s ∈ old.services) (hk : s.id ∉ c.kept)
+    (hrem : (Delivery.nextDelivery m .remove s).isSome) :
     ∃ i ∈ o'.items, i.id = c.item ∧
       { s with status := .cancelled, delivery := .removed } ∈ i.services := by
-  obtain ⟨old', hold', -, rfl⟩ := changeItem_ok o o' c h
+  obtain ⟨old', hold', -, rfl⟩ := changeItem_ok m o o' c h
   rw [hold] at hold'
   cases hold'
   have hid : old.id = c.item := by simpa using List.find?_some hold
-  refine ⟨afterChange c old, ?_, by simp [afterChange, hid], ?_⟩
+  obtain ⟨d, hd⟩ := Option.isSome_iff_exists.mp hrem
+  have hdr := Delivery.nextDelivery_remove m s d hd
+  subst hdr
+  refine ⟨afterChange m c old, ?_, by simp [afterChange, hid], ?_⟩
   · simp only [List.mem_append, List.mem_map]
     exact Or.inl ⟨old, List.mem_of_find?_eq_some hold, rfl⟩
   · simp only [afterChange, hid, ↓reduceIte, List.mem_map]
-    exact ⟨s, hs, by simp [originalAfterChange, hk]⟩
+    exact ⟨s, hs, by simp [originalAfterChange, hk, Delivery.endWith, hd]⟩
 
 /-- A change keeps the order's item references distinct: the changed item
 keeps its reference, and the new item's reference is not already used. -/
 @[checks "ONE-204.4"]
-theorem change_item_refs_unique (o o' : Order) (c : ItemChange) (h : changeItem o c = .ok o')
+theorem change_item_refs_unique (m : Delivery.MoveReading) (o o' : Order) (c : ItemChange)
+    (h : changeItem m o c = .ok o')
     (hids : (o.items.map (·.id)).Nodup) :
     (o'.items.map (·.id)).Nodup := by
-  obtain ⟨old, -, hnew, rfl⟩ := changeItem_ok o o' c h
-  have hmap : (o.items.map (afterChange c)).map (·.id) = o.items.map (·.id) := by
+  obtain ⟨old, -, hnew, rfl⟩ := changeItem_ok m o o' c h
+  have hmap : (o.items.map (afterChange m c)).map (·.id) = o.items.map (·.id) := by
     simp only [List.map_map]
     congr 1
     funext i
@@ -330,8 +371,9 @@ active and the kept service holds value in both items.  The example
 service's value, or should the original copy move to a delivery status that
 holds none? -/
 @[open_question, checks "ONE-204.5"]
-theorem change_original_cancelled (v : ValueReading) (o o' : Order) (c : ItemChange)
-    (h : changeItem o c = .ok o') (i : OrderItem) (hi : i ∈ o'.items) (hid : i.id = c.item) :
+theorem change_original_cancelled (m : Delivery.MoveReading) (v : ValueReading) (o o' : Order)
+    (c : ItemChange)
+    (h : changeItem m o c = .ok o') (i : OrderItem) (hi : i ∈ o'.items) (hid : i.id = c.item) :
     itemStatuses v i = [.cancelled] := by
   sorry
 
@@ -369,10 +411,11 @@ refundable value, breaks it too, for the reasons given under ONE-201.5.
 Should the original item stop counting once the change is paid, and how does
 a change accepted but not yet paid enter the balance? -/
 @[open_question, checks "ONE-205.3"]
-theorem change_keeps_balance (v : ValueReading) (r : ExcessPenalty) (o o' : Order)
+theorem change_keeps_balance (m : Delivery.MoveReading) (v : ValueReading) (r : ExcessPenalty)
+    (o o' : Order)
     (c : ItemChange) (old : OrderItem) (q : ChangeQuote) (d : PriceDifferential) (l : Ledger)
     (hbal : l.Balanced v o) (hold : o.items.find? (·.id = c.item) = some old)
-    (hc : changeItem o c = .ok o') (hprices : q.oldPrice = old.price ∧ q.newPrice = c.newPrice)
+    (hc : changeItem m o c = .ok o') (hprices : q.oldPrice = old.price ∧ q.newPrice = c.newPrice)
     (hd : priceDifferential r q = .ok d) :
     (settle l d).Balanced v o' := by
   sorry

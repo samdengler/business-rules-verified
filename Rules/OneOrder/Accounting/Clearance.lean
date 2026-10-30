@@ -84,9 +84,6 @@ Acceptance criteria:
   add it to the accepted clearances and change none of the others.
 * ONE-803.4: The system shall accept at most one clearance for each pair of
   order ID and payment ID.
-* ONE-803.5: Where the Clearance Manager also checks signed clearances for a
-  repeated order and payment, the system shall accept at most one clearance
-  for each pair of order ID and payment ID.
 
 A payment split across two payment methods has a transaction per method, each
 with its own payment ID, and so two clearances.  Whether a signed clearance is
@@ -224,9 +221,6 @@ Acceptance criteria:
 * ONE-804.5: The system shall keep the amounts settled on a clearance, less
   those clawed back, plus the amount unsettled and the amount written off,
   equal to its agreed amount.
-* ONE-804.6: Where a clawed-back amount counts as unsettled again, the system
-  shall keep the amounts settled on a clearance, less those clawed back, plus
-  the amount unsettled and the amount written off, equal to its agreed amount.
 
 A clearing that pays nothing toward an Accepted clearance marks it Not
 Settled.  Whether a clawed-back clearance can be settled again, and whether

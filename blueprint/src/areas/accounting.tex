@@ -736,7 +736,7 @@
 
 \begin{theorem}[One clearance per payment when signed data is checked]
   \label{thm:accounting-one-clearance-checked}
-  \lean{Rules.OneOrder.Accounting.one_clearance_per_payment_checked}
+  \lean{Rules.OneOrder.Accounting.one_clearance_per_payment_of_checkSigned}
   \uses{def:accounting-accepting-clearance}
   Under every reading that checks signed clearances for a repeated order
   and payment too, each order and payment has at most one accepted
@@ -1062,7 +1062,7 @@
 
 \begin{theorem}[Positions sum to zero with the EasyPay provider]
   \label{thm:accounting-net-zero-provider}
-  \lean{Rules.OneOrder.Accounting.net_positions_sum_zero_provider}
+  \lean{Rules.OneOrder.Accounting.net_positions_sum_zero_of_providerPays}
   \uses{def:accounting-net-position, thm:accounting-net-position}
   Under the reading where the EasyPay provider takes the payer's place,
   the net positions of all parties on a remittance date sum to zero.
@@ -1112,7 +1112,7 @@
 
 \begin{theorem}[Clawed-back amounts unsettled again]
   \label{thm:accounting-amounts-accounted-reopen}
-  \lean{Rules.OneOrder.Accounting.clearance_amounts_accounted_reopen}
+  \lean{Rules.OneOrder.Accounting.clearance_amounts_accounted_of_reopen}
   \uses{def:accounting-clearance-status, thm:accounting-settled-plus-remaining}
   Under every reading where a clawed-back amount counts as unsettled again,
   a clearance's amounts settled less those clawed back, plus the amount

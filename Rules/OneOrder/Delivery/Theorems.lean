@@ -2,6 +2,7 @@ import Rules.Core.Attributes
 import Rules.OfferOrder.Order
 import Rules.OneOrder.Theorems
 import Rules.OneOrder.Delivery.Moves
+import Rules.OneOrder.Delivery.Services
 
 /-!
 # Guarantees about delivery statuses
@@ -94,8 +95,7 @@ theorem paid_before_delivery (m : MoveReading) (s : DeliveryStatus) (es : List D
 UNABLE TO DELIVER service from returning to READY TO PROCEED, a service that
 starts REQUESTED or CONFIRMED never reaches READY TO PROCEED, READY TO DELIVER,
 IN PROGRESS or DELIVERED while no payment for it has succeeded. -/
-@[checks "ONE-101.5"]
-theorem paid_before_delivery_with_gate (m : MoveReading) (hd : m.deliverBeforePayment = false)
+theorem paid_before_delivery_of_gate (m : MoveReading) (hd : m.deliverBeforePayment = false)
     (hu : m.unableReturns = false) (s : DeliveryStatus) (es : List DeliveryEvent)
     (hs : s = .requested ∨ s = .confirmed) (hpay : paymentSucceeds m ⟨s, none⟩ es = false) :
     (run m ⟨s, none⟩ es).status ∉
@@ -296,5 +296,102 @@ theorem pilot_step_within_table (m : MoveReading) (s : Rules.OfferOrder.Delivery
     (e : Rules.OfferOrder.DeliveryEvent) :
     (Rules.OfferOrder.step s e).map fromPilotState = move m (fromPilotState s) (fromPilotEvent e) := by
   cases s <;> cases e <;> rfl
+
+/-! ## Ending a service from another area -/
+
+/-- When the delivery status table allows a rule's event from a service's
+delivery status, the service takes the rule's service status and the delivery
+status the table gives, under every reading. -/
+@[checks "ONE-105.1"]
+theorem endWith_allowed (m : MoveReading) (e : DeliveryEvent) (st : ServiceStatus) (s : Service)
+    (d : DeliveryStatus) (h : nextDelivery m e s = some d) :
+    endWith m e st s = { s with status := st, delivery := d } := by
+  simp [endWith, h]
+
+/-- When the delivery status table refuses a rule's event for a service's
+delivery status, the service is left as it was, under every reading. -/
+@[checks "ONE-105.2"]
+theorem endWith_refused (m : MoveReading) (e : DeliveryEvent) (st : ServiceStatus) (s : Service)
+    (h : nextDelivery m e s = none) : endWith m e st s = s := by
+  simp [endWith, h]
+
+/-- Ending a service moves its delivery status along the table and keeps its
+reference. -/
+theorem endWith_follows (m : MoveReading) (e : DeliveryEvent) (st : ServiceStatus) (s : Service) :
+    (endWith m e st s).id = s.id ∧ Follows m s.delivery (endWith m e st s).delivery := by
+  unfold endWith
+  cases h : nextDelivery m e s with
+  | none => exact ⟨rfl, Or.inl rfl⟩
+  | some d => exact ⟨rfl, Or.inr ⟨e, h⟩⟩
+
+/-- A service ended with a cancelled status is no longer live when the table
+allows the move. -/
+theorem endWith_cancelled_not_live (m : MoveReading) (e : DeliveryEvent) (s : Service)
+    (h : (nextDelivery m e s).isSome) : isLive (endWith m e .cancelled s) = false := by
+  obtain ⟨d, hd⟩ := Option.isSome_iff_exists.mp h
+  simp [endWith, hd, isLive]
+
+/-- A list of services changed one by one, each along the table and keeping its
+reference, moves along the table. -/
+theorem movesAlongTable_map (m : MoveReading) (f : Service → Service)
+    (hf : ∀ s, (f s).id = s.id ∧ Follows m s.delivery (f s).delivery) (ss : List Service) :
+    MovesAlongTable m ss (ss.map f) := by
+  induction ss with
+  | nil => exact List.Forall₂.nil
+  | cons s ss ih => exact List.Forall₂.cons (hf s) ih
+
+/-- Two lists that each move along the table, one after the other, move along
+it together. -/
+theorem movesAlongTable_append (m : MoveReading) {a a' b b' : List Service}
+    (ha : MovesAlongTable m a a') (hb : MovesAlongTable m b b') :
+    MovesAlongTable m (a ++ b) (a' ++ b') :=
+  List.rel_append ha hb
+
+/-- Removing a service, when the table allows it, always leads to REMOVED. -/
+theorem nextDelivery_remove (m : MoveReading) (s : Service) (d : DeliveryStatus)
+    (h : nextDelivery m .remove s = some d) : d = .removed := by
+  unfold nextDelivery at h
+  cases hd : s.delivery <;> rw [hd] at h <;>
+    simp [step, move, endService, endBeforeDelivery, suspendable, isFinal] at h <;>
+    (try split at h) <;> simp_all
+
+/-- The event that delivery is prevented, when the table allows it, always
+leads to UNABLE TO DELIVER. -/
+theorem nextDelivery_unable (m : MoveReading) (s : Service) (d : DeliveryStatus)
+    (h : nextDelivery m .unable s = some d) : d = .unableToDeliver := by
+  unfold nextDelivery at h
+  cases hd : s.delivery <;> rw [hd] at h <;>
+    simp [step, move, endService, endBeforeDelivery, suspendable, isFinal] at h <;>
+    (try split at h) <;> simp_all
+
+/-- A service left as it was moves along the table. -/
+theorem follows_self (m : MoveReading) (s : Service) :
+    s.id = s.id ∧ Follows m s.delivery s.delivery :=
+  ⟨rfl, Or.inl rfl⟩
+
+/-- A list of services left as it was moves along the table. -/
+theorem movesAlongTable_refl (m : MoveReading) (ss : List Service) : MovesAlongTable m ss ss := by
+  simpa using movesAlongTable_map m id (fun s => follows_self m s) ss
+
+/-- Items changed one by one, each moving its own services along the table,
+move all their services along the table. -/
+theorem movesAlongTable_flatMap {α : Type} (m : MoveReading) (sv : α → List Service) (g : α → α)
+    (hg : ∀ a, MovesAlongTable m (sv a) (sv (g a))) (l : List α) :
+    MovesAlongTable m (l.flatMap sv) ((l.map g).flatMap sv) := by
+  induction l with
+  | nil => exact List.Forall₂.nil
+  | cons a l ih =>
+    simp only [List.flatMap_cons, List.map_cons]
+    exact movesAlongTable_append m (hg a) ih
+
+/-- A service map that ends some services and leaves the others as they were
+moves along the table. -/
+theorem follows_ite_endWith (m : MoveReading) (e : DeliveryEvent) (st : ServiceStatus)
+    (p : Service → Bool) (s : Service) :
+    (if p s then endWith m e st s else s).id = s.id ∧
+      Follows m s.delivery (if p s then endWith m e st s else s).delivery := by
+  split_ifs
+  · exact endWith_follows m e st s
+  · exact follows_self m s
 
 end Rules.OneOrder.Delivery

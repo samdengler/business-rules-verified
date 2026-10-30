@@ -139,10 +139,6 @@ Acceptance criteria:
 * ONE-101.4: If payment for a service has not succeeded, then the system shall
   keep it out of READY TO PROCEED, READY TO DELIVER, IN PROGRESS and
   DELIVERED.
-* ONE-101.5: Where the airline allows no delivery before payment and no return
-  from UNABLE TO DELIVER to READY TO PROCEED, the system shall keep a service
-  whose payment has not succeeded out of READY TO PROCEED, READY TO DELIVER,
-  IN PROGRESS and DELIVERED.
 * ONE-101.6: If an event has no move from the service's delivery status in the
   table, then the system shall refuse it.
 

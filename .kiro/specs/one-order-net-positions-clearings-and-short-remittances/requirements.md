@@ -33,8 +33,6 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Account
    - ONE-805.4, proven: proven theorem `easyPay_left_out_of_payer`; example `easyPayNetting`
 5. THE SYSTEM SHALL make the net positions of all parties for a remittance date sum to zero.
    - ONE-805.5, open: open theorem `net_positions_sum_zero`; counterexample `easyPayNetting`
-6. WHERE the EasyPay provider takes the payer's place in the netting THE SYSTEM SHALL make the net positions of all parties for a remittance date sum to zero.
-   - ONE-805.6, proven: proven theorem `net_positions_sum_zero_provider`; example `easyPayNetting`
 
 #### Open question on ONE-805.5
 

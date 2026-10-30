@@ -4,6 +4,7 @@ import Rules.OneOrder.Payment.Status
 import Rules.OneOrder.Payment.Accept
 import Rules.OneOrder.Payment.Outcome
 import Rules.OneOrder.Payment.TimeLimit
+import Rules.OneOrder.Delivery.Examples
 
 /-!
 # Examples of payments
@@ -323,7 +324,13 @@ structure LateCapture where
   deriving DecidableEq, Repr
 
 /-- The removal the examples use: the services are cancelled and removed. -/
-def cancelRemove : Removal := ⟨.cancelled, .removed⟩
+def cancelRemove : Removal := ⟨.remove, Or.inl rfl⟩
+
+/-- A removal that lets the services expire. -/
+def cancelExpire : Removal := ⟨.expire, Or.inr (Or.inr rfl)⟩
+
+/-- A removal that holds the services' value for the seller to reuse. -/
+def cancelHoldValue : Removal := ⟨.removeHoldValue, Or.inr (Or.inl rfl)⟩
 
 /-- The trip, unpaid, with a redirected card payment for it still pending. -/
 def tripAwaitingRedirect : PayableOrder :=
@@ -331,7 +338,7 @@ def tripAwaitingRedirect : PayableOrder :=
     payments := [payment "PAY-1" ["TRIP"] [part "TX-1" .card 10000 0 .pending]] }
 
 /-- The trip order once its payment time limit has passed. -/
-def tripAtLimit : PayableOrder := expireUnpaid cancelRemove payBy tripAwaitingRedirect
+def tripAtLimit : PayableOrder := expireUnpaid Delivery.strictMoves cancelRemove payBy tripAwaitingRedirect
 
 /-- *Given* the trip at 100.00 EUR, unpaid, with a redirected card payment for
 it still pending.
@@ -486,7 +493,7 @@ CANCELLED and REMOVED.
 ready to proceed, and the seat, whose limit has not passed, is unchanged. -/
 @[case, checks "ONE-306.1 ONE-306.2 ONE-306.3 ONE-306.4"]
 def unpaidAtTimeLimit : OrderView :=
-  .of (expireUnpaid cancelRemove payBy
+  .of (expireUnpaid Delivery.strictMoves cancelRemove payBy
     ({ tripBagSeat with
         items := [⟨tripItem, some payBy⟩, ⟨bagItem, some payBy⟩,
                   ⟨seatItem, some (payByPlus 86400)⟩] }.after
@@ -508,7 +515,7 @@ no payment time limit.
 seats with nothing paid. -/
 @[case, checks "ONE-306.5"]
 def noTimeLimit : OrderView :=
-  .of (expireUnpaid cancelRemove (payByPlus (365 * 86400))
+  .of (expireUnpaid Delivery.strictMoves cancelRemove (payByPlus (365 * 86400))
     { items := [⟨tripItem, none⟩], payments := [] })
 
 #guard noTimeLimit ==
@@ -526,24 +533,25 @@ structure RemovalRow where
   deriving DecidableEq, Repr
 
 /-- The trip's statuses after its payment time limit passes unpaid, when its
-services are cancelled and take the given delivery status. -/
-def removalRow (d : DeliveryStatus) : RemovalRow :=
-  let items := (expireUnpaid ⟨.cancelled, d⟩ payBy { items := [⟨tripItem, some payBy⟩], payments := [] }).items
-  { removedAs := d,
+services are cancelled by the given removal. -/
+def removalRow (r : Removal) : RemovalRow :=
+  let items : List PayableItem := (expireUnpaid Delivery.strictMoves r payBy
+    { items := [⟨tripItem, some payBy⟩], payments := [] }).items
+  { removedAs := ((items.flatMap fun (pi : PayableItem) => pi.item.services).headD default).delivery,
     cautious := items.flatMap (itemStatuses cautiousReading ·.item),
     strict := items.flatMap (itemStatuses strictReading ·.item) }
 
 /-- *Given* the trip at 100.00 EUR, unpaid, with a payment time limit.
 
 *When* the limit passes and the trip is removed, its services cancelled and
-given one of three delivery statuses.
+ended in one of the three delivery statuses a removal can give.
 
 *Then* with REMOVED the item is cancelled under both readings of the guide.
 With EXPIRED it stays active under the cautious reading, where an expired
 service holds value.  With REMOVED HOLD VALUE it stays active under both. -/
 @[case, checks "ONE-306.6"]
 def removalStatuses : List RemovalRow :=
-  [removalRow .removed, removalRow .expired, removalRow .removedHoldValue]
+  [removalRow cancelRemove, removalRow cancelExpire, removalRow cancelHoldValue]
 
 #guard removalStatuses ==
   [⟨.removed, [.cancelled], [.cancelled]⟩, ⟨.expired, [.active], [.cancelled]⟩,

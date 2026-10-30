@@ -116,8 +116,6 @@ Acceptance criteria:
 * ONE-703.2: When a customer declines an airline change through Reshop, the
   system shall price a change from the affected order items to the new items at
   their price.
-* ONE-703.3: Where the airline waives its fees on involuntary changes, the
-  system shall charge no penalty when a customer declines an involuntary change.
 * ONE-703.4: If a customer declines an involuntary change through Cancel or
   Auto-cancellation, then the system shall charge no cancellation penalty.
 * ONE-703.5: If a customer declines an involuntary change through Reshop, then

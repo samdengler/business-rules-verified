@@ -20,24 +20,40 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Change/
 
 #### Acceptance Criteria
 
-1. WHEN a seller asks to cancel an order for which no payment has been received THE SYSTEM SHALL cancel and remove every service of the order at once.
-   - ONE-203.1, proven: proven theorem `unpaid_cancelled_at_once`; example `unpaidCancellation`
+1. WHEN a seller asks to cancel an order for which no payment has been received THE SYSTEM SHALL cancel and remove at once every service of the order that the delivery status table lets be removed.
+   - ONE-203.1, proven: proven theorem `unpaid_cancelled_at_once`; example `unpaidCancellation`; example `unpaidCancellationWhileRequested`
 2. WHEN an order is cancelled at once THE SYSTEM SHALL mark each of its items cancelled and the order closed.
-   - ONE-203.2, proven: proven theorem `cancelled_at_once_closed`; example `unpaidCancellation`
+   - ONE-203.2, open: open theorem `cancelled_at_once_closed`; counterexample `unpaidCancellation`; counterexample `unpaidCancellationWhileRequested`
 3. IF a seller asks to cancel an order for which any payment has been received THEN THE SYSTEM SHALL cancel it only through a cancellation offer.
    - ONE-203.3, proven: proven theorem `paid_needs_offer`; example `paidCancellation`; example `partlyPaidCancellation`
 4. WHEN an order with payments is cancelled through an offer THE SYSTEM SHALL not make the amount due by the airline larger than the payments received for the order.
    - ONE-203.4, open: open theorem `offer_within_payments`; counterexample `partlyPaidCancellation`
+5. WHEN an order with payments is cancelled through an offer THE SYSTEM SHALL price the cancellation from the order items that still hold a live service.
+   - ONE-203.5, proven: proven theorem `offer_priced_from_live_items`; example `cancelAfterChange`
+
+#### Open question on ONE-203.2
+
+> An order cancelled at once has every item cancelled and is closed, under
+> every reading of the guide.
+>
+> Open question for the business.  A cancellation removes each service through
+> the delivery status table, and the table has no move out of REQUESTED but the
+> airline's confirmation.  A service the airline has not yet confirmed therefore
+> stays REQUESTED, and its item is not cancelled.  The example
+> `unpaidCancellationWhileRequested` shows it.  Under the reading that
+> allows delivery before payment, a service already DELIVERED stays delivered
+> too.  Can a seller cancel a service the airline is still deciding on, and what
+> delivery status does it take?
 
 #### Open question on ONE-203.4
 
 > A cancellation offer never makes the amount due by the airline larger than
 > the payments received for the order.
 >
-> Open question for the business.  The offer is priced from the order's price,
-> as in the worked examples, and the payments received do not enter it.  A
-> partly paid order is cancelled through an offer that returns its whole price.
-> The example `partlyPaidCancellation` shows it: a 1,000.00 order with
-> 300.00 received gets an offer of 1,000.00 due by the airline.  Is the
-> refundable amount capped at the payments received, and which route applies
-> when some items are paid and others are not?
+> Open question for the business.  The offer is priced from the price of the
+> order's live items, as in the worked examples, and the payments received do
+> not enter it.  A partly paid order is cancelled through an offer that returns
+> its whole price.  The example `partlyPaidCancellation` shows it: a
+> 1,000.00 order with 300.00 received gets an offer of 1,000.00 due by the
+> airline.  Is the refundable amount capped at the payments received, and which
+> route applies when some items are paid and others are not?

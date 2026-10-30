@@ -5,6 +5,7 @@ import Rules.OneOrder.Ancillaries.Replace
 import Rules.OneOrder.Ancillaries.Seats
 import Rules.OneOrder.Ancillaries.AlaCarte
 import Rules.OneOrder.Ancillaries.Bundle
+import Rules.OneOrder.Delivery.Theorems
 
 /-!
 # Guarantees for ancillaries
@@ -17,7 +18,7 @@ a question for the business, and an example shows the rule breaking it.
 namespace Rules.OneOrder.Ancillaries
 
 open Rules.Core
-open Rules.OneOrder.AirlineChange (isLive)
+open Rules.OneOrder.Delivery (isLive MoveReading nextDelivery)
 
 /-! ## Dependent services and their parent -/
 
@@ -126,8 +127,9 @@ a segment the passenger no longer flies.  The example
 {lit}`bagLeftByFlightChange` shows it.  Does the rule hold for the life of the
 order, and if so, what happens to the bag? -/
 @[open_question, checks "ONE-602.4"]
-theorem change_keeps_flights (related : ServiceKind → Bool) (d : ServiceDetails) (o o' : Order)
-    (c : Change.ItemChange) (h0 : uncovered related d o = []) (h : Change.changeItem o c = .ok o') :
+theorem change_keeps_flights (m : MoveReading) (related : ServiceKind → Bool) (d : ServiceDetails)
+    (o o' : Order) (c : Change.ItemChange) (h0 : uncovered related d o = [])
+    (h : Change.changeItem m o c = .ok o') :
     uncovered related d o' = [] := by
   sorry
 
@@ -135,10 +137,10 @@ theorem change_keeps_flights (related : ServiceKind → Bool) (d : ServiceDetail
 
 /-- An accepted cancellation leaves the order as the rule's last step makes
 it: every item through {name}`itemAfterCancel`. -/
-theorem cancelItems_ok (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
-    (allows : String → Bool) (o o' : Order) (named : List String)
-    (hok : cancelItems h r d allows o named = .ok o') :
-    o'.items = o.items.map (itemAfterCancel h r d (namedFlights d o named) named) := by
+theorem cancelItems_ok (m : MoveReading) (h : DependentHandling) (r : LinkReading)
+    (d : ServiceDetails) (allows : String → Bool) (o o' : Order) (named : List String)
+    (hok : cancelItems m h r d allows o named = .ok o') :
+    o'.items = o.items.map (itemAfterCancel m h r d (namedFlights d o named) named) := by
   unfold cancelItems at hok
   split at hok
   · cases hok
@@ -148,25 +150,35 @@ theorem cancelItems_ok (h : DependentHandling) (r : LinkReading) (d : ServiceDet
       · cases hok
       · cases hok; rfl
 
-/-- Every named item is in the order afterwards with each live service
-CANCELLED with delivery status REMOVED and every other service as it was. -/
+/-- Every named item is in the order afterwards with each live service that
+the delivery status table lets be removed CANCELLED with delivery status
+REMOVED, and every other service as it was, under every reading. -/
 @[checks "ONE-603.1"]
-theorem cancel_items_named (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
-    (allows : String → Bool) (o o' : Order) (named : List String)
-    (hok : cancelItems h r d allows o named = .ok o') (i : OrderItem) (hi : i ∈ o.items)
+theorem cancel_items_named (m : MoveReading) (h : DependentHandling) (r : LinkReading)
+    (d : ServiceDetails) (allows : String → Bool) (o o' : Order) (named : List String)
+    (hok : cancelItems m h r d allows o named = .ok o') (i : OrderItem) (hi : i ∈ o.items)
     (hn : i.id ∈ named) :
-    ∃ i' ∈ o'.items, i'.id = i.id ∧ i'.services = i.services.map endService := by
-  rw [cancelItems_ok h r d allows o o' named hok]
-  refine ⟨itemAfterCancel h r d (namedFlights d o named) named i, List.mem_map_of_mem hi, ?_⟩
-  simp [itemAfterCancel, hn]
+    ∃ i' ∈ o'.items, i'.id = i.id ∧
+      ∀ s ∈ i.services, isLive s = true → (nextDelivery m .remove s).isSome →
+        { s with status := .cancelled, delivery := .removed } ∈ i'.services := by
+  rw [cancelItems_ok m h r d allows o o' named hok]
+  refine ⟨itemAfterCancel m h r d (namedFlights d o named) named i, List.mem_map_of_mem hi,
+    by simp [itemAfterCancel, hn], ?_⟩
+  intro s hs hlive hrem
+  obtain ⟨dl, hd⟩ := Option.isSome_iff_exists.mp hrem
+  have hdr := Delivery.nextDelivery_remove m s dl hd
+  subst hdr
+  simp only [itemAfterCancel, hn, List.contains_iff_mem, ↓reduceIte, List.mem_map]
+  exact ⟨s, hs, by simp [endService, hlive, Delivery.endWith, hd]⟩
 
 /-- A request that names an item whose conditions do not allow cancellation
 is refused, under every reading. -/
 @[checks "ONE-603.2"]
-theorem cancel_items_refuses_not_cancellable (h : DependentHandling) (r : LinkReading)
+theorem cancel_items_refuses_not_cancellable (m : MoveReading) (h : DependentHandling)
+    (r : LinkReading)
     (d : ServiceDetails) (allows : String → Bool) (o : Order) (named : List String) (id : String)
     (hn : id ∈ named) (hno : allows id = false) (o' : Order) :
-    cancelItems h r d allows o named ≠ .ok o' := by
+    cancelItems m h r d allows o named ≠ .ok o' := by
   unfold cancelItems
   split
   · simp
@@ -180,14 +192,14 @@ theorem cancel_items_refuses_not_cancellable (h : DependentHandling) (r : LinkRe
 cancelled flight is in the order afterwards, in the same item, under every
 reading. -/
 @[checks "ONE-603.3"]
-theorem cancel_items_keeps_others (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
-    (allows : String → Bool) (o o' : Order) (named : List String)
-    (hok : cancelItems h r d allows o named = .ok o') (i : OrderItem) (hi : i ∈ o.items)
+theorem cancel_items_keeps_others (m : MoveReading) (h : DependentHandling) (r : LinkReading)
+    (d : ServiceDetails) (allows : String → Bool) (o o' : Order) (named : List String)
+    (hok : cancelItems m h r d allows o named = .ok o') (i : OrderItem) (hi : i ∈ o.items)
     (hn : i.id ∉ named) (s : Service) (hs : s ∈ i.services)
     (hdep : isLiveDependent r d (namedFlights d o named) s = false) :
     ∃ i' ∈ o'.items, i'.id = i.id ∧ s ∈ i'.services := by
-  rw [cancelItems_ok h r d allows o o' named hok]
-  refine ⟨itemAfterCancel h r d (namedFlights d o named) named i, List.mem_map_of_mem hi, ?_, ?_⟩
+  rw [cancelItems_ok m h r d allows o o' named hok]
+  refine ⟨itemAfterCancel m h r d (namedFlights d o named) named i, List.mem_map_of_mem hi, ?_, ?_⟩
   · unfold itemAfterCancel; split_ifs <;> rfl
   · unfold itemAfterCancel
     split_ifs with h1 h2
@@ -195,19 +207,21 @@ theorem cancel_items_keeps_others (h : DependentHandling) (r : LinkReading) (d :
     · exact List.mem_map.mpr ⟨s, hs, by simp [hdep]⟩
     · exact hs
 
-/-- A cancelled service is no longer live. -/
-theorem isLive_endService (s : Service) : isLive (endService s) = false := by
+/-- A cancelled service is no longer live, when the delivery status table lets
+it be removed. -/
+theorem isLive_endService (m : MoveReading) (s : Service)
+    (hrem : isLive s = true → (nextDelivery m .remove s).isSome) : isLive (endService m s) = false := by
   unfold endService
   split_ifs with h
-  · simp [isLive]
+  · exact Delivery.endWith_cancelled_not_live m .remove s (hrem h)
   · simpa using h
 
 /-- An accepted cancellation names only items whose conditions allow
 cancellation, and, under the reading that refuses until dependents are named,
 leaves no live dependent outside the named items. -/
-theorem cancelItems_ok_conditions (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
-    (allows : String → Bool) (o o' : Order) (named : List String)
-    (hok : cancelItems h r d allows o named = .ok o') :
+theorem cancelItems_ok_conditions (m : MoveReading) (h : DependentHandling) (r : LinkReading)
+    (d : ServiceDetails) (allows : String → Bool) (o o' : Order) (named : List String)
+    (hok : cancelItems m h r d allows o named = .ok o') :
     (∀ id ∈ named, allows id = true) ∧
       (h = .refuseUnlessNamed → unnamedDependents r d o named = []) := by
   unfold cancelItems at hok
@@ -227,23 +241,25 @@ theorem cancelItems_ok_conditions (h : DependentHandling) (r : LinkReading) (d :
         | cons s rest => exact absurd hu (hne s rest rfl)
 
 /-- Under the readings that cancel dependents with their flight or refuse until
-they are named, no live service depends on a flight the seller cancels. -/
-theorem cancel_items_no_live_dependents_of_not_leave (h : DependentHandling)
+they are named, no live service depends on a flight the seller cancels, when
+the delivery status table lets every live service of the order be removed. -/
+theorem cancel_items_no_live_dependents_of_not_leave (m : MoveReading) (h : DependentHandling)
     (hh : h ≠ .leaveInPlace) (r : LinkReading) (d : ServiceDetails) (allows : String → Bool)
-    (o o' : Order) (named : List String) (hok : cancelItems h r d allows o named = .ok o')
+    (o o' : Order) (named : List String) (hok : cancelItems m h r d allows o named = .ok o')
+    (hrem : ∀ i ∈ o.items, ∀ s ∈ i.services, isLive s = true → (nextDelivery m .remove s).isSome)
     (f : Service) (hf : f ∈ namedFlights d o named) (s : Service) (hs : s ∈ services o')
     (hdep : dependsOn r d f s = true) : isLive s = false := by
-  have hitems := cancelItems_ok h r d allows o o' named hok
-  have hcond := cancelItems_ok_conditions h r d allows o o' named hok
+  have hitems := cancelItems_ok m h r d allows o o' named hok
+  have hcond := cancelItems_ok_conditions m h r d allows o o' named hok
   simp only [services, hitems, List.flatMap_map, List.mem_flatMap] at hs
   obtain ⟨j, hj, hsj⟩ := hs
   unfold itemAfterCancel at hsj
   split_ifs at hsj with hn hcw
-  · obtain ⟨s0, -, rfl⟩ := List.mem_map.mp hsj
-    exact isLive_endService s0
-  · obtain ⟨s0, -, rfl⟩ := List.mem_map.mp hsj
+  · obtain ⟨s0, hs0, rfl⟩ := List.mem_map.mp hsj
+    exact isLive_endService m s0 (hrem j hj s0 hs0)
+  · obtain ⟨s0, hs0, rfl⟩ := List.mem_map.mp hsj
     split_ifs with hld
-    · exact isLive_endService s0
+    · exact isLive_endService m s0 (hrem j hj s0 hs0)
     · simp only [hld, Bool.false_eq_true, ↓reduceIte] at hdep
       simp only [isLiveDependent] at hld
       cases hl : isLive s0
@@ -266,24 +282,26 @@ theorem cancel_items_no_live_dependents_of_not_leave (h : DependentHandling)
 /-- Under the readings that refuse until dependents are named or leave them in
 place, a live service of an item whose conditions do not allow cancellation
 stays as it was. -/
-theorem cancel_items_respects_conditions_of_not_cancel_with (h : DependentHandling)
+theorem cancel_items_respects_conditions_of_not_cancel_with (m : MoveReading)
+    (h : DependentHandling)
     (hh : h ≠ .cancelWithFlight) (r : LinkReading) (d : ServiceDetails) (allows : String → Bool)
-    (o o' : Order) (named : List String) (hok : cancelItems h r d allows o named = .ok o')
+    (o o' : Order) (named : List String) (hok : cancelItems m h r d allows o named = .ok o')
     (i : OrderItem) (hi : i ∈ o.items) (hno : allows i.id = false) (s : Service)
     (hs : s ∈ i.services) : ∃ i' ∈ o'.items, i'.id = i.id ∧ s ∈ i'.services := by
   have hn : i.id ∉ named := fun hin => by
-    simp [(cancelItems_ok_conditions h r d allows o o' named hok).1 i.id hin] at hno
-  rw [cancelItems_ok h r d allows o o' named hok]
+    simp [(cancelItems_ok_conditions m h r d allows o o' named hok).1 i.id hin] at hno
+  rw [cancelItems_ok m h r d allows o o' named hok]
   refine ⟨i, List.mem_map.mpr ⟨i, hi, ?_⟩, rfl, hs⟩
   simp [itemAfterCancel, hn, hh]
 
 /-- Under the readings that cancel dependents with their flight or leave them
 in place, an order item whose conditions allow cancellation is cancelled by a
 request that names it alone. -/
-theorem cancel_items_allowed_of_not_refuse (h : DependentHandling) (hh : h ≠ .refuseUnlessNamed)
+theorem cancel_items_allowed_of_not_refuse (m : MoveReading) (h : DependentHandling)
+    (hh : h ≠ .refuseUnlessNamed)
     (r : LinkReading) (d : ServiceDetails) (allows : String → Bool) (o : Order) (i : OrderItem)
     (hi : i ∈ o.items) (ha : allows i.id = true) :
-    ∃ o', cancelItems h r d allows o [i.id] = .ok o' := by
+    ∃ o', cancelItems m h r d allows o [i.id] = .ok o' := by
   have h1 : [i.id].find? (fun id => !o.items.any (·.id == id)) = none := by
     simp only [List.find?_eq_none, List.mem_singleton]
     rintro x rfl
@@ -301,14 +319,17 @@ theorem cancel_items_allowed_of_not_refuse (h : DependentHandling) (hh : h ≠ .
 Open question for the business.  Under the reading where the dependents stay
 as they are, a cancelled flight leaves its bag confirmed on a segment the
 passenger no longer flies.  The example {lit}`cancelFlightWithBag` shows it.
-The other two readings keep the guarantee
-({name}`cancel_items_no_live_dependents_of_not_leave`).  Should cancelling a
-flight cancel its bag and seat, refuse until the seller names them, or leave
-them in place? -/
+The other two readings keep the guarantee when every live service of the order
+can be removed ({name}`cancel_items_no_live_dependents_of_not_leave`).  A bag
+still REQUESTED from the airline cannot be: the delivery status table has no
+move out of REQUESTED but confirmation, so it stays live under every reading.
+Should cancelling a flight cancel its bag and seat, refuse until the seller
+names them, or leave them in place, and what happens to one the airline has
+not yet confirmed? -/
 @[open_question, checks "ONE-603.4"]
-theorem cancel_items_no_live_dependents (h : DependentHandling) (r : LinkReading)
+theorem cancel_items_no_live_dependents (m : MoveReading) (h : DependentHandling) (r : LinkReading)
     (d : ServiceDetails) (allows : String → Bool) (o o' : Order) (named : List String)
-    (hok : cancelItems h r d allows o named = .ok o') (f : Service) (hf : f ∈ namedFlights d o named)
+    (hok : cancelItems m h r d allows o named = .ok o') (f : Service) (hf : f ∈ namedFlights d o named)
     (s : Service) (hs : s ∈ services o') (hdep : dependsOn r d f s = true) :
     isLive s = false := by
   sorry
@@ -325,9 +346,9 @@ other two readings keep the guarantee
 conditions govern a dependent cancelled with its flight, and its refund: the
 dependent's own or the flight's? -/
 @[open_question, checks "ONE-603.5"]
-theorem cancel_items_respects_conditions (h : DependentHandling) (r : LinkReading)
+theorem cancel_items_respects_conditions (m : MoveReading) (h : DependentHandling) (r : LinkReading)
     (d : ServiceDetails) (allows : String → Bool) (o o' : Order) (named : List String)
-    (hok : cancelItems h r d allows o named = .ok o') (i : OrderItem) (hi : i ∈ o.items)
+    (hok : cancelItems m h r d allows o named = .ok o') (i : OrderItem) (hi : i ∈ o.items)
     (hno : allows i.id = false) (s : Service) (hs : s ∈ i.services) :
     ∃ i' ∈ o'.items, i'.id = i.id ∧ s ∈ i'.services := by
   sorry
@@ -344,10 +365,10 @@ two readings keep the guarantee ({name}`cancel_items_allowed_of_not_refuse`).
 Should a dependent's conditions be able to stop its flight from being
 cancelled? -/
 @[open_question, checks "ONE-603.6"]
-theorem cancel_items_allowed (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
-    (allows : String → Bool) (o : Order) (i : OrderItem) (hi : i ∈ o.items)
+theorem cancel_items_allowed (m : MoveReading) (h : DependentHandling) (r : LinkReading)
+    (d : ServiceDetails) (allows : String → Bool) (o : Order) (i : OrderItem) (hi : i ∈ o.items)
     (ha : allows i.id = true) :
-    ∃ named, i.id ∈ named ∧ ∃ o', cancelItems h r d allows o named = .ok o' := by
+    ∃ named, i.id ∈ named ∧ ∃ o', cancelItems m h r d allows o named = .ok o' := by
   sorry
 
 /-! ## Dependents when a flight is replaced -/
@@ -582,11 +603,11 @@ theorem alacarte_one_item (orderId : String) (oi : AlaCarteItem) (c : AlaCarteCh
 
 /-- An accepted removal leaves the order and the amount as the rule's last
 step makes them, for the first item with the reference given. -/
-theorem removeFromBundle_ok (sh : BundleShare) (o o' : Order) (item : String) (ids : List String)
-    (m : Money) (h : removeFromBundle sh o item ids = .ok (o', m)) :
+theorem removeFromBundle_ok (mr : MoveReading) (sh : BundleShare) (o o' : Order) (item : String)
+    (ids : List String) (m : Money) (h : removeFromBundle mr sh o item ids = .ok (o', m)) :
     ∃ i, o.items.find? (·.id == item) = some i ∧
-      o'.items = o.items.map (fun j => if j.id == item then removeServices ids j else j) ∧
-      m = bundleReturn sh i ids := by
+      o'.items = o.items.map (fun j => if j.id == item then removeServices mr ids j else j) ∧
+      m = bundleReturn mr sh i ids := by
   unfold removeFromBundle at h
   split at h
   · cases h
@@ -597,28 +618,31 @@ theorem removeFromBundle_ok (sh : BundleShare) (o o' : Order) (item : String) (i
       exact ⟨i, hi, rfl, rfl⟩
 
 /-- After an accepted removal the bundle is in the order with its reference and
-price, each named live service CANCELLED with delivery status REMOVED, and
-every other service as it was. -/
+price, each named live service that the delivery status table lets be removed
+CANCELLED with delivery status REMOVED, and every other service as it was,
+under every reading. -/
 @[checks "ONE-607.1"]
-theorem bundle_removes (sh : BundleShare) (o o' : Order) (item : String) (ids : List String)
-    (m : Money) (h : removeFromBundle sh o item ids = .ok (o', m)) :
+theorem bundle_removes (mr : MoveReading) (sh : BundleShare) (o o' : Order) (item : String)
+    (ids : List String) (m : Money) (h : removeFromBundle mr sh o item ids = .ok (o', m)) :
     ∃ i ∈ o.items, i.id = item ∧ ∃ i' ∈ o'.items, i'.id = i.id ∧ i'.price = i.price ∧
-      i'.services = i.services.map fun s => if ids.contains s.id then endService s else s := by
-  obtain ⟨i, hi, hitems, -⟩ := removeFromBundle_ok sh o o' item ids m h
+      i'.services = i.services.map fun s => if ids.contains s.id then endService mr s else s := by
+  obtain ⟨i, hi, hitems, -⟩ := removeFromBundle_ok mr sh o o' item ids m h
   have hid : i.id = item := by simpa using List.find?_some hi
-  refine ⟨i, List.mem_of_find?_eq_some hi, hid, removeServices ids i, ?_, rfl, rfl, rfl⟩
+  refine ⟨i, List.mem_of_find?_eq_some hi, hid, removeServices mr ids i, ?_, rfl, rfl, rfl⟩
   rw [hitems]
   exact List.mem_map.mpr ⟨i, List.mem_of_find?_eq_some hi, by simp [hid]⟩
 
-/-- An accepted removal returns the sum of the shares of the named live
-services under the reading, in the bundle's currency. -/
+/-- An accepted removal returns the sum of the shares of the services it
+cancels under the reading, in the bundle's currency: the named live services
+that the delivery status table lets be removed. -/
 @[checks "ONE-607.2"]
-theorem bundle_returns_shares (sh : BundleShare) (o o' : Order) (item : String) (ids : List String)
-    (m : Money) (h : removeFromBundle sh o item ids = .ok (o', m)) (i : OrderItem)
-    (hi : o.items.find? (·.id == item) = some i) :
-    m = ⟨((i.services.filter fun s => ids.contains s.id && isLive s).map (sh.share i)).sum,
+theorem bundle_returns_shares (mr : MoveReading) (sh : BundleShare) (o o' : Order) (item : String)
+    (ids : List String) (m : Money) (h : removeFromBundle mr sh o item ids = .ok (o', m))
+    (i : OrderItem) (hi : o.items.find? (·.id == item) = some i) :
+    m = ⟨((i.services.filter fun s =>
+          ids.contains s.id && isLive s && (nextDelivery mr .remove s).isSome).map (sh.share i)).sum,
       i.price.currency⟩ := by
-  obtain ⟨i', hi', -, hm⟩ := removeFromBundle_ok sh o o' item ids m h
+  obtain ⟨i', hi', -, hm⟩ := removeFromBundle_ok mr sh o o' item ids m h
   rw [hi] at hi'
   cases hi'
   exact hm
@@ -634,8 +658,8 @@ bundle of two flights at 470.00 EUR and two bags at 60.00 EUR returns
 services: by stated component prices, by stand-alone prices, or not at
 all? -/
 @[open_question, checks "ONE-607.3"]
-theorem bundle_return_le_price (sh : BundleShare) (o o' : Order) (item : String) (ids : List String)
-    (m : Money) (h : removeFromBundle sh o item ids = .ok (o', m)) (i : OrderItem)
+theorem bundle_return_le_price (mr : MoveReading) (sh : BundleShare) (o o' : Order) (item : String)
+    (ids : List String) (m : Money) (h : removeFromBundle mr sh o item ids = .ok (o', m)) (i : OrderItem)
     (hi : o.items.find? (·.id == item) = some i) :
     m.amount ≤ i.price.amount := by
   sorry
@@ -649,8 +673,8 @@ returns nothing, and so does removing every service.  The example
 {lit}`bundleShares` shows it.  Does removing part of a bundle return part of
 its price, and does removing all of it return all of it? -/
 @[open_question, checks "ONE-607.4"]
-theorem bundle_return_all (sh : BundleShare) (o o' : Order) (item : String) (ids : List String)
-    (m : Money) (h : removeFromBundle sh o item ids = .ok (o', m)) (i : OrderItem)
+theorem bundle_return_all (mr : MoveReading) (sh : BundleShare) (o o' : Order) (item : String)
+    (ids : List String) (m : Money) (h : removeFromBundle mr sh o item ids = .ok (o', m)) (i : OrderItem)
     (hi : o.items.find? (·.id == item) = some i)
     (hall : ∀ s ∈ i.services, s.id ∈ ids ∧ isLive s = true) :
     m.amount = i.price.amount := by

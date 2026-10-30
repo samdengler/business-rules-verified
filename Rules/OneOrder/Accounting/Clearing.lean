@@ -88,9 +88,6 @@ Acceptance criteria:
   leave it out of the net position of its payer.
 * ONE-805.5: The system shall make the net positions of all parties for a
   remittance date sum to zero.
-* ONE-805.6: Where the EasyPay provider takes the payer's place in the
-  netting, the system shall make the net positions of all parties for a
-  remittance date sum to zero.
 
 How an EasyPay clearance enters the netting is a reading of the sources
 ({name}`EasyPayReading`).  The model nets one currency. -/

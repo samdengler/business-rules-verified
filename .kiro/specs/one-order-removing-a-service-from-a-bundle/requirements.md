@@ -23,9 +23,9 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Ancilla
 
 #### Acceptance Criteria
 
-1. WHEN services are removed from a bundle THE SYSTEM SHALL mark each named live service CANCELLED with delivery status REMOVED and leave the bundle's other services and its price as they were.
+1. WHEN services are removed from a bundle THE SYSTEM SHALL mark each named live service that the delivery status table lets be removed CANCELLED with delivery status REMOVED and leave the bundle's other services and its price as they were.
    - ONE-607.1, proven: proven theorem `bundle_removes`; example `bundleAfterRemoval`
-2. WHEN services are removed from a bundle THE SYSTEM SHALL return the sum of the shares of the named live services under the reading, in the bundle's currency.
+2. WHEN services are removed from a bundle THE SYSTEM SHALL return the sum of the shares of the services it cancels under the reading, in the bundle's currency.
    - ONE-607.2, proven: proven theorem `bundle_returns_shares`; example `bundleShares`
 3. WHEN services are removed from a bundle THE SYSTEM SHALL return no more than the bundle price.
    - ONE-607.3, open: open theorem `bundle_return_le_price`; counterexample `bundleShares`

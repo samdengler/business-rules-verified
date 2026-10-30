@@ -30,8 +30,6 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Account
    - ONE-803.3, proven: proven theorem `accepted_recorded`; example `splitPaymentCleared`
 4. THE SYSTEM SHALL accept at most one clearance for each pair of order ID and payment ID.
    - ONE-803.4, open: open theorem `one_clearance_per_payment`; counterexample `signedTwice`
-5. WHERE the Clearance Manager also checks signed clearances for a repeated order and payment THE SYSTEM SHALL accept at most one clearance for each pair of order ID and payment ID.
-   - ONE-803.5, proven: proven theorem `one_clearance_per_payment_checked`; example `signedTwice`
 
 #### Open question on ONE-803.4
 
@@ -62,8 +60,6 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Account
    - ONE-804.4, proven: proven theorem `write_off_removes_unsettled`; example `remainderWrittenOff`
 5. THE SYSTEM SHALL keep the amounts settled on a clearance, less those clawed back, plus the amount unsettled and the amount written off, equal to its agreed amount.
    - ONE-804.5, open: open theorem `clearance_amounts_accounted`; counterexample `clawedBackThenCollected`
-6. WHERE a clawed-back amount counts as unsettled again THE SYSTEM SHALL keep the amounts settled on a clearance, less those clawed back, plus the amount unsettled and the amount written off, equal to its agreed amount.
-   - ONE-804.6, proven: proven theorem `clearance_amounts_accounted_reopen`; example `clawedBackThenCollected`
 
 #### Open question on ONE-804.5
 

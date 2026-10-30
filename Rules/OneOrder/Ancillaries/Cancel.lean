@@ -15,7 +15,7 @@ example does.
 namespace Rules.OneOrder.Ancillaries
 
 open Rules.Core
-open Rules.OneOrder.AirlineChange (isLive)
+open Rules.OneOrder.Delivery (isLive MoveReading endWith)
 
 /-- What happens to the services that depend on a flight the seller cancels.
 No source says, so the model takes the answer as a parameter: a reading of the
@@ -41,10 +41,11 @@ inductive CancelRejection
   | dependentNotNamed (service : String)
   deriving DecidableEq, Repr, Inhabited
 
-/-- A service after it is cancelled: CANCELLED with delivery status REMOVED if
-it is live, and otherwise as it was. -/
-def endService (s : Service) : Service :=
-  if isLive s then { s with status := .cancelled, delivery := .removed } else s
+/-- A service after it is cancelled: if it is live, CANCELLED with delivery
+status REMOVED where the delivery status table lets it be removed; otherwise
+as it was. -/
+def endService (m : MoveReading) (s : Service) : Service :=
+  if isLive s then endWith m .remove .cancelled s else s
 
 /-- The live flight services of the order items a request names. -/
 def namedFlights (d : ServiceDetails) (o : Order) (named : List String) : List Service :=
@@ -66,11 +67,11 @@ def unnamedDependents (r : LinkReading) (d : ServiceDetails) (o : Order) (named 
 cancelled; another item has its live dependents of the cancelled flights
 cancelled when the reading cancels them with the flight, and is otherwise as
 it was. -/
-def itemAfterCancel (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
+def itemAfterCancel (m : MoveReading) (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
     (fs : List Service) (named : List String) (i : OrderItem) : OrderItem :=
-  if named.contains i.id then { i with services := i.services.map endService }
+  if named.contains i.id then { i with services := i.services.map (endService m) }
   else if h = .cancelWithFlight then
-    { i with services := i.services.map fun s => if isLiveDependent r d fs s then endService s else s }
+    { i with services := i.services.map fun s => if isLiveDependent r d fs s then endService m s else s }
   else i
 
 /-- EARS: When a seller cancels order items, the system shall cancel every live
@@ -84,7 +85,8 @@ cannot use nor loses one they were promised.
 Acceptance criteria:
 
 * ONE-603.1: When a seller cancels order items, the system shall mark every
-  live service of each named item CANCELLED with delivery status REMOVED.
+  live service of each named item that the delivery status table lets be
+  removed CANCELLED with delivery status REMOVED.
 * ONE-603.2: If a seller names an order item whose conditions do not allow
   cancellation, then the system shall refuse the request.
 * ONE-603.3: When a seller cancels order items, the system shall leave as it
@@ -101,9 +103,11 @@ What happens to the dependents is the reading's ({name}`DependentHandling`);
 which services depend on a flight is the link's ({name}`LinkReading`).  The
 refund is not modelled; whose conditions govern the refund of a dependent
 cancelled with its flight is an open point.  The conditions of each order item
-are given by item reference. -/
+are given by item reference.  A service is removed through the delivery status
+table ({name}`Delivery.endWith`), so one still REQUESTED from the airline stays
+as it was. -/
 @[ears "ONE-603"]
-def cancelItems (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
+def cancelItems (m : MoveReading) (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
     (allows : String → Bool) (o : Order) (named : List String) : Except CancelRejection Order :=
   match named.find? (fun id => !o.items.any (·.id == id)) with
   | some id => .error (.unknownItem id)
@@ -113,6 +117,6 @@ def cancelItems (h : DependentHandling) (r : LinkReading) (d : ServiceDetails)
     | none =>
       match h, unnamedDependents r d o named with
       | .refuseUnlessNamed, s :: _ => .error (.dependentNotNamed s.id)
-      | _, _ => .ok { o with items := o.items.map (itemAfterCancel h r d (namedFlights d o named) named) }
+      | _, _ => .ok { o with items := o.items.map (itemAfterCancel m h r d (namedFlights d o named) named) }
 
 end Rules.OneOrder.Ancillaries

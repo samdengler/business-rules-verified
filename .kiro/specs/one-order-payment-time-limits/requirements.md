@@ -20,7 +20,7 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Payment
 
 #### Acceptance Criteria
 
-1. WHEN an order item's payment time limit has passed and no SUCCESSFUL payment covers it THE SYSTEM SHALL remove the item.
+1. WHEN an order item's payment time limit has passed and no SUCCESSFUL payment covers it THE SYSTEM SHALL remove the item, cancelling every service of it that the delivery status table lets end, so that none of those services is live afterwards.
    - ONE-306.1, proven: proven theorem `expireUnpaid_removes`; example `lateRedirectCapture`; example `unpaidAtTimeLimit`
 2. WHEN an order item is removed at its payment time limit THE SYSTEM SHALL mark FAILED every PENDING payment that covers it.
    - ONE-306.2, proven: proven theorem `expireUnpaid_fails_pending`; example `lateRedirectCapture`; example `unpaidAtTimeLimit`
@@ -56,6 +56,7 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Payment
 > names no resulting statuses.  If its services become REMOVED, none holds value
 > under every reading of the guide.  If they become EXPIRED, whether they hold
 > value is itself unsettled: under the cautious reading an expired service holds
-> value, so the removed item stays active and keeps its order opened.  The
-> example `removalStatuses` shows both.  Which service status and delivery
-> status does an item take when its payment time limit passes unpaid?
+> value, so the removed item stays active and keeps its order opened.  If they
+> become REMOVED HOLD VALUE, they hold value under every reading.  The example
+> `removalStatuses` shows all three.  Which delivery status does an item's
+> service take when its payment time limit passes unpaid?

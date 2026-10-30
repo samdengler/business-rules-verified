@@ -28,6 +28,7 @@ import Rules.OneOrder.Payment.TimeLimit
 import Rules.OneOrder.Payment.Theorems
 import Rules.OneOrder.Payment.Examples
 import Rules.OneOrder.Delivery.Moves
+import Rules.OneOrder.Delivery.Services
 import Rules.OneOrder.Delivery.Theorems
 import Rules.OneOrder.Delivery.Examples
 import Rules.OneOrder.Creation.Create
@@ -62,3 +63,4 @@ import Rules.OneOrder.Accounting.Clearing
 import Rules.OneOrder.Accounting.Books
 import Rules.OneOrder.Accounting.Theorems
 import Rules.OneOrder.Accounting.Examples
+import Rules.OneOrder.Consistency

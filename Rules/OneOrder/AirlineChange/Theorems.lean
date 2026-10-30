@@ -4,6 +4,7 @@ import Rules.OneOrder.AirlineChange.FollowUp
 import Rules.OneOrder.AirlineChange.Decline
 import Rules.OneOrder.AirlineChange.FlightCancel
 import Rules.OneOrder.AirlineChange.Reaccommodate
+import Rules.OneOrder.Delivery.Theorems
 
 /-!
 # Guarantees of the airline change rules
@@ -17,6 +18,7 @@ namespace Rules.OneOrder.AirlineChange
 
 open Rules.Core
 open Rules.OneOrder.Change
+open Rules.OneOrder.Delivery (isLive MoveReading)
 
 /-! ## Time limits and consequences of inaction -/
 
@@ -283,16 +285,25 @@ theorem decline_reshop_prices (e : ExcessPenalty) (w : DeclineFees) (inv : Invol
   simp [h1, h2, declineQuote]
 
 /-- Under the reading that waives the airline's fees on involuntary changes,
-declining an involuntary change carries no penalty, through Cancel or
-Reshop. -/
-@[checks "ONE-703.3"]
-theorem decline_waived_no_penalty (e : ExcessPenalty) (inv : InvoluntaryReading) (n : ChangeNotice)
-    (affected : Money) (t : DeclineTerms) (dec : Decline) (d : PriceDifferential)
+declining an involuntary change through Cancel, or letting it lapse into
+Auto-cancellation, carries no cancellation penalty. -/
+theorem decline_cancel_no_penalty_of_waived (e : ExcessPenalty) (inv : InvoluntaryReading)
+    (n : ChangeNotice) (affected : Money) (t : DeclineTerms) (d : PriceDifferential)
     (hinv : inv.involuntary n.reason = true)
-    (h : declineOffer e .waived inv n affected t dec = .ok d) :
+    (h : declineOffer e .waived inv n affected t .cancel = .ok d) :
     d.penalty.amount = 0 := by
   obtain ⟨-, -, h3⟩ := priceDifferential_prices _ _ _ h
-  cases dec <;> simp [h3, declineQuote, DeclineFees.penalty, hinv]
+  simp [h3, declineQuote, DeclineFees.penalty, hinv]
+
+/-- Under the reading that waives the airline's fees on involuntary changes,
+declining an involuntary change through Reshop carries no change fee. -/
+theorem decline_reshop_no_fee_of_waived (e : ExcessPenalty) (inv : InvoluntaryReading)
+    (n : ChangeNotice) (affected : Money) (t : DeclineTerms) (p : Money) (d : PriceDifferential)
+    (hinv : inv.involuntary n.reason = true)
+    (h : declineOffer e .waived inv n affected t (.reshop p) = .ok d) :
+    d.penalty.amount = 0 := by
+  obtain ⟨-, -, h3⟩ := priceDifferential_prices _ _ _ h
+  simp [h3, declineQuote, DeclineFees.penalty, hinv]
 
 /-- A customer who declines an involuntary change through Cancel, or whose
 seller lets it lapse into Auto-cancellation, pays no cancellation penalty.
@@ -332,36 +343,48 @@ theorem decline_reshop_no_fee (e : ExcessPenalty) (w : DeclineFees) (inv : Invol
 
 /-! ## A flight the airline cancels -/
 
-/-- Every live service on the cancelled flight is replaced, in the same order
-item, by the same service marked CANCELLED with delivery status UNABLE TO
-DELIVER. -/
+/-- Every live service on the cancelled flight that the delivery status table
+lets become UNABLE TO DELIVER is replaced, in the same order item, by the same
+service marked CANCELLED with delivery status UNABLE TO DELIVER, under every
+reading of the sources. -/
 @[checks "ONE-704.1"]
-theorem cancel_flight_marks (r : FlightRefund) (seg : String) (o : Order) (i : OrderItem)
-    (hi : i ∈ o.items) (s : Service) (hs : s ∈ i.services) (hseg : s.segment = seg)
-    (hlive : isLive s = true) :
-    ∃ i' ∈ (cancelFlight r seg o).order.items, i'.id = i.id ∧
+theorem cancel_flight_marks (m : MoveReading) (r : FlightRefund) (seg : String) (o : Order)
+    (i : OrderItem) (hi : i ∈ o.items) (s : Service) (hs : s ∈ i.services) (hseg : s.segment = seg)
+    (hlive : isLive s = true) (hmove : (Delivery.nextDelivery m .unable s).isSome) :
+    ∃ i' ∈ (cancelFlight m r seg o).order.items, i'.id = i.id ∧
       { s with status := .cancelled, delivery := .unableToDeliver } ∈ i'.services ∧
       s ∉ i'.services := by
-  refine ⟨{ i with services := i.services.map (cancelOnFlight seg) }, ?_, rfl, ?_, ?_⟩
+  obtain ⟨d, hd⟩ := Option.isSome_iff_exists.mp hmove
+  have hdu := Delivery.nextDelivery_unable m s d hd
+  subst hdu
+  refine ⟨{ i with services := i.services.map (cancelOnFlight m seg) }, ?_, rfl, ?_, ?_⟩
   · simp only [cancelFlight, List.mem_map]
     exact ⟨i, hi, rfl⟩
-  · exact List.mem_map.mpr ⟨s, hs, by simp [cancelOnFlight, hseg, hlive]⟩
+  · exact List.mem_map.mpr ⟨s, hs, by simp [cancelOnFlight, hseg, hlive, Delivery.endWith, hd]⟩
   · intro hmem
     obtain ⟨s0, -, h0⟩ := List.mem_map.mp hmem
     unfold cancelOnFlight at h0
     split_ifs at h0 with hc
-    · have := congrArg Service.status h0
-      simp only [isLive, Bool.and_eq_true, bne_iff_ne, ne_eq] at hlive
-      exact hlive.1.1 this.symm
+    · unfold Delivery.endWith at h0
+      cases hn : Delivery.nextDelivery m .unable s0 with
+      | none =>
+        simp only [hn] at h0
+        subst h0
+        simp [hn] at hmove
+      | some d0 =>
+        simp only [hn] at h0
+        have := congrArg Service.status h0
+        simp only [isLive, Bool.and_eq_true, bne_iff_ne, ne_eq] at hlive
+        exact hlive.1.1 this.symm
     · subst h0
       exact hc ⟨hseg, hlive⟩
 
 /-- Every service on another flight stays as it was, in the same order item. -/
 @[checks "ONE-704.2"]
-theorem cancel_flight_keeps_others (r : FlightRefund) (seg : String) (o : Order) (i : OrderItem)
-    (hi : i ∈ o.items) (s : Service) (hs : s ∈ i.services) (hseg : s.segment ≠ seg) :
-    ∃ i' ∈ (cancelFlight r seg o).order.items, i'.id = i.id ∧ s ∈ i'.services := by
-  refine ⟨{ i with services := i.services.map (cancelOnFlight seg) }, ?_, rfl, ?_⟩
+theorem cancel_flight_keeps_others (m : MoveReading) (r : FlightRefund) (seg : String) (o : Order)
+    (i : OrderItem) (hi : i ∈ o.items) (s : Service) (hs : s ∈ i.services) (hseg : s.segment ≠ seg) :
+    ∃ i' ∈ (cancelFlight m r seg o).order.items, i'.id = i.id ∧ s ∈ i'.services := by
+  refine ⟨{ i with services := i.services.map (cancelOnFlight m seg) }, ?_, rfl, ?_⟩
   · simp only [cancelFlight, List.mem_map]
     exact ⟨i, hi, rfl⟩
   · exact List.mem_map.mpr ⟨s, hs, by simp [cancelOnFlight, hseg]⟩
@@ -369,15 +392,29 @@ theorem cancel_flight_keeps_others (r : FlightRefund) (seg : String) (o : Order)
 /-- The order keeps every order item, in the same order, with its reference
 and price. -/
 @[checks "ONE-704.3"]
-theorem cancel_flight_keeps_items (r : FlightRefund) (seg : String) (o : Order) :
-    (cancelFlight r seg o).order.items.map (fun i => (i.id, i.price)) =
+theorem cancel_flight_keeps_items (m : MoveReading) (r : FlightRefund) (seg : String) (o : Order) :
+    (cancelFlight m r seg o).order.items.map (fun i => (i.id, i.price)) =
       o.items.map (fun i => (i.id, i.price)) := by
   simp [cancelFlight, Function.comp_def]
 
+/-- When the airline cancels a flight and does not re-accommodate the
+customer, no live service is left on that flight.
+
+Open question for the business.  The flight's services are ended through the
+delivery status table, and the table has no move to UNABLE TO DELIVER from
+REQUESTED, IN PROGRESS or SUSPENDED, under any reading.  A service the airline
+has not yet confirmed therefore stays live on a flight that will not operate.
+The example {lit}`cancelFlightWhileRequested` shows it.  What delivery status
+does a requested or suspended service take when its flight is cancelled? -/
+@[open_question, checks "ONE-704.6"]
+theorem cancel_flight_leaves_no_live (m : MoveReading) (r : FlightRefund) (seg : String) (o : Order) :
+    ∀ i ∈ (cancelFlight m r seg o).order.items, ∀ s ∈ i.services, s.segment = seg → isLive s = false := by
+  sorry
+
 /-- Every refund the rule gives is no more than the price of the order item it
 is for, under every reading. -/
-theorem cancel_flight_refund_le_price (r : FlightRefund) (seg : String) (o : Order) (id : String)
-    (m : Money) (h : (id, m) ∈ (cancelFlight r seg o).refunds) :
+theorem cancel_flight_refund_le_price (mr : MoveReading) (r : FlightRefund) (seg : String) (o : Order)
+    (id : String) (m : Money) (h : (id, m) ∈ (cancelFlight mr r seg o).refunds) :
     ∃ i ∈ o.items, i.id = id ∧ m.amount ≤ i.price.amount := by
   simp only [cancelFlight, List.mem_map, List.mem_filter, Prod.mk.injEq] at h
   obtain ⟨i, ⟨hi, -⟩, hid, hm⟩ := h
@@ -396,10 +433,11 @@ example {lit}`cancelInboundFlight` shows it.  Is a refund owed when the
 airline cancels a flight without re-accommodation, and how much of an item's
 price belongs to that flight? -/
 @[open_question, checks "ONE-704.4"]
-theorem cancel_flight_refunds (r : FlightRefund) (seg : String) (o : Order) (i : OrderItem)
+theorem cancel_flight_refunds (mr : MoveReading) (r : FlightRefund) (seg : String) (o : Order)
+    (i : OrderItem)
     (hi : i ∈ o.items) (hprice : 0 < i.price.amount) (s : Service) (hs : s ∈ i.services)
     (hseg : s.segment = seg) (hpaid : s.status = .confirmed ∧ s.delivery = .readyToProceed) :
-    ∃ m, (i.id, m) ∈ (cancelFlight r seg o).refunds ∧ 0 < m.amount := by
+    ∃ m, (i.id, m) ∈ (cancelFlight mr r seg o).refunds ∧ 0 < m.amount := by
   sorry
 
 /-- After the airline cancels a flight, every order item that holds a
@@ -414,10 +452,11 @@ stays ACTIVE with CANCELLED services in it, under every reading.  The example
 {lit}`cancelInboundFlight` shows it.  Should the airline replace the item, as
 a change does, or may an active item hold cancelled services? -/
 @[open_question, checks "ONE-704.5"]
-theorem cancel_flight_cancelled_items (v : ValueReading) (r : FlightRefund) (seg : String) (o : Order)
+theorem cancel_flight_cancelled_items (m : MoveReading) (v : ValueReading) (r : FlightRefund)
+    (seg : String) (o : Order)
     (hbefore : ∀ i ∈ o.items, (∃ s ∈ i.services, s.status = .cancelled) →
       itemStatuses v i = [.cancelled]) :
-    ∀ i ∈ (cancelFlight r seg o).order.items, (∃ s ∈ i.services, s.status = .cancelled) →
+    ∀ i ∈ (cancelFlight m r seg o).order.items, (∃ s ∈ i.services, s.status = .cancelled) →
       itemStatuses v i = [.cancelled] := by
   sorry
 
@@ -426,15 +465,15 @@ theorem cancel_flight_cancelled_items (v : ValueReading) (r : FlightRefund) (seg
 /-- Where the change takes effect at notice, the order is the order after the
 change rule for a paid change, one version higher. -/
 @[checks "ONE-705.1"]
-theorem notify_at_notice (vo : VersionedOrder) (c : Reaccommodation) (vo' : VersionedOrder)
-    (h : notifyChange .notice vo c = .ok vo') :
+theorem notify_at_notice (m : MoveReading) (vo : VersionedOrder) (c : Reaccommodation)
+    (vo' : VersionedOrder) (h : notifyChange m .notice vo c = .ok vo') :
     ∃ old, vo.order.items.find? (·.id = c.item) = some old ∧
-      changeItem vo.order (c.toItemChange old) = .ok vo'.order ∧ vo'.version = vo.version + 1 := by
+      changeItem m vo.order (c.toItemChange old) = .ok vo'.order ∧ vo'.version = vo.version + 1 := by
   unfold notifyChange at h
   split at h
   · cases h
   · rename_i old hold
-    cases hc : changeItem vo.order (c.toItemChange old) with
+    cases hc : changeItem m vo.order (c.toItemChange old) with
     | error e => simp [hc, Except.map] at h
     | ok o =>
       simp only [hc, Except.map, Except.ok.injEq] at h
@@ -444,8 +483,8 @@ theorem notify_at_notice (vo : VersionedOrder) (c : Reaccommodation) (vo' : Vers
 /-- Where the change waits for the seller's Accept, the order and its version
 are as they were at notice. -/
 @[checks "ONE-705.2"]
-theorem notify_at_acceptance (vo : VersionedOrder) (c : Reaccommodation) (vo' : VersionedOrder)
-    (h : notifyChange .acceptance vo c = .ok vo') :
+theorem notify_at_acceptance (m : MoveReading) (vo : VersionedOrder) (c : Reaccommodation)
+    (vo' : VersionedOrder) (h : notifyChange m .acceptance vo c = .ok vo') :
     vo' = vo := by
   unfold notifyChange at h
   split at h
@@ -456,13 +495,13 @@ theorem notify_at_acceptance (vo : VersionedOrder) (c : Reaccommodation) (vo' : 
 price and a service for each passenger of the original item on each new
 flight. -/
 @[checks "ONE-705.3"]
-theorem notify_new_item (vo : VersionedOrder) (c : Reaccommodation) (vo' : VersionedOrder)
-    (h : notifyChange .notice vo c = .ok vo') :
+theorem notify_new_item (m : MoveReading) (vo : VersionedOrder) (c : Reaccommodation)
+    (vo' : VersionedOrder) (h : notifyChange m .notice vo c = .ok vo') :
     ∃ old ∈ vo.order.items, old.id = c.item ∧ ∃ ni ∈ vo'.order.items, ni.id = c.newItem ∧
       ni.price = old.price ∧ ∀ p ∈ passengersOf old, ∀ seg ∈ c.newSegments,
         ∃ s ∈ ni.services, s.passenger = p ∧ s.segment = seg := by
-  obtain ⟨old, hold, hc, -⟩ := notify_at_notice vo c vo' h
-  obtain ⟨old', hold', -, ho'⟩ := changeItem_ok vo.order vo'.order _ hc
+  obtain ⟨old, hold, hc, -⟩ := notify_at_notice m vo c vo' h
+  obtain ⟨old', hold', -, ho'⟩ := changeItem_ok m vo.order vo'.order _ hc
   have hsame : old' = old := Option.some.inj (hold'.symm.trans hold)
   subst hsame
   have hid := List.find?_some hold
@@ -486,19 +525,21 @@ change at notice.  Is a change awaiting acceptance provisional, and does
 declining it restore the original item or only let the customer cancel or
 reshop from the changed order? -/
 @[open_question, checks "ONE-705.4"]
-theorem accept_pending_keeps_original (v : ValueReading) (a : ApplyAt) (vo : VersionedOrder)
-    (c : Reaccommodation) (vo' : VersionedOrder) (h : notifyChange a vo c = .ok vo')
+theorem accept_pending_keeps_original (m : MoveReading) (v : ValueReading) (a : ApplyAt)
+    (vo : VersionedOrder)
+    (c : Reaccommodation) (vo' : VersionedOrder) (h : notifyChange m a vo c = .ok vo')
     (i : OrderItem) (hi : i ∈ vo.order.items) (hid : i.id = c.item) :
     ∃ i' ∈ vo'.order.items, i'.id = c.item ∧ itemStatuses v i' = itemStatuses v i := by
   sorry
 
 /-- Under the reading where a change waits for the seller's Accept, the
 original order item keeps its status when the change is notified. -/
-theorem accept_pending_keeps_original_of_acceptance (v : ValueReading) (vo : VersionedOrder)
-    (c : Reaccommodation) (vo' : VersionedOrder) (h : notifyChange .acceptance vo c = .ok vo')
+theorem accept_pending_keeps_original_of_acceptance (m : MoveReading) (v : ValueReading)
+    (vo : VersionedOrder)
+    (c : Reaccommodation) (vo' : VersionedOrder) (h : notifyChange m .acceptance vo c = .ok vo')
     (i : OrderItem) (hi : i ∈ vo.order.items) (hid : i.id = c.item) :
     ∃ i' ∈ vo'.order.items, i'.id = c.item ∧ itemStatuses v i' = itemStatuses v i := by
-  rw [notify_at_acceptance vo c vo' h]
+  rw [notify_at_acceptance m vo c vo' h]
   exact ⟨i, hi, hid, rfl⟩
 
 /-- When the airline replaces paid services at no price difference, every
@@ -512,8 +553,9 @@ time limit could apply to a trip the customer already paid for.  The example
 {lit}`itineraryReaccommodated` shows the new services CONFIRMED.  Does the
 paid status carry across an airline change? -/
 @[open_question, checks "ONE-705.5"]
-theorem reaccommodated_paid (a : ApplyAt) (vo : VersionedOrder) (c : Reaccommodation)
-    (vo' : VersionedOrder) (h : notifyChange a vo c = .ok vo') (old : OrderItem)
+theorem reaccommodated_paid (m : MoveReading) (a : ApplyAt) (vo : VersionedOrder)
+    (c : Reaccommodation)
+    (vo' : VersionedOrder) (h : notifyChange m a vo c = .ok vo') (old : OrderItem)
     (hold : vo.order.items.find? (·.id = c.item) = some old)
     (hpaid : ∀ s ∈ old.services, s.delivery = .readyToProceed)
     (hfresh : ∀ i ∈ vo.order.items, i.id ≠ c.newItem) :

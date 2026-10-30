@@ -16,16 +16,18 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Payment
 
 **User Story:** As an airline, I want a payment made with several methods to succeed only when every method succeeds, so that I never treat an order item as paid when part of its money will not arrive.
 
-**Rule:** THE SYSTEM SHALL give a payment the status FAILED if the transaction of any of its payment methods failed, SUCCESSFUL if all of them succeeded, and PENDING otherwise. (Lean: `status`)
+**Rule:** THE SYSTEM SHALL give a payment the status FAILED if it has no payment method or the transaction of any of its payment methods failed, SUCCESSFUL if all of them succeeded, and PENDING otherwise. (Lean: `status`)
 
 #### Acceptance Criteria
 
 1. IF the transaction of any payment method in a payment fails THEN THE SYSTEM SHALL mark the whole payment FAILED.
    - ONE-301.1, proven: proven theorem `status_failed_iff`; example `declinedCardForBag`; example `statusFromMethods`
-2. WHEN the transactions of every payment method in a payment succeed THE SYSTEM SHALL mark the payment SUCCESSFUL.
+2. WHEN a payment has at least one payment method and the transactions of all its payment methods succeed THE SYSTEM SHALL mark the payment SUCCESSFUL.
    - ONE-301.2, proven: proven theorem `status_successful_iff`; example `statusFromMethods`
 3. WHILE no payment method's transaction in a payment has failed and at least one is still pending THE SYSTEM SHALL mark the payment PENDING.
    - ONE-301.3, proven: proven theorem `status_pending_iff`; example `statusFromMethods`
+4. IF a payment has no payment method THEN THE SYSTEM SHALL mark it FAILED.
+   - ONE-301.4, proven: proven theorem `status_without_method`; example `paymentWithoutMethod`
 
 ### Requirement ONE-302
 
@@ -38,7 +40,7 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Payment
 1. WHEN a SUCCESSFUL payment covers an order item THE SYSTEM SHALL count the item paid.
    - ONE-302.1, proven: proven theorem `isPaid_iff`; example `twoPaymentsOneDeclined`
 2. IF every payment covering an order item is PENDING or FAILED THEN THE SYSTEM SHALL not count the item paid.
-   - ONE-302.2, proven: proven theorem `isPaid_iff`; example `pendingRedirect`; example `twoPaymentsOneDeclined`
+   - ONE-302.2, proven: proven theorem `isPaid_iff`; example `paymentWithoutMethod`; example `pendingRedirect`; example `twoPaymentsOneDeclined`
 3. IF the transaction of any payment method in a payment fails THEN THE SYSTEM SHALL count none of the order items it covers as paid by that payment and shall leave their services unchanged.
    - ONE-302.3, proven: proven theorem `failed_method_pays_nothing`; example `declinedCardForBag`
 

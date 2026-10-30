@@ -223,7 +223,7 @@
 \begin{definition}[Cancelling a flight with ancillaries (C-45)]
   \label{def:ancillaries-flight-cancel-dependents}
   \lean{Rules.OneOrder.Ancillaries.cancelItems, Rules.OneOrder.Ancillaries.DependentHandling, Rules.OneOrder.Ancillaries.CancelRejection, Rules.OneOrder.Ancillaries.endService, Rules.OneOrder.Ancillaries.namedFlights, Rules.OneOrder.Ancillaries.isLiveDependent, Rules.OneOrder.Ancillaries.unnamedDependents, Rules.OneOrder.Ancillaries.itemAfterCancel}
-  \uses{def:ancillaries-service-dependency, def:c15-cancel-order, def:c06-item-status, def:c08-delivery-status, def:refund}
+  \uses{def:delivery-end-from-area, def:ancillaries-service-dependency, def:c15-cancel-order, def:c06-item-status, def:c08-delivery-status, def:refund}
   When a flight service is cancelled, each service that depends on it ends
   up cancelled, kept, or flagged for the customer. The source shows a seller
   naming the flight item and the ancillary item together in one cancellation
@@ -859,7 +859,7 @@
 \begin{definition}[Value of one bundled service (C-55)]
   \label{def:ancillaries-bundle-part-value}
   \lean{Rules.OneOrder.Ancillaries.removeFromBundle, Rules.OneOrder.Ancillaries.BundleShare, Rules.OneOrder.Ancillaries.BundleRejection, Rules.OneOrder.Ancillaries.removeServices, Rules.OneOrder.Ancillaries.bundleReturn}
-  \uses{def:ancillaries-bundle-meaning, def:refund, def:c05-holds-value, def:c18-change}
+  \uses{def:delivery-end-from-area, def:ancillaries-bundle-meaning, def:refund, def:c05-holds-value, def:c18-change}
   When one service in a bundle is cancelled, removed or not delivered, the
   system must give it a share of the bundle price to compute any refund,
   stored value or price difference. The source prices a bundle only as a

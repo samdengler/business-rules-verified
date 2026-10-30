@@ -30,9 +30,7 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Deliver
    - ONE-101.3, proven: proven theorem `deliver_marks_delivered`; example `paidFlightDelivered`
 4. IF payment for a service has not succeeded THEN THE SYSTEM SHALL keep it out of READY TO PROCEED, READY TO DELIVER, IN PROGRESS and DELIVERED.
    - ONE-101.4, open: open theorem `paid_before_delivery`; counterexample `deliveredBeforePayment`; counterexample `unpaidAfterForceMajeure`
-5. WHERE the airline allows no delivery before payment and no return from UNABLE TO DELIVER to READY TO PROCEED THE SYSTEM SHALL keep a service whose payment has not succeeded out of READY TO PROCEED, READY TO DELIVER, IN PROGRESS and DELIVERED.
-   - ONE-101.5, proven: proven theorem `paid_before_delivery_with_gate`; example `deliveredBeforePayment`; example `unpaidAfterForceMajeure`
-6. IF an event has no move from the service's delivery status in the table THEN THE SYSTEM SHALL refuse it.
+5. IF an event has no move from the service's delivery status in the table THEN THE SYSTEM SHALL refuse it.
    - ONE-101.6, example only: example `moveTable`; example `undecidedMoves`
 
 #### Open question on ONE-101.4

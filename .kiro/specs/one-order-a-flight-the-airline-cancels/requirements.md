@@ -24,8 +24,8 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Airline
 
 #### Acceptance Criteria
 
-1. WHEN the airline cancels a flight and does not re-accommodate the customer THE SYSTEM SHALL mark every live service on that flight, in every order item, CANCELLED with delivery status UNABLE TO DELIVER.
-   - ONE-704.1, proven: proven theorem `cancel_flight_marks`; example `cancelBothFlights`; example `cancelInboundFlight`
+1. WHEN the airline cancels a flight and does not re-accommodate the customer THE SYSTEM SHALL mark CANCELLED with delivery status UNABLE TO DELIVER every live service on that flight, in every order item, that the delivery status table lets become UNABLE TO DELIVER.
+   - ONE-704.1, proven: proven theorem `cancel_flight_marks`; example `cancelBothFlights`; example `cancelFlightWhileRequested`; example `cancelInboundFlight`
 2. WHEN the airline cancels a flight THE SYSTEM SHALL leave every service on other flights unchanged.
    - ONE-704.2, proven: proven theorem `cancel_flight_keeps_others`; example `cancelInboundFlight`
 3. WHEN the airline cancels a flight THE SYSTEM SHALL keep every order item with its reference and price.
@@ -34,6 +34,8 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Airline
    - ONE-704.4, open: open theorem `cancel_flight_refunds`; counterexample `cancelBothFlights`; counterexample `cancelInboundFlight`
 5. WHEN the airline cancels a flight THE SYSTEM SHALL mark CANCELLED every order item that holds a CANCELLED service.
    - ONE-704.5, open: open theorem `cancel_flight_cancelled_items`; counterexample `cancelBothFlights`; counterexample `cancelInboundFlight`
+6. WHEN the airline cancels a flight and does not re-accommodate the customer THE SYSTEM SHALL leave no live service on that flight.
+   - ONE-704.6, open: open theorem `cancel_flight_leaves_no_live`; counterexample `cancelFlightWhileRequested`
 
 #### Open question on ONE-704.4
 
@@ -63,3 +65,15 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Airline
 > stays ACTIVE with CANCELLED services in it, under every reading.  The example
 > `cancelInboundFlight` shows it.  Should the airline replace the item, as
 > a change does, or may an active item hold cancelled services?
+
+#### Open question on ONE-704.6
+
+> When the airline cancels a flight and does not re-accommodate the
+> customer, no live service is left on that flight.
+>
+> Open question for the business.  The flight's services are ended through the
+> delivery status table, and the table has no move to UNABLE TO DELIVER from
+> REQUESTED, IN PROGRESS or SUSPENDED, under any reading.  A service the airline
+> has not yet confirmed therefore stays live on a flight that will not operate.
+> The example `cancelFlightWhileRequested` shows it.  What delivery status
+> does a requested or suspended service take when its flight is cancelled?

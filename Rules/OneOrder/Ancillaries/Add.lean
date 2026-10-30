@@ -15,7 +15,7 @@ are not.  The model takes the answer as a parameter, a reading of the sources.
 namespace Rules.OneOrder.Ancillaries
 
 open Rules.Core
-open Rules.OneOrder.AirlineChange (isLive)
+open Rules.OneOrder.Delivery (isLive)
 
 /-- Why a request to add services to an order was refused. -/
 inductive AddRejection

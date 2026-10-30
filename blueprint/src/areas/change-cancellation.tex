@@ -5,7 +5,7 @@
 \begin{definition}[Cancelling an order (C-15)]
   \label{def:c15-cancel-order}
   \lean{Rules.OneOrder.Change.requestCancellation, Rules.OneOrder.Change.cancelDirect, Rules.OneOrder.Change.CancelTerms, Rules.OneOrder.Change.cancellationQuote}
-  \uses{def:c06-item-status, def:payment, def:totals}
+  \uses{def:delivery-end-from-area, def:c06-item-status, def:payment, def:totals}
   An unpaid order can be cancelled directly.  A paid order is cancelled only by
   accepting a cancellation offer from the airline.  The model cancels an order
   at once when no payment has been received for it, cancelling and removing
@@ -70,7 +70,7 @@
 \begin{definition}[Changing an order item (C-18)]
   \label{def:c18-change}
   \lean{Rules.OneOrder.Change.changeItem, Rules.OneOrder.Change.ItemChange, Rules.OneOrder.Change.originalAfterChange, Rules.OneOrder.Change.afterChange, Rules.OneOrder.Change.newItemOf}
-  \uses{def:c01-structure, def:c06-item-status}
+  \uses{def:delivery-end-from-area, def:c01-structure, def:c06-item-status}
   Changing an order item cancels the original item's services, creates a new
   item, and charges or refunds the difference in price.  The model covers the
   change once it is paid: the services the change keeps move to the new item

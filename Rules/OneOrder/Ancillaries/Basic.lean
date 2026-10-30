@@ -1,6 +1,6 @@
 import Rules.Core.Attributes
 import Rules.OneOrder.Order
-import Rules.OneOrder.AirlineChange.FlightCancel
+import Rules.OneOrder.Delivery.Services
 
 /-!
 # Ancillaries and the flights they depend on
@@ -17,7 +17,7 @@ The model takes the link as a parameter, a reading of the sources.
 namespace Rules.OneOrder.Ancillaries
 
 open Rules.Core
-open Rules.OneOrder.AirlineChange (isLive)
+open Rules.OneOrder.Delivery (isLive)
 
 /-- What a service is: a flight, or an ancillary sold with one. -/
 inductive ServiceKind

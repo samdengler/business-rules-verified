@@ -183,6 +183,35 @@
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{definition}
 
+\begin{definition}[Ending a service from another area]
+  \label{def:delivery-end-from-area}
+  \lean{Rules.OneOrder.Delivery.endWith, Rules.OneOrder.Delivery.nextDelivery, Rules.OneOrder.Delivery.isLive, Rules.OneOrder.Delivery.Follows, Rules.OneOrder.Delivery.MovesAlongTable}
+  \uses{def:delivery-suspension}
+  A rule in another area that ends a service, such as a cancellation or a
+  flight the airline cancels, applies its event through the delivery status
+  table.  When the table allows the move, the service takes the rule's
+  service status and the delivery status the table gives.  When the table
+  refuses it, the service stays as it was.  A service is live while it is
+  neither cancelled nor transferred and not in a final delivery status.
+\end{definition}
+
+\begin{theorem}[Every area moves delivery statuses along the table]
+  \label{thm:delivery-moves-across-areas}
+  \lean{Rules.OneOrder.delivery_moves_follow_table}
+  \uses{def:delivery-end-from-area, def:c15-cancel-order, def:c18-change, def:airline-change-reaccommodation, def:ancillaries-flight-cancel-dependents, def:ancillaries-bundle-part-value, def:airline-change-cancel-flight, def:payment-time-limit-expiry, def:payment-apply-outcome}
+  Under every reading, each rule that changes a service's delivery status
+  moves it only along a move of the delivery status table and keeps its
+  reference: cancelling an unpaid order, changing an order item, an airline
+  change, cancelling order items, removing services from a bundle, the
+  airline cancelling a flight, removing an unpaid item at its payment time
+  limit, and a successful payment.  A final delivery status therefore never
+  changes, whichever area acts on the order.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-end-from-area}
+  Each rule changes services one by one, through the table or not at all.
+\end{proof}
+
 \begin{theorem}[Suspending a service records where it was]
   \label{thm:delivery-suspend}
   \lean{Rules.OneOrder.Delivery.suspend_records_status}
@@ -352,7 +381,7 @@
 
 \begin{theorem}[Payment before delivery when the undecided moves are refused]
   \label{thm:delivery-paid-with-gate}
-  \lean{Rules.OneOrder.Delivery.paid_before_delivery_with_gate}
+  \lean{Rules.OneOrder.Delivery.paid_before_delivery_of_gate}
   \uses{def:delivery-moves, def:delivery-suspension}
   Under every reading that refuses delivery before payment and keeps an
   \texttt{UNABLE TO DELIVER} service from returning to

@@ -12,6 +12,7 @@ import Review.Generated.ONE101
 import Review.Generated.ONE102
 import Review.Generated.ONE103
 import Review.Generated.ONE104
+import Review.Generated.ONE105
 import Review.Generated.ONE201
 import Review.Generated.ONE202
 import Review.Generated.ONE203
@@ -99,6 +100,8 @@ Review.Generated.Front.html
 {include 1 Review.Generated.ONE103}
 
 {include 1 Review.Generated.ONE104}
+
+{include 1 Review.Generated.ONE105}
 
 {include 1 Review.Generated.ONE201}
 

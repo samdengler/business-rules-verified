@@ -406,7 +406,7 @@
 \begin{definition}[Unpaid item at its time limit (C-130)]
   \label{def:payment-time-limit-expiry}
   \lean{Rules.OneOrder.Payment.expireUnpaid, Rules.OneOrder.Payment.Removal, Rules.OneOrder.Payment.PayableOrder.lapses}
-  \uses{def:c11-payment-time-limit, def:c08-delivery-status, def:c06-item-status, def:payment-payment-status, def:payment-paid-order-item}
+  \uses{def:delivery-end-from-area, def:c11-payment-time-limit, def:c08-delivery-status, def:c06-item-status, def:payment-payment-status, def:payment-paid-order-item}
   When an order item's payment time limit passes without a successful
   payment, the item is removed from the order, and a payment still
   \texttt{PENDING} for it is marked \texttt{FAILED}. The airline may move

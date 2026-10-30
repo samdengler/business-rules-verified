@@ -238,8 +238,7 @@ theorem submit_keeps_distinct (r : RepeatReading) (hr : r.checkSigned = true)
 /-- Under every reading that checks signed clearances for a repeated order and
 payment too, every pair of an order ID and a payment ID has at most one
 accepted clearance, whatever clearances the ORA sends. -/
-@[checks "ONE-803.5"]
-theorem one_clearance_per_payment_checked (r : RepeatReading) (hr : r.checkSigned = true)
+theorem one_clearance_per_payment_of_checkSigned (r : RepeatReading) (hr : r.checkSigned = true)
     (cs : List Clearance) : ((submitAll r [] cs).map (·.commitment)).Nodup := by
   suffices ∀ acc, (acc.map (·.commitment)).Nodup → ((submitAll r acc cs).map (·.commitment)).Nodup from
     this [] List.nodup_nil
@@ -345,8 +344,7 @@ theorem settleStep_accounted (r : SettlementReading) (hr : r.clawBackReopens = t
 /-- Under every reading where a clawed-back amount counts as unsettled again,
 every part of a clearance's agreed amount stays settled and kept, still
 unsettled, or written off, whatever happens to it. -/
-@[checks "ONE-804.6"]
-theorem clearance_amounts_accounted_reopen (r : SettlementReading) (hr : r.clawBackReopens = true)
+theorem clearance_amounts_accounted_of_reopen (r : SettlementReading) (hr : r.clawBackReopens = true)
     (agreed : Nat) (es : List SettlementEvent) : (settleRun r (.new agreed) es).Accounted := by
   suffices ∀ c, c.Accounted → (settleRun r c es).Accounted from
     this _ ⟨le_refl _, by simp [SettlementRecord.new]⟩
@@ -440,8 +438,7 @@ theorem netFor_sum_zero (c : Clearance) (ps : List Party) (hnd : ps.Nodup)
 
 /-- Under the reading where the EasyPay provider takes the payer's place, the
 net positions of all parties on a remittance date sum to zero. -/
-@[checks "ONE-805.6"]
-theorem net_positions_sum_zero_provider (cs : List Clearance) (date : String) (ps : List Party)
+theorem net_positions_sum_zero_of_providerPays (cs : List Clearance) (date : String) (ps : List Party)
     (hnd : ps.Nodup)
     (hcover : ∀ c ∈ cs, Party.org c.payee ∈ ps ∧ ∀ q, netPayer .providerPays c = some q → q ∈ ps) :
     (ps.map (netPosition .providerPays cs date)).sum = 0 := by

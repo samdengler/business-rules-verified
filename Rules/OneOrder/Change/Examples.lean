@@ -3,6 +3,7 @@ import Rules.OneOrder.Examples
 import Rules.OneOrder.Change.Balance
 import Rules.OneOrder.Change.Cancel
 import Rules.OneOrder.Change.Transfer
+import Rules.OneOrder.Delivery.Examples
 
 /-!
 # Examples of changes and cancellations
@@ -233,7 +234,7 @@ structure CancelSummary where
 def CancelSummary.of (o : Order) (payments : List Rules.OfferOrder.Payment) (t : CancelTerms) :
     CancelSummary :=
   let received : Money := ⟨Rules.OfferOrder.totalPaid payments o.id, .EUR⟩
-  match requestCancellation .collect o payments t with
+  match requestCancellation Delivery.strictMoves .collect o payments t with
   | .cancelled o' => { received, route := .atOnce, dueByAirline := euros 0, orderStatus := .of o' }
   | .offer d => { received, route := .throughOffer, dueByAirline := d.dueByAirline, orderStatus := .of o }
   | .rejected _ => { received, route := .rejected, dueByAirline := euros 0, orderStatus := .of o }
@@ -353,7 +354,7 @@ item is active, where the worked example shows it cancelled, and the outbound
 service holds value in both items. -/
 @[case, checks "ONE-204.1 ONE-204.2 ONE-204.3 ONE-204.5"]
 def changeKeepingOutbound : Except ChangeRejection ChangedOrder :=
-  (changeItem (tripOrder .readyToProceed) (tripChange "ORDITM-2" ["SVC-OUT"])).map ChangedOrder.of
+  (changeItem Delivery.strictMoves (tripOrder .readyToProceed) (tripChange "ORDITM-2" ["SVC-OUT"])).map ChangedOrder.of
 
 #guard changeKeepingOutbound == .ok
   { items :=
@@ -375,7 +376,7 @@ new inbound flight in a new item at 900.00 EUR.
 is cancelled under both readings. -/
 @[case, checks "ONE-204.3"]
 def changeReplacingAll : Except ChangeRejection ChangedOrder :=
-  (changeItem (tripOrder .readyToProceed) (tripChange "ORDITM-2" [])).map ChangedOrder.of
+  (changeItem Delivery.strictMoves (tripOrder .readyToProceed) (tripChange "ORDITM-2" [])).map ChangedOrder.of
 
 #guard changeReplacingAll == .ok
   { items :=
@@ -395,9 +396,92 @@ of the item being changed.
 *Then* the change is refused, so the order's item references stay distinct. -/
 @[case, checks "ONE-204.4"]
 def changeReusingReference : Except ChangeRejection ChangedOrder :=
-  (changeItem (tripOrder .readyToProceed) (tripChange "ORDITM-1" ["SVC-OUT"])).map ChangedOrder.of
+  (changeItem Delivery.strictMoves (tripOrder .readyToProceed) (tripChange "ORDITM-1" ["SVC-OUT"])).map ChangedOrder.of
 
 #guard changeReusingReference == .error .duplicateItemReference
+
+/-- The trip order with its outbound flight already flown and its inbound
+flight ready to proceed. -/
+def flownOutboundOrder : Order :=
+  { tripOrder .readyToProceed with
+    items := (tripOrder .readyToProceed).items.map fun i =>
+      { i with services := i.services.map fun s =>
+          if s.id = "SVC-OUT" then { s with delivery := .delivered } else s } }
+
+/-- *Given* the trip order with its outbound flight already flown, so
+DELIVERED, and its inbound flight ready to proceed.
+
+*When* the seller accepts and pays a change that keeps no service and puts a
+new inbound flight in a new item at 900.00 EUR.
+
+*Then* the inbound service is cancelled and removed.  The outbound service
+stays DELIVERED, because the delivery status table lets no event move a
+delivered service. -/
+@[case, checks "ONE-204.3 ONE-105.2"]
+def changeAfterOutboundFlown : Except ChangeRejection ChangedOrder :=
+  (changeItem Delivery.strictMoves flownOutboundOrder (tripChange "ORDITM-2" [])).map ChangedOrder.of
+
+#guard changeAfterOutboundFlown == .ok
+  { items :=
+      [ { item := "ORDITM-1", price := euros 1000, cautious := [.closed], strict := [.closed] },
+        { item := "ORDITM-2", price := euros 900, cautious := [.active], strict := [.active] } ],
+    services :=
+      [ { item := "ORDITM-1", service := "SVC-OUT", status := .confirmed, delivery := .delivered },
+        { item := "ORDITM-1", service := "SVC-IN", status := .cancelled, delivery := .removed },
+        { item := "ORDITM-2", service := "SVC-IN-2", status := .confirmed,
+          delivery := .readyToProceed } ] }
+
+/-! ## Cancelling after a change, and cancelling a requested service -/
+
+/-- The trip order at 1,000.00 EUR with its outbound flight confirmed and its
+inbound flight still requested from the airline. -/
+def requestedTripOrder : Order :=
+  { tripOrder .confirmed with
+    items := (tripOrder .confirmed).items.map fun i =>
+      { i with services := i.services.map fun s =>
+          if s.id = "SVC-IN" then { s with status := .requested, delivery := .requested } else s } }
+
+/-- *Given* the trip order at 1,000.00 EUR with no payment received, its
+outbound flight confirmed and its inbound flight still REQUESTED from the
+airline.
+
+*When* the seller asks to cancel it.
+
+*Then* it is cancelled at once.  The outbound service is cancelled and
+removed.  The inbound service stays REQUESTED, because the delivery status
+table has no move out of REQUESTED but the airline's confirmation, so the item
+is not cancelled. -/
+@[case, checks "ONE-203.1 ONE-203.2"]
+def unpaidCancellationWhileRequested : Option ChangedOrder :=
+  match requestCancellation Delivery.strictMoves .collect requestedTripOrder [] freeCancellation with
+  | .cancelled o => some (.of o)
+  | _ => none
+
+#guard unpaidCancellationWhileRequested == some
+  { items := [ { item := "ORDITM-1", price := euros 1000, cautious := [.active], strict := [] } ],
+    services :=
+      [ { item := "ORDITM-1", service := "SVC-OUT", status := .cancelled, delivery := .removed },
+        { item := "ORDITM-1", service := "SVC-IN", status := .requested, delivery := .requested } ] }
+
+/-- *Given* the trip order, paid 1,000.00 EUR and ready to proceed, after a paid
+change that keeps the outbound flight and puts a new inbound flight in a new
+item at 900.00 EUR.
+
+*When* the seller asks to cancel the order, with no penalty and nothing
+forfeited.
+
+*Then* the offer is priced from the new item alone, the only item that still
+holds a live service, and has 900.00 EUR due by the airline.  The original
+item, whose services are transferred or cancelled, adds nothing. -/
+@[case, checks "ONE-203.5"]
+def cancelAfterChange : CancelSummary :=
+  match changeItem Delivery.strictMoves (tripOrder .readyToProceed) (tripChange "ORDITM-2" ["SVC-OUT"]) with
+  | .ok o => .of o [tripPayment (euros 1000)] freeCancellation
+  | .error _ => .of (tripOrder .readyToProceed) [] freeCancellation
+
+#guard cancelAfterChange ==
+  { received := euros 1000, route := .throughOffer, dueByAirline := euros 900,
+    orderStatus := { cautious := [.opened], strict := [.opened] } }
 
 /-! ## Order balance -/
 
@@ -435,7 +519,7 @@ def balanceAfter (stage : String) (kept : List String) : Option BalanceRow :=
   let q : ChangeQuote :=
     { oldPrice := euros 1000, newPrice := euros 900, penalty := euros 40, forfeited := euros 120,
       handling := .netted, settlement := .refund }
-  match changeItem (tripOrder .readyToProceed) (tripChange "ORDITM-2" kept), priceDifferential .collect q with
+  match changeItem Delivery.strictMoves (tripOrder .readyToProceed) (tripChange "ORDITM-2" kept), priceDifferential .collect q with
   | .ok o', .ok d => some (.of stage o' (settle l d))
   | _, _ => none
 

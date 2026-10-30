@@ -313,7 +313,7 @@
 
 \begin{theorem}[Waived fees leave no penalty]
   \label{thm:airline-change-decline-waived}
-  \lean{Rules.OneOrder.AirlineChange.decline_waived_no_penalty}
+  \lean{Rules.OneOrder.AirlineChange.decline_cancel_no_penalty_of_waived, Rules.OneOrder.AirlineChange.decline_reshop_no_fee_of_waived}
   \uses{def:airline-change-decline}
   Under the reading that waives the airline's fees on involuntary changes,
   declining an involuntary change carries no penalty, through Cancel or
@@ -395,8 +395,8 @@
 
 \begin{definition}[Cancelling a flight without re-accommodation]
   \label{def:airline-change-cancel-flight}
-  \lean{Rules.OneOrder.AirlineChange.cancelFlight, Rules.OneOrder.AirlineChange.FlightRefund, Rules.OneOrder.AirlineChange.FlightCancellation, Rules.OneOrder.AirlineChange.cancelOnFlight, Rules.OneOrder.AirlineChange.isLive, Rules.OneOrder.AirlineChange.flies}
-  \uses{def:c06-item-status, def:c08-delivery-status, def:delivery-final-statuses, def:refund}
+  \lean{Rules.OneOrder.AirlineChange.cancelFlight, Rules.OneOrder.AirlineChange.FlightRefund, Rules.OneOrder.AirlineChange.FlightCancellation, Rules.OneOrder.AirlineChange.cancelOnFlight, Rules.OneOrder.AirlineChange.flies}
+  \uses{def:delivery-end-from-area, def:c06-item-status, def:c08-delivery-status, def:delivery-final-statuses, def:refund}
   When the airline cancels a flight and does not move the customer to
   another one, every live service on that flight, in every order item,
   becomes \texttt{CANCELLED} with delivery status \texttt{UNABLE TO

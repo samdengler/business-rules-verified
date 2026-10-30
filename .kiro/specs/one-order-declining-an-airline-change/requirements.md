@@ -25,14 +25,12 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Airline
 #### Acceptance Criteria
 
 1. WHEN a customer declines an airline change through Cancel or Auto-cancellation THE SYSTEM SHALL price a cancellation of the affected order items with a new price of zero.
-   - ONE-703.1, proven: proven theorem `decline_cancel_prices`; example `autoCancellation`; example `declineByCancel`
+   - ONE-703.1, proven: proven theorem `decline_cancel_prices`; example `autoCancellation`; example `carrierChangeDeclined`; example `declineByCancel`
 2. WHEN a customer declines an airline change through Reshop THE SYSTEM SHALL price a change from the affected order items to the new items at their price.
    - ONE-703.2, proven: proven theorem `decline_reshop_prices`; example `declineByReshop`
-3. WHERE the airline waives its fees on involuntary changes THE SYSTEM SHALL charge no penalty when a customer declines an involuntary change.
-   - ONE-703.3, proven: proven theorem `decline_waived_no_penalty`; example `carrierChangeDeclined`; example `declineByCancel`; example `declineByReshop`
-4. IF a customer declines an involuntary change through Cancel or Auto-cancellation THEN THE SYSTEM SHALL charge no cancellation penalty.
+3. IF a customer declines an involuntary change through Cancel or Auto-cancellation THEN THE SYSTEM SHALL charge no cancellation penalty.
    - ONE-703.4, open: open theorem `decline_cancel_no_penalty`; counterexample `autoCancellation`; counterexample `declineByCancel`
-5. IF a customer declines an involuntary change through Reshop THEN THE SYSTEM SHALL charge no change fee.
+4. IF a customer declines an involuntary change through Reshop THEN THE SYSTEM SHALL charge no change fee.
    - ONE-703.5, open: open theorem `decline_reshop_no_fee`; counterexample `declineByReshop`
 
 #### Open question on ONE-703.4

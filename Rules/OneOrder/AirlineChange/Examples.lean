@@ -248,7 +248,7 @@ the fees.
 *Then* where the airline's fees apply, the customer pays 50 EUR for leaving a
 change the airline made and gets 950 EUR back.  Where they are waived, the
 customer gets the full 1,000 EUR back. -/
-@[case, checks "ONE-703.1 ONE-703.3 ONE-703.4"]
+@[case, checks "ONE-703.1 ONE-703.4"]
 def declineByCancel : List DeclineCase :=
   [ DeclineCase.of "the airline's fees apply" .airlineTerms narrowInvoluntary itineraryNotice .cancel,
     DeclineCase.of "the fees are waived" .waived narrowInvoluntary itineraryNotice .cancel ].filterMap id
@@ -266,7 +266,7 @@ the 40 EUR change fee of the itinerary change worked example.
 *Then* where the airline's fees apply, the customer pays the 40 EUR change fee
 to move away from flights the airline chose.  Where they are waived, the
 exchange is even. -/
-@[case, checks "ONE-703.2 ONE-703.3 ONE-703.5"]
+@[case, checks "ONE-703.2 ONE-703.5"]
 def declineByReshop : List DeclineCase :=
   [ DeclineCase.of "the airline's fees apply" .airlineTerms narrowInvoluntary itineraryNotice (.reshop (euros 1000)),
     DeclineCase.of "the fees are waived" .waived narrowInvoluntary itineraryNotice (.reshop (euros 1000)) ].filterMap id
@@ -338,7 +338,7 @@ which changes are involuntary.
 change of carrier is voluntary and the customer pays the 50 EUR cancellation
 fee.  Where every change but the customer's own counts, the customer pays
 nothing. -/
-@[case, checks "ONE-703.3"]
+@[case, checks "ONE-703.1"]
 def carrierChangeDeclined : List ReasonCase :=
   [ ReasonCase.of "only cancelled and moved flights" narrowInvoluntary,
     ReasonCase.of "every change but the customer's own" broadInvoluntary ].filterMap id
@@ -380,7 +380,7 @@ def shareByFlight : FlightRefund where
 refunded. -/
 def cancelFlights (r : FlightRefund) (segs : List String) (o : Order) : Order × Nat :=
   segs.foldl (fun acc seg =>
-    let fc := cancelFlight r seg acc.1
+    let fc := cancelFlight Delivery.strictMoves r seg acc.1
     (fc.order, acc.2 + (fc.refunds.map (·.2.amount)).sum)) (o, 0)
 
 /-- One service of an order item: its reference, flight and statuses. -/
@@ -416,15 +416,18 @@ structure FlightCancelled where
   refundByFlight : Money
   deriving DecidableEq, Repr
 
-/-- Cancel flights of the paid trip in turn and summarise its order item. -/
-def FlightCancelled.of (segs : List String) : FlightCancelled :=
-  let shown := cancelFlights noFlightRefund segs paidTrip
-  let byFlight := cancelFlights shareByFlight segs paidTrip
+/-- Cancel flights of an order in turn and summarise its first order item. -/
+def FlightCancelled.ofOrder (o : Order) (segs : List String) : FlightCancelled :=
+  let shown := cancelFlights noFlightRefund segs o
+  let byFlight := cancelFlights shareByFlight segs o
   let i := shown.1.items.headD default
   { item := i.id, price := i.price,
     services := i.services.map fun s => ⟨s.id, s.segment, s.status, s.delivery⟩,
     cautious := itemStatuses cautiousReading i, strict := itemStatuses strictReading i,
     refundAsShown := ⟨shown.2, .EUR⟩, refundByFlight := ⟨byFlight.2, .EUR⟩ }
+
+/-- Cancel flights of the paid trip in turn and summarise its order item. -/
+def FlightCancelled.of (segs : List String) : FlightCancelled := .ofOrder paidTrip segs
 
 /-- *Given* a paid return trip at 1,000.00 EUR in one order item: the outbound
 flight, the inbound flight and a bag on the inbound flight.
@@ -470,6 +473,35 @@ def cancelBothFlights : FlightCancelled := .of ["SEG-IN", "SEG-OUT"]
     cautious := [.active], strict := [.cancelled], refundAsShown := euros 0,
     refundByFlight := euros 1000 }
 
+/-- The paid return trip with its bag on the inbound flight still requested
+from the airline, which has not yet confirmed it. -/
+def requestedBagTrip : Order :=
+  { paidTrip with
+    items := paidTrip.items.map fun i =>
+      { i with services := i.services.map fun s =>
+          if s.id = "BAG-IN" then { s with status := .requested, delivery := .requested } else s } }
+
+/-- *Given* the paid return trip at 1,000.00 EUR, with its bag on the inbound
+flight still REQUESTED from the airline.
+
+*When* the airline cancels the inbound flight and does not move the customer
+to another one.
+
+*Then* the inbound flight is CANCELLED with delivery status UNABLE TO
+DELIVER.  The bag stays REQUESTED, and live, on a flight that will not
+operate, because the delivery status table has no move from REQUESTED to
+UNABLE TO DELIVER. -/
+@[case, checks "ONE-704.1 ONE-704.6 ONE-105.2"]
+def cancelFlightWhileRequested : FlightCancelled := .ofOrder requestedBagTrip ["SEG-IN"]
+
+#guard cancelFlightWhileRequested ==
+  { item := "ORDITM-1", price := euros 1000,
+    services := [⟨"SVC-OUT", "SEG-OUT", .confirmed, .readyToProceed⟩,
+                 ⟨"SVC-IN", "SEG-IN", .cancelled, .unableToDeliver⟩,
+                 ⟨"BAG-IN", "SEG-IN", .requested, .requested⟩],
+    cautious := [.active], strict := [.active], refundAsShown := euros 0,
+    refundByFlight := euros 500 }
+
 /-! ## Re-accommodation before the seller answers -/
 
 /-- A paid return trip for one passenger at 1,000.00 EUR in one order item, at
@@ -508,7 +540,7 @@ structure Reaccommodated where
 /-- Notify the re-accommodation of the paid trip under a reading and summarise
 the order, or nothing if the change is rejected. -/
 def Reaccommodated.of (label : String) (a : ApplyAt) : Option Reaccommodated :=
-  match notifyChange a paidReturn moveBothFlights with
+  match notifyChange Delivery.strictMoves a paidReturn moveBothFlights with
   | .ok vo =>
     let items (id : String) := vo.order.items.filter (·.id = id)
     let news := (items "ORDITM-2").flatMap (·.services)
