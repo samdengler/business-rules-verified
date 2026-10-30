@@ -33,6 +33,10 @@ If we cancel a flight and do not move you to another one, everything you booked 
 
 We have not yet decided how much of your fare comes back when we cancel a flight and cannot move you. If this happens to you, contact us and we will quote your refund directly.
 
+### Extras not yet confirmed when we cancel a flight {open: ONE-704.6}
+
+Some extras on a flight are still being arranged when we cancel it, such as a request we have not confirmed yet, and some are already under way. We have not yet decided how those end. If you have one, contact us and we will cancel it with you.
+
 ### Fees when you decline our change {open: ONE-703.4, ONE-703.5}
 
 We have not yet decided whether our cancellation and change fees apply when you turn down a change we made. If this is your case, contact us before you choose and we will tell you what it costs.
