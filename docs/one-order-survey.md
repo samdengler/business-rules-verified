@@ -35,7 +35,7 @@ Vague and silent candidates are the most useful. Writing them in Lean forces a d
 | ORDSTS | [Airline Retailing Maturity Index: Order Status Change for Service Delivery](https://retailing.iata.org/armi/docs/ORDSTS/) |
 | R797 | [IATA Resolution 797, ONE Order](https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf) |
 
-Several pages were long enough that the first read was cut short. Each source is read again in full before its blueprint node is written.
+Each page was read in full through the guide's public page API before the blueprint nodes were written.
 
 ## Candidates
 
@@ -43,12 +43,12 @@ Several pages were long enough that the first read was cut short. Each source is
 
 | ID | Rule, in our words | Kind | Standard | What the Lean would show | Source |
 | --- | --- | --- | --- | --- | --- |
-| C-01 | An order has at least one order item, each order item has at least one service, and each service is for one passenger on one flight segment. | Invariant | Clear | Adds the service level the current model lacks, and `accept` has to build it. | Order |
+| C-01 | An order has at least one order item, each order item has at least one service, and each service is for one passenger on one flight segment. | Invariant | Clear | Adds the service level the current model lacks, and `accept` has to build it. Each service carries two statuses: a service status such as `CONFIRMED` or `TRANSFERRED`, and a delivery status such as `READY TO PROCEED`. | Order |
 | C-02 | Accepting an offer turns each offer item into exactly one order item. | Invariant | Clear | A theorem about `accept`, extending OO-001. | Order |
 | C-03 | Order item IDs are unique within an order. | Invariant | Clear | That accepting and every later change keep the IDs unique. | Order |
 | C-04 | The price is held on the order item, and an order item cannot be split. | Invariant | Clear | That no operation changes part of an item, so a change always replaces whole items. | Order |
 | C-05 | Each delivery status either holds value or does not. | Decision | Silent | The source settles this only for `REMOVED HOLD VALUE` (holds value) and `REMOVED` (does not). The order and item statuses below depend on the rest. | Order |
-| C-06 | An order item is `ACTIVE`, `CANCELLED` or `CLOSED`, depending on its services. | Decision | Vague | Whether the three conditions cover every combination of services and never overlap. | Order |
+| C-06 | An order item is `ACTIVE`, `CANCELLED` or `CLOSED`, depending on its services. | Decision | Vague | Whether the three conditions cover every combination of services and never overlap. They appear to overlap: a delivered service that is later transferred to a new item leaves its original item meeting the conditions for both `CANCELLED` and `CLOSED`. | Order |
 | C-07 | An order is `OPENED` or `CLOSED`, depending on its items and services, and `CLOSED` is final. | Decision, invariant | Vague | Whether every order is one or the other. An order with a service in `EXPIRED` or `UNABLE TO DELIVER` looks like neither. Also that nothing reopens a closed order. | Order |
 
 ### Service delivery and payment
@@ -87,6 +87,7 @@ Several pages were long enough that the first read was cut short. Each source is
 These candidates are likely to end as open theorems or `\notready` nodes:
 
 * C-05: which delivery statuses hold value.
+* C-06: which status an item has when a delivered service is transferred out of it.
 * C-07: whether every order is `OPENED` or `CLOSED`.
 * C-10: whether `IN PROGRESS` blocks refunds.
 * C-11: what happens to a service when the payment time limit passes.

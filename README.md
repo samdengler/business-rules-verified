@@ -24,7 +24,7 @@ with a link to the source page; IATA owns the standard and its documentation.
 | --- | --- |
 | Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/business-rules-verified/), chapters Overview, Rules and Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
-| See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) (green is proven or defined; no fill is open) |
+| See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/business-rules-verified/blueprint/dep_graph_document.html) (green is proven or defined; no fill is open; an orange border is a candidate rule that needs a business decision before it can be written in Lean) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
 | Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) and [`impl/rust`](impl/rust/) |
 | Review or change the model | [`Rules/OfferOrder/`](Rules/OfferOrder/), then the rest of this README |
@@ -245,6 +245,14 @@ states it clearly, vaguely, or not at all; the vague and silent ones are where
 formalizing is expected to raise questions for the business. The guide's
 notice does not permit reproducing its text, so the survey quotes nothing and
 links to each page.
+
+The candidates are also nodes in the second chapter of the
+[blueprint](https://samdengler.github.io/business-rules-verified/blueprint/),
+so they appear on the dependency graph before any of them is written in Lean.
+The 12 vague or silent ones are marked not ready and have an orange border; the
+open point in each says what the business has to decide. The git tag
+`one-order-candidates` marks the commit that added them, so the graph at that
+tag can be compared with the graph after the rules are formalized.
 
 The rules, user stories and acceptance criteria are drafts. The Offer and
 Order team has not reviewed them yet.
