@@ -6,7 +6,7 @@
 
 The decision that turns an offer into an order, or rejects it with a reason.
 
-These requirements are generated from the Lean model in [`Rules/OfferOrder/Accept.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OfferOrder/Accept.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OfferOrder/Accept.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OfferOrder/Accept.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

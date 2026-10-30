@@ -11,7 +11,7 @@ takes the answer as a parameter, a reading of the sources.  An order item's
 conditions may forbid cancelling it, as the extra bag of the add bag worked
 example does.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Ancillaries/Cancel.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Ancillaries/Cancel.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Ancillaries/Cancel.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Ancillaries/Cancel.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

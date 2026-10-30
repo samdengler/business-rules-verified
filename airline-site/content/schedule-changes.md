@@ -1,7 +1,7 @@
 title: When we change your flight
 kind: policy
-lede: Your options when Parliament Air changes or cancels a flight you booked, and what happens if you do not answer.
-summary: Your options when Parliament Air changes or cancels a flight you booked.
+lede: Your options when Verified Airline changes or cancels a flight you booked, and what happens if you do not answer.
+summary: Your options when Verified Airline changes or cancels a flight you booked.
 questions: What are my options after a schedule change? | Does saying no to a change cost me anything? | Do I get money back if you cancel my flight?
 requirements: ONE-701, ONE-702, ONE-703, ONE-704, ONE-705
 related: changes, refunds, extras

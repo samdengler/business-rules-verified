@@ -8,7 +8,7 @@ Order items hold services and carry the price; an order holds order items.
 The statuses of items and orders follow from their services, as the ONE Order
 implementation guide defines them.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Order.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Order.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Order.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Order.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

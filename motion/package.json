@@ -1,7 +1,7 @@
 {
   "name": "airline-order-motion",
   "private": true,
-  "description": "The motion piece about how the Airline Order model grew, rendered with Remotion from history/.",
+  "description": "The motion piece about how the Verified Air model grew, rendered with Remotion from history/.",
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts History out/history.mp4",

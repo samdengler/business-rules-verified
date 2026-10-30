@@ -11,5 +11,5 @@ Cancellations | If I cancel, how much do I get back? | @changes#cancel
 Paying | How long do I have to pay for a booking? | @paying#deadline
 Fares | How long is a price I was quoted good for? | @fares#quote
 Bags and seats | What happens to my bag and seat if my flight changes? | @extras#flight-changes
-Schedule changes | What are my options if Parliament Air changes my flight? | @schedule-changes#options
+Schedule changes | What are my options if Verified Airline changes my flight? | @schedule-changes#options
 ```

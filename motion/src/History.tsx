@@ -283,7 +283,7 @@ function Kicker({ beat, f, th }: { beat: Beat; f: number; th: Theme }) {
   return (
     <div style={{ position: "absolute", left: 56, top: 24, height: 30, display: "flex", alignItems: "center", gap: 14, fontSize: 20 }}>
       <Plane color={th.ink} size={24} />
-      <span style={{ fontWeight: 650, color: th.ink }}>Airline Order</span>
+      <span style={{ fontWeight: 650, color: th.ink }}>Verified Air</span>
       <span style={{ width: 1, height: 22, background: th.hair, margin: "0 6px" }} />
       <span style={{ opacity: op, display: "flex", gap: 12 }}>
         <span style={{ color: th.ink2, fontVariantNumeric: "tabular-nums" }}>

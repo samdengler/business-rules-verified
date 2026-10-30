@@ -13,7 +13,7 @@ them as parameters: whether a guarantee still holds at the instant it ends,
 what happens when an offer is accepted after a price guarantee has lapsed, and
 which form of payment time limit applies when an offer item states two.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Offers/TimeLimits.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Offers/TimeLimits.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Offers/TimeLimits.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Offers/TimeLimits.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

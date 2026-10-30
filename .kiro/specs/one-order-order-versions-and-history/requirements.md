@@ -10,7 +10,7 @@ followed by the change groups, from which a seller can rebuild each version.
 A seller may send the version it saw with a change, so the airline can tell
 whether the change was made on data that still holds.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Creation/Version.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Creation/Version.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Creation/Version.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Creation/Version.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

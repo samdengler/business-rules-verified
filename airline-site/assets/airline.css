@@ -1,4 +1,4 @@
-/* Parliament Air's policy pages (scripts/render_airline.py).  The layout
+/* Verified Airline's policy pages (scripts/render_airline.py).  The layout
    follows the design canvas: a 1120 px column, a light band under the header,
    and an "On this page" list beside the content that stacks above it on a
    phone.  Parts marked data-lean show only with the Lean model on. */
@@ -41,8 +41,7 @@ html:not(.lean-on) [data-lean] { display: none !important; }
 header.site { border-bottom: 1px solid var(--line); }
 header.site .wrap { min-height: 72px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--indigo); padding: 8px 0; }
-.monogram { width: 32px; height: 32px; flex: none; border-radius: 999px; background: var(--indigo); color: #FFFFFF;
-  display: inline-flex; align-items: center; justify-content: center; font: 20px/1 var(--serif); }
+.brand .mark { width: 30px; height: 30px; flex: none; }
 .wordmark { font: 24px/1 var(--serif); letter-spacing: 0.005em; white-space: nowrap; }
 header.site nav { display: flex; flex-wrap: wrap; gap: 4px; }
 header.site nav a { padding: 12px 14px; text-decoration: none; font-weight: 500; color: var(--ink); border-bottom: 2px solid transparent; }

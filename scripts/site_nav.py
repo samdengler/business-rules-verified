@@ -16,8 +16,8 @@ import re
 import sys
 from pathlib import Path
 
-REPO = "https://github.com/samdengler/airline-order-verified"
-SITE_NAME = "Airline Order"
+REPO = "https://github.com/samdengler/verified-air"
+SITE_NAME = "Verified Air"
 
 # The site's mark: a plane taking off, in the text color so it follows the
 # theme.  Review/review.js repeats the path for the review document's bar.
@@ -35,7 +35,7 @@ FAVICON = ('<link rel="icon" href="data:image/svg+xml,'
 # Each link's path from the site root.  Explore is the dependency graph's
 # page, with the area map, the matrix, every card, the history and a card's
 # neighbourhood as views; it stays at graph/ so older links keep working.  The
-# airline demo is Parliament Air's policy pages (scripts/render_airline.py),
+# airline demo is Verified Airline's policy pages (scripts/render_airline.py),
 # which have their own header.
 LINKS = [
     ("Progress", "progress/"),

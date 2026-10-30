@@ -13,7 +13,7 @@ reads the formula from the worked examples, states only the two non-negative
 due amounts (the guide's sign for the total is inconsistent), and takes the
 case the guide has no example of as a parameter.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Change/Differential.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Change/Differential.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Change/Differential.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Change/Differential.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

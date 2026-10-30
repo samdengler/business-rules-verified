@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ["./", "Review document", true],
     ["../graph/", "Explore"],
     ["../airline/", "Airline demo"],
-    ["https://github.com/samdengler/airline-order-verified", "GitHub"],
+    ["https://github.com/samdengler/verified-air", "GitHub"],
   ];
   for (const [href, text, current] of links) {
     const a = document.createElement("a");
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   brand.className = "brand";
   brand.href = "../";
   brand.innerHTML = '<svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path transform="rotate(-30 12 12)" '
-    + 'fill="currentColor" d="M21.6 12c0-.85-.7-1.45-1.55-1.45H14.3L9.4 3.2H7.6l2.35 7.35H5.5L3.75 8.1H2.4l1.05 3.9-1.05 3.9h1.35l1.75-2.45h4.45L7.6 20.8h1.8l4.9-7.35h5.75c.85 0 1.55-.6 1.55-1.45z"/></svg>Airline Order';
+    + 'fill="currentColor" d="M21.6 12c0-.85-.7-1.45-1.55-1.45H14.3L9.4 3.2H7.6l2.35 7.35H5.5L3.75 8.1H2.4l1.05 3.9-1.05 3.9h1.35l1.75-2.45h4.45L7.6 20.8h1.8l4.9-7.35h5.75c.85 0 1.55-.6 1.55-1.45z"/></svg>Verified Air';
   // The same plane as the browser tab's icon (FAVICON in scripts/site_nav.py).
   const icon = document.createElement("link");
   icon.rel = "icon";

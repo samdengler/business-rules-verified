@@ -10,7 +10,7 @@ say which effect applies.  The model takes the effect for each kind of service
 as a parameter, a reading of the sources: a dependent moves to the new flight,
 is cancelled with its value refunded or stored, or must be reshopped.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Ancillaries/Replace.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Ancillaries/Replace.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Ancillaries/Replace.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Ancillaries/Replace.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

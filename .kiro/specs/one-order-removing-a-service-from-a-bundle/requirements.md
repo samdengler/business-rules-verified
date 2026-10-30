@@ -11,7 +11,7 @@ item.  The guide prices a bundle only as a whole and does not say how much of
 the price belongs to one of its services.  The model takes the share as a
 parameter, a reading of the sources.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Ancillaries/Bundle.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Ancillaries/Bundle.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Ancillaries/Bundle.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Ancillaries/Bundle.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

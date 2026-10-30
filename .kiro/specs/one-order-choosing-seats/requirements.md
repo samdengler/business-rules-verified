@@ -11,7 +11,7 @@ that segment, as in the seat worked example.  The guide states no rule that a
 seat goes to one passenger only, or that a passenger holds one seat per
 segment; the model checks each choice against the seat map and nothing else.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Ancillaries/Seats.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Ancillaries/Seats.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Ancillaries/Seats.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Ancillaries/Seats.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

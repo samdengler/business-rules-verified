@@ -10,7 +10,7 @@ recognizes a repeated request.  The model recognizes one by the offers it
 names, and takes what the airline does with it as a parameter: a reading of
 the guide.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Creation/Repeat.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Creation/Repeat.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Creation/Repeat.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Creation/Repeat.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

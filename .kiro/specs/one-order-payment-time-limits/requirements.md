@@ -8,7 +8,7 @@ An order item waiting for payment carries a payment time limit.  When the
 limit passes and no successful payment covers the item, the item is removed
 and any payment still pending for it fails.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Payment/TimeLimit.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Payment/TimeLimit.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Payment/TimeLimit.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Payment/TimeLimit.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

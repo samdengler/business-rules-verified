@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 
 lake build
 lake exe status
-# Parliament Air's fares, evaluated by the model (Airline/); fails if two
+# Verified Airline's fares, evaluated by the model (Airline/); fails if two
 # readings of the guide disagree.
 lake build Airline airline-facts
 mkdir -p build/airline

@@ -10,7 +10,7 @@ each payment.  The sources state the commission rule and show net clearance
 amounts only in worked examples.  The model reads the formulas from those
 examples and takes what the sources leave open as parameters.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Accounting/Commission.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Accounting/Commission.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Accounting/Commission.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Accounting/Commission.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

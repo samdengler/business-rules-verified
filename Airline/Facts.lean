@@ -11,7 +11,7 @@ the rules directly would make the executable link Mathlib's native code.
 
     lake exe airline-facts > build/airline/facts.json
 
-Prints the facts the airline pages read: Parliament Air's fares evaluated
+Prints the facts the airline pages read: Verified Airline's fares evaluated
 with the model's functions.  Exits nonzero, printing nothing on standard
 output, if two readings of the guide give different answers for any fact.
 -/

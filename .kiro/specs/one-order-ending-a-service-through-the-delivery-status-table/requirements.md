@@ -10,7 +10,7 @@ item reaches its payment time limit.  Each of them moves a service's delivery
 status, and each does it here, through the delivery status table, so that a
 service moves only along a move the table allows, whichever area moves it.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Delivery/Services.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Delivery/Services.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Delivery/Services.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Delivery/Services.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

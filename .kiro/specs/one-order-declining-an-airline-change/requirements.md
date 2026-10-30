@@ -12,7 +12,7 @@ declines a change the airline imposed, and no source defines which changes
 the airline imposes.  The model takes both answers as parameters, readings of
 the sources.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/AirlineChange/Decline.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/AirlineChange/Decline.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/AirlineChange/Decline.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/AirlineChange/Decline.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

@@ -5,8 +5,8 @@
 #   scripts/preview.sh [port]
 #
 # Builds the model, the status, the review document, the blueprint web pages,
-# the progress page, the Explore page, the area pages, the tour, Parliament
-# Air's policy pages and the try-it panels' WebAssembly.  Skips the Java
+# the progress page, the Explore page, the area pages, the tour, Verified
+# Airline's policy pages and the try-it panels' WebAssembly.  Skips the Java
 # checks, the Rust proofs and the blueprint PDF, which CI runs; a PDF or
 # conformance vectors from an earlier full build are included if present.
 # Needs elan, Python 3.12 with leanblueprint, graphviz, and rustup for the

@@ -31,7 +31,7 @@ STATUS = ROOT / "build" / "status.json"
 BLUEPRINT = ROOT / "blueprint" / "src"
 GENERATED = ROOT / "Review" / "Review" / "Generated"
 SPECS = ROOT / ".kiro" / "specs"
-REPO = "https://github.com/samdengler/airline-order-verified/blob/main"
+REPO = "https://github.com/samdengler/verified-air/blob/main"
 
 # The pilot's open question is set out by hand in Review/Review/OpenQuestions.lean;
 # every other open guarantee gets a section in the generated questions chapter.
@@ -421,7 +421,7 @@ def state_diagram(rows):
 TRY_NOTE = (
     '<p class="try-note">The answer comes from the Rust function <code>{fn}</code>, compiled to WebAssembly '
     'and running in your browser. Lean proves that this function computes what the model computes, for every '
-    'input (<a href="https://github.com/samdengler/airline-order-verified/blob/main/Verify/RustRules.lean">'
+    'input (<a href="https://github.com/samdengler/verified-air/blob/main/Verify/RustRules.lean">'
     'Verify/RustRules.lean</a>). The few lines that pass your choices to it are not part of the proof.</p>'
 )
 STATE_OPTIONS = "".join(f'<option value="{i}">{s}</option>' for i, s in enumerate(["ready", "delivered", "cancelled", "refunded"]))
@@ -879,8 +879,8 @@ def render_specs_index(groups, decls):
         lines.append(f"| {c['id']} | {kiro_ears(c['ears'])} | {CRITERION_TEXT[c['status']]} | {checked_by_text(c, decls)} |")
     lines += [
         "",
-        "The same rows are in [`ears-criteria.csv`](https://samdengler.github.io/airline-order-verified/ears-criteria.csv), "
-        "and one row per rule is in [`ears.csv`](https://samdengler.github.io/airline-order-verified/ears.csv).",
+        "The same rows are in [`ears-criteria.csv`](https://samdengler.github.io/verified-air/ears-criteria.csv), "
+        "and one row per rule is in [`ears.csv`](https://samdengler.github.io/verified-air/ears.csv).",
         "",
     ]
     (SPECS / "README.md").write_text("\n".join(lines))

@@ -8,7 +8,7 @@ A payment's status follows from the transactions of its payment methods, and
 an order item counts as paid once a successful payment covers it.  The airline
 records each method's outcome as it learns it.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Payment/Status.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Payment/Status.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Payment/Status.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Payment/Status.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

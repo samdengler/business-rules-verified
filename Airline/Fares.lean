@@ -1,9 +1,9 @@
 import Rules.OneOrder.Offers.Restrictions
 
 /-!
-# Parliament Air's fares
+# Verified Airline's fares
 
-Parliament Air is a fictional airline, the subject of the policy pages under
+Verified Airline is a fictional airline, the subject of the policy pages under
 {lit}`/airline/`.  Its three fares, Basic, Main and Flex, are written here as
 change and cancel rules of the model, one for each action and each stage of a
 journey after payment.  The fare table and the worked examples on the pages are
@@ -27,7 +27,7 @@ open Rules.Core Rules.OneOrder.Offers
 /-- An amount in whole US dollars. -/
 def usd (n : Nat) : Money := ⟨n * 100, .USD⟩
 
-/-- The instant Parliament Air's fare terms start: midnight UTC on
+/-- The instant Verified Airline's fare terms start: midnight UTC on
 1 January 2026. -/
 def termsStart : Instant := ⟨1767225600⟩
 
@@ -35,7 +35,7 @@ def termsStart : Instant := ⟨1767225600⟩
 1 January as day 1. -/
 def day (d h : Nat) : Instant := ⟨termsStart.epochSeconds + (d - 1) * 86400 + h * 3600⟩
 
-/-- A rule of a Parliament Air fare.  Every rule starts when the terms start,
+/-- A rule of a Verified Airline fare.  Every rule starts when the terms start,
 has no expiration date and no approximate fee, and sends a refund to the
 original form of payment. -/
 def term (id : String) (action : Action) (stage : Stage) (allowed : Bool)
@@ -43,7 +43,7 @@ def term (id : String) (action : Action) (stage : Stage) (allowed : Bool)
   { id, action, stage, effective := termsStart, expires := none, allowed, fee,
     feeApproximate := false, refund, toOriginalForm := true }
 
-/-- A Parliament Air fare. -/
+/-- A Verified Airline fare. -/
 structure Fare where
   /-- The fare's key in the facts the pages read. -/
   key : String

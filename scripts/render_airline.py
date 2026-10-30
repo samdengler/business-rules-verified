@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Render Parliament Air's policy pages, build/airline/, served at /airline/.
+"""Render Verified Airline's policy pages, build/airline/, served at /airline/.
 
-Parliament Air is a fictional airline.  Its pages answer a traveler's
+Verified Airline is a fictional airline.  Its pages answer a traveler's
 questions about fares, payment, changes, refunds, extras and schedule changes,
 in wording kept in airline-site/content/, one file per page.  Each section
 names the requirements it rests on, and each "still being decided" item names
@@ -44,6 +44,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from render_status import PILOT, kiro_ears, plain, section_tag  # noqa: E402
+from site_nav import PLANE_PATH, PLANE_SVG  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "airline-site"
@@ -54,20 +55,19 @@ FACTS = OUT / "facts.json"
 STATUS = ROOT / "build" / "status.json"
 XREF = ROOT / "build" / "review" / "html-multi" / "xref.json"
 
-AIRLINE = "Parliament Air"
-FOOTER = ("Parliament Air is a fictional airline. Fares and fees are invented and computed from the Lean model. "
+AIRLINE = "Verified Airline"
+FOOTER = ("Verified Airline is a fictional airline. Fares and fees are invented and computed from the Lean model. "
           "Not affiliated with IATA.")
-STORAGE_KEY = "parliament-air-lean"
+STORAGE_KEY = "verified-airline-lean"
 FONTS = ("https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700"
          "&family=JetBrains+Mono:wght@400;500;700&display=swap")
 
-# Logo option D: a serif P in a night indigo circle.  The favicon is the same
-# mark; the browser draws its letter in a system serif.
+# The mark is the site's plane (PLANE_SVG in scripts/site_nav.py) in the
+# airline's night indigo, and the favicon is the same plane.
 FAVICON = ('<link rel="icon" href="data:image/svg+xml,'
-           + "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
-           + "%3Ccircle cx='16' cy='16' r='16' fill='%232B3A67'/%3E"
-           + "%3Ctext x='16' y='23' text-anchor='middle' font-family='Georgia,serif' font-size='21' fill='white'%3EP%3C/text%3E"
-           + '%3C/svg%3E">')
+           + "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E"
+           + f"%3Cpath transform='rotate(-30 12 12)' fill='%232B3A67' d='{PLANE_PATH}'/%3E%3C/svg%3E"
+           + '">')
 
 # The words a traveler never reads, and requirement IDs.  Both may appear only
 # in the parts of a page shown with the Lean model.
@@ -582,14 +582,14 @@ class Renderer:
         nav = "".join(f'<a href="{self.href(here, "index")}">{n}</a>' for n in ("Book", "My trips", "Check in"))
         nav += f'<a href="{self.href(here, "policies")}"{cur}>Travel policies</a>'
         return (f'<header class="site"><div class="wrap">'
-                f'<a class="brand" href="{self.href(here, "index")}"><span class="monogram" aria-hidden="true">P</span>'
+                f'<a class="brand" href="{self.href(here, "index")}">{PLANE_SVG}'
                 f'<span class="wordmark">{AIRLINE}</span></a>'
                 f'<nav aria-label="Main">{nav}</nav></div></header>')
 
     def footer(self, here):
         return (f'<footer class="site"><div class="wrap"><p>{esc(FOOTER)}</p>'
                 f'<nav aria-label="Footer"><a href="{self.href(here, "policies")}">Travel policies</a>'
-                f'<a href="{self.site_root(here)}">The Airline Order model</a></nav></div></footer>')
+                f'<a href="{self.site_root(here)}">The Verified Air model</a></nav></div></footer>')
 
     def toggle(self):
         return ('<button type="button" class="lean-toggle" aria-pressed="false">'
@@ -601,7 +601,7 @@ class Renderer:
                 f'Blue means every criterion is proven; amber means at least one is still open. '
                 f'Every amount on these pages comes from <a href="{self.href(here, "index")}facts.json">facts.json</a>, '
                 f'which <code>lake exe airline-facts</code> computes from the fares in '
-                f'<a href="https://github.com/samdengler/airline-order-verified/blob/main/Airline/Fares.lean">'
+                f'<a href="https://github.com/samdengler/verified-air/blob/main/Airline/Fares.lean">'
                 f'Airline/Fares.lean</a>.</p></div></div>')
 
     def page(self, here, title, body, band):

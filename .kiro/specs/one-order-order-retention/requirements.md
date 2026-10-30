@@ -10,7 +10,7 @@ open, and for 7 days once every item has reached a final status.  It does not
 say how 13 months is counted on UTC instants, so the model takes the count as
 a parameter.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Creation/Retention.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Creation/Retention.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Creation/Retention.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Creation/Retention.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

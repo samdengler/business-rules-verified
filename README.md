@@ -1,4 +1,4 @@
-# airline-order-verified
+# verified-air
 
 Business rules for airline offers and orders, written as code that a computer
 checks, with the review documents and requirement specs generated from that
@@ -14,24 +14,24 @@ The rules, prices and data are simplified and invented. Where a rule is
 taken from IATA's public documentation, it is described in our own words
 with a link to the source page; IATA owns the standard and its documentation.
 
-- Home page, with the model's status and a guide to the site: <https://samdengler.github.io/airline-order-verified/>
-- Progress page, for business readers: <https://samdengler.github.io/airline-order-verified/progress/>
-- Review document: <https://samdengler.github.io/airline-order-verified/review/>
+- Home page, with the model's status and a guide to the site: <https://samdengler.github.io/verified-air/>
+- Progress page, for business readers: <https://samdengler.github.io/verified-air/progress/>
+- Review document: <https://samdengler.github.io/verified-air/review/>
 - Requirement specs, criteria in EARS, in Kiro's format: [`.kiro/specs/`](.kiro/specs/)
-- Explore page, with the dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>
-- A five-step tour for business readers: <https://samdengler.github.io/airline-order-verified/tour/>
-- Parliament Air, a fictional airline's policy pages written from the model: <https://samdengler.github.io/airline-order-verified/airline/>
+- Explore page, with the dependency graph: <https://samdengler.github.io/verified-air/graph/>
+- A five-step tour for business readers: <https://samdengler.github.io/verified-air/tour/>
+- Verified Airline, a fictional airline's policy pages written from the model: <https://samdengler.github.io/verified-air/airline/>
 
 ## Where to start
 
 | You want to | Read |
 | --- | --- |
-| See at a glance what is proven, what is open, and what needs a business decision | The [home page](https://samdengler.github.io/airline-order-verified/), then the [progress page](https://samdengler.github.io/airline-order-verified/progress/) for every card |
-| Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/airline-order-verified/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
+| See at a glance what is proven, what is open, and what needs a business decision | The [home page](https://samdengler.github.io/verified-air/), then the [progress page](https://samdengler.github.io/verified-air/progress/) for every card |
+| Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/verified-air/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
-| Get the model explained in five steps | The [tour](https://samdengler.github.io/airline-order-verified/tour/) |
-| See the rules as an airline's customer policies | The [Parliament Air pages](https://samdengler.github.io/airline-order-verified/airline/): fares, payment, changes, refunds, extras and schedule changes in a traveler's words. Show the Lean model to see the requirement behind each answer; [Parliament Air, the airline demo](#parliament-air-the-airline-demo) explains them |
-| See which rules rest on which definitions, and what is proven | The [Explore page](https://samdengler.github.io/airline-order-verified/graph/): a map of the areas, a matrix of the dependencies between them, every card, the history, and any card's neighbourhood. Each area has a summary page under `/area/`. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html) |
+| Get the model explained in five steps | The [tour](https://samdengler.github.io/verified-air/tour/) |
+| See the rules as an airline's customer policies | The [Verified Airline pages](https://samdengler.github.io/verified-air/airline/): fares, payment, changes, refunds, extras and schedule changes in a traveler's words. Show the Lean model to see the requirement behind each answer; [Verified Airline, the airline demo](#verified-airline-the-airline-demo) explains them |
+| See which rules rest on which definitions, and what is proven | The [Explore page](https://samdengler.github.io/verified-air/graph/): a map of the areas, a matrix of the dependencies between them, every card, the history, and any card's neighbourhood. Each area has a summary page under `/area/`. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/verified-air/blueprint/dep_graph_document.html) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
 | See how much of ONE Order the model covers | [`docs/one-order-coverage.md`](docs/one-order-coverage.md): IATA's 63 business capabilities, each marked in Lean, candidate or not started |
 | Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) and [`impl/rust`](impl/rust/) |
@@ -140,7 +140,7 @@ running and ask it about each generated input.
 
 The conformance vectors are the oracle's answers to a fixed list of requests,
 saved as a file:
-<https://samdengler.github.io/airline-order-verified/conformance-vectors.jsonl>.
+<https://samdengler.github.io/verified-air/conformance-vectors.jsonl>.
 Each line is one case: a name, a request to one of the rules, and the model's
 answer. For example, shortened:
 
@@ -240,10 +240,10 @@ lake build Verify             # the proofs
 includes Charon, into `.aeneas/`, and installs the nightly Rust toolchain
 Charon needs with rustup.
 
-## Parliament Air, the airline demo
+## Verified Airline, the airline demo
 
-Parliament Air is a fictional airline whose policy pages, under
-[`/airline/`](https://samdengler.github.io/airline-order-verified/airline/),
+Verified Airline is a fictional airline whose policy pages, under
+[`/airline/`](https://samdengler.github.io/verified-air/airline/),
 answer a traveler's questions from the model: a home page, a travel policies
 hub, and six policy pages on fares, payment, changes and cancellations,
 refunds, extras, and schedule changes. They read as an ordinary airline's
@@ -293,7 +293,7 @@ this repository from a written implementation plan. The plan had six steps:
 the Lean project and shared concepts, the Offer and Order rules, the checked
 examples, the review documents, the EARS output, and CI. It also had ten
 acceptance criteria. Claude Code committed after each step; the
-[commit history](https://github.com/samdengler/airline-order-verified/commits/main)
+[commit history](https://github.com/samdengler/verified-air/commits/main)
 shows them in order. The requirement specs and the implementation checks were
 added afterwards on request. Where
 the plan left a choice open, the choice is recorded under
@@ -319,7 +319,7 @@ notice does not permit reproducing its text, so the survey quotes nothing and
 links to each page.
 
 The candidates are also nodes in the second chapter of the
-[blueprint](https://samdengler.github.io/airline-order-verified/blueprint/),
+[blueprint](https://samdengler.github.io/verified-air/blueprint/),
 so they appear on the dependency graph before any of them is written in Lean.
 The 12 vague or silent ones are marked not ready and have an orange border; the
 open point in each says what the business has to decide. The git tag
@@ -353,8 +353,8 @@ a dashboard, or a script.
 
 | File | One row per | Columns |
 | --- | --- | --- |
-| [`ears.csv`](https://samdengler.github.io/airline-order-verified/ears.csv) | rule | ID, EARS statement, Lean declaration, status, theorems that prove it |
-| [`ears-criteria.csv`](https://samdengler.github.io/airline-order-verified/ears-criteria.csv) | acceptance criterion | ID, parent rule, EARS statement, EARS template, status, theorems and examples that check it |
+| [`ears.csv`](https://samdengler.github.io/verified-air/ears.csv) | rule | ID, EARS statement, Lean declaration, status, theorems that prove it |
+| [`ears-criteria.csv`](https://samdengler.github.io/verified-air/ears-criteria.csv) | acceptance criterion | ID, parent rule, EARS statement, EARS template, status, theorems and examples that check it |
 
 Both are rebuilt on every push at fixed URLs, and their IDs never renumber, so
 a tool can pull them on a schedule. Because each row carries a computed status,
@@ -387,7 +387,7 @@ Authored, and reviewed against the Lean by a second person:
   interface and vector inputs in `Oracle/Handle.lean`.
 - The Rust implementation in `impl/rust/`, and the proofs about it in
   `Verify/RustRules.lean`.
-- Parliament Air's fares in `Airline/Fares.lean`, and the wording of its
+- Verified Airline's fares in `Airline/Fares.lean`, and the wording of its
   policy pages in `airline-site/content/`, with their stylesheet and script in
   `airline-site/assets/`.
 
@@ -431,7 +431,7 @@ Computed by the build, never typed:
   `history/` by `scripts/render-motion.sh`. It is committed, since CI does not
   render video; its storyboard and captions are authored in
   `motion/src/story.ts`.
-- Every amount on Parliament Air's pages, in `build/airline/facts.json`, from
+- Every amount on Verified Airline's pages, in `build/airline/facts.json`, from
   the model's functions by `lake exe airline-facts`; and the pages
   themselves, with their statuses from `build/status.json`, by
   `scripts/render_airline.py`.
@@ -455,7 +455,7 @@ lake exe status                         # build/status.json, ears.md, ears.csv, 
 python3 scripts/render_status.py        # .kiro/specs and the generated review sections
 python3 scripts/diagrams.py             # the README diagrams in docs/diagrams/
 lake build Oracle oracle                # the test oracle for implementation checks
-lake build Airline airline-facts        # Parliament Air's fares, then:
+lake build Airline airline-facts        # Verified Airline's fares, then:
 lake exe airline-facts > build/airline/facts.json
 lake build Verify                       # the proofs about the Rust implementation
 
@@ -506,7 +506,7 @@ not run CI, since the site does not include them.
 ## Results
 
 Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
-[40113345785](https://github.com/samdengler/airline-order-verified/actions/runs/40113345785).
+[40113345785](https://github.com/samdengler/verified-air/actions/runs/40113345785).
 
 | # | Criterion | Result |
 | --- | --- | --- |
@@ -523,17 +523,17 @@ Checked on 2026-10-24 against the plan's acceptance criteria. CI run:
 
 **Pages URLs.**
 
-- Progress page: <https://samdengler.github.io/airline-order-verified/>
-- Verso document: <https://samdengler.github.io/airline-order-verified/review/>
-- Blueprint: <https://samdengler.github.io/airline-order-verified/blueprint/>
-- Explore page, with the dependency graph: <https://samdengler.github.io/airline-order-verified/graph/>, and the blueprint's own graph: <https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html>
-- Tour: <https://samdengler.github.io/airline-order-verified/tour/>
-- PDF: <https://samdengler.github.io/airline-order-verified/blueprint/print.pdf>
-- EARS table, one row per rule: <https://samdengler.github.io/airline-order-verified/ears.csv>
-- Acceptance criteria, one row per criterion: <https://samdengler.github.io/airline-order-verified/ears-criteria.csv>
-- Requirement specs, rendered on GitHub: <https://github.com/samdengler/airline-order-verified/tree/main/.kiro/specs>
+- Progress page: <https://samdengler.github.io/verified-air/>
+- Verso document: <https://samdengler.github.io/verified-air/review/>
+- Blueprint: <https://samdengler.github.io/verified-air/blueprint/>
+- Explore page, with the dependency graph: <https://samdengler.github.io/verified-air/graph/>, and the blueprint's own graph: <https://samdengler.github.io/verified-air/blueprint/dep_graph_document.html>
+- Tour: <https://samdengler.github.io/verified-air/tour/>
+- PDF: <https://samdengler.github.io/verified-air/blueprint/print.pdf>
+- EARS table, one row per rule: <https://samdengler.github.io/verified-air/ears.csv>
+- Acceptance criteria, one row per criterion: <https://samdengler.github.io/verified-air/ears-criteria.csv>
+- Requirement specs, rendered on GitHub: <https://github.com/samdengler/verified-air/tree/main/.kiro/specs>
   (the same files are on Pages under `/specs/`)
-- Conformance vectors for implementation checks: <https://samdengler.github.io/airline-order-verified/conformance-vectors.jsonl>
+- Conformance vectors for implementation checks: <https://samdengler.github.io/verified-air/conformance-vectors.jsonl>
 
 ## Decisions
 
@@ -950,7 +950,7 @@ Choices made where the plan left room, in the order they came up.
     companies of up to three employees and non-profits, and a larger company
     needs a company licence (`motion/README.md` links the terms).
 45. **A fictional airline's policy pages.** `/airline/` shows the model as a
-    traveler would meet it: Parliament Air's policies in plain words, with the
+    traveler would meet it: Verified Airline's policies in plain words, with the
     Lean model hidden until a reader asks for it. The pages are static HTML
     with every popover already in the page, so they need no data fetching and
     read with scripts off. The fares are values of the model's existing
@@ -1027,3 +1027,13 @@ Choices made where the plan left room, in the order they came up.
     film's last frame, linked to the History tab, with the same list of
     steps. A GIF of the film for GitHub was tried and left out: at a size
     where captions stay readable it was 8 MB, and the site plays the MP4.
+49. **Renamed to Verified Air.** The site is called Verified Air, from
+    "rarefied air", and the repository is `verified-air`, so the site moves
+    to `samdengler.github.io/verified-air/`. As with decision 30, GitHub
+    redirects the old repository URLs and GitHub Pages does not redirect
+    the old site. The plane stays as the mark. The home page's heading names
+    the subject, rules for airline offers and orders, since the site's name
+    no longer does. The fictional airline of `/airline/`, called Parliament
+    Air until then with a serif P as its mark, is now Verified Airline with
+    the site's plane in its own indigo. The Lake package keeps the name
+    `airline-order-verified`, which nothing outside the build shows.

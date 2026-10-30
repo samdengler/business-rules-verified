@@ -1,6 +1,6 @@
 # Motion brief: how the dependency graph grows
 
-This brief prepares a motion piece that shows the model growing: nodes are identified from the ONE Order material, wait on business decisions, and turn into Lean rules and proven guarantees, while a few stay open with a counterexample. It describes the story, the data the piece can be built from, and the visual language the site already uses. The History tab of the site's [Explore page](https://samdengler.github.io/airline-order-verified/graph/?view=history) plays the same milestones in the browser, with each area as a box of dots that appear and change color. The old `/history/` address sends readers there.
+This brief prepares a motion piece that shows the model growing: nodes are identified from the ONE Order material, wait on business decisions, and turn into Lean rules and proven guarantees, while a few stay open with a counterexample. It describes the story, the data the piece can be built from, and the visual language the site already uses. The History tab of the site's [Explore page](https://samdengler.github.io/verified-air/graph/?view=history) plays the same milestones in the browser, with each area as a box of dots that appear and change color. The old `/history/` address sends readers there.
 
 The piece exists and follows the storyboard below. [`motion/`](../motion/) is a [Remotion](https://www.remotion.dev) project: a React composition that reads `history/` and `build/frames/frames.json` when it is bundled, draws the cards and connectors on the shared canvas, and is rendered frame by frame in headless Chrome. `scripts/render-motion.sh` renders it to `motion/out/history.mp4` (1920 by 1080, 30 fps, H.264, 85 seconds) and its poster, the final state, to `motion/out/history-poster.jpg`. They are committed, since CI does not render video. The History tab shows the film above its milestone player and plays it one step at a time. [`motion/README.md`](../motion/README.md) explains how it is made. [The piece as rendered](#the-piece-as-rendered) lists where it departs from the storyboard.
 
@@ -78,7 +78,7 @@ The piece should look like the All cards view of the site's Explore page.
 * Connectors: 1.25 px, neutral grey (`#b9b8b0` light, `#55544f` dark), with a small filled arrowhead. A selected node's connectors darken.
 * Status colors, the same in light and dark mode: In Lean magenta `#e87ba4`, Proven green `#0ca30c`, Open question red `#d03b3b`, Needs a decision amber `#fab219`, Ready to build blue `#2a78d6` (`#3987e5` in dark mode), Waiting grey `#898781`. They were checked against each other for color-blind readers; every status also carries its label.
 * Type: the system sans-serif (`system-ui`). Surfaces: `#fcfcfb` on `#f9f9f7` in light mode, `#1a1a19` on `#0d0d0d` in dark mode.
-* Mark: a plane taking off and the words "Airline Order" (`PLANE_PATH` in `scripts/site_nav.py`).
+* Mark: a plane taking off and the words "Verified Air" (`PLANE_PATH` in `scripts/site_nav.py`).
 
 ## Recording a milestone
 

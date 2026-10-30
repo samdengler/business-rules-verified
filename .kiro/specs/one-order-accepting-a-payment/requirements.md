@@ -9,7 +9,7 @@ items' payment time limits, the currencies, the commitment method, and whether
 the requested amounts add up to the items' price.  Each payment method is then
 charged its requested amount plus its surcharge.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Payment/Accept.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Payment/Accept.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Payment/Accept.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Payment/Accept.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

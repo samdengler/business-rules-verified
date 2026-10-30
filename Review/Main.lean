@@ -19,7 +19,7 @@ def config : RenderConfig where
   emitHtmlSingle := .no
   emitHtmlMulti := .immediately
   htmlDepth := 1
-  sourceLink := some "https://github.com/samdengler/airline-order-verified"
+  sourceLink := some "https://github.com/samdengler/verified-air"
 
 /-- Renders the document with the progress page's look and the site navigation, from the
 stylesheet and script in the Review directory.  They are read at run time so that a change to

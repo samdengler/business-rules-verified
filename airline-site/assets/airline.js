@@ -1,10 +1,10 @@
-// Parliament Air's policy pages: the button that shows or hides the Lean
+// Verified Airline's policy pages: the button that shows or hides the Lean
 // model, and the popovers of the ∀ markers.  Whether the model shows is set
 // before the page draws, by a script in each page's head (?lean=1 or the
 // remembered choice); this script changes it and remembers the new choice.
 (function () {
   "use strict";
-  var KEY = "parliament-air-lean";
+  var KEY = "verified-airline-lean";
   var root = document.documentElement;
   var current = null;
 

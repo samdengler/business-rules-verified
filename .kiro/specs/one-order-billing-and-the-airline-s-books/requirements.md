@@ -10,7 +10,7 @@ reaches a final delivery status, then recognized as revenue, refunded or kept.
 The sources tie billing and revenue to delivery without saying which final
 statuses count, so the model takes the answers as parameters.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Accounting/Books.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Accounting/Books.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Accounting/Books.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Accounting/Books.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

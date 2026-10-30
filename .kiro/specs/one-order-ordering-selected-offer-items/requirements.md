@@ -9,7 +9,7 @@ may select from several offers.  The selection must include every item an
 offer marks mandatory; the other items are optional.  The request succeeds
 as a whole or is rejected as a whole.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Creation/Create.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Creation/Create.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Creation/Create.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Creation/Create.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

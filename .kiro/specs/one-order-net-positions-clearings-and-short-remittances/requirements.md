@@ -11,7 +11,7 @@ received.  The sources leave open how EasyPay clearances enter the netting,
 and give two different rules for splitting a short payment, so the model takes
 the answers as parameters.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Accounting/Clearing.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Accounting/Clearing.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Accounting/Clearing.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Accounting/Clearing.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

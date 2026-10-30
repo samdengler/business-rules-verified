@@ -8,7 +8,7 @@ A seller cancels an order that has no payment at once.  An order with any
 payment, full or partial, is cancelled only by accepting a cancellation offer
 from the airline, priced like a change whose new price is zero.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Change/Cancel.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Change/Cancel.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Change/Cancel.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Change/Cancel.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

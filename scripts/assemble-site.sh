@@ -4,7 +4,7 @@
 # page under graph/, a summary page per area under area/, the tour under
 # tour/, the review document under review/, the blueprint under blueprint/,
 # the try-it panels' WebAssembly under try/, the motion piece under motion/,
-# Parliament Air's policy pages under airline/, and the specs and exports
+# Verified Airline's policy pages under airline/, and the specs and exports
 # beside them.  history/ sends readers to the Explore page's History tab,
 # which shows the motion piece.
 #
@@ -40,7 +40,7 @@ mkdir -p site/history site/tour
 cp build/history/index.html site/history/
 cp -r build/area site/area
 cp build/tour/index.html site/tour/
-# Parliament Air's policy pages, with the facts.json their amounts come from.
+# Verified Airline's policy pages, with the facts.json their amounts come from.
 cp -r build/airline site/airline
 cp -r build/review/html-multi/. site/review/
 cp -r pages/. site/

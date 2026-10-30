@@ -14,7 +14,7 @@ sources: what applies when a time limit passes and no consequence is stated,
 and whether contacting the airline, which happens outside the order, is
 recorded as the seller's answer.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/AirlineChange/FollowUp.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/AirlineChange/FollowUp.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/AirlineChange/FollowUp.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/AirlineChange/FollowUp.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

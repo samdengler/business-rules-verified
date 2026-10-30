@@ -13,7 +13,7 @@ The guide leaves two points open, so the model takes them as parameters:
 whether a rule's expiration date ends it, and which amount a refund marked full
 and also given a fixed amount returns.
 
-These requirements are generated from the Lean model in [`Rules/OneOrder/Offers/Restrictions.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OneOrder/Offers/Restrictions.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OneOrder/Offers/Restrictions.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OneOrder/Offers/Restrictions.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

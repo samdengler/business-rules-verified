@@ -8,7 +8,7 @@ An order is what the customer bought: the items of an accepted offer, each
 with its own delivery state.  It corresponds to the IATA ONE Order `Order`,
 `OrderItem`, and the delivery status of a service.
 
-These requirements are generated from the Lean model in [`Rules/OfferOrder/Order.lean`](https://github.com/samdengler/airline-order-verified/blob/main/Rules/OfferOrder/Order.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
+These requirements are generated from the Lean model in [`Rules/OfferOrder/Order.lean`](https://github.com/samdengler/verified-air/blob/main/Rules/OfferOrder/Order.lean). Each acceptance criterion carries the status the build computed for it: *proven* means a theorem the build checked, *example only* means a computed example, *open* means a theorem the build could not prove, and *not checked* means no theorem or example covers it yet.
 
 ## Requirements
 

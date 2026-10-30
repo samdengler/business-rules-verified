@@ -65,10 +65,10 @@ import Review.Generated.Ears
 open Verso.Genre Manual
 open Review
 
-#doc (Manual) "Airline Order: Business Rules for Review" =>
+#doc (Manual) "Verified Air: Business Rules for Review" =>
 %%%
 authors := ["Sam Dengler"]
-shortTitle := "Airline Order"
+shortTitle := "Verified Air"
 %%%
 
 This document describes airline offer and order rules as a Lean model, for review by the Offer/Order team.
