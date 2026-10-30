@@ -6,12 +6,15 @@
 
 \begin{definition}[Dependent service and its parent (C-43)]
   \label{def:ancillaries-service-dependency}
+  \lean{Rules.OneOrder.Ancillaries.dependents, Rules.OneOrder.Ancillaries.LinkReading, Rules.OneOrder.Ancillaries.linked, Rules.OneOrder.Ancillaries.dependsOn, Rules.OneOrder.Ancillaries.ServiceKind, Rules.OneOrder.Ancillaries.ServiceDetails, Rules.OneOrder.Ancillaries.ServiceDetails.isFlight, Rules.OneOrder.Ancillaries.ServiceDetails.record, Rules.OneOrder.Ancillaries.services}
   \uses{def:c01-structure}
-  \notready
   A dependent service, such as a bag, seat or meal, belongs to a parent
   flight service for the same passenger on the same passenger segment. The
   order records the link either as a direct reference from the dependent
   service to its parent or only through the shared passenger and segment.
+  The model records what each service is and the parent it names, by
+  service reference, and takes the link as a reading of the sources.  It
+  counts dependents of flight services only.
 
   Case to check: In the seat worked example the seat services carry no
   reference to a flight service. A rule that follows direct references finds
@@ -30,14 +33,169 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226524}{EASD guide, Shop for Ancillaries}.
 \end{definition}
 
+\begin{theorem}[Dependents by reference]
+  \label{thm:ancillaries-dependents-by-reference}
+  \lean{Rules.OneOrder.Ancillaries.dependents_by_reference}
+  \uses{def:ancillaries-service-dependency}
+  Under the reference reading, a service is a dependent of a flight service
+  exactly when it is an ancillary of the order that names that flight
+  service as its parent.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-service-dependency}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Dependents through passenger and segment]
+  \label{thm:ancillaries-dependents-by-passenger-segment}
+  \lean{Rules.OneOrder.Ancillaries.dependents_by_passenger_segment}
+  \uses{def:ancillaries-service-dependency}
+  Under the passenger and segment reading, a service is a dependent of a
+  flight service exactly when it is an ancillary of the order for the same
+  passenger on the same segment.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-service-dependency}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[A flight is never a dependent]
+  \label{thm:ancillaries-dependent-not-flight}
+  \lean{Rules.OneOrder.Ancillaries.dependent_not_flight}
+  \uses{def:ancillaries-service-dependency}
+  No flight service is counted as a dependent, under either reading.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-service-dependency}
+  A dependent passes the rule's test that it is not a flight.
+\end{proof}
+
+\begin{theorem}[Every ancillary reaches its flight]
+  \label{thm:ancillaries-dependents-cover}
+  \lean{Rules.OneOrder.Ancillaries.dependents_cover}
+  \uses{def:ancillaries-service-dependency, thm:ancillaries-dependents-by-reference}
+  An ancillary of the order for the same passenger and segment as a flight
+  service is counted as dependent on it, under either reading of the link.
+
+  Counterexample: in the seat example order, flights for PAX01 and PAX02 on
+  SEG1, a bag for PAX01 that names its flight, and seats 12B and 12C that
+  name no flight.  By reference only the bag depends on PAX01's flight;
+  through passenger and segment the bag and seat 12B do (Lean example
+  \texttt{seatWithoutReference}).  Under the reference reading a change to
+  the flight reports no impact on the seat.
+
+  Open point: Which link defines the dependency: a reference to the parent,
+  or the shared passenger and segment?  And may an ancillary depend on
+  another ancillary, such as a lounge pass on a premium seat?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-service-dependency}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Passenger and segment reach every ancillary]
+  \label{thm:ancillaries-dependents-cover-passenger-segment}
+  \lean{Rules.OneOrder.Ancillaries.dependents_cover_of_passenger_segment}
+  \uses{def:ancillaries-service-dependency, thm:ancillaries-dependents-by-passenger-segment}
+  Under the passenger and segment reading, every ancillary of the order for
+  the same passenger and segment as a flight service is counted as
+  dependent on it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:ancillaries-dependents-by-passenger-segment}
+  This is one direction of the passenger and segment characterisation.
+\end{proof}
+
+\begin{definition}[Adding services to an order]
+  \label{def:ancillaries-add-services}
+  \lean{Rules.OneOrder.Ancillaries.addServices, Rules.OneOrder.Ancillaries.AddRejection, Rules.OneOrder.Ancillaries.hasFlightFor, Rules.OneOrder.Ancillaries.isFlightRelated, Rules.OneOrder.Ancillaries.missingFlight, Rules.OneOrder.Ancillaries.uncovered}
+  \uses{def:ancillaries-service-dependency, def:c01-structure}
+  A seller adds order items to an order.  The request is refused if a
+  flight-related ancillary in it has no live flight service for its
+  passenger and segment, in the order or in the request.  Which kinds of
+  service are flight related is a reading of the sources.  The taxonomy
+  reading counts seats, bags, meals and lounge access and leaves out
+  insurance.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226524}{EASD guide, Shop for Ancillaries};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301482}{EASD guide, Customer Adds an Ancillary to Existing Order}.
+\end{definition}
+
+\begin{theorem}[An ancillary without its flight is refused]
+  \label{thm:ancillaries-add-refuses-without-flight}
+  \lean{Rules.OneOrder.Ancillaries.add_refuses_without_flight}
+  \uses{def:ancillaries-add-services}
+  A request that adds a flight-related ancillary with no live flight service
+  for its passenger and segment, in the order or in the request, is
+  refused, under every reading of flight related.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226524}{EASD guide, Shop for Ancillaries}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-add-services}
+  The rule's search for such an ancillary finds one, so the request is
+  refused.
+\end{proof}
+
+\begin{theorem}[Added items follow the existing ones]
+  \label{thm:ancillaries-add-appends}
+  \lean{Rules.OneOrder.Ancillaries.add_appends}
+  \uses{def:ancillaries-add-services}
+  An accepted request adds its order items after the existing ones, which
+  stay as they were.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301482}{EASD guide, Customer Adds an Ancillary to Existing Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-add-services}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Services that need no flight are added]
+  \label{thm:ancillaries-add-accepts-unrelated}
+  \lean{Rules.OneOrder.Ancillaries.add_accepts_unrelated}
+  \uses{def:ancillaries-add-services}
+  A request with no flight-related ancillary is accepted, under every
+  reading of flight related.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226524}{EASD guide, Shop for Ancillaries}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-add-services}
+  The rule's search for an ancillary without its flight finds none.
+\end{proof}
+
 \begin{theorem}[Ancillary needs a flight service (C-44)]
   \label{thm:ancillaries-ancillary-needs-flight}
-  \uses{def:ancillaries-service-dependency, def:accept, thm:accept-rejects-expired}
-  \notready
+  \lean{Rules.OneOrder.Ancillaries.change_keeps_flights}
+  \uses{def:ancillaries-service-dependency, def:accept, thm:accept-rejects-expired, def:ancillaries-add-services, thm:ancillaries-add-refuses-without-flight, def:c18-change}
   A flight-related ancillary enters an order only together with a flight
   service for the same passenger and segment, either in the same acceptance
   or already in the order. A seat map requested for an offer requires the
   offer to hold a flight and be unexpired.
+  The model proves the first sentence when services are added, under every
+  reading of flight related.  This node checks the stronger claim that it
+  stays true for the life of the order: a paid change to an order item keeps
+  a live flight for every live flight-related ancillary.  The seat map
+  request is not modelled.
+
+  Counterexample: an order holds a paid flight for PAX-1 on SEG-OUT and a
+  paid bag for the same passenger and segment, each in its own item.  A
+  paid change moves PAX-1 to a flight on SEG-NEW.  The old flight is
+  cancelled and the bag stays confirmed on SEG-OUT with no flight (Lean
+  example \texttt{bagLeftByFlightChange}).
 
   Open point: The source states this as a purchase precondition and never
   defines flight related. The taxonomy tree gives one answer: codes under
@@ -52,15 +210,27 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301482}{EASD guide, Customer Adds an Ancillary to Existing Order};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652513}{EASD guide, Airline Taxonomy Codeset}.
 \end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-add-services, def:c18-change}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{definition}[Cancelling a flight with ancillaries (C-45)]
   \label{def:ancillaries-flight-cancel-dependents}
+  \lean{Rules.OneOrder.Ancillaries.cancelItems, Rules.OneOrder.Ancillaries.DependentHandling, Rules.OneOrder.Ancillaries.CancelRejection, Rules.OneOrder.Ancillaries.endService, Rules.OneOrder.Ancillaries.namedFlights, Rules.OneOrder.Ancillaries.isLiveDependent, Rules.OneOrder.Ancillaries.unnamedDependents, Rules.OneOrder.Ancillaries.itemAfterCancel}
   \uses{def:ancillaries-service-dependency, def:c15-cancel-order, def:c06-item-status, def:c08-delivery-status, def:refund}
-  \notready
   When a flight service is cancelled, each service that depends on it ends
   up cancelled, kept, or flagged for the customer. The source shows a seller
   naming the flight item and the ancillary item together in one cancellation
   and gives no rule for a flight cancelled alone.
+  The model cancels the live services of the named items, refuses an item
+  whose conditions do not allow cancellation, and takes what happens to the
+  dependents as a reading: they are cancelled with the flight, the request is
+  refused until the seller names them, or they stay in place.  An example
+  shows each reading breaking one of three guarantees the business would
+  expect, and Lean proves that each reading keeps the other two.  The
+  refund is not modelled.
 
   Case to check: In the add bag worked example the extra bag item says
   cancellation is not allowed. Cancelling the flight then either cancels the
@@ -79,14 +249,183 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
 \end{definition}
 
+\begin{theorem}[Named items are cancelled]
+  \label{thm:ancillaries-cancel-named}
+  \lean{Rules.OneOrder.Ancillaries.cancel_items_named, Rules.OneOrder.Ancillaries.cancelItems_ok}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  When a seller's cancellation is accepted, every named item is in the
+  order with each live service \texttt{CANCELLED} with delivery status
+  \texttt{REMOVED}, under every reading.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Items that may not be cancelled are refused]
+  \label{thm:ancillaries-cancel-refuses-not-cancellable}
+  \lean{Rules.OneOrder.Ancillaries.cancel_items_refuses_not_cancellable}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  A request that names an item whose conditions do not allow cancellation
+  is refused, under every reading.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  The rule checks each named item's conditions before it cancels
+  anything.
+\end{proof}
+
+\begin{theorem}[Other services are kept]
+  \label{thm:ancillaries-cancel-keeps-others}
+  \lean{Rules.OneOrder.Ancillaries.cancel_items_keeps_others}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  Every service outside the named items that is not a live dependent of a
+  cancelled flight stays as it was, in the same item, under every reading.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  The rule changes only named items and live dependents.
+\end{proof}
+
+\begin{theorem}[No live dependent of a cancelled flight]
+  \label{thm:ancillaries-cancel-no-live-dependents}
+  \lean{Rules.OneOrder.Ancillaries.cancel_items_no_live_dependents}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  After a seller cancels a flight, no live service depends on it.
+
+  Counterexample: the add bag worked example as an order, a flight for PAX-1
+  and an extra bag on it in its own item.  The seller cancels the flight
+  item alone.  Under the reading where dependents stay in place, the flight
+  is cancelled and the bag stays confirmed (Lean example
+  \texttt{cancelFlightWithBag}).
+
+  Open point: Should cancelling a flight cancel its bag and seat, be
+  refused until the seller names them, or leave them in place?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Two readings leave no live dependent]
+  \label{thm:ancillaries-cancel-no-live-dependents-of-not-leave}
+  \lean{Rules.OneOrder.Ancillaries.cancel_items_no_live_dependents_of_not_leave, Rules.OneOrder.Ancillaries.isLive_endService, Rules.OneOrder.Ancillaries.cancelItems_ok_conditions}
+  \uses{def:ancillaries-flight-cancel-dependents, thm:ancillaries-cancel-no-live-dependents}
+  Under the readings that cancel dependents with their flight or refuse
+  until they are named, no live service depends on a flight the seller
+  cancels.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  A service of a named item is cancelled; a live dependent outside the named
+  items is cancelled with the flight under the first reading and makes the
+  request refused under the second.
+\end{proof}
+
+\begin{theorem}[Dependents keep their own conditions]
+  \label{thm:ancillaries-cancel-respects-conditions}
+  \lean{Rules.OneOrder.Ancillaries.cancel_items_respects_conditions}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  A live service of an item whose conditions do not allow cancellation
+  stays as it was.
+
+  Counterexample: in the same order, the extra bag's conditions do not allow
+  cancellation.  Under the reading where dependents are cancelled with the
+  flight, cancelling the flight item cancels the bag (Lean example
+  \texttt{cancelFlightWithBag}).
+
+  Open point: Whose conditions govern a dependent cancelled with its flight,
+  and its refund: the dependent's own or the flight's?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Two readings keep the dependents' conditions]
+  \label{thm:ancillaries-cancel-respects-conditions-of-not-cancel-with}
+  \lean{Rules.OneOrder.Ancillaries.cancel_items_respects_conditions_of_not_cancel_with}
+  \uses{def:ancillaries-flight-cancel-dependents, thm:ancillaries-cancel-respects-conditions, thm:ancillaries-cancel-refuses-not-cancellable}
+  Under the readings that refuse until dependents are named or leave them in
+  place, a live service of an item whose conditions do not allow
+  cancellation stays as it was.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  Such an item cannot be named, and these readings change no item that is
+  not named.
+\end{proof}
+
+\begin{theorem}[A cancellable item can be cancelled]
+  \label{thm:ancillaries-cancel-allowed}
+  \lean{Rules.OneOrder.Ancillaries.cancel_items_allowed}
+  \uses{def:ancillaries-flight-cancel-dependents, thm:ancillaries-cancel-refuses-not-cancellable}
+  An order item whose conditions allow cancellation can be cancelled by
+  some request that names it.
+
+  Counterexample: in the same order, under the reading where a cancellation
+  is refused until the seller names the dependents too, naming the flight
+  alone is refused for the bag, and naming the flight and the bag is refused
+  by the bag's conditions (Lean example \texttt{refuseUntilNamedBlocks}).
+  The flight cannot be cancelled at all.
+
+  Open point: Should a dependent's conditions be able to stop its flight
+  from being cancelled?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Two readings let a cancellable item be cancelled]
+  \label{thm:ancillaries-cancel-allowed-of-not-refuse}
+  \lean{Rules.OneOrder.Ancillaries.cancel_items_allowed_of_not_refuse}
+  \uses{def:ancillaries-flight-cancel-dependents, thm:ancillaries-cancel-allowed}
+  Under the readings that cancel dependents with their flight or leave them
+  in place, an order item whose conditions allow cancellation is cancelled
+  by a request that names it alone.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-cancel-dependents}
+  The request names an item the order holds and whose conditions allow
+  cancellation, and these readings refuse nothing else.
+\end{proof}
+
 \begin{definition}[Dependents when a flight changes (C-46)]
   \label{def:ancillaries-flight-change-dependents}
+  \lean{Rules.OneOrder.Ancillaries.replaceFlight, Rules.OneOrder.Ancillaries.DependentEffect, Rules.OneOrder.Ancillaries.Impact, Rules.OneOrder.Ancillaries.impactOf, Rules.OneOrder.Ancillaries.movedSeats}
   \uses{def:ancillaries-service-dependency, def:c18-change, thm:c19-transfer-balanced, thm:c20-value-store, thm:ancillaries-seat-one-passenger}
-  \notready
   When a flight is replaced, the system decides for each dependent service
   whether it moves to the new flight, is cancelled with its value refunded
   or stored, or must be reshopped. The source requires the effect to be
   stated and does not say which effect applies.
+  The model states for each live dependent the effect a reading gives for
+  its kind of service.  A service that moves keeps its reference, and with
+  it its details, on the new segment.
 
   Case to check: Moving paid seat 12C from SEG1 to a replacement flight
   where another passenger holds 12C breaks one passenger per seat. Moving it
@@ -101,6 +440,73 @@
   \href{https://retailing.iata.org/armi/docs/ORDRE2/}{IATA capability ORDRE2};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order}.
 \end{definition}
+
+\begin{theorem}[Every dependent gets one effect]
+  \label{thm:ancillaries-replace-each-dependent}
+  \lean{Rules.OneOrder.Ancillaries.replace_states_each_dependent, Rules.OneOrder.Ancillaries.impactOf_service}
+  \uses{def:ancillaries-flight-change-dependents}
+  When a flight is replaced, the rule states one effect for each live
+  dependent of it, in order, and for no other service.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-change-dependents}
+  The rule maps each live dependent to one effect.
+\end{proof}
+
+\begin{theorem}[The effect follows the kind of service]
+  \label{thm:ancillaries-replace-effect-by-kind}
+  \lean{Rules.OneOrder.Ancillaries.replace_effect_by_kind, Rules.OneOrder.Ancillaries.impactOf_effect}
+  \uses{def:ancillaries-flight-change-dependents}
+  Each stated effect is the reading's effect for the kind of a live
+  dependent of the replaced flight.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-change-dependents}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[A moved service keeps its reference]
+  \label{thm:ancillaries-replace-moves}
+  \lean{Rules.OneOrder.Ancillaries.replace_moves}
+  \uses{def:ancillaries-flight-change-dependents}
+  A dependent whose effect is to move is put on the new segment, for the
+  same passenger and under the same reference, \texttt{CONFIRMED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-change-dependents}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Moved seats on the new flight]
+  \label{thm:ancillaries-replace-no-seat-clash}
+  \lean{Rules.OneOrder.Ancillaries.replace_no_seat_clash}
+  \uses{def:ancillaries-flight-change-dependents, thm:ancillaries-seat-one-passenger}
+  No seat moved by a flight replacement lands on a seat another passenger
+  holds on the new flight.
+
+  Counterexample: PAX-1 holds a paid flight on SEG-1, paid seat 12C and a
+  bag.  The airline replaces the flight with one on SEG-2, where PAX-9
+  already holds 12C.  Where every dependent moves, seat 12C moves and lands
+  on PAX-9's seat; where seats are reshopped, only the bag moves (Lean
+  example \texttt{seatMovedOntoTakenSeat}).
+
+  Open point: What happens to a seat when its flight is replaced: does it
+  move, and to which seat, or is it refunded, stored or reshopped?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574586953}{EASD guide, Seat Map and Availability}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-flight-change-dependents}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{theorem}[Dependent impact shown before acceptance (C-47)]
   \label{thm:ancillaries-dependent-impact-disclosed}
@@ -143,18 +549,70 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849094}{EASD guide, Seller Follow-up Actions}.
 \end{definition}
 
+\begin{definition}[Choosing seats]
+  \label{def:ancillaries-choose-seats}
+  \lean{Rules.OneOrder.Ancillaries.chooseSeats, Rules.OneOrder.Ancillaries.SeatMap, Rules.OneOrder.Ancillaries.SeatChoice, Rules.OneOrder.Ancillaries.SeatRejection, Rules.OneOrder.Ancillaries.SeatAssignment, Rules.OneOrder.Ancillaries.seatsHeld, Rules.OneOrder.Ancillaries.seatOf, Rules.OneOrder.Ancillaries.checkSeat, Rules.OneOrder.Ancillaries.seatItem, Rules.OneOrder.Ancillaries.seatService, Rules.OneOrder.Ancillaries.seatItemRef}
+  \uses{def:ancillaries-service-dependency, def:c01-structure, def:passenger, def:money}
+  A seller chooses seats for passengers from the seat map of each segment,
+  which marks seats available or occupied.  A request is refused if a seat
+  chosen is not marked available.  Otherwise each seat becomes its own order
+  item at the seat's price, holding one seat service for the passenger on
+  that segment, with no reference to a flight service, as in the seat worked
+  example.  The rule checks each choice against the seat map only, which is
+  all the guide describes.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574586953}{EASD guide, Seat Map and Availability};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability}.
+\end{definition}
+
+\begin{theorem}[A seat the map does not offer is refused]
+  \label{thm:ancillaries-seat-refuses-unavailable}
+  \lean{Rules.OneOrder.Ancillaries.choose_seats_refuses_unavailable}
+  \uses{def:ancillaries-choose-seats}
+  A request that chooses a seat the seat map of its segment does not mark
+  available is refused.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574586953}{EASD guide, Seat Map and Availability}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-choose-seats}
+  The rule's check of that choice gives a reason to refuse.
+\end{proof}
+
+\begin{theorem}[Each seat becomes its own order item]
+  \label{thm:ancillaries-seat-items}
+  \lean{Rules.OneOrder.Ancillaries.choose_seats_items}
+  \uses{def:ancillaries-choose-seats}
+  An accepted seat request keeps the existing order items and adds one item
+  for each seat chosen, at the seat's price, holding one service for that
+  passenger on that segment.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-choose-seats}
+  Unfold the rule.
+\end{proof}
+
 \begin{theorem}[One passenger per seat (C-49)]
   \label{thm:ancillaries-seat-one-passenger}
-  \uses{def:c01-structure, def:passenger}
-  \notready
+  \lean{Rules.OneOrder.Ancillaries.choose_seats_one_passenger_per_seat}
+  \uses{def:c01-structure, def:passenger, def:ancillaries-choose-seats}
   On a given flight, no seat is assigned to two passengers at once. A seat
   assignment holds a seat and the passenger segment it applies to, and the
   seat map marks each seat available or occupied.
+  The model checks that a seat request keeps this true when it held before
+  and the seat maps mark no held seat available.
 
   Case to check: The seat worked example selects 12B for PAX01 and 12C for
   PAX02. Nothing in the described rules refuses a request selecting 12B for
   both on SEG1. A segment flown on two legs with a change of aircraft has
   two seat maps, so one seat per segment is ambiguous.
+
+  Counterexample: two passengers on SEG1 hold no seats, and the seat map
+  marks 12B available.  One request chooses 12B for PAX01 and for PAX02.
+  Both choices pass the seat map, and both passengers hold 12B (Lean
+  example \texttt{sameSeatTwice}).
 
   Open point: The source states no uniqueness rule. The business must decide
   whether uniqueness is checked within one order or across every order on
@@ -167,17 +625,29 @@
   \href{https://retailing.iata.org/armi/docs/SHPSTO/}{IATA capability SHPSTO};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability}.
 \end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-choose-seats}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{theorem}[One seat per passenger per segment (C-50)]
   \label{thm:ancillaries-seat-one-per-passenger}
-  \uses{thm:ancillaries-seat-one-passenger, def:c01-structure, def:c06-item-status}
-  \notready
+  \lean{Rules.OneOrder.Ancillaries.choose_seats_one_seat_per_passenger}
+  \uses{thm:ancillaries-seat-one-passenger, def:c01-structure, def:c06-item-status, def:ancillaries-choose-seats}
   A passenger holds at most one active seat assignment on each segment of an
   order.
+  The model checks that a seat request keeps this true when it held before
+  and the seat maps mark no held seat available.
 
   Case to check: A seller adds 14A for PAX01 on SEG1 through a second quote
   while 12B is still confirmed. Both seat items are \texttt{ACTIVE}, and the
   passenger holds two seats on one segment.
+
+  Counterexample: PAX01 holds 12B on SEG1, and the seat map marks 12C and
+  14A available.  A second request chooses 14A for PAX01.  It passes the
+  seat map, and PAX01 holds 12B and 14A, each in its own order item (Lean
+  example \texttt{secondSeatSamePassenger}).
 
   Open point: The business must decide whether a passenger may hold extra
   seats, for comfort or for a large instrument, and how such a seat is
@@ -187,6 +657,11 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574586953}{EASD guide, Seat Map and Availability}.
 \end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-choose-seats}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{theorem}[Seat needs an eligible price point (C-51)]
   \label{thm:ancillaries-seat-eligible-price-point}
@@ -210,11 +685,14 @@
 
 \begin{definition}[A-la-carte offer item (C-52)]
   \label{def:ancillaries-alacarte-item}
+  \lean{Rules.OneOrder.Ancillaries.AlaCarteItem, Rules.OneOrder.Ancillaries.AlaCarteChoice}
   \uses{def:offer-item, def:c01-structure, def:money}
   An a-la-carte offer item is always optional and has a unit price, a set of
   eligible passengers and a set of eligible segments or journeys. It holds
   no flight service. Each service ordered from it applies to one passenger
   on one segment.
+  The model records what the item sells, its unit price, and the eligible
+  passengers and segments; a journey is given by its segments.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464}{EASD guide, Offers};
   \href{https://retailing.iata.org/armi/docs/SHPANC/}{IATA capability SHPANC};
@@ -223,12 +701,14 @@
 
 \begin{definition}[Price of an a-la-carte selection (C-53)]
   \label{def:ancillaries-alacarte-price}
+  \lean{Rules.OneOrder.Ancillaries.chooseAlaCarte, Rules.OneOrder.Ancillaries.alaCarteOrderItem, Rules.OneOrder.Ancillaries.AlaCarteRejection}
   \uses{def:ancillaries-alacarte-item, def:money, thm:accept-price-eq-sum, thm:c02-item-per-offer-item}
-  \notready
   Choosing an a-la-carte item for a passenger with quantity q over n
   eligible segments creates one order item per passenger and segment. Each
   order item costs the unit price times q, so the selection costs the unit
   price times q times n.
+  The model follows the add bag worked example: one order item for each
+  passenger and segment chosen, each at the unit price times the quantity.
 
   Case to check: In the add bag worked example the seller selects a 50.00
   bag with quantity 1 over two journeys, and the order gains two order items
@@ -244,6 +724,89 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464}{EASD guide, Offers};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
 \end{definition}
+
+\begin{theorem}[Ineligible choices are refused]
+  \label{thm:ancillaries-alacarte-refuses-ineligible}
+  \lean{Rules.OneOrder.Ancillaries.alacarte_refuses_ineligible}
+  \uses{def:ancillaries-alacarte-price}
+  An a-la-carte choice that names a passenger or a segment the offer item
+  does not list as eligible is refused.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464}{EASD guide, Offers}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-alacarte-price}
+  The rule's search for an ineligible passenger or segment finds one.
+\end{proof}
+
+\begin{theorem}[One order item per passenger and segment]
+  \label{thm:ancillaries-alacarte-per-passenger-segment}
+  \lean{Rules.OneOrder.Ancillaries.alacarte_item_per_passenger_segment, Rules.OneOrder.Ancillaries.chooseAlaCarte_ok}
+  \uses{def:ancillaries-alacarte-price}
+  An accepted a-la-carte choice gives one order item for each passenger and
+  segment chosen, each holding one service for that passenger on that
+  segment.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-alacarte-price}
+  The order items are built from the pairs of a passenger and a segment.
+\end{proof}
+
+\begin{theorem}[Price of each a-la-carte order item]
+  \label{thm:ancillaries-alacarte-item-price}
+  \lean{Rules.OneOrder.Ancillaries.alacarte_item_price}
+  \uses{def:ancillaries-alacarte-price}
+  Each order item of an accepted choice costs the unit price times the
+  quantity.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-alacarte-price}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Total of an a-la-carte choice]
+  \label{thm:ancillaries-alacarte-total}
+  \lean{Rules.OneOrder.Ancillaries.alacarte_total}
+  \uses{def:ancillaries-alacarte-price, thm:ancillaries-alacarte-item-price}
+  The order items of an accepted choice cost, in total, the unit price times
+  the quantity times the number of passengers and segments chosen.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-alacarte-price}
+  Each of the passengers times segments items costs the unit price times
+  the quantity.
+\end{proof}
+
+\begin{theorem}[One order item per a-la-carte offer item]
+  \label{thm:ancillaries-alacarte-one-item}
+  \lean{Rules.OneOrder.Ancillaries.alacarte_one_item}
+  \uses{def:ancillaries-alacarte-price, thm:c02-item-per-offer-item}
+  An a-la-carte offer item becomes exactly one order item, as every offer
+  item does when an offer is accepted (C-02).
+
+  Counterexample: the add bag worked example's extra bag at 50.00 EUR a
+  unit, chosen for PAX-1 on the outbound and inbound journeys at quantity 1.
+  The one offer item becomes two order items of 50.00 EUR, and the bag costs
+  100.00 EUR (Lean example \texttt{bagOverTwoJourneys}).
+
+  Open point: Does one offer item become one order item, as the order
+  structure says, or one per passenger and segment, as the worked example
+  shows?  And what is the unit of the unit price?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-alacarte-price}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{definition}[Bundle of services (C-54)]
   \label{def:ancillaries-bundle-meaning}
@@ -271,12 +834,15 @@
 
 \begin{definition}[Value of one bundled service (C-55)]
   \label{def:ancillaries-bundle-part-value}
+  \lean{Rules.OneOrder.Ancillaries.removeFromBundle, Rules.OneOrder.Ancillaries.BundleShare, Rules.OneOrder.Ancillaries.BundleRejection, Rules.OneOrder.Ancillaries.removeServices, Rules.OneOrder.Ancillaries.bundleReturn}
   \uses{def:ancillaries-bundle-meaning, def:refund, def:c05-holds-value, def:c18-change}
-  \notready
   When one service in a bundle is cancelled, removed or not delivered, the
   system must give it a share of the bundle price to compute any refund,
   stored value or price difference. The source prices a bundle only as a
   whole.
+  The model takes a bundle as one order item holding several services, as
+  on the bundles page, and the share of each service as a reading.  The
+  bundle keeps its price; repricing the rest is not modelled.
 
   Case to check: In the seat worked example one 1000.00 order item holds
   both passengers' flights and bags. The cancellation page removes a
@@ -291,6 +857,82 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability}.
 \end{definition}
+
+\begin{theorem}[Removed services are cancelled]
+  \label{thm:ancillaries-bundle-removes}
+  \lean{Rules.OneOrder.Ancillaries.bundle_removes, Rules.OneOrder.Ancillaries.removeFromBundle_ok}
+  \uses{def:ancillaries-bundle-part-value}
+  After an accepted removal the bundle keeps its reference and price, each
+  named live service is \texttt{CANCELLED} with delivery status
+  \texttt{REMOVED}, and every other service is as it was.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-bundle-part-value}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[A removal returns the services' shares]
+  \label{thm:ancillaries-bundle-returns-shares}
+  \lean{Rules.OneOrder.Ancillaries.bundle_returns_shares}
+  \uses{def:ancillaries-bundle-part-value}
+  An accepted removal returns the sum of the shares of the named live
+  services under the reading, in the bundle's currency.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619818}{EASD guide, Bundles}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-bundle-part-value}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[A removal returns no more than the bundle price]
+  \label{thm:ancillaries-bundle-return-le-price}
+  \lean{Rules.OneOrder.Ancillaries.bundle_return_le_price}
+  \uses{def:ancillaries-bundle-part-value, thm:ancillaries-bundle-returns-shares}
+  Removing services from a bundle returns no more than the bundle price,
+  under every reading.
+
+  Counterexample: the seat worked example's bundle, one order item at
+  1,000.00 EUR holding both passengers' flights and bags.  Under stand-alone
+  prices of 470.00 EUR a flight and 60.00 EUR a bag, removing every service
+  returns 1,060.00 EUR (Lean example \texttt{bundleShares}).
+
+  Open point: How does a bundle price split among its services: by stated
+  component prices, by stand-alone prices, or not at all?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619818}{EASD guide, Bundles};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-bundle-part-value}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Removing a whole bundle returns its price]
+  \label{thm:ancillaries-bundle-return-all}
+  \lean{Rules.OneOrder.Ancillaries.bundle_return_all}
+  \uses{def:ancillaries-bundle-part-value, thm:ancillaries-bundle-returns-shares}
+  Removing every service of a bundle, all of them live, returns the whole
+  bundle price, under every reading.
+
+  Counterexample: the same bundle.  Under a reading that gives no share to
+  any service, removing PAX02's flight and bag returns nothing, and so does
+  removing every service (Lean example \texttt{bundleShares}).
+
+  Open point: Does removing part of a bundle return part of its price, and
+  does removing all of it return all of it?
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619818}{EASD guide, Bundles};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+\begin{proof}
+  \uses{def:ancillaries-bundle-part-value}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{theorem}[Pick M of N price (C-56)]
   \label{thm:ancillaries-pick-m-of-n}

@@ -47,3 +47,12 @@ import Rules.OneOrder.Offers.Price
 import Rules.OneOrder.Offers.Restrictions
 import Rules.OneOrder.Offers.Theorems
 import Rules.OneOrder.Offers.Examples
+import Rules.OneOrder.Ancillaries.Basic
+import Rules.OneOrder.Ancillaries.Add
+import Rules.OneOrder.Ancillaries.Cancel
+import Rules.OneOrder.Ancillaries.Seats
+import Rules.OneOrder.Ancillaries.Replace
+import Rules.OneOrder.Ancillaries.AlaCarte
+import Rules.OneOrder.Ancillaries.Bundle
+import Rules.OneOrder.Ancillaries.Theorems
+import Rules.OneOrder.Ancillaries.Examples
