@@ -720,3 +720,14 @@ Choices made where the plan left room, in the order they came up.
     the compiled `Review` modules with `importModules`, as `lake exe status`
     and `lake exe oracle` already do. The program builds in 471 jobs instead
     of 6,767, and the HTML it writes is byte for byte the same.
+32. **A starting-small branch, milestones and a graph history.** The
+    `starting-small` branch and tag `snapshot/starting-small` keep the
+    version to propose for an internal pilot, while `main` grows toward as
+    much of ONE Order as the public material allows. Each milestone gets an
+    annotated tag `milestone/<name>` and a snapshot of the graph in
+    `history/`, written by `scripts/graph_history.py`, which also computes one
+    layout for every node that has appeared so nodes keep their place across
+    snapshots. The first three milestones were recorded after the fact from
+    the blueprint's history. The site publishes the current graph at
+    `/graph/graph.json`. `docs/motion-brief.md` describes how the snapshots
+    can drive a motion piece about the graph's growth.

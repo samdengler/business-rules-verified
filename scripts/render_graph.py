@@ -409,6 +409,26 @@ def page(nodes, labels, decls):
 """
 
 
+def graph_data(nodes, labels):
+    """The graph as data: every node with its status and what it uses.  The
+    site publishes it at /graph/graph.json, and scripts/graph_history.py saves
+    one per milestone for the motion piece (docs/motion-brief.md)."""
+    return {
+        "nodes": [{
+            "id": n["label"],
+            "title": n["title"],
+            "candidate": n["cid"],
+            "kind": "theorem" if n["env"] != "definition" else "definition",
+            "chapter": n["chapter"],
+            "area": n["section"],
+            "status": n["status"],
+            "statusWords": STATUS_WORDS[n["status"]],
+            "lean": n["lean"],
+            "uses": [u for u in n["uses"] if u in labels],
+        } for n in nodes],
+    }
+
+
 def main():
     decls = load_decls()
     nodes = parse_nodes()
@@ -418,7 +438,8 @@ def main():
     labels = {n["label"] for n in nodes}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(page(nodes, labels, decls))
-    print(f"rendered {OUT.relative_to(ROOT)}: {len(nodes)} nodes")
+    (OUT.parent / "graph.json").write_text(json.dumps(graph_data(nodes, labels), indent=1) + "\n")
+    print(f"rendered {OUT.relative_to(ROOT)} and graph.json: {len(nodes)} nodes")
 
 
 if __name__ == "__main__":

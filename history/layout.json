@@ -1,0 +1,786 @@
+{
+ "width": 2418,
+ "height": 1378,
+ "cardWidth": 184,
+ "nodes": {
+  "def:currency": {
+   "x": 702.0,
+   "y": 30.5,
+   "height": 61,
+   "lines": [
+    "Currency"
+   ]
+  },
+  "def:money": {
+   "x": 539.0,
+   "y": 145.0,
+   "height": 61,
+   "lines": [
+    "Money"
+   ]
+  },
+  "def:money-add": {
+   "x": 395.0,
+   "y": 259.5,
+   "height": 61,
+   "lines": [
+    "Adding money"
+   ]
+  },
+  "def:instant": {
+   "x": 1275.0,
+   "y": 259.5,
+   "height": 61,
+   "lines": [
+    "Instant"
+   ]
+  },
+  "def:passenger": {
+   "x": 743.0,
+   "y": 145.0,
+   "height": 61,
+   "lines": [
+    "Passenger"
+   ]
+  },
+  "def:principal": {
+   "x": 1503.0,
+   "y": 30.5,
+   "height": 61,
+   "lines": [
+    "Principal"
+   ]
+  },
+  "def:classification": {
+   "x": 2294.0,
+   "y": 30.5,
+   "height": 61,
+   "lines": [
+    "Classification"
+   ]
+  },
+  "thm:public-le": {
+   "x": 2294.0,
+   "y": 145.0,
+   "height": 78,
+   "lines": [
+    "Public is the lowest",
+    "level"
+   ]
+  },
+  "def:offer-item": {
+   "x": 684.0,
+   "y": 259.5,
+   "height": 61,
+   "lines": [
+    "Offer item"
+   ]
+  },
+  "def:offer": {
+   "x": 684.0,
+   "y": 374.0,
+   "height": 61,
+   "lines": [
+    "Offer"
+   ]
+  },
+  "def:delivery-state": {
+   "x": 1886.0,
+   "y": 145.0,
+   "height": 61,
+   "lines": [
+    "Delivery state"
+   ]
+  },
+  "def:delivery-event": {
+   "x": 2090.0,
+   "y": 145.0,
+   "height": 61,
+   "lines": [
+    "Delivery event"
+   ]
+  },
+  "def:order-item": {
+   "x": 1071.0,
+   "y": 259.5,
+   "height": 61,
+   "lines": [
+    "Order item"
+   ]
+  },
+  "def:order": {
+   "x": 1092.0,
+   "y": 374.0,
+   "height": 61,
+   "lines": [
+    "Order"
+   ]
+  },
+  "def:rejection": {
+   "x": 888.0,
+   "y": 374.0,
+   "height": 61,
+   "lines": [
+    "Rejection"
+   ]
+  },
+  "def:accept": {
+   "x": 767.0,
+   "y": 488.5,
+   "height": 61,
+   "lines": [
+    "Accepting an offer"
+   ]
+  },
+  "def:step": {
+   "x": 2060.0,
+   "y": 259.5,
+   "height": 61,
+   "lines": [
+    "Delivery transitions"
+   ]
+  },
+  "thm:accept-price-eq-sum": {
+   "x": 725.0,
+   "y": 602.9,
+   "height": 78,
+   "lines": [
+    "Order price is the sum of",
+    "the items"
+   ]
+  },
+  "thm:accept-rejects-expired": {
+   "x": 683.0,
+   "y": 725.9,
+   "height": 78,
+   "lines": [
+    "Expired offers are",
+    "rejected"
+   ]
+  },
+  "thm:delivered-not-cancellable": {
+   "x": 2081.0,
+   "y": 374.0,
+   "height": 78,
+   "lines": [
+    "Delivered services cannot",
+    "be cancelled"
+   ]
+  },
+  "def:payment": {
+   "x": 436.0,
+   "y": 840.4,
+   "height": 61,
+   "lines": [
+    "Payment"
+   ]
+  },
+  "def:refund": {
+   "x": 232.0,
+   "y": 840.4,
+   "height": 61,
+   "lines": [
+    "Refund"
+   ]
+  },
+  "def:totals": {
+   "x": 102.0,
+   "y": 946.4,
+   "height": 61,
+   "lines": [
+    "Totals paid and refunded"
+   ]
+  },
+  "def:accept-refund": {
+   "x": 306.0,
+   "y": 946.4,
+   "height": 61,
+   "lines": [
+    "Accepting a refund"
+   ]
+  },
+  "thm:refunds-le-payments": {
+   "x": 92.0,
+   "y": 1060.9,
+   "height": 78,
+   "lines": [
+    "Refunds never exceed",
+    "payments"
+   ]
+  },
+  "def:c01-structure": {
+   "x": 1219.0,
+   "y": 488.5,
+   "height": 61,
+   "lines": [
+    "Order structure"
+   ]
+  },
+  "thm:c02-item-per-offer-item": {
+   "x": 1013.0,
+   "y": 602.9,
+   "height": 78,
+   "lines": [
+    "One order item per offer",
+    "item"
+   ]
+  },
+  "thm:c03-unique-item-ids": {
+   "x": 950.0,
+   "y": 1060.9,
+   "height": 61,
+   "lines": [
+    "Order item IDs are unique"
+   ]
+  },
+  "thm:c04-item-unsplit": {
+   "x": 1358.0,
+   "y": 1060.9,
+   "height": 61,
+   "lines": [
+    "Order items are not split"
+   ]
+  },
+  "def:c05-holds-value": {
+   "x": 1835.0,
+   "y": 725.9,
+   "height": 61,
+   "lines": [
+    "Services that hold value"
+   ]
+  },
+  "def:c06-item-status": {
+   "x": 1440.0,
+   "y": 840.4,
+   "height": 61,
+   "lines": [
+    "Order item status"
+   ]
+  },
+  "def:c07-order-status": {
+   "x": 1889.0,
+   "y": 946.4,
+   "height": 61,
+   "lines": [
+    "Order status"
+   ]
+  },
+  "def:c08-delivery-status": {
+   "x": 1835.0,
+   "y": 602.9,
+   "height": 61,
+   "lines": [
+    "Delivery status"
+   ]
+  },
+  "thm:c09-suspended": {
+   "x": 2039.0,
+   "y": 725.9,
+   "height": 61,
+   "lines": [
+    "Suspended services"
+   ]
+  },
+  "def:c10-in-progress": {
+   "x": 542.0,
+   "y": 1060.9,
+   "height": 78,
+   "lines": [
+    "Refunds while delivery is",
+    "in progress"
+   ]
+  },
+  "def:c11-payment-time-limit": {
+   "x": 1589.0,
+   "y": 725.9,
+   "height": 61,
+   "lines": [
+    "Payment time limit"
+   ]
+  },
+  "def:c12-zero-commitment": {
+   "x": 1385.0,
+   "y": 725.9,
+   "height": 61,
+   "lines": [
+    "Committing to pay nothing"
+   ]
+  },
+  "def:c13-several-methods": {
+   "x": 338.0,
+   "y": 1060.9,
+   "height": 78,
+   "lines": [
+    "Paying with several",
+    "methods"
+   ]
+  },
+  "thm:c14-amount-covers-price": {
+   "x": 380.0,
+   "y": 1183.8,
+   "height": 78,
+   "lines": [
+    "Amount charged across",
+    "methods"
+   ]
+  },
+  "def:c15-cancel-order": {
+   "x": 665.0,
+   "y": 946.4,
+   "height": 61,
+   "lines": [
+    "Cancelling an order"
+   ]
+  },
+  "thm:c16-penalty-net": {
+   "x": 746.0,
+   "y": 1060.9,
+   "height": 61,
+   "lines": [
+    "Cancellation penalty"
+   ]
+  },
+  "def:c17-refund-methods": {
+   "x": 236.0,
+   "y": 1306.8,
+   "height": 78,
+   "lines": [
+    "Refunds across payment",
+    "methods"
+   ]
+  },
+  "def:c18-change": {
+   "x": 1358.0,
+   "y": 946.4,
+   "height": 61,
+   "lines": [
+    "Changing an order item"
+   ]
+  },
+  "thm:c19-transfer-balanced": {
+   "x": 1562.0,
+   "y": 1060.9,
+   "height": 78,
+   "lines": [
+    "Transferred services keep",
+    "the order balanced"
+   ]
+  },
+  "thm:c20-value-store": {
+   "x": 1766.0,
+   "y": 1060.9,
+   "height": 78,
+   "lines": [
+    "Stored value stays in its",
+    "order"
+   ]
+  },
+  "thm:c21-version": {
+   "x": 1154.0,
+   "y": 1060.9,
+   "height": 61,
+   "lines": [
+    "Order version"
+   ]
+  },
+  "thm:c22-bill-after-delivery": {
+   "x": 2081.0,
+   "y": 840.4,
+   "height": 61,
+   "lines": [
+    "Billing after delivery"
+   ]
+  },
+  "def:c23-retention": {
+   "x": 2087.0,
+   "y": 1060.9,
+   "height": 61,
+   "lines": [
+    "Order retention"
+   ]
+  }
+ },
+ "edges": [
+  {
+   "from": "def:currency",
+   "to": "def:money",
+   "path": "M658.8 61.4C638.2 75.6 613.5 92.6 591.9 107.6L582.5 114.0"
+  },
+  {
+   "from": "def:currency",
+   "to": "def:offer",
+   "path": "M794.3 61.0C814.4 71.9 833.2 86.5 845.0 106.0C863.0 135.7 853.7 150.5 845.0 184.0C831.5 236.2 820.7 248.7 786.0 290.0C771.8 307.0 753.7 323.0 736.7 336.4L727.9 343.1"
+  },
+  {
+   "from": "def:money",
+   "to": "def:money-add",
+   "path": "M500.8 175.9C482.9 189.9 461.4 206.6 442.5 221.4L433.4 228.5"
+  },
+  {
+   "from": "def:money",
+   "to": "def:offer-item",
+   "path": "M577.5 175.9C595.6 189.9 617.4 206.8 636.5 221.6L645.4 228.5"
+  },
+  {
+   "from": "def:money",
+   "to": "def:order-item",
+   "path": "M613.9 175.9C623.0 178.9 632.1 181.7 641.0 184.0C772.9 218.0 810.3 203.6 944.0 229.0C951.6 230.5 959.5 232.1 967.4 233.7L978.6 236.1"
+  },
+  {
+   "from": "def:money",
+   "to": "def:order",
+   "path": "M618.2 176.0C625.9 178.8 633.6 181.5 641.0 184.0C704.9 205.8 723.1 204.6 786.0 229.0C870.1 261.7 963.5 307.0 1024.8 338.0L1034.7 343.1"
+  },
+  {
+   "from": "def:money",
+   "to": "def:payment",
+   "path": "M534.5 175.7C528.3 218.9 518.0 301.9 518.0 373.0C518.0 373.0 518.0 373.0 518.0 603.9C518.0 676.0 483.3 754.0 459.1 799.6L453.6 809.7"
+  },
+  {
+   "from": "def:money",
+   "to": "def:refund",
+   "path": "M446.6 156.2C394.9 166.5 333.1 187.2 293.0 229.0C246.9 277.1 251.0 306.3 251.0 373.0C251.0 373.0 251.0 373.0 251.0 603.9C251.0 672.4 242.9 751.6 237.3 798.5L235.9 809.7"
+  },
+  {
+   "from": "def:money",
+   "to": "thm:c16-penalty-net",
+   "path": "M543.5 175.7C549.7 218.9 560.0 301.9 560.0 373.0C560.0 373.0 560.0 373.0 560.0 603.9C560.0 676.1 545.8 701.9 581.0 764.9C632.9 857.9 721.2 819.8 767.0 915.9C782.5 948.5 774.2 989.6 763.8 1019.5L759.9 1030.0"
+  },
+  {
+   "from": "def:instant",
+   "to": "def:offer",
+   "path": "M1182.6 287.9C1179.4 288.7 1176.2 289.4 1173.0 290.0C1003.3 324.2 954.4 294.5 786.0 335.0C780.4 336.3 774.7 337.9 769.0 339.6L758.0 343.1"
+  },
+  {
+   "from": "def:instant",
+   "to": "def:order",
+   "path": "M1226.5 290.3C1203.1 304.7 1174.9 322.0 1150.4 337.1L1140.8 343.0"
+  },
+  {
+   "from": "def:instant",
+   "to": "def:c11-payment-time-limit",
+   "path": "M1295.1 290.3C1349.8 371.1 1501.0 594.8 1562.5 685.7L1568.9 695.1"
+  },
+  {
+   "from": "def:instant",
+   "to": "def:c23-retention",
+   "path": "M1367.2 274.9C1552.7 309.1 1969.4 413.8 2163.0 686.9C2210.6 754.0 2202.2 790.9 2183.0 870.9C2169.7 926.4 2137.3 984.0 2113.8 1020.8L2107.7 1030.2"
+  },
+  {
+   "from": "def:passenger",
+   "to": "def:offer-item",
+   "path": "M727.4 175.9C720.5 189.0 712.3 204.5 705.0 218.6L699.8 228.5"
+  },
+  {
+   "from": "def:passenger",
+   "to": "def:c01-structure",
+   "path": "M835.5 151.5C1002.8 162.3 1341.9 189.0 1377.0 229.0C1439.2 299.8 1336.9 398.1 1269.9 450.8L1261.1 457.6"
+  },
+  {
+   "from": "def:classification",
+   "to": "thm:public-le",
+   "path": "M2294.0 61.4C2294.0 71.4 2294.0 82.9 2294.0 94.1L2294.0 105.5"
+  },
+  {
+   "from": "def:offer-item",
+   "to": "def:offer",
+   "path": "M684.0 290.3C684.0 303.1 684.0 318.1 684.0 331.8L684.0 343.0"
+  },
+  {
+   "from": "def:offer",
+   "to": "def:accept",
+   "path": "M706.0 404.8C715.9 418.2 727.6 434.1 738.2 448.4L744.9 457.5"
+  },
+  {
+   "from": "def:delivery-state",
+   "to": "def:order-item",
+   "path": "M1793.5 151.9C1659.0 161.5 1401.7 183.9 1174.6 228.8L1163.4 231.1"
+  },
+  {
+   "from": "def:delivery-state",
+   "to": "def:step",
+   "path": "M1932.2 175.9C1954.3 190.2 1981.0 207.4 2004.2 222.4L2013.6 228.5"
+  },
+  {
+   "from": "def:delivery-state",
+   "to": "def:c08-delivery-status",
+   "path": "M1882.7 175.9C1873.8 255.1 1849.8 470.1 1839.6 560.8L1838.3 572.2"
+  },
+  {
+   "from": "def:delivery-event",
+   "to": "def:step",
+   "path": "M2082.1 175.9C2078.6 188.7 2074.6 203.9 2070.9 217.8L2068.0 228.5"
+  },
+  {
+   "from": "def:order-item",
+   "to": "def:order",
+   "path": "M1076.6 290.3C1079.0 303.1 1081.8 318.1 1084.3 331.8L1086.4 343.0"
+  },
+  {
+   "from": "def:order-item",
+   "to": "def:c01-structure",
+   "path": "M1143.2 290.4C1162.5 301.6 1181.4 316.4 1194.0 335.0C1216.2 367.8 1221.1 413.3 1221.3 446.1L1221.2 457.6"
+  },
+  {
+   "from": "def:order",
+   "to": "def:accept",
+   "path": "M1012.5 404.9C1004.9 407.7 997.3 410.4 990.0 413.0C950.8 426.8 907.5 441.4 869.5 454.0L858.9 457.5"
+  },
+  {
+   "from": "def:order",
+   "to": "def:c01-structure",
+   "path": "M1125.7 404.8C1141.4 418.7 1160.1 435.3 1176.7 450.0L1185.2 457.5"
+  },
+  {
+   "from": "def:order",
+   "to": "thm:c21-version",
+   "path": "M1048.2 404.8C1004.0 437.8 938.5 495.4 911.0 563.9C898.1 596.1 902.0 608.5 911.0 641.9C952.4 795.5 1065.7 950.7 1121.7 1021.0L1128.9 1029.9"
+  },
+  {
+   "from": "def:rejection",
+   "to": "def:accept",
+   "path": "M855.9 404.8C841.0 418.7 823.1 435.3 807.3 450.0L799.3 457.5"
+  },
+  {
+   "from": "def:accept",
+   "to": "thm:accept-price-eq-sum",
+   "path": "M755.9 519.3C752.0 529.6 747.6 541.3 743.4 552.7L739.4 563.5"
+  },
+  {
+   "from": "def:accept",
+   "to": "thm:accept-rejects-expired",
+   "path": "M674.5 518.6C654.1 529.5 635.0 544.2 623.0 563.9C605.0 593.6 612.4 609.0 623.0 641.9C627.0 654.4 633.7 666.5 641.1 677.5L647.8 686.8"
+  },
+  {
+   "from": "def:accept",
+   "to": "thm:c02-item-per-offer-item",
+   "path": "M832.3 519.3C858.8 531.4 889.9 545.6 918.8 558.8L928.9 563.5"
+  },
+  {
+   "from": "def:accept",
+   "to": "thm:c03-unique-item-ids",
+   "path": "M797.2 519.2C808.4 531.9 820.0 547.6 827.0 563.9C855.4 630.3 848.0 652.8 848.0 724.9C848.0 724.9 848.0 724.9 848.0 841.4C848.0 909.3 889.0 979.0 919.0 1020.8L925.8 1030.1"
+  },
+  {
+   "from": "def:step",
+   "to": "thm:delivered-not-cancellable",
+   "path": "M2065.6 290.3C2067.5 300.5 2069.7 312.1 2071.8 323.4L2073.8 334.5"
+  },
+  {
+   "from": "def:step",
+   "to": "def:c08-delivery-status",
+   "path": "M2018.6 290.4C2004.2 302.7 1989.1 318.1 1979.0 335.0C1935.7 407.4 1976.6 447.3 1932.0 518.9C1921.1 536.4 1905.4 552.1 1889.8 565.1L1881.1 571.9"
+  },
+  {
+   "from": "def:payment",
+   "to": "def:totals",
+   "path": "M343.9 870.1C300.9 883.5 249.5 899.4 205.2 913.2L194.4 916.6"
+  },
+  {
+   "from": "def:payment",
+   "to": "def:accept-refund",
+   "path": "M398.8 871.2C384.2 882.8 367.4 896.3 352.1 908.5L343.3 915.6"
+  },
+  {
+   "from": "def:payment",
+   "to": "def:c13-several-methods",
+   "path": "M434.1 871.3C431.3 899.7 424.5 943.0 408.0 976.9C401.8 989.6 393.3 1002.0 384.3 1013.1L377.0 1021.8"
+  },
+  {
+   "from": "def:payment",
+   "to": "def:c15-cancel-order",
+   "path": "M501.9 871.3C529.1 883.7 560.8 898.1 589.0 910.8L599.2 915.5"
+  },
+  {
+   "from": "def:refund",
+   "to": "def:totals",
+   "path": "M194.8 871.2C180.2 882.8 163.4 896.3 148.1 908.5L139.3 915.6"
+  },
+  {
+   "from": "def:refund",
+   "to": "def:accept-refund",
+   "path": "M253.2 871.2C261.0 882.2 270.0 894.8 278.3 906.5L284.8 915.6"
+  },
+  {
+   "from": "def:totals",
+   "to": "thm:refunds-le-payments",
+   "path": "M99.4 977.2C98.5 987.3 97.4 998.8 96.5 1009.9L95.4 1021.4"
+  },
+  {
+   "from": "def:accept-refund",
+   "to": "thm:refunds-le-payments",
+   "path": "M249.2 977.2C226.6 989.1 200.1 1003.1 175.3 1016.1L165.2 1021.4"
+  },
+  {
+   "from": "def:accept-refund",
+   "to": "def:c10-in-progress",
+   "path": "M368.6 977.2C393.9 989.3 423.6 1003.4 451.2 1016.6L461.3 1021.4"
+  },
+  {
+   "from": "def:accept-refund",
+   "to": "def:c17-refund-methods",
+   "path": "M268.1 977.2C255.4 989.5 242.8 1004.9 236.0 1021.9C205.4 1099.2 215.1 1198.0 225.3 1256.3L227.4 1267.4"
+  },
+  {
+   "from": "thm:refunds-le-payments",
+   "to": "def:c17-refund-methods",
+   "path": "M114.7 1100.2C139.8 1142.9 180.5 1211.8 207.7 1257.9L213.5 1267.6"
+  },
+  {
+   "from": "def:c01-structure",
+   "to": "thm:c02-item-per-offer-item",
+   "path": "M1164.4 519.3C1142.7 531.1 1117.3 545.0 1093.5 558.0L1083.5 563.5"
+  },
+  {
+   "from": "def:c01-structure",
+   "to": "thm:c03-unique-item-ids",
+   "path": "M1202.9 519.4C1195.8 532.9 1187.3 549.2 1180.0 563.9C1097.4 731.5 1005.8 934.6 967.9 1019.5L963.3 1030.0"
+  },
+  {
+   "from": "def:c01-structure",
+   "to": "thm:c04-item-unsplit",
+   "path": "M1210.4 519.3C1198.4 563.7 1178.0 650.0 1178.0 724.9C1178.0 724.9 1178.0 724.9 1178.0 841.4C1178.0 919.7 1247.8 985.2 1300.5 1023.5L1309.8 1030.1"
+  },
+  {
+   "from": "def:c01-structure",
+   "to": "def:c06-item-status",
+   "path": "M1225.9 519.3C1242.2 590.3 1282.0 763.7 1283.0 764.9C1297.4 782.8 1317.1 796.6 1337.7 807.2L1347.8 812.2"
+  },
+  {
+   "from": "def:c01-structure",
+   "to": "def:c08-delivery-status",
+   "path": "M1311.2 506.3C1423.9 526.9 1614.0 561.6 1731.5 583.0L1742.7 585.1"
+  },
+  {
+   "from": "def:c01-structure",
+   "to": "def:c12-zero-commitment",
+   "path": "M1243.4 519.1C1254.3 532.6 1267.1 548.9 1278.0 563.9C1307.5 604.6 1339.1 652.8 1360.3 685.7L1366.2 695.0"
+  },
+  {
+   "from": "def:c01-structure",
+   "to": "def:c18-change",
+   "path": "M1221.3 519.4C1223.9 550.2 1228.5 599.6 1235.0 641.9C1243.5 697.0 1240.9 712.5 1260.0 764.9C1278.6 816.0 1309.9 870.4 1332.1 905.9L1338.1 915.4"
+  },
+  {
+   "from": "thm:c04-item-unsplit",
+   "to": "thm:c14-amount-covers-price",
+   "path": "M1284.6 1091.8C1275.1 1094.9 1265.4 1097.7 1256.0 1099.8C981.8 1162.7 648.8 1178.1 483.5 1181.8L472.4 1182.0"
+  },
+  {
+   "from": "def:c05-holds-value",
+   "to": "def:c06-item-status",
+   "path": "M1752.9 756.9C1744.5 759.7 1736.1 762.4 1728.0 764.9C1667.3 783.5 1598.4 801.4 1543.2 815.0L1532.4 817.7"
+  },
+  {
+   "from": "def:c05-holds-value",
+   "to": "def:c07-order-status",
+   "path": "M1842.4 756.8C1851.9 795.1 1868.3 861.6 1878.9 904.6L1881.6 915.5"
+  },
+  {
+   "from": "def:c05-holds-value",
+   "to": "thm:c20-value-store",
+   "path": "M1826.4 756.8C1815.9 793.9 1798.3 859.1 1787.0 915.9C1780.8 947.1 1775.6 982.5 1771.9 1010.4L1770.5 1021.5"
+  },
+  {
+   "from": "def:c06-item-status",
+   "to": "def:c07-order-status",
+   "path": "M1532.5 862.8C1606.2 879.9 1709.2 903.7 1785.6 921.4L1796.6 924.0"
+  },
+  {
+   "from": "def:c06-item-status",
+   "to": "def:c15-cancel-order",
+   "path": "M1347.7 853.8C1202.2 873.3 920.6 911.1 768.5 931.5L757.3 933.0"
+  },
+  {
+   "from": "def:c06-item-status",
+   "to": "def:c18-change",
+   "path": "M1416.5 871.2C1407.8 882.3 1397.7 895.0 1388.4 906.8L1381.5 915.6"
+  },
+  {
+   "from": "def:c06-item-status",
+   "to": "thm:c19-transfer-balanced",
+   "path": "M1456.7 871.3C1476.9 907.4 1511.1 968.7 1535.0 1011.6L1540.6 1021.5"
+  },
+  {
+   "from": "def:c07-order-status",
+   "to": "def:c23-retention",
+   "path": "M1941.6 977.2C1967.0 991.6 1997.6 1009.1 2024.2 1024.2L2034.2 1029.9"
+  },
+  {
+   "from": "def:c08-delivery-status",
+   "to": "def:c05-holds-value",
+   "path": "M1835.0 633.8C1835.0 648.8 1835.0 667.2 1835.0 683.5L1835.0 694.9"
+  },
+  {
+   "from": "def:c08-delivery-status",
+   "to": "thm:c09-suspended",
+   "path": "M1885.4 633.8C1913.6 650.6 1949.0 671.5 1978.6 689.1L1988.5 694.9"
+  },
+  {
+   "from": "def:c08-delivery-status",
+   "to": "def:c10-in-progress",
+   "path": "M1790.7 633.9C1771.4 648.4 1749.5 667.0 1733.0 686.9C1707.9 717.3 1723.5 742.6 1691.0 764.9C1625.8 809.7 1416.4 799.5 1338.0 809.9C993.4 855.4 809.9 671.2 563.0 915.9C538.6 940.0 534.2 979.1 535.4 1010.4L536.1 1021.6"
+  },
+  {
+   "from": "def:c08-delivery-status",
+   "to": "def:c11-payment-time-limit",
+   "path": "M1774.2 633.8C1739.6 650.9 1696.1 672.2 1660.0 690.0L1650.0 694.9"
+  },
+  {
+   "from": "def:c08-delivery-status",
+   "to": "def:c12-zero-commitment",
+   "path": "M1742.6 622.8C1672.0 637.9 1572.6 660.9 1487.0 686.9C1482.5 688.3 1477.9 689.8 1473.2 691.3L1462.4 695.0"
+  },
+  {
+   "from": "def:c08-delivery-status",
+   "to": "thm:c22-bill-after-delivery",
+   "path": "M1927.4 616.5C2007.7 629.6 2115.0 652.9 2141.0 686.9C2162.1 714.4 2152.5 732.2 2141.0 764.9C2136.4 777.9 2128.5 790.2 2120.0 801.0L2112.6 809.7"
+  },
+  {
+   "from": "def:c13-several-methods",
+   "to": "thm:c14-amount-covers-price",
+   "path": "M351.3 1100.1C355.0 1110.8 359.1 1122.6 363.0 1133.8L366.7 1144.4"
+  },
+  {
+   "from": "def:c13-several-methods",
+   "to": "def:c17-refund-methods",
+   "path": "M305.8 1100.1C295.8 1113.6 285.4 1129.2 278.0 1144.8C261.3 1180.4 250.5 1223.6 244.0 1256.3L241.9 1267.4"
+  },
+  {
+   "from": "thm:c14-amount-covers-price",
+   "to": "def:c17-refund-methods",
+   "path": "M334.4 1223.1C320.4 1234.9 304.8 1248.0 290.2 1260.3L281.8 1267.4"
+  },
+  {
+   "from": "def:c15-cancel-order",
+   "to": "thm:c16-penalty-net",
+   "path": "M686.5 977.2C696.1 990.6 707.6 1006.5 717.9 1020.8L724.4 1029.9"
+  },
+  {
+   "from": "def:c18-change",
+   "to": "thm:c03-unique-item-ids",
+   "path": "M1265.5 966.9C1204.4 980.5 1122.8 1000.1 1052.0 1021.9C1047.5 1023.2 1043.0 1024.7 1038.4 1026.2L1027.7 1029.9"
+  },
+  {
+   "from": "def:c18-change",
+   "to": "thm:c04-item-unsplit",
+   "path": "M1358.0 977.2C1358.0 989.9 1358.0 1005.0 1358.0 1018.7L1358.0 1029.9"
+  },
+  {
+   "from": "def:c18-change",
+   "to": "thm:c19-transfer-balanced",
+   "path": "M1412.1 977.2C1433.6 989.1 1458.8 1002.9 1482.3 1015.9L1492.2 1021.4"
+  },
+  {
+   "from": "def:c18-change",
+   "to": "thm:c20-value-store",
+   "path": "M1450.5 966.9C1508.9 979.9 1585.9 998.4 1662.8 1021.6L1673.6 1024.9"
+  },
+  {
+   "from": "def:c18-change",
+   "to": "thm:c21-version",
+   "path": "M1303.9 977.2C1277.6 991.7 1245.8 1009.2 1218.3 1024.4L1208.4 1029.9"
+  }
+ ],
+ "generated": "2026-10-30T03:10:32+00:00"
+}

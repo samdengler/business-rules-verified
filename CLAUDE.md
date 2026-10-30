@@ -31,6 +31,11 @@ The bar at the top of every page is defined once in `scripts/site_nav.py`; `Revi
 
 A new requirement needs `{include 1 Review.Generated.OO00n}` in `Review/Review.lean`; `render_status.py` fails until it is there.
 
+## Branches, tags and milestones
+
+- `main` grows toward as much of ONE Order as the public material allows. The `starting-small` branch (tag `snapshot/starting-small`) keeps the version to propose for an internal pilot; fixes to that version go on that branch.
+- Each milestone (a survey round's candidates added, a capability's rules in Lean) gets a snapshot and an annotated tag with `python3 scripts/graph_history.py snapshot <name> "<sentence>" --tag`, then `python3 scripts/graph_history.py layout`. `docs/motion-brief.md` explains why: the snapshots feed a motion piece about how the graph grew.
+
 ## Versions
 
 Lean, Mathlib and Verso are on `v4.35.0` because the pinned Aeneas release needs it. The Aeneas commit in `lakefile.toml` and the release in `scripts/translate-rust.sh` move together with the Lean version.

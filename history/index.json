@@ -1,0 +1,55 @@
+{
+ "milestones": [
+  {
+   "seq": 1,
+   "name": "first-slice",
+   "description": "The first slice in Lean: accepting an offer, delivering a service, payments and refunds, with three proven guarantees and the open refund question.",
+   "commit": "292efccbaa7a1979b4a91963ae454bade299040a",
+   "date": "2026-10-24T11:45:07-04:00",
+   "tag": "milestone/first-slice",
+   "file": "0001-first-slice.json",
+   "nodes": 25,
+   "statusCounts": {
+    "modelled": 20,
+    "proven": 4,
+    "open": 1
+   }
+  },
+  {
+   "seq": 2,
+   "name": "candidates-identified",
+   "description": "The first ONE Order survey adds 23 candidate rules to the blueprint; 12 wait on a business decision.",
+   "commit": "de50e44141f7380f5c7a05270535f349d0e89a02",
+   "date": "2026-10-29T20:00:25-04:00",
+   "tag": "milestone/candidates-identified",
+   "file": "0002-candidates-identified.json",
+   "nodes": 48,
+   "statusCounts": {
+    "modelled": 20,
+    "proven": 4,
+    "open": 1,
+    "ready": 2,
+    "waiting": 9,
+    "decision": 12
+   }
+  },
+  {
+   "seq": 3,
+   "name": "starting-small",
+   "description": "Starting small: the slice in Lean, 23 candidates, the review site and the coverage map. The version to propose for an internal pilot.",
+   "commit": "182c59e1a50849b575bd4170c1fb626a5d54c987",
+   "date": "2026-10-29T23:03:34-04:00",
+   "tag": "milestone/starting-small",
+   "file": "0003-starting-small.json",
+   "nodes": 48,
+   "statusCounts": {
+    "modelled": 20,
+    "proven": 4,
+    "open": 1,
+    "ready": 2,
+    "waiting": 9,
+    "decision": 12
+   }
+  }
+ ]
+}

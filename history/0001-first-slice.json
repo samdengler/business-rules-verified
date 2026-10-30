@@ -1,0 +1,409 @@
+{
+ "milestone": {
+  "seq": 1,
+  "name": "first-slice",
+  "description": "The first slice in Lean: accepting an offer, delivering a service, payments and refunds, with three proven guarantees and the open refund question.",
+  "commit": "292efccbaa7a1979b4a91963ae454bade299040a",
+  "date": "2026-10-24T11:45:07-04:00",
+  "tag": "milestone/first-slice"
+ },
+ "nodes": [
+  {
+   "id": "def:currency",
+   "title": "Currency",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Currency"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:money",
+   "title": "Money",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Money"
+   ],
+   "uses": [
+    "def:currency"
+   ]
+  },
+  {
+   "id": "def:money-add",
+   "title": "Adding money",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Money.add"
+   ],
+   "uses": [
+    "def:money"
+   ]
+  },
+  {
+   "id": "def:instant",
+   "title": "Instant",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Instant"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:passenger",
+   "title": "Passenger",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Passenger"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:principal",
+   "title": "Principal",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Principal"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:classification",
+   "title": "Classification",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Classification"
+   ],
+   "uses": []
+  },
+  {
+   "id": "thm:public-le",
+   "title": "Public is the lowest level",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.Core.Classification.public_le"
+   ],
+   "uses": [
+    "def:classification"
+   ]
+  },
+  {
+   "id": "def:offer-item",
+   "title": "Offer item",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.OfferItem"
+   ],
+   "uses": [
+    "def:money",
+    "def:passenger"
+   ]
+  },
+  {
+   "id": "def:offer",
+   "title": "Offer",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Offer"
+   ],
+   "uses": [
+    "def:offer-item",
+    "def:instant",
+    "def:currency"
+   ]
+  },
+  {
+   "id": "def:delivery-state",
+   "title": "Delivery state",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.DeliveryState"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:delivery-event",
+   "title": "Delivery event",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.DeliveryEvent"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:order-item",
+   "title": "Order item",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.OrderItem"
+   ],
+   "uses": [
+    "def:money",
+    "def:delivery-state"
+   ]
+  },
+  {
+   "id": "def:order",
+   "title": "Order",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Order"
+   ],
+   "uses": [
+    "def:order-item",
+    "def:money",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "def:rejection",
+   "title": "Rejection",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Rejection"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:accept",
+   "title": "Accepting an offer",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.accept"
+   ],
+   "uses": [
+    "def:offer",
+    "def:order",
+    "def:rejection"
+   ]
+  },
+  {
+   "id": "def:step",
+   "title": "Delivery transitions",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.step"
+   ],
+   "uses": [
+    "def:delivery-state",
+    "def:delivery-event"
+   ]
+  },
+  {
+   "id": "thm:accept-price-eq-sum",
+   "title": "Order price is the sum of the items",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OfferOrder.accept_price_eq_sum"
+   ],
+   "uses": [
+    "def:accept"
+   ]
+  },
+  {
+   "id": "thm:accept-rejects-expired",
+   "title": "Expired offers are rejected",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OfferOrder.accept_rejects_expired"
+   ],
+   "uses": [
+    "def:accept"
+   ]
+  },
+  {
+   "id": "thm:delivered-not-cancellable",
+   "title": "Delivered services cannot be cancelled",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OfferOrder.delivered_not_cancellable"
+   ],
+   "uses": [
+    "def:step"
+   ]
+  },
+  {
+   "id": "def:payment",
+   "title": "Payment",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Payment"
+   ],
+   "uses": [
+    "def:money"
+   ]
+  },
+  {
+   "id": "def:refund",
+   "title": "Refund",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Refund"
+   ],
+   "uses": [
+    "def:money"
+   ]
+  },
+  {
+   "id": "def:totals",
+   "title": "Totals paid and refunded",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.totalPaid",
+    "Rules.OfferOrder.totalRefunded"
+   ],
+   "uses": [
+    "def:payment",
+    "def:refund"
+   ]
+  },
+  {
+   "id": "def:accept-refund",
+   "title": "Accepting a refund",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.acceptRefund"
+   ],
+   "uses": [
+    "def:payment",
+    "def:refund"
+   ]
+  },
+  {
+   "id": "thm:refunds-le-payments",
+   "title": "Refunds never exceed payments",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OfferOrder.refunds_le_payments"
+   ],
+   "uses": [
+    "def:accept-refund",
+    "def:totals"
+   ]
+  }
+ ]
+}

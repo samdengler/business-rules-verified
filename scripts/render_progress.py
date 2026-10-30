@@ -80,8 +80,10 @@ def plain(s):
     return html.unescape(re.sub(r"<[^>]+>", "", s))
 
 
-def parse_nodes():
-    src = CONTENT.read_text()
+def parse_nodes(src=None):
+    """The blueprint's nodes, from content.tex or from its text as given (for
+    an earlier commit, in scripts/graph_history.py)."""
+    src = CONTENT.read_text() if src is None else src
     heads = [(m.start(), m.group(1), m.group(2)) for m in HEAD_RE.finditer(src)]
     nodes = []
     for m in NODE_RE.finditer(src):

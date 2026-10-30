@@ -25,7 +25,7 @@ rm -rf site
 mkdir -p site/blueprint site/review
 cp build/progress/index.html site/index.html
 mkdir -p site/graph
-cp build/graph/index.html site/graph/index.html
+cp build/graph/index.html build/graph/graph.json site/graph/
 cp -r build/review/html-multi/. site/review/
 cp -r pages/. site/
 cp -r blueprint/web/. site/blueprint/
