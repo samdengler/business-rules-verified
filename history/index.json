@@ -248,6 +248,24 @@
     "decision": 67,
     "waiting": 1
    }
+  },
+  {
+   "seq": 15,
+   "name": "critique-fixes",
+   "description": "The fixes from the independent critique: every rule that ends a service goes through the delivery status table, a theorem proves it for all eight such rules, and two guarantees the table cannot keep are open questions.",
+   "commit": "47079c5e7e1ec3f3bbf43b2f572ac315c2561ffe",
+   "date": "2026-10-30T18:00:15-04:00",
+   "tag": "milestone/critique-fixes",
+   "file": "0015-critique-fixes.json",
+   "nodes": 432,
+   "statusCounts": {
+    "modelled": 93,
+    "proven": 204,
+    "open": 60,
+    "ready": 7,
+    "decision": 67,
+    "waiting": 1
+   }
   }
  ]
 }
