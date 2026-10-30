@@ -1,0 +1,4381 @@
+{
+ "milestone": {
+  "seq": 8,
+  "name": "delivery",
+  "description": "Delivery is in Lean: moves between delivery statuses, services that end without delivery, final statuses and suspension, with two open questions.",
+  "commit": "5728748176158651d2a0264283cf4d0c6e622912",
+  "date": "2026-10-30T00:15:57-04:00",
+  "tag": "milestone/delivery"
+ },
+ "nodes": [
+  {
+   "id": "def:currency",
+   "title": "Currency",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Currency"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:money",
+   "title": "Money",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Money"
+   ],
+   "uses": [
+    "def:currency"
+   ]
+  },
+  {
+   "id": "def:money-add",
+   "title": "Adding money",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Money.add"
+   ],
+   "uses": [
+    "def:money"
+   ]
+  },
+  {
+   "id": "def:instant",
+   "title": "Instant",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Instant"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:passenger",
+   "title": "Passenger",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Passenger"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:principal",
+   "title": "Principal",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Principal"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:classification",
+   "title": "Classification",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.Core.Classification"
+   ],
+   "uses": []
+  },
+  {
+   "id": "thm:public-le",
+   "title": "Public is the lowest level",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Core concepts",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.Core.Classification.public_le"
+   ],
+   "uses": [
+    "def:classification"
+   ]
+  },
+  {
+   "id": "def:offer-item",
+   "title": "Offer item",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.OfferItem"
+   ],
+   "uses": [
+    "def:money",
+    "def:passenger"
+   ]
+  },
+  {
+   "id": "def:offer",
+   "title": "Offer",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Offer"
+   ],
+   "uses": [
+    "def:offer-item",
+    "def:instant",
+    "def:currency"
+   ]
+  },
+  {
+   "id": "def:delivery-state",
+   "title": "Delivery state",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.DeliveryState"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:delivery-event",
+   "title": "Delivery event",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.DeliveryEvent"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:order-item",
+   "title": "Order item",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.OrderItem"
+   ],
+   "uses": [
+    "def:money",
+    "def:delivery-state"
+   ]
+  },
+  {
+   "id": "def:order",
+   "title": "Order",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Order"
+   ],
+   "uses": [
+    "def:order-item",
+    "def:money",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "def:rejection",
+   "title": "Rejection",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Rejection"
+   ],
+   "uses": []
+  },
+  {
+   "id": "def:accept",
+   "title": "Accepting an offer",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.accept"
+   ],
+   "uses": [
+    "def:offer",
+    "def:order",
+    "def:rejection"
+   ]
+  },
+  {
+   "id": "def:step",
+   "title": "Delivery transitions",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.step"
+   ],
+   "uses": [
+    "def:delivery-state",
+    "def:delivery-event"
+   ]
+  },
+  {
+   "id": "thm:accept-price-eq-sum",
+   "title": "Order price is the sum of the items",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OfferOrder.accept_price_eq_sum"
+   ],
+   "uses": [
+    "def:accept"
+   ]
+  },
+  {
+   "id": "thm:accept-rejects-expired",
+   "title": "Expired offers are rejected",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OfferOrder.accept_rejects_expired"
+   ],
+   "uses": [
+    "def:accept"
+   ]
+  },
+  {
+   "id": "thm:delivered-not-cancellable",
+   "title": "Delivered services cannot be cancelled",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Offers and orders",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OfferOrder.delivered_not_cancellable"
+   ],
+   "uses": [
+    "def:step"
+   ]
+  },
+  {
+   "id": "def:payment",
+   "title": "Payment",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Payment"
+   ],
+   "uses": [
+    "def:money"
+   ]
+  },
+  {
+   "id": "def:refund",
+   "title": "Refund",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.Refund"
+   ],
+   "uses": [
+    "def:money"
+   ]
+  },
+  {
+   "id": "def:totals",
+   "title": "Totals paid and refunded",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.totalPaid",
+    "Rules.OfferOrder.totalRefunded"
+   ],
+   "uses": [
+    "def:payment",
+    "def:refund"
+   ]
+  },
+  {
+   "id": "def:accept-refund",
+   "title": "Accepting a refund",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OfferOrder.acceptRefund"
+   ],
+   "uses": [
+    "def:payment",
+    "def:refund"
+   ]
+  },
+  {
+   "id": "thm:refunds-le-payments",
+   "title": "Refunds never exceed payments",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "Offer acceptance",
+   "area": "Payments and refunds",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OfferOrder.refunds_le_payments"
+   ],
+   "uses": [
+    "def:accept-refund",
+    "def:totals"
+   ]
+  },
+  {
+   "id": "def:c01-structure",
+   "title": "Order structure",
+   "candidate": "C-01",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Service",
+    "Rules.OneOrder.ServiceStatus",
+    "Rules.OneOrder.OrderItem",
+    "Rules.OneOrder.Order"
+   ],
+   "uses": [
+    "def:order",
+    "def:order-item",
+    "def:passenger"
+   ]
+  },
+  {
+   "id": "def:one-offer",
+   "title": "Offer items for passengers and segments",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.OfferItem",
+    "Rules.OneOrder.Offer"
+   ],
+   "uses": [
+    "def:offer",
+    "def:passenger",
+    "def:money",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "def:one-accept",
+   "title": "Creating an order from an offer",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.accept"
+   ],
+   "uses": [
+    "def:one-offer",
+    "def:c01-structure",
+    "def:rejection"
+   ]
+  },
+  {
+   "id": "thm:c02-item-per-offer-item",
+   "title": "One order item per offer item",
+   "candidate": "C-02",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.accept_item_per_offer_item"
+   ],
+   "uses": [
+    "def:one-accept",
+    "def:c01-structure"
+   ]
+  },
+  {
+   "id": "thm:one-services-per-passenger-segment",
+   "title": "One service per passenger and segment",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.accept_services_per_passenger_segment"
+   ],
+   "uses": [
+    "def:one-accept",
+    "def:c01-structure"
+   ]
+  },
+  {
+   "id": "thm:c03-unique-item-ids",
+   "title": "Order item IDs are unique",
+   "candidate": "C-03",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.accept_item_ids_unique"
+   ],
+   "uses": [
+    "def:one-accept",
+    "def:c01-structure"
+   ]
+  },
+  {
+   "id": "thm:c04-item-unsplit",
+   "title": "Order items are not split",
+   "candidate": "C-04",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:c01-structure",
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "def:c05-holds-value",
+   "title": "Services that hold value",
+   "candidate": "C-05",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.ValueReading"
+   ],
+   "uses": [
+    "def:c08-delivery-status"
+   ]
+  },
+  {
+   "id": "def:c06-item-status",
+   "title": "Order item status",
+   "candidate": "C-06",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.itemStatuses"
+   ],
+   "uses": [
+    "def:c01-structure",
+    "def:c05-holds-value"
+   ]
+  },
+  {
+   "id": "thm:one-item-active",
+   "title": "Active items are those holding value",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.item_active_iff"
+   ],
+   "uses": [
+    "def:c06-item-status"
+   ]
+  },
+  {
+   "id": "thm:one-item-cancelled",
+   "title": "Cancelled items as the guide defines them",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.item_cancelled_iff"
+   ],
+   "uses": [
+    "def:c06-item-status"
+   ]
+  },
+  {
+   "id": "thm:one-item-closed",
+   "title": "Closed items as the guide defines them",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.item_closed_iff"
+   ],
+   "uses": [
+    "def:c06-item-status"
+   ]
+  },
+  {
+   "id": "thm:one-active-not-closed",
+   "title": "Active items are never closed",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.active_not_closed"
+   ],
+   "uses": [
+    "def:c06-item-status"
+   ]
+  },
+  {
+   "id": "thm:one-active-not-cancelled",
+   "title": "Active items are never cancelled",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.active_not_cancelled"
+   ],
+   "uses": [
+    "def:c06-item-status"
+   ]
+  },
+  {
+   "id": "thm:one-item-one-status",
+   "title": "Each item has exactly one status",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.item_has_one_status"
+   ],
+   "uses": [
+    "def:c06-item-status",
+    "thm:one-active-not-closed",
+    "thm:one-active-not-cancelled"
+   ]
+  },
+  {
+   "id": "def:c07-order-status",
+   "title": "Order status",
+   "candidate": "C-07",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.orderStatuses"
+   ],
+   "uses": [
+    "def:c06-item-status",
+    "def:c05-holds-value"
+   ]
+  },
+  {
+   "id": "thm:one-order-opened",
+   "title": "Opened orders are those holding value",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.order_opened_iff"
+   ],
+   "uses": [
+    "def:c07-order-status"
+   ]
+  },
+  {
+   "id": "thm:one-order-closed",
+   "title": "Closed orders as the guide defines them",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.order_closed_iff"
+   ],
+   "uses": [
+    "def:c07-order-status"
+   ]
+  },
+  {
+   "id": "thm:one-new-order-opened",
+   "title": "New orders are opened",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.accept_order_opened"
+   ],
+   "uses": [
+    "def:one-accept",
+    "def:c07-order-status"
+   ]
+  },
+  {
+   "id": "thm:one-order-exclusive",
+   "title": "Orders are never both opened and closed",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.opened_closed_exclusive"
+   ],
+   "uses": [
+    "def:c07-order-status"
+   ]
+  },
+  {
+   "id": "thm:one-order-has-status",
+   "title": "Every order is opened or closed",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order structure and status",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.order_opened_or_closed"
+   ],
+   "uses": [
+    "def:c07-order-status"
+   ]
+  },
+  {
+   "id": "thm:offers-offer-expiry-ends-limits",
+   "title": "Offer expiry ends other limits",
+   "candidate": "C-24",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offer",
+    "def:instant",
+    "thm:accept-rejects-expired"
+   ]
+  },
+  {
+   "id": "def:offers-price-guarantee",
+   "title": "Price guarantee at an instant",
+   "candidate": "C-25",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:offer-item",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "def:offers-accept-after-guarantee-lapse",
+   "title": "Accepting after the guarantee lapses",
+   "candidate": "C-26",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:accept",
+    "thm:accept-price-eq-sum",
+    "thm:accept-rejects-expired",
+    "def:offers-price-guarantee"
+   ]
+  },
+  {
+   "id": "thm:offers-order-limits-only-extend",
+   "title": "Order time limits only extend",
+   "candidate": "C-27",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "waiting",
+   "statusWords": "Waiting",
+   "lean": [],
+   "uses": [
+    "def:accept",
+    "def:instant",
+    "def:c11-payment-time-limit",
+    "def:offers-price-guarantee"
+   ]
+  },
+  {
+   "id": "def:offers-payment-limit-at-creation",
+   "title": "Payment time limit at creation",
+   "candidate": "C-28",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:accept",
+    "def:instant",
+    "def:c11-payment-time-limit",
+    "def:c12-zero-commitment"
+   ]
+  },
+  {
+   "id": "thm:offers-guarantee-limits-nest",
+   "title": "Nesting of guarantee time limits",
+   "candidate": "C-29",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offers-price-guarantee",
+    "def:c11-payment-time-limit"
+   ]
+  },
+  {
+   "id": "def:offers-restriction-in-force",
+   "title": "Restriction rule in force",
+   "candidate": "C-30",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offer-item",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "thm:offers-change-under-restriction",
+   "title": "Voluntary change under a restriction",
+   "candidate": "C-31",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offers-restriction-in-force",
+    "def:c18-change",
+    "def:change-cancellation-price-differential"
+   ]
+  },
+  {
+   "id": "def:offers-refund-on-cancellation",
+   "title": "Refund owed on voluntary cancellation",
+   "candidate": "C-32",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offers-restriction-in-force",
+    "def:c15-cancel-order",
+    "thm:c16-penalty-net",
+    "def:refund"
+   ]
+  },
+  {
+   "id": "thm:offers-refundable-taxes",
+   "title": "Taxes on a non-refundable fare",
+   "candidate": "C-33",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offers-refund-on-cancellation",
+    "thm:offers-tax-summary-total",
+    "def:refund"
+   ]
+  },
+  {
+   "id": "thm:offers-price-total-from-parts",
+   "title": "Price total from its parts",
+   "candidate": "C-34",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:money-add",
+    "def:offer-item",
+    "thm:offers-tax-summary-total",
+    "thm:offers-consumption-tax-lines"
+   ]
+  },
+  {
+   "id": "thm:offers-tax-summary-total",
+   "title": "Tax summary total and detail",
+   "candidate": "C-35",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:money-add",
+    "def:accept",
+    "def:order-item"
+   ]
+  },
+  {
+   "id": "thm:offers-consumption-tax-lines",
+   "title": "Consumption tax lines add up",
+   "candidate": "C-36",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:money",
+    "def:money-add",
+    "thm:offers-tax-summary-total"
+   ]
+  },
+  {
+   "id": "thm:offers-margin-outside-order",
+   "title": "Seller margin stays outside order",
+   "candidate": "C-37",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:accept",
+    "thm:accept-price-eq-sum",
+    "def:payment"
+   ]
+  },
+  {
+   "id": "def:offers-mandatory-optional-items",
+   "title": "Mandatory and optional offer items",
+   "candidate": "C-38",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offer",
+    "def:offer-item",
+    "def:accept",
+    "thm:c02-item-per-offer-item",
+    "thm:accept-price-eq-sum",
+    "thm:c04-item-unsplit"
+   ]
+  },
+  {
+   "id": "thm:offers-ora-owns-order",
+   "title": "Offer responsible airline owns order",
+   "candidate": "C-39",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:offer",
+    "def:accept",
+    "def:order"
+   ]
+  },
+  {
+   "id": "def:offers-interline-offer-terms",
+   "title": "Terms of a combined interline offer",
+   "candidate": "C-40",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:offers-ora-owns-order",
+    "def:offers-restriction-in-force",
+    "def:offers-mandatory-optional-items"
+   ]
+  },
+  {
+   "id": "def:offers-offer-currency",
+   "title": "Currency of an offer's amounts",
+   "candidate": "C-41",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:money",
+    "def:currency",
+    "def:offer",
+    "def:money-add"
+   ]
+  },
+  {
+   "id": "def:offers-time-limits-as-instants",
+   "title": "Time limits as UTC instants",
+   "candidate": "C-42",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Offers, prices and conditions",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:instant",
+    "thm:offers-offer-expiry-ends-limits",
+    "def:offers-payment-limit-at-creation"
+   ]
+  },
+  {
+   "id": "def:ancillaries-service-dependency",
+   "title": "Dependent service and its parent",
+   "candidate": "C-43",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c01-structure"
+   ]
+  },
+  {
+   "id": "thm:ancillaries-ancillary-needs-flight",
+   "title": "Ancillary needs a flight service",
+   "candidate": "C-44",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-service-dependency",
+    "def:accept",
+    "thm:accept-rejects-expired"
+   ]
+  },
+  {
+   "id": "def:ancillaries-flight-cancel-dependents",
+   "title": "Cancelling a flight with ancillaries",
+   "candidate": "C-45",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-service-dependency",
+    "def:c15-cancel-order",
+    "def:c06-item-status",
+    "def:c08-delivery-status",
+    "def:refund"
+   ]
+  },
+  {
+   "id": "def:ancillaries-flight-change-dependents",
+   "title": "Dependents when a flight changes",
+   "candidate": "C-46",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-service-dependency",
+    "def:c18-change",
+    "thm:c19-transfer-balanced",
+    "thm:c20-value-store",
+    "thm:ancillaries-seat-one-passenger"
+   ]
+  },
+  {
+   "id": "thm:ancillaries-dependent-impact-disclosed",
+   "title": "Dependent impact shown before acceptance",
+   "candidate": "C-47",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-service-dependency",
+    "def:ancillaries-flight-change-dependents"
+   ]
+  },
+  {
+   "id": "def:ancillaries-involuntary-dependent-loss",
+   "title": "Dependent service lost by airline change",
+   "candidate": "C-48",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-service-dependency",
+    "def:ancillaries-flight-change-dependents",
+    "def:refund",
+    "def:c08-delivery-status"
+   ]
+  },
+  {
+   "id": "thm:ancillaries-seat-one-passenger",
+   "title": "One passenger per seat",
+   "candidate": "C-49",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c01-structure",
+    "def:passenger"
+   ]
+  },
+  {
+   "id": "thm:ancillaries-seat-one-per-passenger",
+   "title": "One seat per passenger per segment",
+   "candidate": "C-50",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:ancillaries-seat-one-passenger",
+    "def:c01-structure",
+    "def:c06-item-status"
+   ]
+  },
+  {
+   "id": "thm:ancillaries-seat-eligible-price-point",
+   "title": "Seat needs an eligible price point",
+   "candidate": "C-51",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-alacarte-item",
+    "thm:ancillaries-seat-one-passenger"
+   ]
+  },
+  {
+   "id": "def:ancillaries-alacarte-item",
+   "title": "A-la-carte offer item",
+   "candidate": "C-52",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:offer-item",
+    "def:c01-structure",
+    "def:money"
+   ]
+  },
+  {
+   "id": "def:ancillaries-alacarte-price",
+   "title": "Price of an a-la-carte selection",
+   "candidate": "C-53",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-alacarte-item",
+    "def:money",
+    "thm:accept-price-eq-sum",
+    "thm:c02-item-per-offer-item"
+   ]
+  },
+  {
+   "id": "def:ancillaries-bundle-meaning",
+   "title": "Bundle of services",
+   "candidate": "C-54",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offer-item",
+    "thm:c04-item-unsplit",
+    "def:order-creation-offer-item-selection"
+   ]
+  },
+  {
+   "id": "def:ancillaries-bundle-part-value",
+   "title": "Value of one bundled service",
+   "candidate": "C-55",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-bundle-meaning",
+    "def:refund",
+    "def:c05-holds-value",
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "thm:ancillaries-pick-m-of-n",
+   "title": "Pick M of N price",
+   "candidate": "C-56",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-bundle-meaning",
+    "def:offer-item"
+   ]
+  },
+  {
+   "id": "thm:ancillaries-free-seat-zero-item",
+   "title": "Free seat creates a zero-priced item",
+   "candidate": "C-57",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c12-zero-commitment",
+    "def:ancillaries-alacarte-item"
+   ]
+  },
+  {
+   "id": "def:ancillaries-pooled-baggage",
+   "title": "Pooled baggage allowance",
+   "candidate": "C-58",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:passenger"
+   ]
+  },
+  {
+   "id": "def:ancillaries-extra-baggage-weight",
+   "title": "Extra baggage weight",
+   "candidate": "C-59",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:ancillaries-alacarte-price"
+   ]
+  },
+  {
+   "id": "def:ancillaries-taxonomy-criteria",
+   "title": "Matching a taxonomy criterion",
+   "candidate": "C-60",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offer"
+   ]
+  },
+  {
+   "id": "thm:ancillaries-remove-passenger",
+   "title": "Removing a passenger and dependents",
+   "candidate": "C-61",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Ancillaries, seats and bundles",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c01-structure",
+    "def:c15-cancel-order",
+    "def:ancillaries-pooled-baggage",
+    "def:ancillaries-service-dependency"
+   ]
+  },
+  {
+   "id": "thm:c21-version",
+   "title": "Order version",
+   "candidate": "C-21",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:c18-change",
+    "def:order"
+   ]
+  },
+  {
+   "id": "def:c23-retention",
+   "title": "Order retention",
+   "candidate": "C-23",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:c07-order-status",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "def:order-creation-offer-item-selection",
+   "title": "Selecting items from an offer",
+   "candidate": "C-62",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offer",
+    "def:offer-item",
+    "def:passenger",
+    "def:accept"
+   ]
+  },
+  {
+   "id": "thm:order-creation-items-match-selection",
+   "title": "Order items match the selection",
+   "candidate": "C-63",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "waiting",
+   "statusWords": "Waiting",
+   "lean": [],
+   "uses": [
+    "def:order-creation-offer-item-selection",
+    "thm:c02-item-per-offer-item",
+    "thm:accept-price-eq-sum",
+    "def:accept"
+   ]
+  },
+  {
+   "id": "thm:order-creation-create-atomic",
+   "title": "Atomic order creation",
+   "candidate": "C-64",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:accept",
+    "def:rejection",
+    "thm:accept-rejects-expired",
+    "def:order-creation-offer-item-selection"
+   ]
+  },
+  {
+   "id": "def:order-creation-instant-payment-failure",
+   "title": "Failed payment at order creation",
+   "candidate": "C-65",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:order-creation-create-atomic",
+    "def:payment",
+    "def:c11-payment-time-limit",
+    "def:c08-delivery-status"
+   ]
+  },
+  {
+   "id": "thm:order-creation-offer-used-once",
+   "title": "One order per offer",
+   "candidate": "C-66",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offer",
+    "def:accept",
+    "thm:order-creation-create-atomic"
+   ]
+  },
+  {
+   "id": "thm:order-creation-new-order-state",
+   "title": "Statuses of a new order",
+   "candidate": "C-67",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c05-holds-value",
+    "def:c06-item-status",
+    "def:c07-order-status",
+    "def:c08-delivery-status",
+    "def:c11-payment-time-limit"
+   ]
+  },
+  {
+   "id": "def:order-creation-pay-some-items",
+   "title": "Paying for part of an order",
+   "candidate": "C-68",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:payment-time-limit-on-unpaid",
+    "def:payment",
+    "thm:c04-item-unsplit",
+    "def:c11-payment-time-limit",
+    "def:c12-zero-commitment"
+   ]
+  },
+  {
+   "id": "def:order-creation-retrieved-view-items",
+   "title": "Order items in a retrieved order",
+   "candidate": "C-69",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c01-structure",
+    "def:c06-item-status",
+    "def:c23-retention"
+   ]
+  },
+  {
+   "id": "def:order-creation-read-access",
+   "title": "Read access to an order",
+   "candidate": "C-70",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:principal",
+    "def:classification",
+    "def:order-creation-order-id",
+    "def:order-creation-chain-identity-check"
+   ]
+  },
+  {
+   "id": "def:order-creation-group-order",
+   "title": "Group order limits",
+   "candidate": "C-71",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:order",
+    "def:passenger",
+    "def:payment"
+   ]
+  },
+  {
+   "id": "thm:order-creation-history-rebuilds-versions",
+   "title": "History rebuilds every version",
+   "candidate": "C-72",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c21-version",
+    "def:order",
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "thm:order-creation-version-tracks-view",
+   "title": "Version tracks seller-visible changes",
+   "candidate": "C-73",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c21-version",
+    "thm:order-creation-history-rebuilds-versions"
+   ]
+  },
+  {
+   "id": "def:order-creation-stale-version-change",
+   "title": "Change against a stale version",
+   "candidate": "C-74",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c21-version",
+    "def:c18-change",
+    "def:accept",
+    "thm:order-creation-version-tracks-view"
+   ]
+  },
+  {
+   "id": "thm:order-creation-service-id-unique",
+   "title": "Service IDs in an order",
+   "candidate": "C-75",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c01-structure",
+    "thm:c03-unique-item-ids",
+    "thm:c19-transfer-balanced"
+   ]
+  },
+  {
+   "id": "def:order-creation-retention-first-usage",
+   "title": "Retention after first usage",
+   "candidate": "C-76",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c23-retention",
+    "def:c05-holds-value",
+    "def:c06-item-status",
+    "thm:c20-value-store",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "def:order-creation-order-id",
+   "title": "Order ID",
+   "candidate": "C-77",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:order"
+   ]
+  },
+  {
+   "id": "thm:order-creation-order-owner",
+   "title": "Order owner is the offer owner",
+   "candidate": "C-78",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:offer",
+    "def:order",
+    "def:order-creation-order-id",
+    "thm:order-creation-create-atomic"
+   ]
+  },
+  {
+   "id": "thm:order-creation-order-total-derived",
+   "title": "Order total from item prices",
+   "candidate": "C-79",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:order",
+    "def:money-add",
+    "thm:accept-price-eq-sum",
+    "thm:c04-item-unsplit",
+    "thm:order-creation-create-atomic"
+   ]
+  },
+  {
+   "id": "def:order-creation-chain-identity-check",
+   "title": "Verifying distribution chain identities",
+   "candidate": "C-80",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Order creation and information",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:principal"
+   ]
+  },
+  {
+   "id": "def:c15-cancel-order",
+   "title": "Cancelling an order",
+   "candidate": "C-15",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Change.requestCancellation",
+    "Rules.OneOrder.Change.cancelDirect",
+    "Rules.OneOrder.Change.CancelTerms",
+    "Rules.OneOrder.Change.cancellationQuote"
+   ],
+   "uses": [
+    "def:c06-item-status",
+    "def:payment",
+    "def:totals"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-unpaid-at-once",
+   "title": "Unpaid orders are cancelled at once",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.unpaid_cancelled_at_once"
+   ],
+   "uses": [
+    "def:c15-cancel-order"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-cancelled-closed",
+   "title": "Orders cancelled at once are closed",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.cancelled_at_once_closed"
+   ],
+   "uses": [
+    "def:c15-cancel-order",
+    "def:c06-item-status",
+    "def:c07-order-status"
+   ]
+  },
+  {
+   "id": "thm:c16-penalty-net",
+   "title": "Penalty netted or charged separately",
+   "candidate": "C-16",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.net_same_either_way"
+   ],
+   "uses": [
+    "def:c15-cancel-order",
+    "def:money",
+    "def:change-cancellation-due-amounts"
+   ]
+  },
+  {
+   "id": "def:c18-change",
+   "title": "Changing an order item",
+   "candidate": "C-18",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Change.changeItem",
+    "Rules.OneOrder.Change.ItemChange",
+    "Rules.OneOrder.Change.originalAfterChange",
+    "Rules.OneOrder.Change.afterChange",
+    "Rules.OneOrder.Change.newItemOf"
+   ],
+   "uses": [
+    "def:c01-structure",
+    "def:c06-item-status"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-kept-references",
+   "title": "Kept services keep their references",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.change_keeps_services"
+   ],
+   "uses": [
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-originals-transferred",
+   "title": "Originals of kept services are transferred",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.change_marks_transferred"
+   ],
+   "uses": [
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-others-cancelled",
+   "title": "Services not kept are cancelled",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.change_cancels_others"
+   ],
+   "uses": [
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-refs-distinct",
+   "title": "Changes keep item references distinct",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.change_item_refs_unique"
+   ],
+   "uses": [
+    "def:c18-change",
+    "thm:c03-unique-item-ids"
+   ]
+  },
+  {
+   "id": "thm:c19-transfer-balanced",
+   "title": "Transferred services keep the order balanced",
+   "candidate": "C-19",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c18-change",
+    "def:c06-item-status"
+   ]
+  },
+  {
+   "id": "thm:c20-value-store",
+   "title": "Stored value stays in its order",
+   "candidate": "C-20",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c18-change",
+    "def:c05-holds-value"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-price-differential",
+   "title": "Price differential of a change",
+   "candidate": "C-81",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Change.priceDifferential",
+    "Rules.OneOrder.Change.ChangeQuote",
+    "Rules.OneOrder.Change.PriceDifferential",
+    "Rules.OneOrder.Change.DifferentialType",
+    "Rules.OneOrder.Change.statedDue",
+    "Rules.OneOrder.Change.typeOf"
+   ],
+   "uses": [
+    "def:money",
+    "def:c18-change",
+    "def:c15-cancel-order",
+    "def:change-cancellation-due-amounts"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-due-amounts",
+   "title": "Amounts due to and by the airline",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Change.dueAmounts",
+    "Rules.OneOrder.Change.DueAmounts",
+    "Rules.OneOrder.Change.ChangeQuote.difference",
+    "Rules.OneOrder.Change.ChangeQuote.refundable",
+    "Rules.OneOrder.Change.ExcessPenalty.charged",
+    "Rules.OneOrder.Change.PenaltyHandling",
+    "Rules.OneOrder.Change.Settlement"
+   ],
+   "uses": [
+    "def:money",
+    "def:change-cancellation-penalty-exceeds-refund"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-mixed-currency",
+   "title": "Mixed currencies are rejected",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.differential_rejects_mixed_currency"
+   ],
+   "uses": [
+    "def:change-cancellation-price-differential"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-type-collects",
+   "title": "Type code names a collection",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.differential_collects_iff"
+   ],
+   "uses": [
+    "def:change-cancellation-price-differential"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-type-pays",
+   "title": "Type code names a refund or a value store",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.differential_pays_iff"
+   ],
+   "uses": [
+    "def:change-cancellation-price-differential"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-respend-reusable",
+   "title": "Value kept for later use is typed Reusable",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.respend_reusable"
+   ],
+   "uses": [
+    "def:change-cancellation-price-differential",
+    "def:change-cancellation-reusable-amount"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-netted-one-amount",
+   "title": "Netted penalty gives one amount",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.netted_single_amount"
+   ],
+   "uses": [
+    "def:change-cancellation-due-amounts"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-separate-added",
+   "title": "Separate penalty is added to the amount due",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.separate_penalty_added"
+   ],
+   "uses": [
+    "def:change-cancellation-due-amounts"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-due-net-identity",
+   "title": "Due amounts net to the difference",
+   "candidate": "C-82",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Change.differential_nets"
+   ],
+   "uses": [
+    "def:change-cancellation-price-differential",
+    "thm:c16-penalty-net",
+    "def:c18-change",
+    "def:money"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-net-of-collect",
+   "title": "Collecting the whole penalty keeps the formula",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.due_amounts_net_of_collect"
+   ],
+   "uses": [
+    "def:change-cancellation-due-amounts",
+    "def:change-cancellation-penalty-exceeds-refund"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-order-balance",
+   "title": "Order balance after servicing",
+   "candidate": "C-83",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Change.change_keeps_balance"
+   ],
+   "uses": [
+    "def:totals",
+    "def:payment",
+    "def:refund",
+    "thm:c19-transfer-balanced",
+    "def:c06-item-status",
+    "thm:change-cancellation-penalties-persist",
+    "thm:change-cancellation-due-net-identity",
+    "def:change-cancellation-ledger",
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-ledger",
+   "title": "Money recorded on an order",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Change.settle",
+    "Rules.OneOrder.Change.Ledger",
+    "Rules.OneOrder.Change.liveValue",
+    "Rules.OneOrder.Change.Ledger.Balanced"
+   ],
+   "uses": [
+    "def:money",
+    "def:change-cancellation-price-differential",
+    "def:c05-holds-value"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-settle-payments",
+   "title": "Settling adds to payments and refunds",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.settle_adds_payments"
+   ],
+   "uses": [
+    "def:change-cancellation-ledger"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-settle-records",
+   "title": "Settling records penalties and forfeits",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.settle_records_penalty"
+   ],
+   "uses": [
+    "def:change-cancellation-ledger"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-deferred-payment-change",
+   "title": "Change accepted before payment",
+   "candidate": "C-84",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c11-payment-time-limit",
+    "def:c08-delivery-status",
+    "def:c05-holds-value",
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-penalty-exceeds-refund",
+   "title": "Penalty larger than the refund",
+   "candidate": "C-85",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Change.ExcessPenalty"
+   ],
+   "uses": [
+    "def:money",
+    "def:c15-cancel-order"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-cancel-not-owing",
+   "title": "Cancelling leaves the customer owing nothing",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Change.cancel_not_owing"
+   ],
+   "uses": [
+    "def:change-cancellation-due-amounts",
+    "def:change-cancellation-penalty-exceeds-refund"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-not-owing-of-waive",
+   "title": "Waiving the excess penalty leaves nothing owing",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Change.cancel_not_owing_of_waive"
+   ],
+   "uses": [
+    "def:change-cancellation-due-amounts",
+    "def:change-cancellation-penalty-exceeds-refund"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-full-cancel-no-residual",
+   "title": "Full cancellation keeps no residual",
+   "candidate": "C-86",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c15-cancel-order",
+    "thm:c20-value-store",
+    "def:c07-order-status"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-partly-paid-cancel",
+   "title": "Paid or partly paid orders need an offer",
+   "candidate": "C-87",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Change.paid_needs_offer"
+   ],
+   "uses": [
+    "def:c15-cancel-order",
+    "thm:refunds-le-payments",
+    "def:payment"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-offer-within-payments",
+   "title": "Cancellation offers stay within payments",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Change.offer_within_payments"
+   ],
+   "uses": [
+    "def:c15-cancel-order",
+    "def:change-cancellation-partly-paid-cancel",
+    "def:change-cancellation-price-differential",
+    "def:totals"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-remove-passenger",
+   "title": "Removing one passenger from an item",
+   "candidate": "C-88",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c04-item-unsplit",
+    "thm:c19-transfer-balanced",
+    "def:c18-change",
+    "def:passenger"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-reusable-amount",
+   "title": "Reusable amount on cancellation",
+   "candidate": "C-89",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c05-holds-value",
+    "def:c06-item-status",
+    "def:c07-order-status",
+    "thm:c20-value-store"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-owed-settlement",
+   "title": "Settling money the airline owes",
+   "candidate": "C-90",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:refund",
+    "def:c17-refund-methods",
+    "thm:c20-value-store",
+    "def:change-cancellation-reusable-amount",
+    "def:change-cancellation-price-differential"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-value-store-windows",
+   "title": "Value store time windows",
+   "candidate": "C-91",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c20-value-store",
+    "def:instant",
+    "def:c05-holds-value",
+    "def:c07-order-status"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-stored-value-used-once",
+   "title": "Stored value is used once",
+   "candidate": "C-92",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c20-value-store",
+    "def:c05-holds-value",
+    "def:change-cancellation-owed-settlement"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-transferred-original-no-value",
+   "title": "Transferred originals hold no value",
+   "candidate": "C-93",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Change.change_original_cancelled"
+   ],
+   "uses": [
+    "def:c05-holds-value",
+    "def:c06-item-status",
+    "thm:c19-transfer-balanced",
+    "def:c08-delivery-status",
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-refund-after-penalty",
+   "title": "Refund waits for separate penalty",
+   "candidate": "C-94",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "waiting",
+   "statusWords": "Waiting",
+   "lean": [],
+   "uses": [
+    "thm:c16-penalty-net",
+    "def:refund",
+    "def:payment",
+    "thm:c20-value-store"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-penalties-persist",
+   "title": "Penalties and forfeits persist",
+   "candidate": "C-95",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:order",
+    "def:c18-change",
+    "def:money"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-name-change",
+   "title": "Name change through an offer",
+   "candidate": "C-96",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:passenger",
+    "thm:delivered-not-cancellable",
+    "def:c08-delivery-status",
+    "def:c06-item-status"
+   ]
+  },
+  {
+   "id": "def:change-cancellation-no-offer-changes",
+   "title": "Changes made without an offer",
+   "candidate": "C-97",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c15-cancel-order",
+    "thm:c21-version",
+    "def:passenger",
+    "def:change-cancellation-partly-paid-cancel"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-full-equals-items",
+   "title": "Full cancellation equals item cancellations",
+   "candidate": "C-98",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c15-cancel-order",
+    "thm:c16-penalty-net",
+    "thm:change-cancellation-full-cancel-no-residual"
+   ]
+  },
+  {
+   "id": "thm:change-cancellation-stored-value-payer",
+   "title": "Stored value belongs to payer",
+   "candidate": "C-99",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Change and cancellation",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:payment",
+    "def:c13-several-methods",
+    "def:c17-refund-methods",
+    "thm:c20-value-store"
+   ]
+  },
+  {
+   "id": "thm:airline-change-cancel-after-involuntary",
+   "title": "Penalty when declining an airline change",
+   "candidate": "C-100",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c16-penalty-net",
+    "def:c15-cancel-order",
+    "def:airline-change-follow-up-action",
+    "def:airline-change-involuntary-change"
+   ]
+  },
+  {
+   "id": "thm:airline-change-refund-undeliverable",
+   "title": "Refund for a cancelled flight",
+   "candidate": "C-101",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c05-holds-value",
+    "def:c08-delivery-status",
+    "thm:c04-item-unsplit",
+    "def:refund",
+    "def:ancillaries-flight-change-dependents"
+   ]
+  },
+  {
+   "id": "def:airline-change-inaction-consequence",
+   "title": "Consequence of a missed time limit",
+   "candidate": "C-102",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:airline-change-follow-up-action",
+    "def:instant",
+    "def:c15-cancel-order",
+    "def:refund"
+   ]
+  },
+  {
+   "id": "thm:airline-change-applied-before-acceptance",
+   "title": "Change applied before seller response",
+   "candidate": "C-103",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c06-item-status",
+    "thm:c21-version",
+    "thm:c19-transfer-balanced",
+    "def:airline-change-follow-up-action"
+   ]
+  },
+  {
+   "id": "thm:airline-change-reaccommodated-paid-status",
+   "title": "Paid status after re-accommodation",
+   "candidate": "C-104",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c08-delivery-status",
+    "def:c11-payment-time-limit",
+    "thm:c19-transfer-balanced",
+    "thm:airline-change-applied-before-acceptance"
+   ]
+  },
+  {
+   "id": "thm:airline-change-lost-notice",
+   "title": "Unacknowledged change notice",
+   "candidate": "C-105",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:airline-change-inaction-consequence",
+    "def:airline-change-notice-chain"
+   ]
+  },
+  {
+   "id": "def:airline-change-change-needs-choice",
+   "title": "Changes that require a customer choice",
+   "candidate": "C-106",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:airline-change-follow-up-action",
+    "def:airline-change-involuntary-change"
+   ]
+  },
+  {
+   "id": "def:airline-change-involuntary-change",
+   "title": "Voluntary and involuntary change",
+   "candidate": "C-107",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:principal",
+    "def:order"
+   ]
+  },
+  {
+   "id": "thm:airline-change-pending-actions",
+   "title": "Pending follow-up actions",
+   "candidate": "C-108",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:airline-change-follow-up-action",
+    "def:airline-change-inaction-consequence"
+   ]
+  },
+  {
+   "id": "def:airline-change-reprice-and-accept",
+   "title": "Repricing after waitlist confirmation",
+   "candidate": "C-109",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:airline-change-follow-up-action",
+    "def:airline-change-inaction-consequence",
+    "def:c08-delivery-status",
+    "def:c11-payment-time-limit"
+   ]
+  },
+  {
+   "id": "def:airline-change-notice-chain",
+   "title": "Who is told of a change",
+   "candidate": "C-110",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:principal",
+    "def:order"
+   ]
+  },
+  {
+   "id": "thm:airline-change-cancelled-in-active-item",
+   "title": "Cancelled service in an active item",
+   "candidate": "C-111",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c06-item-status",
+    "def:c08-delivery-status",
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "thm:airline-change-reshop-after-involuntary",
+   "title": "Price of reshopping after airline change",
+   "candidate": "C-112",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c18-change",
+    "def:airline-change-follow-up-action",
+    "def:airline-change-involuntary-change"
+   ]
+  },
+  {
+   "id": "def:airline-change-follow-up-action",
+   "title": "Seller follow-up action",
+   "candidate": "C-113",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Airline-initiated change",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:order",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "def:c08-delivery-status",
+   "title": "Delivery status",
+   "candidate": "C-08",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.DeliveryStatus"
+   ],
+   "uses": [
+    "def:c01-structure",
+    "def:delivery-state"
+   ]
+  },
+  {
+   "id": "def:delivery-moves",
+   "title": "Moves between delivery statuses",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Delivery.move",
+    "Rules.OneOrder.Delivery.DeliveryEvent",
+    "Rules.OneOrder.Delivery.MoveReading"
+   ],
+   "uses": [
+    "def:c08-delivery-status",
+    "def:step",
+    "def:delivery-end-service"
+   ]
+  },
+  {
+   "id": "thm:delivery-confirm",
+   "title": "Confirming a requested service",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.confirm_marks_confirmed"
+   ],
+   "uses": [
+    "def:delivery-moves"
+   ]
+  },
+  {
+   "id": "thm:delivery-pay",
+   "title": "Payment readies a confirmed service",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.pay_marks_ready"
+   ],
+   "uses": [
+    "def:delivery-moves"
+   ]
+  },
+  {
+   "id": "thm:delivery-deliver",
+   "title": "Delivering a paid service",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.deliver_marks_delivered"
+   ],
+   "uses": [
+    "def:delivery-moves"
+   ]
+  },
+  {
+   "id": "def:delivery-end-service",
+   "title": "Services that end without delivery",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Delivery.endService"
+   ],
+   "uses": [
+    "def:c08-delivery-status"
+   ]
+  },
+  {
+   "id": "thm:delivery-cancel",
+   "title": "Cancellation before delivery",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.cancel_removes"
+   ],
+   "uses": [
+    "def:delivery-end-service",
+    "def:delivery-moves"
+   ]
+  },
+  {
+   "id": "thm:delivery-unable",
+   "title": "Delivery prevented by outside constraints",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.unable_marks_unable"
+   ],
+   "uses": [
+    "def:delivery-end-service",
+    "def:delivery-moves"
+   ]
+  },
+  {
+   "id": "thm:delivery-fail",
+   "title": "Delivery failed by the airline or its provider",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.fail_marks_failed"
+   ],
+   "uses": [
+    "def:delivery-end-service",
+    "def:delivery-moves"
+   ]
+  },
+  {
+   "id": "def:delivery-suspension",
+   "title": "Suspending and resuming a service",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Delivery.step",
+    "Rules.OneOrder.Delivery.DeliveryRecord",
+    "Rules.OneOrder.Delivery.run"
+   ],
+   "uses": [
+    "def:delivery-moves",
+    "def:delivery-final-statuses"
+   ]
+  },
+  {
+   "id": "thm:delivery-suspend",
+   "title": "Suspending a service records where it was",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.suspend_records_status"
+   ],
+   "uses": [
+    "def:delivery-suspension"
+   ]
+  },
+  {
+   "id": "thm:delivery-resume",
+   "title": "Lifting a suspension returns the service",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.resume_returns"
+   ],
+   "uses": [
+    "def:delivery-suspension",
+    "thm:delivery-suspend"
+   ]
+  },
+  {
+   "id": "thm:delivery-suspended-cancel",
+   "title": "Cancelling a suspended service",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.suspended_cancel_removes"
+   ],
+   "uses": [
+    "def:delivery-suspension"
+   ]
+  },
+  {
+   "id": "thm:c09-suspended",
+   "title": "Suspended services",
+   "candidate": "C-09",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.suspended_moves_back_or_removed"
+   ],
+   "uses": [
+    "def:c08-delivery-status",
+    "def:delivery-moves",
+    "def:delivery-suspension"
+   ]
+  },
+  {
+   "id": "thm:delivery-step-follows-table",
+   "title": "Other events follow the table",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.step_follows_table"
+   ],
+   "uses": [
+    "def:delivery-suspension",
+    "def:delivery-moves"
+   ]
+  },
+  {
+   "id": "def:c10-in-progress",
+   "title": "Refunds while delivery is in progress",
+   "candidate": "C-10",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c08-delivery-status",
+    "def:accept-refund"
+   ]
+  },
+  {
+   "id": "def:delivery-who-sets-status",
+   "title": "Who sets each delivery status",
+   "candidate": "C-114",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:principal",
+    "def:c08-delivery-status",
+    "def:delivery-moves",
+    "thm:c09-suspended"
+   ]
+  },
+  {
+   "id": "thm:delivery-paid-before-delivery",
+   "title": "Payment before delivery starts",
+   "candidate": "C-115",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Delivery.paid_before_delivery"
+   ],
+   "uses": [
+    "def:c08-delivery-status",
+    "def:payment",
+    "def:c12-zero-commitment",
+    "def:delivery-moves",
+    "def:delivery-suspension"
+   ]
+  },
+  {
+   "id": "thm:delivery-paid-with-gate",
+   "title": "Payment before delivery when the undecided moves are refused",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.paid_before_delivery_with_gate"
+   ],
+   "uses": [
+    "def:delivery-moves",
+    "def:delivery-suspension"
+   ]
+  },
+  {
+   "id": "def:delivery-final-statuses",
+   "title": "Final delivery statuses",
+   "candidate": "C-116",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Delivery.isFinal"
+   ],
+   "uses": [
+    "def:c08-delivery-status",
+    "thm:delivered-not-cancellable",
+    "def:delivery-moves"
+   ]
+  },
+  {
+   "id": "thm:delivery-final-refuses",
+   "title": "No event leaves a final status",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.final_refuses_all"
+   ],
+   "uses": [
+    "def:delivery-final-statuses",
+    "def:delivery-suspension"
+   ]
+  },
+  {
+   "id": "thm:delivery-final-reachable",
+   "title": "Every service can reach a final status",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.final_reachable"
+   ],
+   "uses": [
+    "def:delivery-final-statuses",
+    "def:delivery-suspension"
+   ]
+  },
+  {
+   "id": "thm:delivery-closed-order-refuses",
+   "title": "Closed orders keep their delivery statuses",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Delivery.closed_order_refuses_events"
+   ],
+   "uses": [
+    "thm:delivery-final-refuses",
+    "def:c07-order-status"
+   ]
+  },
+  {
+   "id": "thm:delivery-all-final-closed",
+   "title": "Orders whose services are all final are closed",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Delivery.all_final_order_closed"
+   ],
+   "uses": [
+    "def:delivery-final-statuses",
+    "def:c07-order-status",
+    "def:c05-holds-value"
+   ]
+  },
+  {
+   "id": "def:delivery-removed-hold-value",
+   "title": "Held value after cancellation",
+   "candidate": "C-117",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Delivery.held_value_only_released"
+   ],
+   "uses": [
+    "def:c05-holds-value",
+    "thm:c20-value-store",
+    "def:c15-cancel-order",
+    "def:refund",
+    "def:delivery-moves",
+    "def:delivery-end-service"
+   ]
+  },
+  {
+   "id": "def:delivery-expired-unclaimed",
+   "title": "Expiry of an unclaimed service",
+   "candidate": "C-118",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Delivery.expire_marks_expired"
+   ],
+   "uses": [
+    "def:instant",
+    "def:c05-holds-value",
+    "def:c07-order-status",
+    "def:c11-payment-time-limit",
+    "def:delivery-final-statuses",
+    "def:delivery-end-service"
+   ]
+  },
+  {
+   "id": "def:delivery-no-show",
+   "title": "Passenger no-show",
+   "candidate": "C-119",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Delivery.no_show_marks_not_claimed"
+   ],
+   "uses": [
+    "def:c05-holds-value",
+    "def:refund",
+    "def:delivery-final-statuses",
+    "def:delivery-expired-unclaimed",
+    "def:delivery-end-service"
+   ]
+  },
+  {
+   "id": "def:delivery-failed-delivery-owed",
+   "title": "Refund after a failed delivery",
+   "candidate": "C-120",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c05-holds-value",
+    "def:refund",
+    "def:delivery-final-statuses",
+    "thm:delivery-unable",
+    "thm:delivery-fail",
+    "thm:delivery-all-final-closed"
+   ]
+  },
+  {
+   "id": "thm:delivery-seller-told",
+   "title": "Seller told of status changes",
+   "candidate": "C-121",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c08-delivery-status",
+    "def:delivery-who-sets-status",
+    "def:principal"
+   ]
+  },
+  {
+   "id": "thm:delivery-future-status-announced",
+   "title": "Announced future delivery status",
+   "candidate": "C-122",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c18-change",
+    "def:c08-delivery-status",
+    "def:delivery-removed-hold-value"
+   ]
+  },
+  {
+   "id": "thm:delivery-closed-frozen",
+   "title": "No changes after closing",
+   "candidate": "C-123",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c07-order-status",
+    "def:delivery-final-statuses",
+    "thm:delivery-closed-order-refuses"
+   ]
+  },
+  {
+   "id": "thm:delivery-transfer-keeps-status",
+   "title": "Transfer keeps delivery status",
+   "candidate": "C-124",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c19-transfer-balanced",
+    "def:c01-structure",
+    "thm:change-cancellation-transferred-original-no-value"
+   ]
+  },
+  {
+   "id": "thm:delivery-milestones-not-status",
+   "title": "Delivery milestones and status",
+   "candidate": "C-125",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c08-delivery-status",
+    "def:delivery-who-sets-status"
+   ]
+  },
+  {
+   "id": "def:delivery-pilot",
+   "title": "The pilot's delivery states in ONE Order",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Delivery and fulfilment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Delivery.fromPilotState",
+    "Rules.OneOrder.Delivery.fromPilotEvent",
+    "Rules.OneOrder.Delivery.pilot_step_within_table"
+   ],
+   "uses": [
+    "def:step",
+    "def:delivery-moves"
+   ]
+  },
+  {
+   "id": "def:c11-payment-time-limit",
+   "title": "Payment time limit",
+   "candidate": "C-11",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Payment.PayableItem",
+    "Rules.OneOrder.Payment.PayableOrder"
+   ],
+   "uses": [
+    "def:c08-delivery-status",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "def:c12-zero-commitment",
+   "title": "Committing to pay nothing",
+   "candidate": "C-12",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c08-delivery-status",
+    "def:c01-structure"
+   ]
+  },
+  {
+   "id": "def:c13-several-methods",
+   "title": "Paying with several methods",
+   "candidate": "C-13",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Payment.Transaction.status",
+    "Rules.OneOrder.Payment.Transaction",
+    "Rules.OneOrder.Payment.Method"
+   ],
+   "uses": [
+    "def:payment",
+    "def:payment-payment-status"
+   ]
+  },
+  {
+   "id": "thm:payment-status-failed",
+   "title": "A failed method fails the payment",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.status_failed_iff"
+   ],
+   "uses": [
+    "def:c13-several-methods"
+   ]
+  },
+  {
+   "id": "thm:payment-status-successful",
+   "title": "A payment succeeds when every method succeeds",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.status_successful_iff"
+   ],
+   "uses": [
+    "def:c13-several-methods"
+   ]
+  },
+  {
+   "id": "thm:payment-status-pending",
+   "title": "A payment is pending while a method is pending",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.status_pending_iff"
+   ],
+   "uses": [
+    "def:c13-several-methods"
+   ]
+  },
+  {
+   "id": "thm:c14-amount-covers-price",
+   "title": "Amount charged across methods",
+   "candidate": "C-14",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.acceptPayment_total"
+   ],
+   "uses": [
+    "def:c13-several-methods",
+    "thm:c04-item-unsplit",
+    "def:payment-accept"
+   ]
+  },
+  {
+   "id": "def:c17-refund-methods",
+   "title": "Refunds across payment methods",
+   "candidate": "C-17",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c13-several-methods",
+    "thm:c14-amount-covers-price",
+    "def:accept-refund",
+    "thm:refunds-le-payments"
+   ]
+  },
+  {
+   "id": "def:payment-paid-order-item",
+   "title": "Paid order item",
+   "candidate": "C-126",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Payment.isPaid",
+    "Rules.OneOrder.Payment.Transaction.pays"
+   ],
+   "uses": [
+    "def:payment",
+    "def:c01-structure",
+    "def:c08-delivery-status",
+    "thm:c14-amount-covers-price",
+    "def:c18-change"
+   ]
+  },
+  {
+   "id": "thm:payment-paid-iff",
+   "title": "Only successful payments pay",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.isPaid_iff"
+   ],
+   "uses": [
+    "def:payment-paid-order-item",
+    "def:c13-several-methods"
+   ]
+  },
+  {
+   "id": "def:payment-payment-status",
+   "title": "Payment status and its moves",
+   "candidate": "C-127",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Payment.recordOutcome",
+    "Rules.OneOrder.Payment.PaymentStatus",
+    "Rules.OneOrder.Payment.OutcomeReading",
+    "Rules.OneOrder.Payment.MethodPart"
+   ],
+   "uses": [
+    "def:payment",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "thm:payment-record-pending",
+   "title": "Outcomes of pending transactions are recorded",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.recordOutcome_pending"
+   ],
+   "uses": [
+    "def:payment-payment-status"
+   ]
+  },
+  {
+   "id": "thm:payment-record-other",
+   "title": "Other methods keep their outcomes",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.recordOutcome_other_methods"
+   ],
+   "uses": [
+    "def:payment-payment-status"
+   ]
+  },
+  {
+   "id": "thm:payment-final-reading",
+   "title": "Settled payments under the final reading",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.recordOutcome_final_of_reading"
+   ],
+   "uses": [
+    "def:payment-payment-status",
+    "def:c13-several-methods"
+   ]
+  },
+  {
+   "id": "thm:payment-settled-final",
+   "title": "Settled payments keep their status",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Payment.recordOutcome_settled_final"
+   ],
+   "uses": [
+    "def:payment-payment-status",
+    "thm:payment-final-reading"
+   ]
+  },
+  {
+   "id": "def:payment-apply-outcome",
+   "title": "Applying a payment outcome",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Payment.applyOutcome",
+    "Rules.OneOrder.Payment.PayableItem.markPaid"
+   ],
+   "uses": [
+    "def:payment-payment-status",
+    "def:c13-several-methods",
+    "def:c11-payment-time-limit",
+    "def:c08-delivery-status"
+   ]
+  },
+  {
+   "id": "thm:payment-payment-outcome-effects",
+   "title": "Effects of a payment outcome",
+   "candidate": "C-128",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.applyOutcome_ready"
+   ],
+   "uses": [
+    "def:payment-payment-status",
+    "def:payment-paid-order-item",
+    "def:c08-delivery-status",
+    "def:c11-payment-time-limit",
+    "def:payment-apply-outcome"
+   ]
+  },
+  {
+   "id": "thm:payment-outcome-time-limit",
+   "title": "Paid items lose their payment time limits",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.applyOutcome_no_time_limit"
+   ],
+   "uses": [
+    "def:payment-apply-outcome"
+   ]
+  },
+  {
+   "id": "thm:payment-outcome-unsuccessful",
+   "title": "Failed and pending payments change nothing",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.applyOutcome_unsuccessful"
+   ],
+   "uses": [
+    "def:payment-apply-outcome"
+   ]
+  },
+  {
+   "id": "thm:payment-outcome-uncovered",
+   "title": "Items a payment does not cover are unchanged",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.applyOutcome_uncovered"
+   ],
+   "uses": [
+    "def:payment-apply-outcome"
+   ]
+  },
+  {
+   "id": "thm:payment-time-limit-on-unpaid",
+   "title": "Time limit on unpaid items",
+   "candidate": "C-129",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Payment.unpaid_item_removed_eventually"
+   ],
+   "uses": [
+    "def:c11-payment-time-limit",
+    "def:payment-paid-order-item",
+    "def:instant",
+    "def:payment-time-limit-expiry"
+   ]
+  },
+  {
+   "id": "def:payment-time-limit-expiry",
+   "title": "Unpaid item at its time limit",
+   "candidate": "C-130",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Payment.expireUnpaid",
+    "Rules.OneOrder.Payment.Removal",
+    "Rules.OneOrder.Payment.PayableOrder.lapses"
+   ],
+   "uses": [
+    "def:c11-payment-time-limit",
+    "def:c08-delivery-status",
+    "def:c06-item-status",
+    "def:payment-payment-status",
+    "def:payment-paid-order-item"
+   ]
+  },
+  {
+   "id": "thm:payment-expire-removes",
+   "title": "Unpaid items are removed at their time limit",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.expireUnpaid_removes"
+   ],
+   "uses": [
+    "def:payment-time-limit-expiry"
+   ]
+  },
+  {
+   "id": "thm:payment-expire-fails-pending",
+   "title": "Pending payments fail at the time limit",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.expireUnpaid_fails_pending"
+   ],
+   "uses": [
+    "def:payment-time-limit-expiry",
+    "thm:payment-status-pending",
+    "thm:payment-status-failed"
+   ]
+  },
+  {
+   "id": "thm:payment-expire-keeps-paid",
+   "title": "Paid items are not removed",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.expireUnpaid_keeps_paid"
+   ],
+   "uses": [
+    "def:payment-time-limit-expiry",
+    "def:payment-paid-order-item"
+   ]
+  },
+  {
+   "id": "thm:payment-expire-before-limit",
+   "title": "Items before their time limit are unchanged",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.expireUnpaid_keeps_before_limit"
+   ],
+   "uses": [
+    "def:payment-time-limit-expiry"
+   ]
+  },
+  {
+   "id": "thm:payment-removed-to-removed",
+   "title": "Removal to REMOVED leaves no value",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.removed_item_holds_no_value_of_removed"
+   ],
+   "uses": [
+    "def:payment-time-limit-expiry",
+    "def:c05-holds-value"
+   ]
+  },
+  {
+   "id": "thm:payment-removed-no-value",
+   "title": "Removed items hold no value",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "open",
+   "statusWords": "Open question",
+   "lean": [
+    "Rules.OneOrder.Payment.removed_item_holds_no_value"
+   ],
+   "uses": [
+    "def:payment-time-limit-expiry",
+    "def:c05-holds-value",
+    "def:c06-item-status",
+    "thm:payment-removed-to-removed"
+   ]
+  },
+  {
+   "id": "thm:payment-no-late-payment",
+   "title": "No payment after the limits",
+   "candidate": "C-131",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c11-payment-time-limit",
+    "thm:accept-rejects-expired",
+    "def:instant"
+   ]
+  },
+  {
+   "id": "thm:payment-accept-time-limit",
+   "title": "No payment at or after the time limit",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.acceptPayment_rejects_after_time_limit"
+   ],
+   "uses": [
+    "def:payment-accept",
+    "def:c11-payment-time-limit"
+   ]
+  },
+  {
+   "id": "thm:payment-failed-payment-all-items",
+   "title": "Failed payment leaves items unpaid",
+   "candidate": "C-132",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.failed_method_pays_nothing"
+   ],
+   "uses": [
+    "def:c13-several-methods",
+    "def:payment-paid-order-item",
+    "def:payment-apply-outcome"
+   ]
+  },
+  {
+   "id": "def:payment-allocation-across-items",
+   "title": "Allocating a payment across items",
+   "candidate": "C-133",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:payment-failed-payment-all-items",
+    "def:payment-paid-order-item",
+    "def:c17-refund-methods"
+   ]
+  },
+  {
+   "id": "def:payment-combinable-methods",
+   "title": "Combinable payment methods",
+   "candidate": "C-134",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c13-several-methods"
+   ]
+  },
+  {
+   "id": "def:payment-surcharge-per-method",
+   "title": "Surcharge on each payment method",
+   "candidate": "C-135",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Payment.MethodPart.charged",
+    "Rules.OneOrder.Payment.Transaction.requestedTotal",
+    "Rules.OneOrder.Payment.Transaction.surchargeTotal"
+   ],
+   "uses": [
+    "def:c13-several-methods",
+    "def:money-add"
+   ]
+  },
+  {
+   "id": "def:payment-accept",
+   "title": "Accepting a payment",
+   "candidate": null,
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "modelled",
+   "statusWords": "In Lean",
+   "lean": [
+    "Rules.OneOrder.Payment.acceptPayment",
+    "Rules.OneOrder.Payment.PaymentRejection",
+    "Rules.OneOrder.Payment.PayableOrder.coveredBy",
+    "Rules.OneOrder.Payment.priceTotal"
+   ],
+   "uses": [
+    "def:payment-surcharge-per-method",
+    "def:c11-payment-time-limit",
+    "def:c12-zero-commitment",
+    "def:money-add"
+   ]
+  },
+  {
+   "id": "thm:payment-accept-charges",
+   "title": "Each method is charged its amount plus its surcharge",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.acceptPayment_charges"
+   ],
+   "uses": [
+    "def:payment-accept",
+    "def:money-add"
+   ]
+  },
+  {
+   "id": "thm:payment-accept-requested",
+   "title": "Requested amounts add up to the price",
+   "candidate": null,
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.acceptPayment_requested_eq_price"
+   ],
+   "uses": [
+    "def:payment-accept"
+   ]
+  },
+  {
+   "id": "thm:payment-quoted-surcharge",
+   "title": "Quoted surcharge at payment time",
+   "candidate": "C-136",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:payment-surcharge-per-method",
+    "thm:c14-amount-covers-price"
+   ]
+  },
+  {
+   "id": "def:payment-surcharge-refundability",
+   "title": "Refundable payment surcharges",
+   "candidate": "C-137",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:payment-surcharge-per-method",
+    "def:c17-refund-methods",
+    "def:accept-refund",
+    "thm:refunds-le-payments"
+   ]
+  },
+  {
+   "id": "def:payment-refund-negative-payment",
+   "title": "Refund as a negative payment",
+   "candidate": "C-138",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:refund",
+    "def:payment",
+    "def:totals",
+    "thm:refunds-le-payments",
+    "def:c17-refund-methods"
+   ]
+  },
+  {
+   "id": "def:payment-failed-payment-recovery",
+   "title": "Retrying a failed payment",
+   "candidate": "C-139",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:payment-payment-status",
+    "thm:payment-payment-outcome-effects",
+    "def:c11-payment-time-limit"
+   ]
+  },
+  {
+   "id": "thm:payment-commitment-zero-due",
+   "title": "Commitment only when nothing due",
+   "candidate": "C-140",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "proven",
+   "statusWords": "Proven",
+   "lean": [
+    "Rules.OneOrder.Payment.acceptPayment_commitment_zero"
+   ],
+   "uses": [
+    "def:c12-zero-commitment",
+    "def:payment-paid-order-item",
+    "def:payment-accept"
+   ]
+  },
+  {
+   "id": "def:payment-voucher-payment",
+   "title": "Paying with a voucher",
+   "candidate": "C-141",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Payment",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c20-value-store",
+    "def:c17-refund-methods",
+    "def:c13-several-methods"
+   ]
+  },
+  {
+   "id": "thm:c22-bill-after-delivery",
+   "title": "Billing after delivery",
+   "candidate": "C-22",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "ready",
+   "statusWords": "Ready to build",
+   "lean": [],
+   "uses": [
+    "def:c08-delivery-status"
+   ]
+  },
+  {
+   "id": "def:accounting-settlement-value",
+   "title": "Settlement value of a service",
+   "candidate": "C-142",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:order",
+    "def:c01-structure",
+    "def:money"
+   ]
+  },
+  {
+   "id": "thm:accounting-billed-within-delivered",
+   "title": "Billing limited to delivered services",
+   "candidate": "C-143",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c22-bill-after-delivery",
+    "def:accounting-settlement-value",
+    "def:c08-delivery-status"
+   ]
+  },
+  {
+   "id": "thm:accounting-accounting-after-payment",
+   "title": "First accounting posting after payment",
+   "candidate": "C-144",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:payment",
+    "def:c08-delivery-status",
+    "def:c11-payment-time-limit",
+    "def:c12-zero-commitment"
+   ]
+  },
+  {
+   "id": "thm:accounting-revenue-at-final-status",
+   "title": "Revenue recognized at final status",
+   "candidate": "C-145",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:accounting-accounting-after-payment",
+    "def:c08-delivery-status",
+    "def:c05-holds-value",
+    "thm:c22-bill-after-delivery"
+   ]
+  },
+  {
+   "id": "thm:accounting-order-money-balance",
+   "title": "Money balance of an order",
+   "candidate": "C-146",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:totals",
+    "thm:refunds-le-payments",
+    "thm:accounting-revenue-at-final-status",
+    "thm:accounting-accounting-after-payment",
+    "def:c05-holds-value",
+    "thm:c16-penalty-net"
+   ]
+  },
+  {
+   "id": "def:accounting-commission-structure",
+   "title": "Commission on an item",
+   "candidate": "C-147",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:money",
+    "def:offer-item"
+   ]
+  },
+  {
+   "id": "def:accounting-net-clearance-amount",
+   "title": "Net clearance amount",
+   "candidate": "C-148",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:payment",
+    "def:refund",
+    "def:accounting-commission-structure"
+   ]
+  },
+  {
+   "id": "thm:accounting-commission-cleared-once",
+   "title": "Commission cleared exactly once",
+   "candidate": "C-149",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "waiting",
+   "statusWords": "Waiting",
+   "lean": [],
+   "uses": [
+    "def:accounting-net-clearance-amount",
+    "def:accounting-commission-structure",
+    "def:payment"
+   ]
+  },
+  {
+   "id": "thm:accounting-clearance-matches-order",
+   "title": "Clearance request matches the order",
+   "candidate": "C-150",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "waiting",
+   "statusWords": "Waiting",
+   "lean": [],
+   "uses": [
+    "def:accounting-net-clearance-amount",
+    "def:payment",
+    "thm:c21-version"
+   ]
+  },
+  {
+   "id": "thm:accounting-clearance-per-commitment",
+   "title": "One clearance per payment commitment",
+   "candidate": "C-151",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c13-several-methods",
+    "def:payment",
+    "thm:accounting-clearance-matches-order"
+   ]
+  },
+  {
+   "id": "def:accounting-clearance-status",
+   "title": "Clearance status",
+   "candidate": "C-152",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:accounting-clearance-request"
+   ]
+  },
+  {
+   "id": "def:accounting-clearance-cancellation",
+   "title": "Cancelling a clearance",
+   "candidate": "C-153",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:accounting-clearance-status",
+    "def:c15-cancel-order",
+    "def:refund"
+   ]
+  },
+  {
+   "id": "thm:accounting-clearing-total",
+   "title": "Clearing total",
+   "candidate": "C-154",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:accounting-clearance-status",
+    "def:accounting-net-clearance-amount"
+   ]
+  },
+  {
+   "id": "thm:accounting-net-position",
+   "title": "Net position per remittance date",
+   "candidate": "C-155",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:accounting-net-clearance-amount",
+    "thm:accounting-clearing-total"
+   ]
+  },
+  {
+   "id": "thm:accounting-settled-plus-remaining",
+   "title": "Settled and unsettled clearance amounts",
+   "candidate": "C-156",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:accounting-clearance-status",
+    "thm:accounting-clearing-total",
+    "def:accounting-net-clearance-amount"
+   ]
+  },
+  {
+   "id": "def:accounting-change-netting",
+   "title": "Netting on a change",
+   "candidate": "C-157",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:c18-change",
+    "thm:c16-penalty-net",
+    "thm:c04-item-unsplit",
+    "def:c05-holds-value"
+   ]
+  },
+  {
+   "id": "thm:accounting-accounting-in-sequence",
+   "title": "Order of accounting postings",
+   "candidate": "C-158",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:c21-version",
+    "thm:accounting-accounting-after-payment"
+   ]
+  },
+  {
+   "id": "thm:accounting-commission-offer-to-order",
+   "title": "Commission from offer to order",
+   "candidate": "C-159",
+   "kind": "theorem",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:accept",
+    "thm:c02-item-per-offer-item",
+    "def:accounting-commission-structure"
+   ]
+  },
+  {
+   "id": "def:accounting-clearance-request",
+   "title": "Requesting a clearance",
+   "candidate": "C-160",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "def:instant",
+    "def:payment"
+   ]
+  },
+  {
+   "id": "def:accounting-short-remittance-allocation",
+   "title": "Allocating a short remittance",
+   "candidate": "C-161",
+   "kind": "definition",
+   "chapter": "ONE Order rules from the survey",
+   "area": "Commission, accounting and settlement",
+   "status": "decision",
+   "statusWords": "Needs a decision",
+   "lean": [],
+   "uses": [
+    "thm:accounting-settled-plus-remaining",
+    "def:accounting-clearance-status"
+   ]
+  }
+ ]
+}

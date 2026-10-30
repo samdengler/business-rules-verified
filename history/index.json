@@ -122,6 +122,24 @@
     "decision": 118,
     "waiting": 6
    }
+  },
+  {
+   "seq": 8,
+   "name": "delivery",
+   "description": "Delivery is in Lean: moves between delivery statuses, services that end without delivery, final statuses and suspension, with two open questions.",
+   "commit": "5728748176158651d2a0264283cf4d0c6e622912",
+   "date": "2026-10-30T00:15:57-04:00",
+   "tag": "milestone/delivery",
+   "file": "0008-delivery.json",
+   "nodes": 261,
+   "statusCounts": {
+    "modelled": 50,
+    "proven": 70,
+    "open": 13,
+    "ready": 11,
+    "decision": 112,
+    "waiting": 5
+   }
   }
  ]
 }
