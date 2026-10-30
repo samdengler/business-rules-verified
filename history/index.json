@@ -140,6 +140,24 @@
     "decision": 112,
     "waiting": 5
    }
+  },
+  {
+   "seq": 9,
+   "name": "order-creation",
+   "description": "Order creation is in Lean: selecting items, creating one order from several offers, repeated requests, versions and history, stale changes and retention, with nine open questions.",
+   "commit": "c1bea4d63ea67971f00d86b738c1ca74d7518bf0",
+   "date": "2026-10-30T00:45:12-04:00",
+   "tag": "milestone/order-creation",
+   "file": "0009-order-creation.json",
+   "nodes": 290,
+   "statusCounts": {
+    "modelled": 58,
+    "proven": 92,
+    "open": 22,
+    "ready": 9,
+    "decision": 105,
+    "waiting": 4
+   }
   }
  ]
 }
