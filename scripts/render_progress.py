@@ -93,6 +93,10 @@ def parse_nodes(src=None):
         cid = re.search(r"\((C-\d+)\)$", title)
         text = re.sub(r"\\(label|lean|uses|discussion)\{[^}]*\}|\\notready", "", body)
         paras = [tex_html(p) for p in re.split(r"\n\s*\n", text) if p.strip()]
+        # "Capabilities: ORDCAN, ORDCA2." names the IATA ARMI capabilities a
+        # candidate belongs to; the pages list it apart from the description.
+        caps = [c for p in paras if p.startswith("Capabilities:") for c in re.findall(r"\b[A-Z0-9]{6}\b", p)]
+        paras = [p for p in paras if not p.startswith("Capabilities:")]
         nodes.append({
             "env": m.group(1),
             "label": arg("label", body)[0],
@@ -104,6 +108,7 @@ def parse_nodes(src=None):
             "chapter": chapter,
             "section": section,
             "paras": paras,
+            "caps": caps,
         })
     return nodes
 
@@ -216,11 +221,11 @@ def card(n):
 CSS = """
 :root { color-scheme: light;
   --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
-  --hair: #e1e0d9; --ring: rgba(11,11,11,0.10);
+  --hair: #e1e0d9; --ring: rgba(11,11,11,0.10); --axis: #b9b8b0;
   --good: #0ca30c; --lean: #e87ba4; --warning: #fab219; --critical: #d03b3b; --ready: #2a78d6; --waiting: #898781; }
 @media (prefers-color-scheme: dark) { :root { color-scheme: dark;
   --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
-  --hair: #2c2c2a; --ring: rgba(255,255,255,0.10); --ready: #3987e5; } }
+  --hair: #2c2c2a; --ring: rgba(255,255,255,0.10); --axis: #55544f; --ready: #3987e5; } }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--ink);
   font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -282,12 +287,51 @@ h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600
 .tag { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 4px 0 12px; }
+.ranking { list-style: none; padding: 0; margin: 0; counter-reset: rank; background: var(--surface);
+  border: 1px solid var(--ring); border-radius: 10px; }
+.ranking li { counter-increment: rank; display: grid; grid-template-columns: 30px minmax(220px, 1fr) minmax(200px, 1.3fr);
+  gap: 4px 16px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--ring); }
+.ranking li:first-child { border-top: none; }
+.ranking li::before { content: counter(rank); color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+.ranking .rk-title { font-weight: 600; color: var(--ink); text-decoration: none; }
+.ranking .rk-title:hover { color: var(--ready); text-decoration: underline; }
+.ranking .rk-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.ranking .rk-bar { height: 12px; border-radius: 3px; background: var(--waiting); min-width: 3px; }
+.ranking .s-open .rk-bar { background: var(--critical); } .ranking .s-decision .rk-bar { background: var(--warning); }
+.ranking .rk-n { font-size: 13.5px; color: var(--ink); margin-top: 4px; }
+.ranking .rk-n strong { font-variant-numeric: tabular-nums; }
+.ranking .rk-areas { color: var(--ink-2); }
+@media (max-width: 700px) { .ranking li { grid-template-columns: 24px 1fr; } .ranking .rk-impact { grid-column: 2; } }
 footer { margin-top: 48px; color: var(--muted); font-size: 13px; }
 @media (max-width: 900px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
 """
 
 
-def page(show, by_label, decls):
+def decide_first(model, root="./", limit=10):
+    """The open questions and decisions with the most cards depending on
+    them, each linking to its neighbourhood on the Explore page.  The tour
+    (scripts/render_tour.py) shows the first five."""
+    from graph_model import short
+    rows = model.ranking(limit)
+    if not rows:
+        return ""
+    top = rows[0]["count"]
+    items = []
+    for r in rows:
+        n = r["node"]
+        k, areas = r["count"], r["areas"]
+        tag = f'<span class="tag">{html.escape(n["cid"])}</span>' if n["cid"] else ""
+        items.append(
+            f'<li class="s-{n["status"]}"><div><a class="rk-title" href="{root}graph/#{quote(n["label"])}">{html.escape(n["title"])}</a>'
+            f'<div class="rk-meta">{tag}{chip(n["status"])}<span>{html.escape(n["section"])}</span></div></div>'
+            f'<div class="rk-impact"><div class="rk-bar" style="width: {100 * k / top:.1f}%"></div>'
+            f'<div class="rk-n"><strong>{k}</strong> {"card" if k == 1 else "cards"} in {len(areas)} '
+            f'{"area" if len(areas) == 1 else "areas"}: <span class="rk-areas">{html.escape(", ".join(short(a) for a in areas))}</span>'
+            f'</div></div></li>')
+    return "<ol class=\"ranking\">" + "".join(items) + "</ol>"
+
+
+def page(show, by_label, decls, model=None):
     counts = {k: sum(1 for n in show if n["status"] == k) for k in STATUSES}
     tiles = "".join(
         f'<div class="tile s-{k}"><div class="n"><span class="ico" aria-hidden="true">{STATUSES[k][1]}</span>{counts[k]}</div>'
@@ -330,13 +374,20 @@ A <strong>proven</strong> guarantee holds for every possible input, not only the
 An <strong>open question</strong> is a guarantee the rules as written do not meet. An example the build computes shows the failing case, and the business decides what the rule should do.
 This page is generated from the model on every build.</p>
 <nav class="links" aria-label="Also on this site">
+  <a href="./tour/">Take the five-step tour</a>
   <a href="./review/">Read the rules in the review document</a>
+  <a href="./graph/">Explore how the rules depend on each other</a>
   <a href="{REPO}/tree/main/.kiro/specs">Requirement specs</a>
   <a href="./ears-criteria.csv">Acceptance criteria (CSV)</a>
   <a href="{REPO}/blob/main/docs/one-order-survey.md">ONE Order survey</a>
 </nav>
 <div class="tiles">{tiles}</div>
 <div class="bar" role="img" aria-label="Status of {total} rules and guarantees">{bar}</div>
+
+<h2 id="decide">Decide these first</h2>
+<p class="sub">These open questions and decisions have the most cards depending on them, so an answer reaches furthest.
+Each is ranked by the number of cards that use it, directly or through other cards, and ties by the number of areas those cards are in.</p>
+{decide_first(model) if model else ""}
 
 <h2 id="found">Open questions</h2>
 <p class="sub">A guarantee the business expected to hold, and an example where the rules as written break it.</p>
@@ -345,8 +396,8 @@ This page is generated from the model on every build.</p>
 
 <h2 id="map">How the rules depend on each other</h2>
 <p class="sub">A rule can only be written in Lean once everything it depends on is, so the dependencies show what to build next.
-The <a href="./graph/">dependency graph</a> draws every rule and definition in the blueprint with an arrow from each one to the ones that build on it.
-Click a card there to read it and see what it depends on.</p>
+The <a href="./graph/">Explore page</a> shows them as a map of the areas, a matrix of dependencies between areas, every card with an arrow
+to the cards that build on it, and the history of the model. Click a card there to see what it depends on and what builds on it.</p>
 <div class="legend">{legend}</div>
 
 <footer>Generated by <code>scripts/render_progress.py</code> from the Lean build and the blueprint.
@@ -358,12 +409,13 @@ Statuses are computed; nothing on this page is typed by hand.</footer>
 
 
 def main():
+    from graph_model import Model
     decls = load_decls()
     nodes = parse_nodes()
     by_label = classify(nodes, decls)
     show = shown(nodes, decls)
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(page(show, by_label, decls))
+    OUT.write_text(page(show, by_label, decls, Model(nodes, decls)))
     counts = {k: sum(1 for n in show if n["status"] == k) for k in STATUSES}
     print(f"rendered {OUT.relative_to(ROOT)}: " + ", ".join(f"{v} {k}" for k, v in counts.items()))
 

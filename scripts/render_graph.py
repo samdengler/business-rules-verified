@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
-"""Render the dependency graph page, build/graph/index.html.
+"""Render the Explore page, build/graph/index.html, served at /graph/.
 
-Every node of the blueprint (blueprint/src/content.tex) is drawn as a card
-with its title and its status, and every \\uses as a connector from the node
-used to the node that uses it.  layout() places the cards in rows below the
-cards they use; the page draws the cards and connectors in the style of the
-progress page, and lets the reader move, zoom and open a node to read its
-statement.
+The page has five views of the blueprint's graph, chosen by ?view= in the
+address:
+
+  area-map    one box per area with its status bar, and the dependencies
+              between areas (the default);
+  matrix      areas by areas, with the number of dependencies in each cell;
+  all-cards   every card, with an arrow from each one to the cards that build
+              on it, and lenses by area and by IATA capability;
+  history     the milestones in history/, as clusters of dots by area;
+  card        one card's neighbourhood: what it depends on and what builds
+              on it.  A link ending in #<label> opens it.
+
+layout() places the cards of the full graph in rows below the cards they use;
+the page repeats it in the browser to draw a lens.  The area map, the matrix
+and the clusters are drawn here by scripts/area_views.py; the page's script
+(scripts/explore.js) draws the full graph and the neighbourhood and switches
+between views.
 
 Statuses come from build/status.json through scripts/render_progress.py, so
 the page changes when the model does.
@@ -19,10 +30,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from render_progress import classify, load_decls, parse_nodes, split_question  # noqa: E402
-from site_nav import FAVICON, SITE_NAME, TOPBAR_CSS, topbar  # noqa: E402
+from site_nav import FAVICON, REPO, SITE_NAME, TOPBAR_CSS, topbar  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "build" / "graph" / "index.html"
+HERE = Path(__file__).resolve().parent
 
 CARD_W = 184          # card width
 NAME_CHARS = 25       # characters per name line at 13/600
@@ -145,17 +157,15 @@ STATUS_WORDS = {
 }
 
 
-def details(nodes, labels, decls):
-    """What the side panel shows for each node."""
-    by = {n["label"]: n for n in nodes}
-    used_by = {n["label"]: [] for n in nodes}
-    for n in nodes:
-        for u in n["uses"]:
-            if u in labels:
-                used_by[u].append(n["label"])
+
+
+def details(m):
+    """What the page knows about each card: its text for the side panel, what
+    it uses and what uses it, and how far an answer to it reaches."""
     data = {}
-    for n in nodes:
+    for n in m.nodes:
         desc, found, question, source = split_question(n)
+        imp = m.impact(n["label"])
         data[n["label"]] = {
             "title": n["title"],
             "cid": n["cid"],
@@ -167,8 +177,12 @@ def details(nodes, labels, decls):
             "question": question,
             "source": source,
             "lean": n["lean"],
-            "deps": [u for u in n["uses"] if u in by],
-            "users": used_by[n["label"]],
+            "caps": n.get("caps", []),
+            "readings": m.readings(n),
+            "deps": [u for u in n["uses"] if u in m.by],
+            "users": m.users[n["label"]],
+            "down": imp["count"],
+            "downAreas": len(imp["areas"]),
             "lines": n["lines"],
             "height": card_height(n["lines"]),
         }
@@ -187,9 +201,9 @@ CSS = """
 html, body { height: 100%; }
 body { margin: 0; background: var(--page); color: var(--ink); display: flex; flex-direction: column;
   font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-.intro { padding: 20px 28px 12px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 32px; }
+.intro { padding: 18px 28px 12px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 32px; }
 .intro h1 { font-size: 22px; line-height: 1.25; margin: 0 0 4px; letter-spacing: -0.01em; }
-.intro p { margin: 0; color: var(--ink-2); max-width: 720px; font-size: 14px; }
+.intro p { margin: 0; color: var(--ink-2); max-width: 760px; font-size: 14px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend i { width: 10px; height: 10px; border-radius: 50%; background: var(--waiting); display: inline-block; }
@@ -205,10 +219,8 @@ body { margin: 0; background: var(--page); color: var(--ink); display: flex; fle
 .lens button.on span { color: var(--page); opacity: .7; }
 .lens .note { flex-basis: 100%; margin: 4px 2px 0; font-size: 13px; color: var(--muted); }
 .lens .note strong { color: var(--ink-2); }
-.lens .note button.link, .panel .lens-btn { border: none; background: none; padding: 0; color: var(--ready); font: inherit; cursor: pointer; }
-.panel .lens-btn { font-weight: 600; }
+.lens .note a { color: var(--ready); }
 .node.context { opacity: .45; }
-.node.anchor rect { stroke-width: 3; }
 .stage { position: relative; flex: 1; min-height: 420px; margin: 0 28px 24px; background: var(--surface);
   border: 1px solid var(--ring); border-radius: 10px; overflow: hidden; }
 #graph { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; user-select: none; }
@@ -251,338 +263,189 @@ svg.focus .edge.hot { opacity: 1; stroke: var(--ink-2); stroke-width: 1.75; }
 .panel.open { transform: none; }
 .panel .close { position: absolute; top: 10px; right: 12px; border: none; background: none; color: var(--muted);
   font-size: 20px; cursor: pointer; }
-.panel .kicker { font-size: 12px; color: var(--muted); letter-spacing: .02em; margin: 0 0 4px; }
-.panel h2 { font-size: 18px; line-height: 1.3; margin: 0 28px 8px 0; }
-.panel .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; margin-bottom: 10px; }
-.panel .chip i { width: 10px; height: 10px; border-radius: 50%; background: var(--waiting); display: inline-block; }
-.panel .s-modelled i { background: var(--lean); } .panel .s-proven i { background: var(--good); } .panel .s-open i { background: var(--critical); }
-.panel .s-decision i { background: var(--warning); } .panel .s-ready i { background: var(--ready); }
-.panel p { margin: 6px 0; color: var(--ink); }
-.panel .box { border-radius: 8px; padding: 8px 10px; margin: 10px 0; }
-.panel .box.question { background: color-mix(in srgb, var(--warning) 14%, transparent); }
-.panel .box.found { background: color-mix(in srgb, var(--critical) 11%, transparent); }
-.panel h3 { font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
-.panel ul { margin: 0; padding-left: 18px; }
-.panel li { margin: 3px 0; }
-.panel a { color: var(--ready); }
-.panel button.link { border: none; background: none; padding: 0; color: var(--ready); font: inherit; cursor: pointer; text-align: left; }
-.panel code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: color-mix(in srgb, var(--ink) 6%, transparent);
-  padding: 0 4px; border-radius: 4px; }
-"""
-
-SCRIPT = r"""
-const svg = document.getElementById("graph");
-const data = JSON.parse(document.getElementById("graph-data").textContent);
-const AREAS = JSON.parse(document.getElementById("graph-areas").textContent);
-const panel = document.querySelector(".panel");
-const ALL = Object.keys(data);
-const CARD_W = 184, LINE = 17, GAP_X = 28, GAP_Y = 72;
-let vx = -16, vy = -16, vw = 1, vh = 1;
-let view = { x: 0, y: 0, w: 1, h: 1 };
-let moved = false;  // once the reader zooms or moves, a resize keeps their view
-const apply = () => svg.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`);
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
-
-// The same layout as scripts/render_graph.py: each card in the first row with
-// room below every card it uses, rows no wider than about the square root of
-// the number of cards, and a few sweeps that put each card near the cards it
-// is linked to.
-function layout(show) {
-  const vis = new Set(show);
-  const uses = (id) => data[id].deps.filter((u) => vis.has(u));
-  const usedBy = (id) => data[id].users.filter((u) => vis.has(u));
-  const depth = {}, path = new Set();
-  const d = (id) => {
-    if (depth[id] === undefined) {
-      path.add(id);
-      depth[id] = 1 + Math.max(-1, ...uses(id).filter((u) => !path.has(u)).map(d));
-      path.delete(id);
-    }
-    return depth[id];
-  };
-  const rowMax = Math.max(3, Math.min(14, Math.round(Math.sqrt(1.2 * show.length))));
-  const sorted = [...show].sort((a, b) => d(a) - d(b) || cmp(data[a].section, data[b].section) || cmp(a, b));
-  const row = {}, count = {};
-  for (const id of sorted) {
-    let r = 1 + Math.max(-1, ...uses(id).filter((u) => u in row).map((u) => row[u]));
-    while ((count[r] || 0) >= rowMax) r++;
-    row[id] = r; count[r] = (count[r] || 0) + 1;
-  }
-  const order = [];
-  for (const id of sorted) (order[row[id]] = order[row[id]] || []).push(id);
-  const rows = order.filter(Boolean);
-  rows.forEach((r) => r.sort((a, b) => cmp(data[a].section, data[b].section) || cmp(a, b)));
-  const place = () => { const at = {}; rows.forEach((r) => r.forEach((id, i) => { at[id] = (i + 0.5) / r.length; })); return at; };
-  for (let k = 0; k < 4; k++) {
-    for (const [from, to, step, links] of [[1, rows.length, 1, uses], [rows.length - 2, -1, -1, usedBy]]) {
-      for (let i = from; i !== to; i += step) {
-        const at = place(), key = {};
-        rows[i].forEach((id) => { const l = links(id); key[id] = l.length ? l.reduce((s, x) => s + at[x], 0) / l.length : at[id]; });
-        rows[i].sort((a, b) => key[a] - key[b]);
-      }
-    }
-  }
-  const slot = CARD_W + GAP_X;
-  const width = Math.max(...rows.map((r) => r.length)) * slot - GAP_X;
-  const pos = {};
-  let y = 0;
-  for (const r of rows) {
-    const h = Math.max(...r.map((id) => data[id].height));
-    const x0 = (width - (r.length * slot - GAP_X)) / 2;
-    r.forEach((id, i) => { pos[id] = [x0 + i * slot + CARD_W / 2, y + h / 2]; });
-    y += h + GAP_Y;
-  }
-  const edges = [];
-  for (const id of show) for (const u of uses(id)) {
-    const [x1, ya] = pos[u], [x2, yb] = pos[id];
-    const y1 = ya + data[u].height / 2, y2 = yb - data[id].height / 2 - 2;
-    const bend = Math.min(GAP_Y, (y2 - y1) / 2);
-    edges.push([u, id, `M${x1} ${y1}C${x1} ${y1 + bend} ${x2} ${y2 - bend} ${x2} ${y2}`]);
-  }
-  return { width: width + 32, height: y - GAP_Y + 32, pos, edges };
-}
-
-function card(id, pos, extra) {
-  const n = data[id], [x, y] = pos[id], h = n.height;
-  const x0 = x - CARD_W / 2, y0 = y - h / 2;
-  const sy = y0 + 24 + LINE * n.lines.length + 4;
-  return `<g class="node s-${n.status}${extra}" data-id="${esc(id)}" tabindex="0" role="button" aria-label="${esc(n.title)}, ${esc(n.statusWords)}">`
-    + `<rect x="${x0}" y="${y0}" width="${CARD_W}" height="${h}" rx="8"/>`
-    + n.lines.map((l, i) => `<text class="name" x="${x0 + 14}" y="${y0 + 24 + LINE * i}">${esc(l)}</text>`).join("")
-    + `<circle class="dot" cx="${x0 + 18}" cy="${sy - 4}" r="4"/>`
-    + `<text class="status" x="${x0 + 28}" y="${sy}">${esc((n.cid ? n.cid + " · " : "") + n.statusWords)}</text></g>`;
-}
-
-// What the reader is looking at: every card, one area with the cards it
-// builds on, or one card with everything it depends on and what uses it.
-const params = new URLSearchParams(location.search);
-let lens = { area: params.get("area"), focus: params.get("focus") };
-if (lens.area && !AREAS.some((a) => a.name === lens.area)) lens.area = null;
-if (lens.focus && !data[lens.focus]) lens.focus = null;
-function shown() {
-  if (lens.focus) {
-    const keep = new Set([lens.focus, ...data[lens.focus].users]);
-    const up = (id) => data[id].deps.forEach((u) => { if (!keep.has(u)) { keep.add(u); up(u); } });
-    up(lens.focus);
-    return { ids: ALL.filter((id) => keep.has(id)), context: new Set() };
-  }
-  if (lens.area) {
-    const own = ALL.filter((id) => data[id].section === lens.area);
-    const keep = new Set(own);
-    own.forEach((id) => data[id].deps.forEach((u) => keep.add(u)));
-    return { ids: ALL.filter((id) => keep.has(id)), context: new Set([...keep].filter((id) => data[id].section !== lens.area)) };
-  }
-  return { ids: ALL, context: new Set() };
-}
-function draw() {
-  const { ids, context } = shown();
-  const L = layout(ids);
-  vw = L.width; vh = L.height;
-  svg.innerHTML = '<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker>'
-    + '<marker id="arrow-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>'
-    + '<g class="edges">' + L.edges.map(([f, t, p]) => `<path class="edge" data-from="${esc(f)}" data-to="${esc(t)}" d="${p}" marker-end="url(#arrow)"/>`).join("") + "</g>"
-    + '<g class="nodes">' + ids.map((id) => card(id, L.pos, (context.has(id) ? " context" : "") + (id === lens.focus ? " anchor" : ""))).join("") + "</g>";
-  svg.querySelectorAll(".node").forEach((n) => {
-    n.addEventListener("click", () => select(n.dataset.id));
-    n.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(n.dataset.id); } });
-  });
-  document.querySelectorAll(".lens button[data-area]").forEach((b) =>
-    b.classList.toggle("on", !lens.focus && (b.dataset.area || null) === lens.area));
-  const note = document.querySelector(".lens .note");
-  note.innerHTML = lens.focus
-    ? `Showing <strong>${esc(data[lens.focus].title)}</strong>, everything it depends on and what uses it: ${ids.length} of ${ALL.length} cards. <button class="link" data-clear-focus>Show all</button>`
-    : lens.area ? `Showing ${ids.length - context.size} cards in this area and ${context.size} they build on, faded.` : `Showing all ${ALL.length} cards.`;
-  const back = note.querySelector("[data-clear-focus]");
-  if (back) back.onclick = () => setLens({ area: null, focus: null });
-  moved = false; fit();
-}
-function setLens(next) {
-  lens = next;
-  const q = new URLSearchParams();
-  if (lens.area) q.set("area", lens.area);
-  if (lens.focus) q.set("focus", lens.focus);
-  history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
-  clear(true);
-  draw();
-}
-document.querySelectorAll(".lens button[data-area]").forEach((b) =>
-  b.onclick = () => setLens({ area: b.dataset.area || null, focus: null }));
-
-// The view starts showing everything in the lens; the reader zooms in to read.
-// Room under the graph for the zoom buttons.
-const CONTROLS = 52;
-function fit() {
-  const r = svg.getBoundingClientRect();
-  const scale = Math.min(r.width / vw, (r.height - CONTROLS) / vh, 1.2);
-  view.w = r.width / scale; view.h = r.height / scale;
-  view.x = vx - (view.w - vw) / 2; view.y = vy - (view.h - CONTROLS / scale - vh) / 2;
-  apply();
-}
-function zoom(factor, cx, cy) {
-  const r = svg.getBoundingClientRect();
-  const px = cx === undefined ? 0.5 : (cx - r.left) / r.width;
-  const py = cy === undefined ? 0.5 : (cy - r.top) / r.height;
-  const nw = Math.min(Math.max(view.w / factor, 200), Math.max(vw, 800) * 4), nh = nw * view.h / view.w;
-  view.x += (view.w - nw) * px; view.y += (view.h - nh) * py; view.w = nw; view.h = nh;
-  moved = true; apply();
-}
-svg.addEventListener("wheel", (e) => {
-  e.preventDefault();
-  if (e.ctrlKey || e.metaKey) zoom(Math.exp(-e.deltaY / 200), e.clientX, e.clientY);
-  else {
-    const r = svg.getBoundingClientRect();
-    view.x += e.deltaX * view.w / r.width; view.y += e.deltaY * view.h / r.height; moved = true; apply();
-  }
-}, { passive: false });
-let drag = null;
-svg.addEventListener("pointerdown", (e) => {
-  if (e.target.closest(".node")) return;
-  drag = { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y, moved: false };
-  svg.setPointerCapture(e.pointerId); svg.classList.add("dragging");
-});
-svg.addEventListener("pointermove", (e) => {
-  if (!drag) return;
-  const r = svg.getBoundingClientRect();
-  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-  if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
-  view.x = drag.vx - dx * view.w / r.width; view.y = drag.vy - dy * view.h / r.height; moved = true; apply();
-});
-svg.addEventListener("pointerup", (e) => {
-  if (drag && !drag.moved && !e.target.closest(".node")) clear();
-  drag = null; svg.classList.remove("dragging");
-});
-document.querySelector("[data-zoom=in]").onclick = () => zoom(1.4);
-document.querySelector("[data-zoom=out]").onclick = () => zoom(1 / 1.4);
-document.querySelector("[data-zoom=fit]").onclick = () => { moved = false; fit(); };
-
-const nodeEl = (id) => svg.querySelector(`.node[data-id="${CSS.escape(id)}"]`);
-function relatedList(ids) {
-  if (!ids.length) return "<p>None.</p>";
-  return "<ul>" + ids.map((id) => `<li><button class="link" data-go="${esc(id)}">${esc(data[id].title)}</button></li>`).join("") + "</ul>";
-}
-function select(id) {
-  if (!nodeEl(id)) setLens({ area: null, focus: null });
-  const d = data[id];
-  svg.classList.add("focus");
-  svg.querySelectorAll(".node").forEach((n) => n.classList.remove("chosen", "near"));
-  svg.querySelectorAll(".edge").forEach((p) => {
-    const hot = p.dataset.from === id || p.dataset.to === id;
-    p.classList.toggle("hot", hot);
-    p.setAttribute("marker-end", hot ? "url(#arrow-hot)" : "url(#arrow)");
-  });
-  nodeEl(id).classList.add("chosen");
-  reveal(nodeEl(id));
-  d.deps.concat(d.users).forEach((n) => { const el = nodeEl(n); if (el) el.classList.add("near"); });
-  let body = `<p class="kicker">${esc(d.section)}${d.cid ? " · " + esc(d.cid) : ""}</p>`
-    + `<h2>${esc(d.title)}</h2><div class="chip s-${d.status}"><i></i>${esc(d.statusWords)}</div>`
-    + d.desc.map((p) => `<p>${p}</p>`).join("");
-  if (d.found) body += `<div class="box found"><strong>Counterexample:</strong> ${d.found}</div>`;
-  if (d.question) body += `<div class="box question"><strong>Open point:</strong> ${d.question}</div>`;
-  if (d.source) body += `<p><strong>Source:</strong> ${d.source}</p>`;
-  if (d.lean.length) body += `<h3>In Lean</h3><ul>` + d.lean.map((n) =>
-    `<li><a href="../review/find/?domain=Verso.Genre.Manual.doc&name=${encodeURIComponent(n)}"><code>${esc(n)}</code></a></li>`).join("") + "</ul>";
-  if (lens.focus !== id) body += `<p><button class="lens-btn" data-focus="${esc(id)}">Show only this card's connections</button></p>`;
-  body += `<h3>Depends on</h3>${relatedList(d.deps)}<h3>Used by</h3>${relatedList(d.users)}`;
-  panel.querySelector(".body").innerHTML = body;
-  history.replaceState(null, "", location.pathname + location.search + "#" + encodeURIComponent(id));
-  panel.classList.add("open");
-  panel.querySelectorAll("[data-go]").forEach((b) => b.onclick = () => select(b.dataset.go));
-  const f = panel.querySelector("[data-focus]");
-  if (f) f.onclick = () => { setLens({ area: null, focus: id }); select(id); };
-}
-// Moves the view so a node is not hidden under the side panel or off the edge.
-function reveal(el) {
-  const r = svg.getBoundingClientRect(), b = el.getBoundingClientRect();
-  const visible = r.right - Math.min(panel.offsetWidth, r.width * 0.9) - 24;
-  if (b.left >= r.left + 24 && b.right <= visible && b.top >= r.top + 24 && b.bottom <= r.bottom - 60) return;
-  const k = view.w / r.width;
-  view.x += ((b.left + b.right) / 2 - (r.left + visible) / 2) * k;
-  view.y += ((b.top + b.bottom) / 2 - (r.top + r.bottom) / 2) * k;
-  apply();
-}
-function clear(keepPanel) {
-  svg.classList.remove("focus");
-  svg.querySelectorAll(".chosen, .near, .hot").forEach((n) => n.classList.remove("chosen", "near", "hot"));
-  svg.querySelectorAll(".edge").forEach((p) => p.setAttribute("marker-end", "url(#arrow)"));
-  if (keepPanel === true) return;
-  panel.classList.remove("open");
-  history.replaceState(null, "", location.pathname + location.search);
-}
-panel.querySelector(".close").onclick = () => clear();
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") clear(); });
-draw();
-// A link such as graph/#def:c08-delivery-status opens with that node selected
-// and zoomed to a readable size.
-function openFromHash() {
-  const id = decodeURIComponent(location.hash.slice(1));
-  if (!data[id]) return;
-  if (!nodeEl(id)) setLens({ area: null, focus: null });
-  const r = svg.getBoundingClientRect(), b = nodeEl(id).getBoundingClientRect();
-  const k = view.w / r.width;
-  const cx = view.x + ((b.left + b.right) / 2 - r.left) * k, cy = view.y + ((b.top + b.bottom) / 2 - r.top) * k;
-  view.w = r.width / 1.1; view.h = r.height / 1.1;
-  view.x = cx - view.w * 0.35; view.y = cy - view.h / 2;
-  moved = true; apply();
-  select(id);
-}
-openFromHash();
-window.addEventListener("hashchange", openFromHash);
-window.addEventListener("resize", () => {
-  if (!moved) return fit();
-  const r = svg.getBoundingClientRect();
-  view.h = view.w * r.height / r.width; apply();
-});
+:is(.panel, .nb-panel) .kicker { font-size: 12px; color: var(--muted); letter-spacing: .02em; margin: 0 0 4px; }
+:is(.panel, .nb-panel) h2 { font-size: 18px; line-height: 1.3; margin: 0 28px 8px 0; }
+:is(.panel, .nb-panel) .chip { font-size: 13px; margin-bottom: 10px; }
+:is(.panel, .nb-panel) p { margin: 6px 0; color: var(--ink); }
+:is(.panel, .nb-panel) .box { border-radius: 8px; padding: 8px 10px; margin: 10px 0; }
+:is(.panel, .nb-panel) .box.question { background: color-mix(in srgb, var(--warning) 14%, transparent); }
+:is(.panel, .nb-panel) .box.found { background: color-mix(in srgb, var(--critical) 11%, transparent); }
+:is(.panel, .nb-panel) h3 { font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
+:is(.panel, .nb-panel) ul { margin: 0; padding-left: 18px; }
+:is(.panel, .nb-panel) li { margin: 3px 0; }
+:is(.panel, .nb-panel) a { color: var(--ready); }
+:is(.panel, .nb-panel) button.link { border: none; background: none; padding: 0; color: var(--ready); font: inherit; cursor: pointer; text-align: left; }
+:is(.panel, .nb-panel) code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: color-mix(in srgb, var(--ink) 6%, transparent);
+  padding: 0 4px; border-radius: 4px; overflow-wrap: anywhere; }
 """
 
 
-def page(nodes, labels, decls):
-    counts = {k: sum(1 for n in nodes if n["status"] == k) for k in STATUS_WORDS}
-    legend = "".join(f'<span class="s-{k}"><i></i>{STATUS_WORDS[k]} {counts[k]}</span>' for k in STATUS_WORDS if counts[k])
+def legend(counts=None):
+    return "".join(f'<span class="s-{k}"><i></i>{STATUS_WORDS[k]}{" " + str(counts[k]) if counts else ""}</span>'
+                   for k in STATUS_WORDS if counts is None or counts[k])
+
+
+def page(m, history):
+    from area_views import AREA_CSS, COLS, DOT, area_map, clusters, matrix
+    from graph_model import STATUS_ORDER, short, slug
+
+    counts = m.counts()
     in_lean = counts["modelled"] + counts["proven"] + counts["open"]
-    title = (f"{in_lean} parts of the model are in Lean; {counts['decision']} candidate rules need a business "
-             f"decision before they can join them")
-    data = json.dumps(details(nodes, labels, decls)).replace("</", "<\\/")
-    areas = [{"name": a, "count": sum(1 for n in nodes if n["section"] == a)}
-             for a in dict.fromkeys(n["section"] for n in nodes)]
-    lens = "".join(f'<button data-area="{html.escape(a["name"])}">{html.escape(a["name"])} <span>{a["count"]}</span></button>'
-                   for a in areas)
+    cap_cards = m.capabilities()
+    data = {
+        "site": SITE_NAME,
+        "cards": details(m),
+        "areas": [{"name": a, "short": short(a), "slug": slug(a), "count": len(m.area_nodes[a])} for a in m.order],
+        "caps": {c: {**m.cap_names[c], "count": len(ids)} for c, ids in cap_cards.items()},
+        "words": STATUS_WORDS,
+        "order": STATUS_ORDER,
+        "ranking": [{"id": r["node"]["label"], "count": r["count"]} for r in m.ranking(10)],
+        "history": history["data"],
+        "cardW": CARD_W, "line": LINE, "cols": COLS, "dot": DOT,
+    }
+    blob = json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
+    area_svg, hidden = area_map(m, STATUS_WORDS, lambda a: f"../area/{slug(a)}/")
+    matrix_svg = matrix(m)
+    cluster_svg = clusters(m, history["members"], history["statuses"], history["titles"], history["pairs"])
+    ms = history["data"]["milestones"]
+    steps = "".join(f'<button title="{html.escape(x["name"])}">{x["seq"]}</button>' for x in ms)
+    lens = "".join(f'<button data-area="{html.escape(a)}">{html.escape(short(a))} <span>{len(m.area_nodes[a])}</span></button>'
+                   for a in m.order)
+    groups = {}
+    for c in cap_cards:
+        groups.setdefault(m.cap_names[c]["group"], []).append(c)
+    options = "".join(
+        f'<optgroup label="{html.escape(g)}">' + "".join(
+            f'<option value="{c}">{c} {html.escape(m.cap_names[c]["name"])} ({len(cap_cards[c])})</option>' for c in cs)
+        + "</optgroup>" for g, cs in groups.items())
+    tabs = [("area-map", "Area map"), ("matrix", "Dependency matrix"), ("all-cards", "All cards"),
+            ("history", "History"), ("card", "Card neighbourhood")]
+    tab_html = "".join(f'<button role="tab" id="tab-{k}" data-view="{k}" aria-controls="view-{k}" aria-selected="false" '
+                       f'tabindex="-1">{t}</button>' for k, t in tabs)
+    css = CSS + AREA_CSS + (HERE / "explore.css").read_text()
+    script = (HERE / "explore.js").read_text()
+    back = sum(v for (a, b), v in m.pair.items() if a != b and m.is_back(a, b))
+    status_legend = legend()
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dependency graph: {SITE_NAME}</title>
+<title>Explore: {SITE_NAME}</title>
 {FAVICON}
-<style>{CSS}{TOPBAR_CSS}</style>
+<style>{css}{TOPBAR_CSS}</style>
 </head>
 <body>
-{topbar("Dependency graph", "../", '<a class="local" href="../blueprint/">Blueprint chapters</a>')}
-<div class="intro">
-  <div>
-    <h1>{html.escape(title)}</h1>
-    <p>Every definition, rule and guarantee in the blueprint, with an arrow from each one to the ones that build on it.
-    Pick an area to see its rules and what they build on, or click a card to read it.</p>
+{topbar("Explore", "../", '<a class="local" href="../blueprint/">Blueprint chapters</a>')}
+<div class="explore-bar">
+  <div class="tabs" role="tablist" aria-label="Views of the model">{tab_html}</div>
+  <div class="search" role="search">
+    <label class="sr" for="search">Find a card</label>
+    <input id="search" type="search" placeholder="Find a card by title, C-number or Lean name" autocomplete="off"
+      role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false">
+    <ul id="search-results" role="listbox" aria-label="Cards found" hidden></ul>
   </div>
-  <div class="legend">{legend}</div>
 </div>
-<nav class="lens" aria-label="Show one area">
-  <button data-area="">All areas <span>{len(nodes)}</span></button>{lens}
-  <p class="note" aria-live="polite"></p>
-</nav>
-<div class="stage">
-<svg id="graph" role="img" aria-label="Dependency graph of the blueprint"></svg>
-<div class="controls">
-  <button data-zoom="in" aria-label="Zoom in">+</button>
-  <button data-zoom="out" aria-label="Zoom out">&minus;</button>
-  <button data-zoom="fit">Fit</button>
-  <span class="hint">Drag to move. Pinch or Ctrl and scroll to zoom.</span>
-</div>
-<aside class="panel" aria-live="polite"><button class="close" aria-label="Close">&times;</button><div class="body"></div></aside>
-</div>
-<script type="application/json" id="graph-data">{data}</script>
-<script type="application/json" id="graph-areas">{json.dumps(areas)}</script>
-<script>{SCRIPT}</script>
+
+<section class="view doc" id="view-area-map" role="tabpanel" aria-labelledby="tab-area-map" hidden>
+  <div class="intro">
+    <div>
+      <h1>How the areas depend on each other</h1>
+      <p>Each box is an area of the blueprint, with its cards counted by status. An arrow runs from an area to an area that
+      builds on it, thicker for more dependencies, so the foundations sit at the top. Click an area to read its summary.</p>
+    </div>
+    <div class="legend">{status_legend}</div>
+  </div>
+  <div class="figure">{area_svg}</div>
+  <p class="caption">The {len(m.order)} areas are the blueprint's sections, in {len(m.layers)} layers. Arrows stand for five or
+  more dependencies; {hidden} smaller links are left out, and a number marks links of eight or more. A dashed arrow points
+  back: the area it reaches comes earlier in the layers. The <a href="?view=matrix" data-view="matrix">dependency matrix</a>
+  counts every link.</p>
+</section>
+
+<section class="view doc" id="view-matrix" role="tabpanel" aria-labelledby="tab-matrix" hidden>
+  <div class="intro">
+    <div>
+      <h1>How many dependencies join each pair of areas</h1>
+      <p>Each row is an area and each column an area it builds on; a cell counts the dependencies of the row's cards on the
+      column's cards, and the outlined diagonal counts those inside an area. Rows and columns follow the layers of the area
+      map, so most counts fall below the diagonal. Click a cell to list the cards behind its count.</p>
+    </div>
+    <div class="legend">{status_legend}<span class="key"><svg width="18" height="14" aria-hidden="true"><rect x="1" y="1" width="16" height="12" rx="3"
+      fill="none" stroke="var(--critical)" stroke-width="2" stroke-dasharray="4 3"/></svg> Points back: {back} dependencies</span></div>
+  </div>
+  <div class="matrix-wrap">
+    <div class="figure">{matrix_svg}</div>
+    <div class="cell-list" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="view" id="view-all-cards" role="tabpanel" aria-labelledby="tab-all-cards" hidden>
+  <div class="intro">
+    <div>
+      <h1>All cards and their dependencies</h1>
+      <p>Every definition, rule and guarantee in the blueprint, with an arrow from each one to the cards that build on it:
+      {in_lean} are in Lean and {counts['decision']} candidate rules need a business decision. Pick an area or an IATA
+      capability to see its cards and what they build on, or click a card to read it.</p>
+    </div>
+    <div class="legend">{legend(counts)}</div>
+  </div>
+  <nav class="lens" aria-label="Show one area or capability">
+    <button data-area="">All areas <span>{len(m.nodes)}</span></button>{lens}
+    <span class="sep" aria-hidden="true"></span>
+    <label class="sr" for="cap">IATA capability</label>
+    <select id="cap"><option value="">Any IATA capability</option>{options}</select>
+    <p class="note" aria-live="polite"></p>
+  </nav>
+  <div class="stage">
+    <svg id="graph" role="img" aria-label="Dependency graph of the blueprint"></svg>
+    <div class="controls">
+      <button data-zoom="in" aria-label="Zoom in">+</button>
+      <button data-zoom="out" aria-label="Zoom out">&minus;</button>
+      <button data-zoom="fit">Fit</button>
+      <span class="hint">Drag to move. Pinch or Ctrl and scroll to zoom.</span>
+    </div>
+    <aside class="panel" aria-live="polite"><button class="close" aria-label="Close">&times;</button><div class="body"></div></aside>
+  </div>
+</section>
+
+<section class="view" id="view-history" role="tabpanel" aria-labelledby="tab-history" hidden>
+  <div class="intro">
+    <div>
+      <h1>How the model grew, in {len(ms)} milestones</h1>
+      <p>Each dot is a card, in its area's box and in the color of its status at that milestone. Surveys of IATA's public
+      material add candidate rules, mostly amber because the material leaves them to the business; writing an area in Lean
+      turns its rules magenta and its guarantees green, or red where an example shows the rule breaking a guarantee.
+      Click a dot to open its card.</p>
+    </div>
+    <div class="legend">{status_legend}</div>
+  </div>
+  <div class="player">
+    <button class="play">Play</button>
+    <button data-step="prev" aria-label="Previous milestone">&larr;</button>
+    <button data-step="next" aria-label="Next milestone">&rarr;</button>
+    <div class="steps" aria-label="Milestones">{steps}</div>
+    <div class="caption-live" aria-live="polite"><h2></h2><span class="when"></span><p></p><div class="counts"></div></div>
+  </div>
+  <div class="history-stage">{cluster_svg}</div>
+  <p class="note">Each milestone is a tagged commit, <code>milestone/&lt;name&gt;</code>; its snapshot is in
+  <a href="{REPO}/tree/main/history">history/</a>. The <a href="{REPO}/blob/main/docs/motion-brief.md">motion brief</a>
+  tells the same story for a motion piece.</p>
+</section>
+
+<section class="view" id="view-card" role="tabpanel" aria-labelledby="tab-card" hidden>
+  <div class="intro">
+    <div class="text"></div>
+    <div class="legend">{status_legend}</div>
+  </div>
+  <div class="nb-stage">
+    <div class="nb-main"><p class="nb-summary" aria-live="polite"></p><div class="nb-scroll"></div></div>
+    <aside class="nb-panel" aria-live="polite" hidden><div class="body"></div></aside>
+  </div>
+</section>
+
+<script type="application/json" id="explore-data">{blob}</script>
+<script>{script}</script>
 </body>
 </html>
 """
@@ -604,19 +467,23 @@ def graph_data(nodes, labels):
             "statusWords": STATUS_WORDS[n["status"]],
             "lean": n["lean"],
             "uses": [u for u in n["uses"] if u in labels],
+            "capabilities": n.get("caps", []),
         } for n in nodes],
     }
 
 
 def main():
+    from graph_model import Model
+    from render_history import history_data
     decls = load_decls()
     nodes = parse_nodes()
     classify(nodes, decls)
     for n in nodes:
         n["lines"] = wrap(n["title"])
     labels = {n["label"] for n in nodes}
+    m = Model(nodes, decls)
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(page(nodes, labels, decls))
+    OUT.write_text(page(m, history_data(m)))
     (OUT.parent / "graph.json").write_text(json.dumps(graph_data(nodes, labels), indent=1) + "\n")
     print(f"rendered {OUT.relative_to(ROOT)} and graph.json: {len(nodes)} nodes")
 

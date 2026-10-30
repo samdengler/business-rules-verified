@@ -76,10 +76,14 @@ jobs:
       - run: leanblueprint web && leanblueprint checkdecls && leanblueprint pdf
       # The progress page for business readers.
       - run: python3 scripts/render_progress.py
-      # The dependency graph page.
+      # The Explore page at /graph/: the area map, the dependency matrix, every
+      # card, the history of milestones, and a card's neighbourhood.
       - run: python3 scripts/render_graph.py
-      # The history page: the milestones in history/ played on the graph.
+      # /history/, which sends readers to the Explore page's History tab.
       - run: python3 scripts/render_history.py
+      # A summary page per area, and the guided tour.
+      - run: python3 scripts/render_areas.py
+      - run: python3 scripts/render_tour.py
       # The try-it panels: the Rust rules compiled to WebAssembly.
       - run: scripts/build-wasm.sh
       - run: scripts/assemble-site.sh

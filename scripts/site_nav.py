@@ -31,12 +31,13 @@ FAVICON = ('<link rel="icon" href="data:image/svg+xml,'
            + f"%3Cpath transform='rotate(-30 12 12)' fill='%232a78d6' d='{PLANE_PATH}'/%3E%3C/svg%3E"
            + '">')
 
-# Each link's path from the site root.
+# Each link's path from the site root.  Explore is the dependency graph's
+# page, with the area map, the matrix, every card, the history and a card's
+# neighbourhood as views; it stays at graph/ so older links keep working.
 LINKS = [
     ("Progress", ""),
     ("Review document", "review/"),
-    ("Dependency graph", "graph/"),
-    ("History", "history/"),
+    ("Explore", "graph/"),
     ("GitHub", REPO),
 ]
 

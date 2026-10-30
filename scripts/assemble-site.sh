@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Assemble site/ from the build outputs, in the layout GitHub Pages serves:
-# the progress page at the root, the review document under review/, the
-# blueprint under blueprint/, the try-it panels' WebAssembly under try/, and
-# the specs and exports beside them.
+# the progress page at the root, the Explore page under graph/, a summary page
+# per area under area/, the tour under tour/, the review document under
+# review/, the blueprint under blueprint/, the try-it panels' WebAssembly
+# under try/, and the specs and exports beside them.  history/ sends readers
+# to the Explore page's History tab.
 #
 #   scripts/assemble-site.sh
 #
@@ -26,8 +28,10 @@ mkdir -p site/blueprint site/review
 cp build/progress/index.html site/index.html
 mkdir -p site/graph
 cp build/graph/index.html build/graph/graph.json site/graph/
-mkdir -p site/history
+mkdir -p site/history site/tour
 cp build/history/index.html site/history/
+cp -r build/area site/area
+cp build/tour/index.html site/tour/
 cp -r build/review/html-multi/. site/review/
 cp -r pages/. site/
 cp -r blueprint/web/. site/blueprint/
