@@ -50,6 +50,8 @@ roots = ["Review"]
 name = "review-doc"
 srcDir = "Review"
 root = "Main"
+# It loads the document's modules when it runs; see Review/Main.lean.
+supportInterpreter = true
 
 # The rules behind a JSON interface, for checking implementations in other
 # languages.  The library holds the handler; the executable loads it into

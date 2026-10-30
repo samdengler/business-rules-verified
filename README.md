@@ -700,3 +700,11 @@ Choices made where the plan left room, in the order they came up.
     moved with the repository to `samdengler.github.io/airline-order-verified/`.
     GitHub redirects the old repository URLs; GitHub Pages does not redirect
     a renamed project's site.
+31. **The review-doc program loads the document when it runs.** CI spent most
+    of its time compiling about 2,800 Mathlib modules to native code so that
+    `review-doc` could link the document, whose rules import `Mathlib.Tactic`.
+    `Review/Main.lean` now imports only Verso and `Review.Status` (the
+    document's own extensions, which Verso must have compiled in), and loads
+    the compiled `Review` modules with `importModules`, as `lake exe status`
+    and `lake exe oracle` already do. The program builds in 471 jobs instead
+    of 6,767, and the HTML it writes is byte for byte the same.
