@@ -29,12 +29,31 @@ Business rules for airline offers and orders as a Lean model, with review docume
 
 The bar at the top of every page is defined once in `scripts/site_nav.py`; `Review/review.js` repeats its links for the review document, so change both together.
 
-A new requirement needs `{include 1 Review.Generated.OO00n}` in `Review/Review.lean`; `render_status.py` fails until it is there.
+A new requirement needs `{include 1 Review.Generated.<ID without the dash>}` (such as `ONE301`) in `Review/Review.lean`; `render_status.py` fails until it is there.
 
 ## Branches, tags and milestones
 
 - `main` grows toward as much of ONE Order as the public material allows. The `starting-small` branch (tag `snapshot/starting-small`) keeps the version to propose for an internal pilot; fixes to that version go on that branch.
 - Each milestone (a survey round's candidates added, a capability's rules in Lean) gets a snapshot and an annotated tag with `python3 scripts/graph_history.py snapshot <name> "<sentence>" --tag`, then `python3 scripts/graph_history.py layout`. `docs/motion-brief.md` explains why: the snapshots feed a motion piece about how the graph grew.
+
+## ONE Order areas
+
+- `Rules/OneOrder/*.lean` are the foundations (services, statuses, items, orders, accepting an offer). Each area has its own folder and sub-namespace and its own range of requirement IDs:
+
+  | Area | Namespace | IDs | Blueprint file |
+  | --- | --- | --- | --- |
+  | Delivery | `Rules.OneOrder.Delivery` | ONE-101 to ONE-199 | `areas/delivery.tex` |
+  | Change and cancellation | `Rules.OneOrder.Change` | ONE-201 to ONE-299 | `areas/change-cancellation.tex` |
+  | Payment | `Rules.OneOrder.Payment` | ONE-301 to ONE-399 | `areas/payment.tex` |
+  | Order creation and information | `Rules.OneOrder.Creation` | ONE-401 to ONE-499 | `areas/order-creation.tex` |
+  | Offers, prices and conditions | `Rules.OneOrder.Offers` | ONE-501 to ONE-599 | `areas/offers-prices.tex` |
+  | Ancillaries, seats and bundles | `Rules.OneOrder.Ancillaries` | ONE-601 to ONE-699 | `areas/ancillaries.tex` |
+  | Airline-initiated change | `Rules.OneOrder.AirlineChange` | ONE-701 to ONE-799 | `areas/airline-change.tex` |
+  | Commission, accounting and settlement | `Rules.OneOrder.Accounting` | ONE-801 to ONE-899 | `areas/accounting.tex` |
+
+- Where the sources are vague or silent, the rule takes the undecided part as a parameter (a reading, such as `ValueReading` or `RepeatHandling`). A guarantee is proven only if it holds under every reading; otherwise it is open, with an example under the reading that breaks it. A proven version for one reading may follow, named with `_of_` and tagged with no criterion. Never pick a reading for the business and then prove the guarantee.
+- Tag a theorem `@[checks "ID"]` only if it proves that criterion for every input. A theorem that two statuses never overlap does not prove "mark X when Y".
+- Several areas can be written at once in git worktrees, each with `.lake/packages` linked to the main checkout's. Merge by rebasing onto `main`; conflicts in `Rules.lean`, `Review/Review.lean` and `.kiro/specs/README.md` are additive. Keep the requirement chapters in ID order, run `scripts/build-site.sh`, and commit the regenerated specs index.
 
 ## Versions
 

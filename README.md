@@ -766,3 +766,17 @@ Choices made where the plan left room, in the order they came up.
     the address (`?area=Payment`, `?focus=<label>`), so a view can be shared.
     Areas are the blueprint sections. A lens by IATA capability code would
     need the codes on the blueprint nodes; they are in the survey data only.
+36. **The ONE Order areas, written in parallel.** After the foundations, each
+    area of the coverage map got its own folder, sub-namespace and range of
+    requirement IDs (CLAUDE.md lists them), so several could be written at
+    once. Each was written by an agent in its own git worktree, from a shared
+    brief, and merged onto `main` by rebase after review and a full site
+    build, with a milestone tag per area. Two were sent back before merging
+    because they proved a guarantee by choosing a reading the sources leave
+    open: creating one order from several offers, and the balance of an
+    order's accounts. The rule for that is now in CLAUDE.md: the undecided
+    part is a parameter, a guarantee is proven only under every reading, and
+    a proven version for one reading is named with `_of_` and checks no
+    criterion. The progress cards link to the dependency graph for anything
+    the review document has no page for, using the review's cross-reference
+    index, and the Objects chapter has the ONE Order foundation objects.
