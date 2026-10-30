@@ -28,6 +28,7 @@ with a link to the source page; IATA owns the standard and its documentation.
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
 | See which rules rest on which definitions, and what is proven | The [dependency graph](https://samdengler.github.io/airline-order-verified/graph/): click a card to read it and see what it depends on. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/airline-order-verified/blueprint/dep_graph_document.html) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
+| See how much of ONE Order the model covers | [`docs/one-order-coverage.md`](docs/one-order-coverage.md): IATA's 63 business capabilities, each marked in Lean, candidate or not started |
 | Check a service's code against the model | [Checking an implementation against the model](#checking-an-implementation-against-the-model), then [`impl/java`](impl/java/) and [`impl/rust`](impl/rust/) |
 | Review or change the model | [`Rules/OfferOrder/`](Rules/OfferOrder/), then the rest of this README |
 
