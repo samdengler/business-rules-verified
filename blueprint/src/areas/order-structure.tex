@@ -1,0 +1,86 @@
+% Candidate rules for order structure and status.  Written by hand; see docs/one-order-coverage.md.
+
+\section{Order structure and status}
+
+\begin{definition}[Order structure (C-01)]
+  \label{def:c01-structure}
+  \uses{def:order, def:order-item, def:passenger}
+  An order holds one or more order items, and each order item holds one or
+  more services.  A service is for one passenger on one flight segment, and is
+  the smallest part of an order that can be delivered on its own.  Each
+  service has a service status, such as \texttt{CONFIRMED} or
+  \texttt{TRANSFERRED}, and a delivery status, such as
+  \texttt{READY TO PROCEED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}
+
+\begin{theorem}[One order item per offer item (C-02)]
+  \label{thm:c02-item-per-offer-item}
+  \uses{def:accept, def:c01-structure}
+  Accepting an offer creates exactly one order item for each offer item.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+
+\begin{theorem}[Order item IDs are unique (C-03)]
+  \label{thm:c03-unique-item-ids}
+  \uses{def:accept, def:c01-structure, def:c18-change}
+  No two order items in an order share an ID, after acceptance and after
+  every change.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+
+\begin{theorem}[Order items are not split (C-04)]
+  \label{thm:c04-item-unsplit}
+  \uses{def:c01-structure, def:c18-change}
+  The price is held on the order item, and no operation changes part of an
+  item.  A change replaces whole items.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+
+\begin{definition}[Services that hold value (C-05)]
+  \label{def:c05-holds-value}
+  \uses{def:c08-delivery-status}
+  \notready
+  Whether a service still holds value, decided by its delivery status.  The
+  source settles two statuses: \texttt{REMOVED HOLD VALUE} holds value and
+  \texttt{REMOVED} does not.
+
+  Open point: which of the other eleven delivery statuses hold value, for
+  example \texttt{EXPIRED}, \texttt{NOT CLAIMED} and \texttt{SUSPENDED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}
+
+\begin{definition}[Order item status (C-06)]
+  \label{def:c06-item-status}
+  \uses{def:c01-structure, def:c05-holds-value}
+  \notready
+  An order item is \texttt{ACTIVE} while at least one of its services holds
+  value.  It is \texttt{CANCELLED} once all its services are cancelled or
+  transferred and none holds value.  It is \texttt{CLOSED} once at least one
+  service is delivered and every other service is delivered or removed.
+
+  Open point: the conditions overlap.  A delivered service that is later
+  transferred to a new item leaves its original item meeting the conditions
+  for both \texttt{CANCELLED} and \texttt{CLOSED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}
+
+\begin{definition}[Order status (C-07)]
+  \label{def:c07-order-status}
+  \uses{def:c06-item-status, def:c05-holds-value}
+  \notready
+  An order is \texttt{OPENED} while at least one of its services holds value.
+  It is \texttt{CLOSED} once all its items are closed or cancelled and all its
+  services are delivered or removed, and \texttt{CLOSED} is final.
+
+  Open point: if \texttt{EXPIRED} and \texttt{UNABLE TO DELIVER} hold no
+  value, an order with a service in either status meets neither condition.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}

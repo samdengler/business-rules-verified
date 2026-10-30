@@ -71,8 +71,23 @@ def proven_by(d, decls):
 # ---------------------------------------------------------------- blueprint
 
 
+AREA_INPUT_RE = re.compile(r"\\input\{(areas/[^}]+)\}")
+
+
+def read_blueprint(read=None):
+    """content.tex with each \\input{areas/...} replaced by that file's text.
+
+    The candidate rules live in one file per area under blueprint/src/areas/,
+    so that work on different areas does not edit the same file.  `read`
+    reads a path relative to blueprint/src; by default, from the working
+    tree (scripts/graph_history.py passes one that reads an earlier commit)."""
+    read = read or (lambda rel: (BLUEPRINT / rel).read_text())
+    src = read("content.tex")
+    return AREA_INPUT_RE.sub(lambda m: read(m.group(1) if m.group(1).endswith(".tex") else m.group(1) + ".tex"), src)
+
+
 def render_content(decls):
-    src = (BLUEPRINT / "content.tex").read_text()
+    src = read_blueprint()
     uncommented = "\n".join(line.split("%", 1)[0] for line in src.splitlines())
     if "\\leanok" in uncommented:
         sys.exit("content.tex must not contain \\leanok; the build adds it")
@@ -176,7 +191,7 @@ DECL_STATUS = {
 
 def blueprint_titles():
     """The title of each blueprint node, by the Lean names in its \\lean{}."""
-    src = (BLUEPRINT / "content.tex").read_text()
+    src = read_blueprint()
     titles = {}
     for m in re.finditer(r"\\begin\{(?:theorem|lemma|definition)\}\[([^\]]*)\](.*?)\\end", src, re.S):
         for lm in LEAN_RE.finditer(m.group(2)):

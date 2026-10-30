@@ -1,0 +1,22 @@
+% Candidate rules for order creation and information.  Written by hand; see docs/one-order-coverage.md.
+
+\section{Order creation and information}
+
+\begin{theorem}[Order version (C-21)]
+  \label{thm:c21-version}
+  \uses{def:c18-change, def:order}
+  An order's version starts at 1 and goes up by one for each group of changes,
+  so the version is always one more than the number of change groups applied.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
+\end{theorem}
+
+\begin{definition}[Order retention (C-23)]
+  \label{def:c23-retention}
+  \uses{def:c07-order-status, def:instant}
+  An order with an open item stays accessible for at least 13 months from
+  creation.  Once all its items reach a final status, it stays accessible for
+  at least 7 more days.
+
+  Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{definition}

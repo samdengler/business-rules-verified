@@ -28,7 +28,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from render_status import section_tag  # noqa: E402
+from render_status import read_blueprint, section_tag  # noqa: E402
 from site_nav import FAVICON, SITE_NAME, TOPBAR_CSS, topbar  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -83,7 +83,7 @@ def plain(s):
 def parse_nodes(src=None):
     """The blueprint's nodes, from content.tex or from its text as given (for
     an earlier commit, in scripts/graph_history.py)."""
-    src = CONTENT.read_text() if src is None else src
+    src = read_blueprint() if src is None else src
     heads = [(m.start(), m.group(1), m.group(2)) for m in HEAD_RE.finditer(src)]
     nodes = []
     for m in NODE_RE.finditer(src):

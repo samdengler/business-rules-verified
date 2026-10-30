@@ -1,0 +1,62 @@
+% Candidate rules for change and cancellation.  Written by hand; see docs/one-order-coverage.md.
+
+\section{Change and cancellation}
+
+\begin{definition}[Cancelling an order (C-15)]
+  \label{def:c15-cancel-order}
+  \uses{def:c06-item-status, def:payment}
+  An unpaid order can be cancelled directly.  A paid order is cancelled only by
+  accepting a cancellation offer from the airline.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{definition}
+
+\begin{theorem}[Cancellation penalty (C-16)]
+  \label{thm:c16-penalty-net}
+  \uses{def:c15-cancel-order, def:money}
+  A cancellation penalty is either deducted from the refund or charged
+  separately, and the customer's net amount is the same either way: the
+  refundable total minus the penalty.  For example, with 625.00 refundable and
+  a penalty of 100.00, the customer is 525.00 better off in both cases.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{theorem}
+
+\begin{definition}[Changing an order item (C-18)]
+  \label{def:c18-change}
+  \uses{def:c01-structure, def:c06-item-status}
+  \notready
+  Changing an order item cancels the original item's services, creates a new
+  item, and charges or refunds the difference in price.
+
+  Open point: the source shows the difference only in a worked example, and
+  does not define its sign or how penalties enter it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782/Modification+of+an+Order}{EASD guide, Modification of an Order}.
+\end{definition}
+
+\begin{theorem}[Transferred services keep the order balanced (C-19)]
+  \label{thm:c19-transfer-balanced}
+  \uses{def:c18-change, def:c06-item-status}
+  \notready
+  Services kept through a change move to the new item with the same service
+  ID, and the originals are marked \texttt{TRANSFERRED}.  Delivered services
+  move too, so that the order stays balanced.
+
+  Open point: the source does not define what keeps an order balanced.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+
+\begin{theorem}[Stored value stays in its order (C-20)]
+  \label{thm:c20-value-store}
+  \uses{def:c18-change, def:c05-holds-value}
+  \notready
+  Value stored as an order item can only be used in a later change to the same
+  order.
+
+  Open point: the source does not cover using part of the stored value, or
+  when it expires.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245/Value+Store}{EASD guide, Value Store}.
+\end{theorem}

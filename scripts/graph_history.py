@@ -29,6 +29,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from render_graph import CARD_W, card_height, graph_data, layout, wrap  # noqa: E402
 from render_progress import classify, load_decls, parse_nodes  # noqa: E402
+from render_status import read_blueprint  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 HISTORY = ROOT / "history"
@@ -46,7 +47,7 @@ def load_index():
 def snapshot(name, description, ref="HEAD", tag=False):
     commit = git("rev-parse", ref)
     date = git("show", "-s", "--format=%cI", commit)
-    src = git("show", f"{commit}:blueprint/src/content.tex")
+    src = read_blueprint(lambda rel: git("show", f"{commit}:blueprint/src/{rel}"))
     nodes = parse_nodes(src)
     classify(nodes, load_decls())
     labels = {n["label"] for n in nodes}

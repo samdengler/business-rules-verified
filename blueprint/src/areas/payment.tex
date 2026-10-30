@@ -1,0 +1,68 @@
+% Candidate rules for payment.  Written by hand; see docs/one-order-coverage.md.
+
+\section{Payment}
+
+\begin{definition}[Payment time limit (C-11)]
+  \label{def:c11-payment-time-limit}
+  \uses{def:c08-delivery-status, def:instant}
+  \notready
+  A confirmed service waits for payment until the payment time limit the
+  airline gave the seller.
+
+  Open point: the source does not say what happens to the service when the
+  limit passes without payment.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}
+
+\begin{definition}[Committing to pay nothing (C-12)]
+  \label{def:c12-zero-commitment}
+  \uses{def:c08-delivery-status, def:c01-structure}
+  \notready
+  An order item with nothing to pay goes ahead when the seller commits to pay
+  zero.
+
+  Open point: the source does not say which delivery status the item's
+  services move to.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593488900/Commitment+to+pay+when+no+amount+due}{EASD guide, Commitment to pay when no amount due}.
+\end{definition}
+
+\begin{definition}[Paying with several methods (C-13)]
+  \label{def:c13-several-methods}
+  \uses{def:payment}
+  Several payment methods can pay for one order item in a single payment.  The
+  payment succeeds only if every method succeeds; if any fails, the whole
+  payment fails.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
+\end{definition}
+
+\begin{theorem}[Amount charged across methods (C-14)]
+  \label{thm:c14-amount-covers-price}
+  \uses{def:c13-several-methods, thm:c04-item-unsplit}
+  \notready
+  The amounts charged across the methods cover the item's price plus any
+  surcharges.
+
+  Open point: the source's example adds a card surcharge on top of the price
+  and states no rule, so it is unclear whether an item paid in full means the
+  price was paid or the price plus surcharges.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
+\end{theorem}
+
+\begin{definition}[Refunds across payment methods (C-17)]
+  \label{def:c17-refund-methods}
+  \uses{def:c13-several-methods, thm:c14-amount-covers-price, def:accept-refund, thm:refunds-le-payments}
+  \notready
+  A refund goes back to the payment methods that paid.
+
+  Open point: the source does not say how a refund is split across several
+  methods, or whether surcharges are refunded.  If surcharges are refunded, a
+  refund can exceed the item's price, which bears on the open question about
+  refunds and payments.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
+\end{definition}
