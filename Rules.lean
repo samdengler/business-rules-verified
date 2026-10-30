@@ -56,3 +56,9 @@ import Rules.OneOrder.Ancillaries.AlaCarte
 import Rules.OneOrder.Ancillaries.Bundle
 import Rules.OneOrder.Ancillaries.Theorems
 import Rules.OneOrder.Ancillaries.Examples
+import Rules.OneOrder.Accounting.Commission
+import Rules.OneOrder.Accounting.Clearance
+import Rules.OneOrder.Accounting.Clearing
+import Rules.OneOrder.Accounting.Books
+import Rules.OneOrder.Accounting.Theorems
+import Rules.OneOrder.Accounting.Examples

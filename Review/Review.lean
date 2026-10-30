@@ -47,6 +47,15 @@ import Review.Generated.ONE702
 import Review.Generated.ONE703
 import Review.Generated.ONE704
 import Review.Generated.ONE705
+import Review.Generated.ONE801
+import Review.Generated.ONE802
+import Review.Generated.ONE803
+import Review.Generated.ONE804
+import Review.Generated.ONE805
+import Review.Generated.ONE806
+import Review.Generated.ONE807
+import Review.Generated.ONE808
+import Review.Generated.ONE809
 import Review.OpenQuestions
 import Review.Generated.Questions
 import Review.Objects
@@ -160,6 +169,24 @@ Review.Generated.Front.html
 {include 1 Review.Generated.ONE704}
 
 {include 1 Review.Generated.ONE705}
+
+{include 1 Review.Generated.ONE801}
+
+{include 1 Review.Generated.ONE802}
+
+{include 1 Review.Generated.ONE803}
+
+{include 1 Review.Generated.ONE804}
+
+{include 1 Review.Generated.ONE805}
+
+{include 1 Review.Generated.ONE806}
+
+{include 1 Review.Generated.ONE807}
+
+{include 1 Review.Generated.ONE808}
+
+{include 1 Review.Generated.ONE809}
 
 {include 1 Review.OpenQuestions}
 

@@ -4,19 +4,25 @@
 
 \begin{theorem}[Billing after delivery (C-22)]
   \label{thm:c22-bill-after-delivery}
-  \uses{def:c08-delivery-status}
+  \lean{Rules.OneOrder.Accounting.bill_refused_unless_consumed}
+  \uses{def:c08-delivery-status, def:accounting-billing}
   A service provider does not bill the airline for a service before it has
   been delivered or consumed, unless the two have agreed otherwise.
 
   Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
 \end{theorem}
+\begin{proof}
+  \uses{def:accounting-billing}
+  The bill is accepted only when the service counts as delivered or
+  consumed or the provider has an agreement.
+\end{proof}
 
 % Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
 
 \begin{definition}[Settlement value of a service (C-142)]
   \label{def:accounting-settlement-value}
+  \lean{Rules.OneOrder.Accounting.ProvidedService}
   \uses{def:order, def:c01-structure, def:money}
-  \notready
   Each service in an order carries a settlement value for the provider that
   delivers it: the amount that provider may bill the ORA. The order holds
   this value from the moment it is created or changed, and financial
@@ -36,10 +42,26 @@
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order}.
 \end{definition}
 
+\begin{definition}[Billing by service providers]
+  \label{def:accounting-billing}
+  \lean{Rules.OneOrder.Accounting.acceptBill, Rules.OneOrder.Accounting.Bill, Rules.OneOrder.Accounting.billAll, Rules.OneOrder.Accounting.billedFor, Rules.OneOrder.Accounting.ConsumptionReading}
+  \uses{def:accounting-settlement-value, def:c08-delivery-status}
+  A service provider's bill for a service is accepted when the provider
+  delivers the service, the service counts as delivered or consumed or the
+  provider has a bilateral agreement allowing earlier billing, and the
+  total billed for the service stays within its settlement value.  A
+  delivered service counts and a service not yet delivered or cancelled does
+  not.  The model takes the answer for the other statuses, such as
+  \texttt{NOT CLAIMED} and \texttt{EXPIRED}, as a parameter, a reading of
+  the sources.
+
+  Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{definition}
+
 \begin{theorem}[Billing limited to delivered services (C-143)]
   \label{thm:accounting-billed-within-delivered}
-  \uses{thm:c22-bill-after-delivery, def:accounting-settlement-value, def:c08-delivery-status}
-  \notready
+  \lean{Rules.OneOrder.Accounting.billed_within_value}
+  \uses{thm:c22-bill-after-delivery, def:accounting-settlement-value, def:c08-delivery-status, def:accounting-billing}
   At any time, the total a service provider has billed the ORA for an order
   is at most the sum of its settlement values for services in that order
   that have been delivered or consumed, unless a bilateral agreement allows
@@ -56,10 +78,47 @@
   \texttt{NOT CLAIMED} (a no-show), \texttt{EXPIRED}, or a delivered service
   that is later refunded counts, and how a bilateral exception is recorded.
 
+  Lean proves the bound for each service, with each bill checked against
+  the service's delivery status when the bill arrives.
+
   Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653069}{Settlement with Orders, Clearance Overview}.
 \end{theorem}
+\begin{proof}
+  \uses{def:accounting-billing}
+  Each accepted bill keeps what is billed for its service within the
+  settlement value, and a bill for a service that does not count is refused.
+\end{proof}
+
+\begin{theorem}[Bills from the delivering provider only]
+  \label{thm:accounting-bill-other-provider}
+  \lean{Rules.OneOrder.Accounting.bill_refused_other_provider}
+  \uses{def:accounting-billing}
+  Under every reading, a bill from a provider that does not deliver the
+  service is refused.
+
+  Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-billing}
+  The provider check fails.
+\end{proof}
+
+\begin{theorem}[Bills for delivered services accepted]
+  \label{thm:accounting-bill-delivered}
+  \lean{Rules.OneOrder.Accounting.delivered_bill_accepted}
+  \uses{def:accounting-billing}
+  Under every reading, a bill from the delivering provider for a
+  \texttt{DELIVERED} service within what is left of its settlement value is
+  accepted.
+
+  Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-billing}
+  A delivered service counts under every reading, so every check passes.
+\end{proof}
 
 \begin{theorem}[First accounting posting after payment (C-144)]
   \label{thm:accounting-accounting-after-payment}
@@ -89,10 +148,29 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages}.
 \end{theorem}
 
+\begin{definition}[Accounting for paid services]
+  \label{def:accounting-books}
+  \lean{Rules.OneOrder.Accounting.bookStep, Rules.OneOrder.Accounting.ServiceBooks, Rules.OneOrder.Accounting.BookEvent, Rules.OneOrder.Accounting.RevenueReading, Rules.OneOrder.Accounting.Treatment, Rules.OneOrder.Accounting.ServiceBooks.liability, Rules.OneOrder.Accounting.ServiceBooks.revenue, Rules.OneOrder.Accounting.OrderBooks.run, Rules.OneOrder.Accounting.OrderBooks.totals}
+  \uses{def:c08-delivery-status, def:delivery-final-statuses, def:payment, def:refund}
+  Accounting holds the amount paid for a service as a liability until the
+  service reaches a final delivery status.  A \texttt{DELIVERED} service then
+  earns its amount as revenue.  For the other final statuses reached
+  without cancellation the model takes as a parameter, a reading of the
+  sources, whether the amount earns revenue, is refunded or stays a
+  liability.  A cancellation splits the amount paid into a refund, a
+  penalty and a forfeited amount, and is refused when the three do not add
+  up to it.  Whether the penalty is recognized as revenue at cancellation is
+  part of the reading.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ACCSTS/}{IATA capability ACCSTS};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/579272705}{Order Accounting, Service Consumption};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333143}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Amount Refunded with a Forfeited amount and a penalty with reporting to Accounting}.
+\end{definition}
+
 \begin{theorem}[Revenue recognized at final status (C-145)]
   \label{thm:accounting-revenue-at-final-status}
-  \uses{thm:accounting-accounting-after-payment, def:c08-delivery-status, def:c05-holds-value, thm:c22-bill-after-delivery}
-  \notready
+  \lean{Rules.OneOrder.Accounting.liability_until_final}
+  \uses{thm:accounting-accounting-after-payment, def:c08-delivery-status, def:c05-holds-value, thm:c22-bill-after-delivery, def:accounting-books}
   Revenue for a paid service is recognized only after the airline reports to
   accounting that the service has reached a final delivery status. Until
   then the amount paid for it stays a liability.
@@ -115,11 +193,57 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185391}{Order Accounting, Accounting messages}.
 \end{theorem}
+\begin{proof}
+  \uses{def:accounting-books}
+  A service that is not final has its whole amount as liability and none as
+  revenue.
+\end{proof}
+
+\begin{theorem}[Delivered services earn revenue]
+  \label{thm:accounting-delivered-earns}
+  \lean{Rules.OneOrder.Accounting.delivered_earns}
+  \uses{def:accounting-books}
+  Under every reading, the amount paid for a \texttt{DELIVERED} service is
+  recognized as revenue.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/579272705}{Order Accounting, Service Consumption}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-books}
+  Every reading treats \texttt{DELIVERED} as earning revenue.
+\end{proof}
+
+\begin{theorem}[No liability left at a final status]
+  \label{thm:accounting-final-no-liability}
+  \lean{Rules.OneOrder.Accounting.final_status_no_liability}
+  \uses{def:accounting-books, thm:accounting-revenue-at-final-status}
+  When a paid service reaches a final delivery status, none of the amount
+  paid for it is held as a liability any more.
+
+  Counterexample: under a reading that keeps the amount paid for a no-show
+  as a liability, a flight paid at 100.00 that ends \texttt{NOT CLAIMED}
+  keeps 100.00 of liability on a service that can no longer change.  Under
+  a reading that does not recognize a penalty at cancellation, a flight
+  paid at 100.00 and cancelled with a 25.00 penalty keeps the 25.00 as a
+  liability, since no delivery will ever recognize it.
+
+  Open point: which final statuses earn revenue, which return the amount
+  as a refund and which keep it, and when a penalty reported at
+  cancellation is recognized.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ACCSTS/}{IATA capability ACCSTS};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333143}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Amount Refunded with a Forfeited amount and a penalty with reporting to Accounting}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-books}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
 
 \begin{theorem}[Money balance of an order (C-146)]
   \label{thm:accounting-order-money-balance}
-  \uses{def:totals, thm:refunds-le-payments, thm:accounting-revenue-at-final-status, thm:accounting-accounting-after-payment, def:c05-holds-value, thm:c16-penalty-net}
-  \notready
+  \lean{Rules.OneOrder.Accounting.order_books_balance}
+  \uses{def:totals, thm:refunds-le-payments, thm:accounting-revenue-at-final-status, thm:accounting-accounting-after-payment, def:c05-holds-value, thm:c16-penalty-net, def:accounting-books}
   For each order, the total of successful payments equals the total refunded
   plus the paid value still held as liability plus revenue recognized plus
   forfeited amounts. With every term at zero or above, this yields the
@@ -139,11 +263,44 @@
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844169268}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order}.
 \end{theorem}
+\begin{proof}
+  \uses{def:accounting-books}
+  Every event keeps each service's books balanced, and the order's totals
+  are the sums over its services.
+\end{proof}
+
+\begin{theorem}[Refunds within payments]
+  \label{thm:accounting-refunds-within-payments}
+  \lean{Rules.OneOrder.Accounting.refunds_within_payments}
+  \uses{thm:accounting-order-money-balance}
+  Under every reading, accounting never refunds more for an order than was
+  paid for it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333086}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:accounting-order-money-balance}
+  Every term of the balance is zero or more.
+\end{proof}
+
+\begin{theorem}[Cancellation amounts add up]
+  \label{thm:accounting-cancel-adds-up}
+  \lean{Rules.OneOrder.Accounting.cancel_must_add_up}
+  \uses{def:accounting-books}
+  Under every reading, a cancellation whose refund, penalty and forfeited
+  amount do not add up to the amount paid for the service is refused.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333143}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Amount Refunded with a Forfeited amount and a penalty with reporting to Accounting}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-books}
+  The cancellation checks the sum.
+\end{proof}
 
 \begin{definition}[Commission on an item (C-147)]
   \label{def:accounting-commission-structure}
+  \lean{Rules.OneOrder.Accounting.commissionOwed, Rules.OneOrder.Accounting.Commission, Rules.OneOrder.Accounting.CommissionTerms, Rules.OneOrder.Accounting.CommissionCode, Rules.OneOrder.Accounting.CommissionTerms.value, Rules.OneOrder.Accounting.Rounding}
   \uses{def:money, def:offer-item}
-  \notready
   A commission on an item is either a fixed amount or a percentage of a
   stated base amount, and never both. An item may carry several commissions
   with different codes, such as a standard, a supplemental and an SwO
@@ -152,6 +309,9 @@
   Case to check: In the guide's Italian VAT example the commission of 4.50
   already includes 0.41 of tax. A seller reading 4.50 as net expects 4.95;
   one reading it as gross expects 4.50.
+
+  The model adds the commissions and takes the rounding of a percentage as
+  a parameter, a reading of the guide.
 
   Open point: The guide says several commissions would be applied without
   saying they add. The business must decide how they combine, whether the
@@ -165,10 +325,81 @@
   \href{https://retailing.iata.org/armi/docs/PAYCOM/}{IATA capability PAYCOM}.
 \end{definition}
 
+\begin{theorem}[Fixed commission]
+  \label{thm:accounting-fixed-commission}
+  \lean{Rules.OneOrder.Accounting.fixed_commission_owed}
+  \uses{def:accounting-commission-structure}
+  A fixed commission comes to its amount.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849050}{EASD guide, Commission and Margin}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-commission-structure}
+  By definition.
+\end{proof}
+
+\begin{theorem}[Percentage commission to within a cent]
+  \label{thm:accounting-percentage-commission}
+  \lean{Rules.OneOrder.Accounting.percentage_commission_owed}
+  \uses{def:accounting-commission-structure}
+  Under every rounding, a percentage commission comes to its share of the
+  base, in the base's currency, less than one minor unit from the exact
+  share.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849050}{EASD guide, Commission and Margin}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-commission-structure}
+  Each rounding of a quotient is less than one unit from it.
+\end{proof}
+
+\begin{theorem}[Several commissions add up]
+  \label{thm:accounting-commission-total}
+  \lean{Rules.OneOrder.Accounting.commission_total}
+  \uses{def:accounting-commission-structure}
+  Under every rounding, an item's commissions in its currency come to their
+  total.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849050}{EASD guide, Commission and Margin}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-commission-structure}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Commissions in another currency]
+  \label{thm:accounting-commission-currency}
+  \lean{Rules.OneOrder.Accounting.commission_mixed_currency}
+  \uses{def:accounting-commission-structure}
+  Under every rounding, an item with a commission in another currency gets
+  no total.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849050}{EASD guide, Commission and Margin}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-commission-structure}
+  The currency check fails.
+\end{proof}
+
+\begin{theorem}[Percentage commission within its base]
+  \label{thm:accounting-percentage-within-base}
+  \lean{Rules.OneOrder.Accounting.percentage_within_base}
+  \uses{def:accounting-commission-structure}
+  Under every rounding, a commission of no more than 100 percent of a base
+  never comes to more than the base.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849050}{EASD guide, Commission and Margin}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:accounting-percentage-commission}
+  The commission is less than one unit above a share no larger than the
+  base.
+\end{proof}
+
 \begin{definition}[Net clearance amount (C-148)]
   \label{def:accounting-net-clearance-amount}
+  \lean{Rules.OneOrder.Accounting.clearancesFor, Rules.OneOrder.Accounting.PaymentCommitment, Rules.OneOrder.Accounting.ClearanceLeg, Rules.OneOrder.Accounting.Collector, Rules.OneOrder.Accounting.CommissionHandling, Rules.OneOrder.Accounting.Role, Rules.OneOrder.Accounting.refundClearance, Rules.OneOrder.Accounting.RecallReading, Rules.OneOrder.Accounting.SellerRefund, Rules.OneOrder.Accounting.PaymentCommitment.endsWith}
   \uses{def:payment, def:refund, def:accounting-commission-structure}
-  \notready
   For each payment commitment, the net clearance amount is the money that
   moves between the ORA and the seller, with one of them as payer. When the
   seller collected the customer's money it is the payment amount minus the
@@ -179,6 +410,10 @@
   Case to check: The source's refund example writes 7.50 minus 75.00, gets
   minus 67.50, and labels it a net settlement amount. Taken literally, the
   seller pays the airline for the customer's refund.
+
+  The model takes how much commission a refund recalls as a parameter, a
+  reading of the sources: none, all of it, or the share that matches the
+  share of the payment refunded.
 
   Open point: The standard defines the amount only as what the two parties
   agreed; the formulas come from worked examples. The business must decide
@@ -194,8 +429,105 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478/Settlement}{Settlement with Orders, Settlement}.
 \end{definition}
 
+\begin{theorem}[Seller collects and nets the commission]
+  \label{thm:accounting-seller-netted}
+  \lean{Rules.OneOrder.Accounting.seller_collected_netted}
+  \uses{def:accounting-net-clearance-amount}
+  A payment the seller collected, with the commission netted, gives one
+  clearance in which the seller pays the ORA the payment amount less the
+  commission.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259760}{Settlement with Orders, Request for Clearance}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-clearance-amount}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Seller collects, commission cleared separately]
+  \label{thm:accounting-seller-separate}
+  \lean{Rules.OneOrder.Accounting.seller_collected_separate}
+  \uses{def:accounting-net-clearance-amount}
+  A payment the seller collected, with the commission cleared separately,
+  gives a clearance in which the seller pays the ORA the payment amount and
+  one in which the ORA pays the seller the commission.
+
+  Source: \href{https://retailing.iata.org/armi/docs/PAYCMT/}{IATA capability PAYCMT}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-clearance-amount}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Airline collects]
+  \label{thm:accounting-airline-collected}
+  \lean{Rules.OneOrder.Accounting.airline_collected}
+  \uses{def:accounting-net-clearance-amount}
+  A payment the airline collected gives one clearance in which the ORA pays
+  the seller the commission.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091}{Settlement with Orders, Enhanced and Simplified Distribution}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-clearance-amount}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Refund through the seller]
+  \label{thm:accounting-refund-cleared}
+  \lean{Rules.OneOrder.Accounting.refund_cleared}
+  \uses{def:accounting-net-clearance-amount}
+  Under every reading, a refund through the seller gives one clearance in
+  which the ORA pays the seller the refund less the commission recalled on
+  it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478}{Settlement with Orders, Settlement}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-clearance-amount}
+  By definition.
+\end{proof}
+
+\begin{theorem}[Refund clearances without full recall]
+  \label{thm:accounting-refund-nonneg-partial-recall}
+  \lean{Rules.OneOrder.Accounting.refund_clearance_nonneg_without_full_recall}
+  \uses{def:accounting-net-clearance-amount}
+  Under a reading that recalls no commission, or the share of it that
+  matches the share refunded, the clearance for a refund never has the
+  seller paying the ORA.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478}{Settlement with Orders, Settlement}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-clearance-amount}
+  The commission recalled is never more than the refund.
+\end{proof}
+
+\begin{theorem}[Seller never pays for a refund]
+  \label{thm:accounting-refund-not-paid-by-seller}
+  \lean{Rules.OneOrder.Accounting.refund_not_paid_by_seller}
+  \uses{def:accounting-net-clearance-amount}
+  The clearance for a refund through the seller never has the seller paying
+  the ORA: its amount is never negative.
+
+  Counterexample: a payment of 75.00 carried 7.50 of commission.  Under the
+  reading that recalls the commission in full, a refund of 5.00 gives a
+  clearance of minus 2.50: the seller pays the ORA for the customer's
+  refund.
+
+  Open point: how much commission is recalled on a partial refund.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478}{Settlement with Orders, Settlement}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-clearance-amount}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
+
 \begin{theorem}[Commission cleared exactly once (C-149)]
   \label{thm:accounting-commission-cleared-once}
+  \lean{Rules.OneOrder.Accounting.commission_cleared_once}
   \uses{def:accounting-net-clearance-amount, def:accounting-commission-structure, def:payment}
   For each payment, the seller's commission is cleared exactly once: either
   netted inside the payment's net clearance amount or in a separate
@@ -209,6 +541,10 @@
   Sources: \href{https://retailing.iata.org/armi/docs/PAYCMT/}{IATA capability PAYCMT};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259760}{Settlement with Orders, Request for Clearance}.
 \end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-clearance-amount}
+  Check each way of collecting the money and clearing the commission.
+\end{proof}
 
 \begin{theorem}[Clearance request matches the order (C-150)]
   \label{thm:accounting-clearance-matches-order}
@@ -229,10 +565,23 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091}{Settlement with Orders, Enhanced and Simplified Distribution}.
 \end{theorem}
 
+\begin{definition}[Accepting a clearance]
+  \label{def:accounting-accepting-clearance}
+  \lean{Rules.OneOrder.Accounting.submit, Rules.OneOrder.Accounting.submitAll, Rules.OneOrder.Accounting.Clearance, Rules.OneOrder.Accounting.Clearance.commitment, Rules.OneOrder.Accounting.ClearanceRejection, Rules.OneOrder.Accounting.RepeatReading, Rules.OneOrder.Accounting.ClearanceMethod}
+  \uses{def:payment, def:c13-several-methods}
+  The Clearance Manager rejects a clearance whose clearance ID is already
+  accepted, and one not signed by both parties whose order ID and payment
+  ID are already accepted.  It records every other clearance after those
+  accepted before.  Whether signed clearances are also checked for a
+  repeated order and payment is a parameter, a reading of the sources.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager}.
+\end{definition}
+
 \begin{theorem}[One clearance per payment commitment (C-151)]
   \label{thm:accounting-clearance-per-commitment}
-  \uses{def:c13-several-methods, def:payment, thm:accounting-clearance-matches-order}
-  \notready
+  \lean{Rules.OneOrder.Accounting.one_clearance_per_payment}
+  \uses{def:c13-several-methods, def:payment, thm:accounting-clearance-matches-order, def:accounting-accepting-clearance}
   Every clearance comes from one payment commitment, identified by the order
   ID and the payment ID, and each commitment has at most one accepted
   clearance. A payment split across two methods has two commitments and so
@@ -243,6 +592,10 @@
   rejected, though C-13 says the payment fails unless every method succeeds.
   The source's own sample request also carries two different clearances
   under one clearance ID and accepts both.
+
+  Counterexample: two clearances for the same order and payment, both
+  signed by both parties, with different clearance IDs, are both accepted
+  when signed clearances are checked only for a repeated clearance ID.
 
   Open point: The Clearance Manager checks for a repeated order and payment
   pair only when the clearance data is not signed by both parties; for
@@ -263,11 +616,73 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574587124/Cancellation+Overview}{Settlement with Orders, Cancellation Overview};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056/Definitions}{Settlement with Orders, Definitions}.
 \end{theorem}
+\begin{proof}
+  \uses{def:accounting-accepting-clearance}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
+
+\begin{theorem}[Repeated clearance ID]
+  \label{thm:accounting-repeated-id}
+  \lean{Rules.OneOrder.Accounting.repeated_id_rejected}
+  \uses{def:accounting-accepting-clearance}
+  Under every reading, a clearance whose clearance ID is already accepted
+  is rejected.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-accepting-clearance}
+  The first check fails.
+\end{proof}
+
+\begin{theorem}[Repeated payment without signatures]
+  \label{thm:accounting-repeated-unsigned}
+  \lean{Rules.OneOrder.Accounting.repeated_unsigned_rejected}
+  \uses{def:accounting-accepting-clearance}
+  Under every reading, a clearance not signed by both parties whose order
+  ID and payment ID are already accepted is rejected.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-accepting-clearance}
+  One of the two checks fails.
+\end{proof}
+
+\begin{theorem}[Accepted clearances recorded]
+  \label{thm:accounting-accepted-recorded}
+  \lean{Rules.OneOrder.Accounting.accepted_recorded}
+  \uses{def:accounting-accepting-clearance}
+  Under every reading, an accepted clearance is added after those accepted
+  before, which stay as they were.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-accepting-clearance}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[One clearance per payment when signed data is checked]
+  \label{thm:accounting-one-clearance-checked}
+  \lean{Rules.OneOrder.Accounting.one_clearance_per_payment_checked}
+  \uses{def:accounting-accepting-clearance}
+  Under every reading that checks signed clearances for a repeated order
+  and payment too, each order and payment has at most one accepted
+  clearance.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-accepting-clearance}
+  Each accepted clearance has an order and payment not accepted before.
+\end{proof}
 
 \begin{definition}[Clearance status (C-152)]
   \label{def:accounting-clearance-status}
+  \lean{Rules.OneOrder.Accounting.settleStep, Rules.OneOrder.Accounting.ClearanceStatus, Rules.OneOrder.Accounting.SettlementRecord, Rules.OneOrder.Accounting.SettlementEvent, Rules.OneOrder.Accounting.SettlementReading, Rules.OneOrder.Accounting.settleRun, Rules.OneOrder.Accounting.settledStatus}
   \uses{def:accounting-clearance-request}
-  \notready
   A submitted clearance is Accepted or Rejected, and a rejected one is not
   recorded. An accepted clearance is either Cancelled by the ORA or settled:
   Fully Settled at once, or first Not Settled or Partially Settled and later
@@ -280,6 +695,13 @@
   cannot be final; a model that treats every settlement status as final
   refuses that move.
 
+  The model moves a clearance's status and amounts on each event: a
+  cancellation by the ORA, a clearing that pays part or all of what is
+  unsettled, a clawback and a write-off.  Whether a clawed-back clearance
+  can be settled again, and whether Final Settlement can be clawed back, are
+  a parameter, a reading of the sources.  The EasyPay statuses are not
+  modelled.
+
   Open point: The code list names the statuses but gives no table of allowed
   moves and no final statuses. The business must decide, for example,
   whether a clawed-back clearance can be settled again once funds are
@@ -290,6 +712,64 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056}{Settlement with Orders, Definitions}.
 \end{definition}
+
+\begin{theorem}[Cancelling an accepted clearance]
+  \label{thm:accounting-cancel-clearance}
+  \lean{Rules.OneOrder.Accounting.cancel_marks_cancelled}
+  \uses{def:accounting-clearance-status}
+  Under every reading, the ORA's cancellation marks an accepted clearance
+  Cancelled, and every later event for it is refused.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-clearance-status}
+  No event applies to a cancelled clearance.
+\end{proof}
+
+\begin{theorem}[Settling a clearance in full]
+  \label{thm:accounting-settle-all}
+  \lean{Rules.OneOrder.Accounting.settle_all}
+  \uses{def:accounting-clearance-status}
+  Under every reading, a clearing that pays all that is unsettled marks the
+  clearance Fully Settled if it was Accepted and Final Settlement
+  otherwise, and leaves nothing unsettled.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-clearance-status}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Settling a clearance in part]
+  \label{thm:accounting-settle-part}
+  \lean{Rules.OneOrder.Accounting.settle_part}
+  \uses{def:accounting-clearance-status}
+  Under every reading, a clearing that pays part of what is unsettled
+  marks the clearance Partially Settled, and no clearing settles more than
+  is unsettled.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-clearance-status}
+  The amount paid is capped at what is unsettled.
+\end{proof}
+
+\begin{theorem}[Writing off a clearance]
+  \label{thm:accounting-write-off}
+  \lean{Rules.OneOrder.Accounting.write_off_removes_unsettled}
+  \uses{def:accounting-clearance-status}
+  Under every reading, a write-off removes exactly the amount still
+  unsettled.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-clearance-status}
+  Unfold the rule.
+\end{proof}
 
 \begin{definition}[Cancelling a clearance (C-153)]
   \label{def:accounting-clearance-cancellation}
@@ -317,10 +797,23 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478}{Settlement with Orders, Settlement}.
 \end{definition}
 
+\begin{definition}[Total of a clearing]
+  \label{def:accounting-clearing-total}
+  \lean{Rules.OneOrder.Accounting.clearingTotal, Rules.OneOrder.Accounting.ClearingLine, Rules.OneOrder.Accounting.ClearingTo, Rules.OneOrder.Accounting.ClearingLine.counts, Rules.OneOrder.Accounting.ClearingLine.value, Rules.OneOrder.Accounting.ClearanceStatus.countsSettled}
+  \uses{def:accounting-clearance-status}
+  A clearing lists clearances with the amounts settled and clawed back in
+  it.  Its total is the amounts settled for clearances marked Fully
+  Settled, Partially Settled or Final Settlement, less the amounts clawed
+  back.  A clearing to a remittance payer leaves EasyPay clearances out of
+  its total.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574554300}{Settlement with Orders, Financial and Accounting Systems}.
+\end{definition}
+
 \begin{theorem}[Clearing total (C-154)]
   \label{thm:accounting-clearing-total}
-  \uses{def:accounting-clearance-status, def:accounting-net-clearance-amount}
-  \notready
+  \lean{Rules.OneOrder.Accounting.payee_clearing_total}
+  \uses{def:accounting-clearance-status, def:accounting-net-clearance-amount, def:accounting-clearing-total}
   The total in a clearing to a settlement payee is the sum of the amounts
   settled for clearances marked Fully Settled, Partially Settled or Final
   Settlement, minus the amounts clawed back, and a separate bank transfer to
@@ -343,11 +836,65 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881978}{Settlement with Orders, Clearing Sample Messages}.
 \end{theorem}
+\begin{proof}
+  \uses{def:accounting-clearing-total}
+  Every line enters a clearing to a settlement payee.
+\end{proof}
+
+\begin{theorem}[EasyPay out of a remittance payer's clearing]
+  \label{thm:accounting-payer-clearing-easypay}
+  \lean{Rules.OneOrder.Accounting.payer_clearing_leaves_out_easyPay}
+  \uses{def:accounting-clearing-total}
+  An EasyPay clearance listed in a clearing to a remittance payer adds
+  nothing to its total.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574554300}{Settlement with Orders, Financial and Accounting Systems}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-clearing-total}
+  The line is filtered out.
+\end{proof}
+
+\begin{theorem}[Clearing totals are never negative]
+  \label{thm:accounting-clearing-nonneg}
+  \lean{Rules.OneOrder.Accounting.payee_clearing_nonneg}
+  \uses{def:accounting-clearing-total, thm:accounting-clearing-total}
+  The total of a clearing to a settlement payee is never negative, so a
+  bank transfer to the payee can carry it.
+
+  Counterexample: a payee due 200.00 on one clearance with 300.00 clawed
+  back on another has a clearing total of minus 100.00.
+
+  Open point: whether the payee then becomes a remittance payer or the
+  clawback is carried forward to a later clearing.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574554300}{Settlement with Orders, Financial and Accounting Systems};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-clearing-total}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
+
+\begin{definition}[Net position of a party]
+  \label{def:accounting-net-position}
+  \lean{Rules.OneOrder.Accounting.settlementRole, Rules.OneOrder.Accounting.netPosition, Rules.OneOrder.Accounting.Party, Rules.OneOrder.Accounting.EasyPayReading, Rules.OneOrder.Accounting.netPayer, Rules.OneOrder.Accounting.Clearance.netFor, Rules.OneOrder.Accounting.SettlementRole}
+  \uses{def:accounting-net-clearance-amount, def:accounting-accepting-clearance}
+  A party's net position for a remittance date is the amounts of the
+  clearances it is paid less the amounts of those it is netted as payer of.
+  A positive position makes it a settlement payee, a negative one a
+  remittance payer.  An EasyPay clearance is left out of its payer's
+  position; whether the EasyPay provider takes the payer's place is a
+  parameter, a reading of the sources.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager}.
+\end{definition}
 
 \begin{theorem}[Net position per remittance date (C-155)]
   \label{thm:accounting-net-position}
-  \uses{def:accounting-net-clearance-amount, thm:accounting-clearing-total}
-  \notready
+  \lean{Rules.OneOrder.Accounting.net_positions_sum_zero}
+  \uses{def:accounting-net-clearance-amount, thm:accounting-clearing-total, def:accounting-net-position}
   For each party and remittance date, the Clearance Manager adds the net
   clearance amounts of clearances where the party is payee and subtracts
   those where it is payer. A positive result makes the party a settlement
@@ -358,6 +905,12 @@
   50.00 by EasyPay. If both enter the seller's net position, the seller is
   asked to remit 150.00 while the EasyPay provider also pays the 50.00.
 
+  Counterexample: a seller owes an airline 100.00 by settlement plan and
+  50.00 by EasyPay.  Under the reading that leaves EasyPay out of the
+  seller's position and keeps it in the airline's, the seller is a
+  remittance payer for 100.00 and the airline a settlement payee for 150.00,
+  and the positions sum to 50.00.
+
   Open point: The netting rule does not say how EasyPay clearances enter it.
   The EasyPay provider pays them, so they are left out of the seller's
   remittance but included in the airline's settlement; the business must
@@ -367,11 +920,86 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488802}{Settlement with Orders, New for release 21.3}.
 \end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-position}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
+
+\begin{theorem}[Net position formula]
+  \label{thm:accounting-net-position-formula}
+  \lean{Rules.OneOrder.Accounting.net_position_formula}
+  \uses{def:accounting-net-position}
+  Under every reading, a party's net position is the amounts it is paid
+  less the amounts it is netted as payer of, on the remittance date.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-position}
+  Split the sum.
+\end{proof}
+
+\begin{theorem}[Settlement payees]
+  \label{thm:accounting-settlement-payee}
+  \lean{Rules.OneOrder.Accounting.positive_position_payee}
+  \uses{def:accounting-net-position}
+  Under every reading, a party with a positive net position is a
+  settlement payee for that amount.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-position}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Remittance payers]
+  \label{thm:accounting-remittance-payer}
+  \lean{Rules.OneOrder.Accounting.negative_position_payer}
+  \uses{def:accounting-net-position}
+  Under every reading, a party with a negative net position is a
+  remittance payer for that amount.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-position}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[EasyPay out of the payer's position]
+  \label{thm:accounting-easypay-out}
+  \lean{Rules.OneOrder.Accounting.easyPay_left_out_of_payer}
+  \uses{def:accounting-net-position}
+  Under every reading, an EasyPay clearance is never netted against its
+  payer.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-position}
+  The payer is never netted for an EasyPay clearance.
+\end{proof}
+
+\begin{theorem}[Positions sum to zero with the EasyPay provider]
+  \label{thm:accounting-net-zero-provider}
+  \lean{Rules.OneOrder.Accounting.net_positions_sum_zero_provider}
+  \uses{def:accounting-net-position, thm:accounting-net-position}
+  Under the reading where the EasyPay provider takes the payer's place,
+  the net positions of all parties on a remittance date sum to zero.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-net-position}
+  Each clearance adds its amount to one party and takes it from another.
+\end{proof}
 
 \begin{theorem}[Settled and unsettled clearance amounts (C-156)]
   \label{thm:accounting-settled-plus-remaining}
+  \lean{Rules.OneOrder.Accounting.clearance_amounts_accounted}
   \uses{def:accounting-clearance-status, thm:accounting-clearing-total, def:accounting-net-clearance-amount}
-  \notready
   For each clearance, the amounts settled across all clearings plus the
   amount still unsettled equal its agreed net clearance amount. A write-off
   removes exactly the amount still unsettled.
@@ -380,6 +1008,11 @@
   with net clearance amount 250.00 and 50.00 unsettled, beside a 200.00
   clearance, with a total of 450.00. The total adds up only if 250.00 is the
   amount settled, so the agreed amount was 300.00 and appears nowhere.
+
+  Counterexample: under a reading where a clawed-back amount does not
+  count as unsettled again, a clearance of 300.00 settled in full and then
+  clawed back by 100.00 keeps 200.00 settled, with nothing unsettled.
+  A later clearing cannot settle the 100.00.
 
   Open point: In a clearing message the net clearance amount field carries
   the amount settled in that clearing, so the agreed amount travels nowhere.
@@ -391,6 +1024,27 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881978}{Settlement with Orders, Clearing Sample Messages};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056}{Settlement with Orders, Definitions}.
 \end{theorem}
+\begin{proof}
+  \uses{def:accounting-clearance-status}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
+
+\begin{theorem}[Clawed-back amounts unsettled again]
+  \label{thm:accounting-amounts-accounted-reopen}
+  \lean{Rules.OneOrder.Accounting.clearance_amounts_accounted_reopen}
+  \uses{def:accounting-clearance-status, thm:accounting-settled-plus-remaining}
+  Under every reading where a clawed-back amount counts as unsettled again,
+  a clearance's amounts settled less those clawed back, plus the amount
+  unsettled and the amount written off, equal its agreed amount, whatever
+  happens to it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-clearance-status}
+  Every event keeps the sum.
+\end{proof}
 
 \begin{definition}[Netting on a change (C-157)]
   \label{def:accounting-change-netting}
@@ -494,8 +1148,8 @@
 
 \begin{definition}[Allocating a short remittance (C-161)]
   \label{def:accounting-short-remittance-allocation}
+  \lean{Rules.OneOrder.Accounting.allocate, Rules.OneOrder.Accounting.AllocationReading, Rules.OneOrder.Accounting.Obligation, Rules.OneOrder.Accounting.fill, Rules.OneOrder.Accounting.share, Rules.OneOrder.Accounting.owedTo, Rules.OneOrder.Accounting.totalOwed, Rules.OneOrder.Accounting.OldestFirst}
   \uses{thm:accounting-settled-plus-remaining, def:accounting-clearance-status}
-  \notready
   When a remittance payer pays short and the Clearance Manager has no credit
   line, the funds are split across the settlement payees in proportion to
   what each is owed. Within each payee, clearances are settled oldest first;
@@ -506,6 +1160,9 @@
   (newer) and pays 100.00. The proportional rule gives each 50.00; the
   oldest-first rule gives A 100.00 and B nothing.
 
+  The model takes the page followed as a parameter, a reading of the
+  sources, and the rounding of a proportional share as another.
+
   Open point: Another page says the Clearance Manager applies any payment to
   the payer's outstanding obligations in the order they were recorded,
   whatever the payee. The business must pick one allocation.
@@ -513,3 +1170,119 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds}.
 \end{definition}
+
+\begin{theorem}[Short remittance within what is owed]
+  \label{thm:accounting-allocation-within-owed}
+  \lean{Rules.OneOrder.Accounting.allocation_within_owed}
+  \uses{def:accounting-short-remittance-allocation}
+  Under every reading and rounding, no clearance is settled for more than
+  the payer owes on it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-short-remittance-allocation}
+  Each clearance gets at most what it owes.
+\end{proof}
+
+\begin{theorem}[Each payee's clearances oldest first]
+  \label{thm:accounting-allocation-oldest-first}
+  \lean{Rules.OneOrder.Accounting.allocation_oldest_first_per_payee}
+  \uses{def:accounting-short-remittance-allocation}
+  Under every reading and rounding, a clearance to a settlement payee is
+  settled only after every older clearance to that payee is settled in
+  full.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-short-remittance-allocation}
+  A clearance not settled in full uses up its payee's budget, or the
+  whole budget.
+\end{proof}
+
+\begin{theorem}[Proportional shares]
+  \label{thm:accounting-proportional-share}
+  \lean{Rules.OneOrder.Accounting.proportional_share_settled}
+  \uses{def:accounting-short-remittance-allocation}
+  Under the Remittance of Funds page, each settlement payee's clearances
+  are settled for its rounded proportional share, capped at what it is
+  owed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-short-remittance-allocation}
+  What a payee's clearances get is its budget, up to what they owe.
+\end{proof}
+
+\begin{theorem}[Oldest first across payees]
+  \label{thm:accounting-transfer-oldest-first}
+  \lean{Rules.OneOrder.Accounting.transfer_oldest_first}
+  \uses{def:accounting-short-remittance-allocation}
+  Under the Transfer of Funds page, the payer's clearances are settled in
+  the order they were recorded, whatever the payee.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-short-remittance-allocation}
+  All clearances share one budget.
+\end{proof}
+
+\begin{theorem}[Transfer of Funds allocates the whole payment]
+  \label{thm:accounting-transfer-allocates-all}
+  \lean{Rules.OneOrder.Accounting.transfer_allocates_all}
+  \uses{def:accounting-short-remittance-allocation}
+  Under the Transfer of Funds page, a short payment is allocated in full.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-short-remittance-allocation}
+  One budget is used up before any clearance is left short.
+\end{proof}
+
+\begin{theorem}[Whole payment allocated]
+  \label{thm:accounting-allocation-whole}
+  \lean{Rules.OneOrder.Accounting.allocation_whole_payment}
+  \uses{def:accounting-short-remittance-allocation}
+  Under every reading and rounding, the amounts settled from a short
+  payment add up to what was paid.
+
+  Counterexample: a payer owes three airlines 100.00 each and pays 100.00.
+  Under the Remittance of Funds page each share is 33.333.  Rounded down
+  the airlines receive 99.99 in all; rounded up, 100.02.
+
+  Open point: how a proportional share is rounded and who receives the
+  remainder.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-short-remittance-allocation}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
+
+\begin{theorem}[One allocation for a short remittance]
+  \label{thm:accounting-one-allocation}
+  \lean{Rules.OneOrder.Accounting.one_allocation}
+  \uses{def:accounting-short-remittance-allocation}
+  A short payment settles each clearance for the same amount under either
+  source page.
+
+  Counterexample: a payer owes airline A 100.00 (older) and airline B
+  100.00 (newer) and pays 100.00.  Under Remittance of Funds each airline
+  receives 50.00; under Transfer of Funds A receives 100.00 and B nothing.
+
+  Open point: which allocation the Clearance Manager uses.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds}.
+\end{theorem}
+\begin{proof}
+  \uses{def:accounting-short-remittance-allocation}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
