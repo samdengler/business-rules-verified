@@ -23,6 +23,12 @@ import Review.Generated.ONE303
 import Review.Generated.ONE304
 import Review.Generated.ONE305
 import Review.Generated.ONE306
+import Review.Generated.ONE401
+import Review.Generated.ONE402
+import Review.Generated.ONE403
+import Review.Generated.ONE404
+import Review.Generated.ONE405
+import Review.Generated.ONE406
 import Review.OpenQuestions
 import Review.Generated.Questions
 import Review.Objects
@@ -88,6 +94,18 @@ Review.Generated.Front.html
 {include 1 Review.Generated.ONE305}
 
 {include 1 Review.Generated.ONE306}
+
+{include 1 Review.Generated.ONE401}
+
+{include 1 Review.Generated.ONE402}
+
+{include 1 Review.Generated.ONE403}
+
+{include 1 Review.Generated.ONE404}
+
+{include 1 Review.Generated.ONE405}
+
+{include 1 Review.Generated.ONE406}
 
 {include 1 Review.OpenQuestions}
 

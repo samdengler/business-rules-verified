@@ -30,3 +30,9 @@ import Rules.OneOrder.Payment.Examples
 import Rules.OneOrder.Delivery.Moves
 import Rules.OneOrder.Delivery.Theorems
 import Rules.OneOrder.Delivery.Examples
+import Rules.OneOrder.Creation.Create
+import Rules.OneOrder.Creation.Repeat
+import Rules.OneOrder.Creation.Version
+import Rules.OneOrder.Creation.Retention
+import Rules.OneOrder.Creation.Theorems
+import Rules.OneOrder.Creation.Examples

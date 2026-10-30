@@ -4,29 +4,105 @@
 
 \begin{theorem}[Order version (C-21)]
   \label{thm:c21-version}
-  \uses{def:c18-change, def:order}
+  \lean{Rules.OneOrder.Creation.version_counts_groups}
+  \uses{def:c18-change, def:order, def:order-creation-record-changes}
   An order's version starts at 1 and goes up by one for each group of changes,
   so the version is always one more than the number of change groups applied.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
 \end{theorem}
+\begin{proof}
+  \uses{def:order-creation-record-changes}
+  By induction on the change groups: each raises the version by one and adds
+  one group to the history.
+\end{proof}
+
+\begin{definition}[Recording changes to an order]
+  \label{def:order-creation-record-changes}
+  \lean{Rules.OneOrder.Creation.recordChanges, Rules.OneOrder.Creation.OrderRecord, Rules.OneOrder.Creation.OrderRecord.create, Rules.OneOrder.Creation.OrderRecord.after, Rules.OneOrder.Creation.OrderChange, Rules.OneOrder.Creation.ChangeGroup, Rules.OneOrder.Creation.applyChange, Rules.OneOrder.Creation.applyGroup, Rules.OneOrder.Creation.replay}
+  \uses{def:c01-structure}
+  The airline keeps an order as created, at version 1, with the change groups
+  applied since, oldest first.  A change adds, replaces or removes an order
+  item.  Applying a group of changes applies each in turn, records the group
+  and raises the version by one.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
+\end{definition}
+
+\begin{theorem}[New orders start at version 1]
+  \label{thm:order-creation-created-version-one}
+  \lean{Rules.OneOrder.Creation.create_version_one}
+  \uses{def:order-creation-record-changes, def:order-creation-history}
+  A new order is at version 1, with no change groups and an empty history.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-record-changes}
+  Unfold the record of a new order.
+\end{proof}
+
+\begin{theorem}[Each change group raises the version by one]
+  \label{thm:order-creation-version-raised}
+  \lean{Rules.OneOrder.Creation.record_raises_version}
+  \uses{def:order-creation-record-changes}
+  Applying a group of changes applies it to the order, records it in the
+  history and raises the version by one.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-record-changes}
+  Unfold the rule.
+\end{proof}
 
 \begin{definition}[Order retention (C-23)]
   \label{def:c23-retention}
+  \lean{Rules.OneOrder.Creation.mustKeep, Rules.OneOrder.Creation.MonthCount, Rules.OneOrder.Creation.sevenDays}
   \uses{def:c07-order-status, def:instant}
   An order with an open item stays accessible for at least 13 months from
   creation.  Once all its items reach a final status, it stays accessible for
-  at least 7 more days.
+  at least 7 more days.  The model reads an open item as an active one, and
+  takes how 13 months are counted on UTC instants as a parameter.
 
   Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
 \end{definition}
+
+\begin{theorem}[Orders kept 13 months from creation]
+  \label{thm:order-creation-keep-from-creation}
+  \lean{Rules.OneOrder.Creation.keep_from_creation}
+  \uses{def:c23-retention}
+  An order with an active item is kept until 13 months after its creation,
+  under every reading of the guide and every count of months.
+
+  Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c23-retention}
+  An order with an active item is opened, and the first window applies.
+\end{proof}
+
+\begin{theorem}[Orders kept 7 days after their items are final]
+  \label{thm:order-creation-keep-after-final}
+  \lean{Rules.OneOrder.Creation.keep_after_final}
+  \uses{def:c23-retention, thm:one-active-not-closed, thm:one-active-not-cancelled}
+  An order whose items have all become closed or cancelled is kept for 7 days
+  after that, under every reading of the guide and every count of months.
+
+  Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:one-active-not-closed, thm:one-active-not-cancelled}
+  A closed or cancelled item is never active, so the order is not opened and
+  the 7 day window applies.
+\end{proof}
 
 % Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
 
 \begin{definition}[Selecting items from an offer (C-62)]
   \label{def:order-creation-offer-item-selection}
-  \uses{def:offer, def:offer-item, def:passenger, def:accept}
-  \notready
+  \lean{Rules.OneOrder.Creation.selectItems, Rules.OneOrder.Creation.MarkedOffer, Rules.OneOrder.Creation.Selection, Rules.OneOrder.Creation.CreateRejection}
+  \uses{def:offer, def:offer-item, def:passenger, def:accept, def:one-offer}
   An order is created from a selection of offer items. The selection must
   include every item the offer marks mandatory and name the passengers each
   selected item was built for; optional items may be left out. An item
@@ -51,9 +127,90 @@
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980}{ARMI, General Guidance}.
 \end{definition}
 
+\begin{theorem}[Unknown items are rejected]
+  \label{thm:order-creation-select-unknown}
+  \lean{Rules.OneOrder.Creation.select_rejects_unknown}
+  \uses{def:order-creation-offer-item-selection}
+  A selection that names an item the offer does not hold is rejected.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-offer-item-selection}
+  An accepted selection names only items of the offer.
+\end{proof}
+
+\begin{theorem}[Selections include the mandatory items]
+  \label{thm:order-creation-select-mandatory}
+  \lean{Rules.OneOrder.Creation.select_rejects_missing_mandatory}
+  \uses{def:order-creation-offer-item-selection}
+  A selection that leaves out an item the offer marks mandatory is rejected.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-offer-item-selection}
+  An accepted selection names every mandatory item.
+\end{proof}
+
+\begin{theorem}[A selection takes the items it names]
+  \label{thm:order-creation-select-named}
+  \lean{Rules.OneOrder.Creation.select_takes_named_items}
+  \uses{def:order-creation-offer-item-selection}
+  An accepted selection takes exactly the offer items whose references it
+  names, and every reference it names is an item it takes.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-offer-item-selection}
+  The items taken are the offer's items filtered by the selection, and every
+  name was checked against the offer.
+\end{proof}
+
+\begin{theorem}[Every order holds a mandatory item]
+  \label{thm:order-creation-select-includes-mandatory}
+  \lean{Rules.OneOrder.Creation.select_includes_mandatory}
+  \uses{def:order-creation-offer-item-selection}
+  Every accepted selection includes at least one item the offer marks
+  mandatory.
+
+  Counterexample: an a la carte offer holds a flight and a seat and marks
+  neither mandatory.  A seller selects the seat alone, and the selection is
+  accepted with no mandatory item and no flight (Lean example
+  \texttt{seatWithoutFlight}).
+
+  Open point: the guidance asks for at least one mandatory item in each offer
+  and exempts a la carte offers.  The business must decide which selections
+  are allowed from an offer that marks no item mandatory, and whether a seat
+  or bag may be ordered without its flight.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-offer-item-selection}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Offers with a mandatory item]
+  \label{thm:order-creation-select-mandatory-of-marked}
+  \lean{Rules.OneOrder.Creation.select_includes_mandatory_of_marked}
+  \uses{def:order-creation-offer-item-selection, thm:order-creation-select-mandatory}
+  When an offer marks at least one item mandatory, every accepted selection
+  includes one.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-offer-item-selection}
+  A mandatory item must be named, and every name is an item of the offer.
+\end{proof}
+
 \begin{theorem}[Order items match the selection (C-63)]
   \label{thm:order-creation-items-match-selection}
-  \uses{def:order-creation-offer-item-selection, thm:c02-item-per-offer-item, thm:accept-price-eq-sum, def:accept}
+  \lean{Rules.OneOrder.Creation.create_items_match_selection}
+  \uses{def:order-creation-create-order, def:order-creation-offer-item-selection, thm:c02-item-per-offer-item, thm:accept-price-eq-sum, def:accept}
   Creating an order yields exactly one order item for each selected offer
   item and none for the items left out. The new order's price is the sum of
   the selected items' prices.
@@ -66,11 +223,61 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
 \end{theorem}
+\begin{proof}
+  \uses{def:order-creation-create-order}
+  Each selection becomes its selected items, and the order holds the items of
+  every selection in turn.
+\end{proof}
+
+\begin{definition}[Creating one order from several offers]
+  \label{def:order-creation-create-order}
+  \lean{Rules.OneOrder.Creation.createOrder, Rules.OneOrder.Creation.orderItemsFor, Rules.OneOrder.Creation.orderItemsForAll, Rules.OneOrder.Creation.selectedFrom, Rules.OneOrder.Creation.itemPrefix}
+  \uses{def:order-creation-offer-item-selection, def:one-accept, def:rejection}
+  A create request holds a selection from each of one or more offers.  Each
+  offer must be one the airline holds and not expired, each selection must be
+  accepted, and each selected item must be priced in its offer's currency.
+  The first rejection rejects the whole request.  Otherwise one order holds
+  the selected items of every offer, and a request that selects nothing is
+  rejected.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDCRE/}{IATA capability ORDCRE};
+  \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+\end{definition}
+
+\begin{theorem}[Order price is the sum of the selected items]
+  \label{thm:order-creation-price-sum}
+  \lean{Rules.OneOrder.Creation.create_price_eq_sum}
+  \uses{def:order-creation-create-order, thm:order-creation-items-match-selection, def:money-add}
+  An order created from offers priced in one currency has a total in that
+  currency: the sum of the prices of the selected items.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:order-creation-items-match-selection}
+  The order's items are the selected items, each priced in its offer's
+  currency.
+\end{proof}
+
+\begin{theorem}[Requests that select nothing are rejected]
+  \label{thm:order-creation-no-items}
+  \lean{Rules.OneOrder.Creation.create_rejects_empty}
+  \uses{def:order-creation-create-order, def:c01-structure}
+  A request that selects no item from any offer is rejected, since an order
+  holds at least one item.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-create-order}
+  Either a selection is rejected, or the order would have no items.
+\end{proof}
 
 \begin{theorem}[Atomic order creation (C-64)]
   \label{thm:order-creation-create-atomic}
-  \uses{def:accept, def:rejection, thm:accept-rejects-expired, def:order-creation-offer-item-selection}
-  \notready
+  \lean{Rules.OneOrder.Creation.create_rejects_expired}
+  \uses{def:accept, def:rejection, thm:accept-rejects-expired, def:order-creation-offer-item-selection, def:order-creation-create-order}
   A create request either produces one order holding every selected item, or
   produces no order and returns an error. This holds when the selection
   spans several offers.
@@ -82,12 +289,18 @@
   Open point: The capability pages allow one order from several offers and
   do not say what happens when one of them has expired or fails validation.
   The business must decide whether the whole request fails or the valid
-  offers go ahead.
+  offers go ahead.  The model follows the rule above and rejects the whole
+  request.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619727/Create+Order+With+Instant+Payment}{EASD guide, Create Order With Instant Payment};
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
 \end{theorem}
+\begin{proof}
+  \uses{def:order-creation-create-order}
+  The expired offer's selection is rejected, and a rejected selection rejects
+  the whole request.
+\end{proof}
 
 \begin{definition}[Failed payment at order creation (C-65)]
   \label{def:order-creation-instant-payment-failure}
@@ -112,8 +325,8 @@
 
 \begin{theorem}[One order per offer (C-66)]
   \label{thm:order-creation-offer-used-once}
-  \uses{def:offer, def:accept, thm:order-creation-create-atomic}
-  \notready
+  \lean{Rules.OneOrder.Creation.once_per_offer}
+  \uses{def:offer, def:accept, thm:order-creation-create-atomic, def:order-creation-repeat}
   An offer produces at most one order. A repeated create request for an
   offer that already produced an order returns the existing order or is
   rejected.
@@ -121,6 +334,12 @@
   Case to check: A create request times out at the seller and is sent again
   with a new transaction ID. Nothing in the sources stops the airline
   creating a second order from the same offer.
+
+  Counterexample: a seller sends a create request for the trip offer's
+  flight and gets order ORD-5.  The request is sent again after a timeout.
+  Under the reading where the airline creates another order, the seller gets
+  ORD-6 and the trip offer has produced two orders (Lean example
+  \texttt{repeatedRequest}).
 
   Open point: The guide says the airline checks that the offer is valid
   without listing the checks, and its retransmission ID for recovering a
@@ -132,6 +351,84 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226512/Identifier+Usage}{EASD guide, Identifier Usage};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619693/Payload+Attributes}{EASD guide, Payload Attributes}.
 \end{theorem}
+\begin{proof}
+  \uses{def:order-creation-repeat}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{definition}[Repeated create requests]
+  \label{def:order-creation-repeat}
+  \lean{Rules.OneOrder.Creation.createOnce, Rules.OneOrder.Creation.CreatedOrder, Rules.OneOrder.Creation.CreatedOrder.fromAny, Rules.OneOrder.Creation.RepeatHandling, Rules.OneOrder.Creation.OncePerOffer}
+  \uses{def:order-creation-create-order}
+  The airline records each order it creates with the offers it came from.  A
+  request that names an offer with an order is a repeated request.  The
+  sources are silent on what the airline does with it, so the model takes the
+  answer as a parameter with three readings: return the existing order,
+  reject the request, or create another order.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226512/Identifier+Usage}{EASD guide, Identifier Usage}.
+\end{definition}
+
+\begin{theorem}[New orders are recorded against their offers]
+  \label{thm:order-creation-records-offers}
+  \lean{Rules.OneOrder.Creation.create_once_records}
+  \uses{def:order-creation-repeat}
+  A request that names no offer with an order is created as a new order and
+  recorded against every offer it names, under every reading.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-repeat}
+  No recorded order matches the request, so the order is created and
+  recorded.
+\end{proof}
+
+\begin{theorem}[Repeated requests get the existing order]
+  \label{thm:order-creation-repeat-existing}
+  \lean{Rules.OneOrder.Creation.repeat_returns_existing}
+  \uses{def:order-creation-repeat}
+  Under the reading that returns the existing order, a repeated request is
+  answered with an order recorded for one of the offers it names, and nothing
+  new is recorded.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-repeat}
+  The first recorded order that matches the request is returned.
+\end{proof}
+
+\begin{theorem}[Repeated requests can be rejected]
+  \label{thm:order-creation-repeat-rejected}
+  \lean{Rules.OneOrder.Creation.repeat_rejected}
+  \uses{def:order-creation-repeat}
+  Under the reading that rejects repeated requests, a request that names an
+  offer with an order is rejected.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-repeat}
+  A recorded order matches the request, so it is rejected.
+\end{proof}
+
+\begin{theorem}[Returning or rejecting repeats keeps one order per offer]
+  \label{thm:order-creation-once-per-offer-of-ne}
+  \lean{Rules.OneOrder.Creation.once_per_offer_of_ne}
+  \uses{def:order-creation-repeat, thm:order-creation-records-offers}
+  Under the readings that return the existing order or reject the request, no
+  offer ever appears in two recorded orders.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:order-creation-records-offers}
+  A new order is recorded only for offers that no recorded order holds, and a
+  repeated request records nothing.
+\end{proof}
 
 \begin{theorem}[Statuses of a new order (C-67)]
   \label{thm:order-creation-new-order-state}
@@ -251,8 +548,8 @@
 
 \begin{theorem}[History rebuilds every version (C-72)]
   \label{thm:order-creation-history-rebuilds-versions}
-  \uses{thm:c21-version, def:order, def:c18-change}
-  \notready
+  \lean{Rules.OneOrder.Creation.history_rebuilds_current}
+  \uses{thm:c21-version, def:order, def:c18-change, def:order-creation-history}
   An order's history starts with the whole order at version 1, recorded as
   one addition, followed by one change group per later version. Applying the
   groups up to version n to version 1 gives the order as it was at version
@@ -261,6 +558,11 @@
   Case to check: Applied newest first, a group that removes an item in
   version 4 runs before the group that added it in version 3, and the item
   reappears in the rebuilt current order.
+
+  Counterexample: the airline adds a bag to an order at version 2 and removes
+  it at version 3.  Listed newest first and applied in that order, the removal
+  runs before the bag was added, and the rebuilt order holds the bag that the
+  current order does not (Lean example \texttt{newestFirstHistory}).
 
   Open point: The guide lists change groups oldest first with each raising
   the version by one, while the ORDHIS capability page lists them newest
@@ -277,6 +579,55 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659}{EASD guide, Order Versioning};
   \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
 \end{theorem}
+\begin{proof}
+  \uses{def:order-creation-history}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{definition}[Order history]
+  \label{def:order-creation-history}
+  \lean{Rules.OneOrder.Creation.orderHistory, Rules.OneOrder.Creation.History, Rules.OneOrder.Creation.HistoryEntry, Rules.OneOrder.Creation.HistoryListing, Rules.OneOrder.Creation.labelled, Rules.OneOrder.Creation.History.rebuild}
+  \uses{def:order-creation-record-changes}
+  An order's history is the order at version 1 and each change group since,
+  labelled with the version it produced.  The guide lists the groups oldest
+  first and the capability page newest first, so the model takes the listing
+  as a parameter with two readings.  A seller rebuilds an order by applying
+  the groups to version 1 in the order listed.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652557/Order+History}{EASD guide, Order History};
+  \href{https://retailing.iata.org/armi/docs/ORDHIS/}{IATA capability ORDHIS}.
+\end{definition}
+
+\begin{theorem}[The history lists each change group once]
+  \label{thm:order-creation-history-lists-groups}
+  \lean{Rules.OneOrder.Creation.history_lists_each_group}
+  \uses{def:order-creation-history, thm:c21-version}
+  Under both readings, an order's history holds the order at version 1 and
+  each change group once, labelled with the version it produced.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652557/Order+History}{EASD guide, Order History}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-history, thm:c21-version}
+  The history labels the groups the order record holds; newest first is the
+  same list reversed.
+\end{proof}
+
+\begin{theorem}[Oldest first, the history rebuilds the order]
+  \label{thm:order-creation-history-oldest-first}
+  \lean{Rules.OneOrder.Creation.history_rebuilds_of_oldestFirst}
+  \uses{def:order-creation-history, def:order-creation-record-changes}
+  Under the reading that lists change groups oldest first, applying them in
+  the order listed to the order at version 1 gives the order as it is now.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652557/Order+History}{EASD guide, Order History}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-record-changes}
+  The order as it is now is the order as created with every group applied in
+  turn, oldest first.
+\end{proof}
 
 \begin{theorem}[Version tracks seller-visible changes (C-73)]
   \label{thm:order-creation-version-tracks-view}
@@ -302,8 +653,8 @@
 
 \begin{definition}[Change against a stale version (C-74)]
   \label{def:order-creation-stale-version-change}
-  \uses{thm:c21-version, def:c18-change, def:accept, thm:order-creation-version-tracks-view}
-  \notready
+  \lean{Rules.OneOrder.Creation.requestChange, Rules.OneOrder.Creation.StaleHandling, Rules.OneOrder.Creation.VersionRejection}
+  \uses{thm:c21-version, def:c18-change, def:accept, thm:order-creation-version-tracks-view, def:order-creation-record-changes}
   A change request may carry the order version the seller believes is
   current. The airline proceeds when it matches and may return an error when
   it does not, and a request without a version proceeds. Offers made while
@@ -323,6 +674,72 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659}{EASD guide, Order Versioning};
   \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
 \end{definition}
+
+\begin{theorem}[Changes on the current version are applied]
+  \label{thm:order-creation-current-version-applied}
+  \lean{Rules.OneOrder.Creation.current_version_applied}
+  \uses{def:order-creation-stale-version-change}
+  A change that carries the order's current version is applied and raises
+  the version by one, under both readings.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-stale-version-change}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Changes without a version are applied]
+  \label{thm:order-creation-no-version-applied}
+  \lean{Rules.OneOrder.Creation.no_version_applied}
+  \uses{def:order-creation-stale-version-change}
+  A change that carries no version is applied, under both readings.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-stale-version-change}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Changes on a stale version are rejected]
+  \label{thm:order-creation-stale-rejected}
+  \lean{Rules.OneOrder.Creation.stale_rejected}
+  \uses{def:order-creation-stale-version-change}
+  A change that carries a version other than the order's current version is
+  rejected, under both readings.
+
+  Counterexample: two sellers read an order at version 3.  The first
+  seller's change moves it to version 4.  The second seller's change still
+  carries version 3, and under the reading where the airline applies it
+  anyway, it is applied over a change its seller never saw (Lean example
+  \texttt{twoSellersOneVersion}).
+
+  Open point: the guide permits an error on a mismatch and does not require
+  one.  The business must decide whether a mismatch always rejects the change
+  and whether a change may be sent without a version.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-stale-version-change}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Rejecting stale versions]
+  \label{thm:order-creation-stale-rejected-of-reject}
+  \lean{Rules.OneOrder.Creation.stale_rejected_of_reject}
+  \uses{def:order-creation-stale-version-change}
+  Under the reading that rejects stale versions, a change that carries a
+  version other than the current one is rejected.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-stale-version-change}
+  Unfold the rule.
+\end{proof}
 
 \begin{theorem}[Service IDs in an order (C-75)]
   \label{thm:order-creation-service-id-unique}
@@ -351,8 +768,8 @@
 
 \begin{definition}[Retention after first usage (C-76)]
   \label{def:order-creation-retention-first-usage}
+  \lean{Rules.OneOrder.Creation.keep_from_first_use}
   \uses{def:c23-retention, def:c05-holds-value, def:c06-item-status, thm:c20-value-store, def:instant}
-  \notready
   Building on C-23, the offer responsible airline also keeps an order with
   an open item accessible for 13 months from its first usage. While an item
   is open, access is required until the later of 13 months from creation and
@@ -371,6 +788,31 @@
 
   Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
 \end{definition}
+
+\begin{theorem}[Orders holding value stay accessible]
+  \label{thm:order-creation-keep-while-active}
+  \lean{Rules.OneOrder.Creation.keep_while_active}
+  \uses{def:c23-retention, def:order-creation-retention-first-usage, def:c05-holds-value}
+  An order is kept while it has an active item, under every reading of the
+  guide and every count of months.
+
+  Counterexample: an order created on 2026-01-01 holds a flight removed with
+  its value held for the customer and never used.  On 2028-01-01 it still
+  holds value under every reading, and the rule no longer requires it to be
+  kept (Lean example \texttt{storedValueNeverUsed}).
+
+  Open point: the resolution requires nothing after 13 months from creation
+  and from first usage, and defines neither term.  The business must define
+  an open item and first usage, and decide whether an order that still holds
+  value must stay accessible.
+
+  Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c23-retention}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{definition}[Order ID (C-77)]
   \label{def:order-creation-order-id}
@@ -420,8 +862,8 @@
 
 \begin{theorem}[Order total from item prices (C-79)]
   \label{thm:order-creation-order-total-derived}
-  \uses{def:order, def:money-add, thm:accept-price-eq-sum, thm:c04-item-unsplit, thm:order-creation-create-atomic}
-  \notready
+  \lean{Rules.OneOrder.Creation.create_single_currency}
+  \uses{def:order, def:money-add, thm:accept-price-eq-sum, thm:c04-item-unsplit, thm:order-creation-create-atomic, def:order-creation-create-order, thm:order-creation-price-sum}
   Prices are held on order items, and a stored total price at order level is
   deprecated. An order's total at any version is the sum of its current item
   prices.
@@ -429,6 +871,11 @@
   Case to check: Items from an offer priced in EUR and an offer priced in
   USD go into one order. Adding them fails under def:money-add, so the order
   has no total.
+
+  Counterexample: one create request selects a flight at 400.00 EUR from an
+  offer priced in euros and a hotel transfer at 60.00 USD from an offer priced
+  in US dollars.  The order is created and has no total in any currency (Lean
+  example \texttt{twoCurrencies}).
 
   Open point: The sources do not say whether one order may hold items in
   more than one currency, which can happen when items come from several
@@ -438,6 +885,11 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{theorem}
+\begin{proof}
+  \uses{def:order-creation-create-order}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{definition}[Verifying distribution chain identities (C-80)]
   \label{def:order-creation-chain-identity-check}
