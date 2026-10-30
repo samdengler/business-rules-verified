@@ -86,6 +86,24 @@
     "decision": 133,
     "ready": 10
    }
+  },
+  {
+   "seq": 6,
+   "name": "change-cancellation",
+   "description": "Seller-initiated change and cancellation is in Lean: price differentials, penalties, cancelling, changing an item and the money recorded, with five open questions.",
+   "commit": "60222c8ba91fef23d42312609034332771d2a31e",
+   "date": "2026-10-30T00:09:42-04:00",
+   "tag": "milestone/change-cancellation",
+   "file": "0006-change-cancellation.json",
+   "nodes": 221,
+   "statusCounts": {
+    "modelled": 34,
+    "proven": 33,
+    "open": 8,
+    "ready": 12,
+    "decision": 126,
+    "waiting": 8
+   }
   }
  ]
 }
