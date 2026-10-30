@@ -8,6 +8,10 @@ import Review.Generated.OO003
 import Review.Generated.ONE001
 import Review.Generated.ONE002
 import Review.Generated.ONE003
+import Review.Generated.ONE101
+import Review.Generated.ONE102
+import Review.Generated.ONE103
+import Review.Generated.ONE104
 import Review.Generated.ONE201
 import Review.Generated.ONE202
 import Review.Generated.ONE203
@@ -54,6 +58,14 @@ Review.Generated.Front.html
 {include 1 Review.Generated.ONE002}
 
 {include 1 Review.Generated.ONE003}
+
+{include 1 Review.Generated.ONE101}
+
+{include 1 Review.Generated.ONE102}
+
+{include 1 Review.Generated.ONE103}
+
+{include 1 Review.Generated.ONE104}
 
 {include 1 Review.Generated.ONE201}
 

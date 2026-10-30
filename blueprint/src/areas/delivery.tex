@@ -18,8 +18,8 @@
 
 \begin{definition}[Moves between delivery statuses]
   \label{def:delivery-moves}
-  \uses{def:c08-delivery-status, def:step}
-  \notready
+  \lean{Rules.OneOrder.Delivery.move, Rules.OneOrder.Delivery.DeliveryEvent, Rules.OneOrder.Delivery.MoveReading}
+  \uses{def:c08-delivery-status, def:step, def:delivery-end-service}
   The moves a service may make between delivery statuses, read from the
   status definitions, the ORDSTS guidance and the worked examples.
   \texttt{REQUESTED} goes to \texttt{CONFIRMED}; \texttt{CONFIRMED} goes to
@@ -32,30 +32,229 @@
   \texttt{NOT CLAIMED}, \texttt{UNABLE TO DELIVER} or
   \texttt{FAILED TO DELIVER}.  \texttt{REMOVED HOLD VALUE} goes only to
   \texttt{REMOVED}.  Any status that is not final can be suspended.  Every
-  other move is refused.
+  other move is refused.  The model takes the moves the sources leave
+  undecided as a parameter, a reading of the sources: delivery of a
+  \texttt{CONFIRMED} service before payment, the return of an
+  \texttt{UNABLE TO DELIVER} service to \texttt{READY TO PROCEED}, and the
+  cancellation or \texttt{NOT CLAIMED} end of a service
+  \texttt{IN PROGRESS}.
 
-  Case to check: the Order Closing worked example moves services from
-  \texttt{READY TO PROCEED} straight to \texttt{DELIVERED}, so a table that
-  forces every intermediate status in sequence rejects a published example.
+  The table lets a \texttt{READY TO PROCEED} service go straight to
+  \texttt{DELIVERED}, as the services in the Order Closing worked example do.
 
   Open point: the sources show only some of these moves; the rest are
-  inferred.  The business must confirm the table, decide how a declined
-  \texttt{REQUESTED} service ends, and whether an \texttt{IN PROGRESS}
-  service can be cancelled or end \texttt{NOT CLAIMED}.
+  inferred.  The business must confirm the table, decide each undecided
+  move, and decide how a declined \texttt{REQUESTED} service ends; the model
+  has no move for it.  The sources also say that any status that is not
+  final can be suspended and that \texttt{REMOVED HOLD VALUE} moves only to
+  \texttt{REMOVED}.  The model follows the second, so the business must say
+  whether a \texttt{REMOVED HOLD VALUE} service can be suspended.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/2531491864}{Order Accounting, Order Closing Example}.
 \end{definition}
 
+\begin{theorem}[Confirming a requested service]
+  \label{thm:delivery-confirm}
+  \lean{Rules.OneOrder.Delivery.confirm_marks_confirmed}
+  \uses{def:delivery-moves}
+  Under every reading, a \texttt{REQUESTED} service the airline confirms
+  becomes \texttt{CONFIRMED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-moves}
+  The move is in the table.
+\end{proof}
+
+\begin{theorem}[Payment readies a confirmed service]
+  \label{thm:delivery-pay}
+  \lean{Rules.OneOrder.Delivery.pay_marks_ready}
+  \uses{def:delivery-moves}
+  Under every reading, a \texttt{CONFIRMED} service whose payment succeeds
+  becomes \texttt{READY TO PROCEED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-moves}
+  The move is in the table.
+\end{proof}
+
+\begin{theorem}[Delivering a paid service]
+  \label{thm:delivery-deliver}
+  \lean{Rules.OneOrder.Delivery.deliver_marks_delivered}
+  \uses{def:delivery-moves}
+  Under every reading, a service that is \texttt{READY TO PROCEED},
+  \texttt{READY TO DELIVER} or \texttt{IN PROGRESS} becomes
+  \texttt{DELIVERED} when it is delivered.  \texttt{READY TO DELIVER} and
+  \texttt{IN PROGRESS} may be skipped.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/2531491864}{Order Accounting, Order Closing Example}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-moves}
+  Each of the three moves is in the table.
+\end{proof}
+
+\begin{definition}[Services that end without delivery]
+  \label{def:delivery-end-service}
+  \lean{Rules.OneOrder.Delivery.endService}
+  \uses{def:c08-delivery-status}
+  A service that is \texttt{CONFIRMED}, \texttt{READY TO PROCEED} or
+  \texttt{READY TO DELIVER} ends \texttt{REMOVED} or
+  \texttt{REMOVED HOLD VALUE} when it is cancelled, \texttt{EXPIRED} when
+  its consumption time limit passes, \texttt{NOT CLAIMED} when the
+  passenger prevents delivery, \texttt{UNABLE TO DELIVER} when legal,
+  regulatory or force majeure constraints prevent it, and
+  \texttt{FAILED TO DELIVER} when the airline or its provider fails to
+  deliver it.  A service \texttt{IN PROGRESS} can also end
+  \texttt{FAILED TO DELIVER}.  A \texttt{REMOVED HOLD VALUE} service becomes
+  \texttt{REMOVED} once its value is refunded, stored or used.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS}.
+\end{definition}
+
+\begin{theorem}[Cancellation before delivery]
+  \label{thm:delivery-cancel}
+  \lean{Rules.OneOrder.Delivery.cancel_removes}
+  \uses{def:delivery-end-service, def:delivery-moves}
+  Under every reading, a service that is \texttt{CONFIRMED},
+  \texttt{READY TO PROCEED} or \texttt{READY TO DELIVER} becomes
+  \texttt{REMOVED} when it is cancelled with none of its value kept, and
+  \texttt{REMOVED HOLD VALUE} when the airline holds its value.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-end-service}
+  Both moves are in the table for each of the three statuses.
+\end{proof}
+
+\begin{theorem}[Delivery prevented by outside constraints]
+  \label{thm:delivery-unable}
+  \lean{Rules.OneOrder.Delivery.unable_marks_unable}
+  \uses{def:delivery-end-service, def:delivery-moves}
+  Under every reading, a service that is \texttt{CONFIRMED},
+  \texttt{READY TO PROCEED} or \texttt{READY TO DELIVER} becomes
+  \texttt{UNABLE TO DELIVER} when legal, regulatory or force majeure
+  constraints prevent its delivery.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-end-service}
+  The move is in the table for each of the three statuses.
+\end{proof}
+
+\begin{theorem}[Delivery failed by the airline or its provider]
+  \label{thm:delivery-fail}
+  \lean{Rules.OneOrder.Delivery.fail_marks_failed}
+  \uses{def:delivery-end-service, def:delivery-moves}
+  Under every reading, a service that is \texttt{CONFIRMED},
+  \texttt{READY TO PROCEED}, \texttt{READY TO DELIVER} or
+  \texttt{IN PROGRESS} becomes \texttt{FAILED TO DELIVER} when the airline
+  or its provider fails to deliver it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-end-service}
+  The move is in the table for each of the four statuses.
+\end{proof}
+
+\begin{definition}[Suspending and resuming a service]
+  \label{def:delivery-suspension}
+  \lean{Rules.OneOrder.Delivery.step, Rules.OneOrder.Delivery.DeliveryRecord, Rules.OneOrder.Delivery.run}
+  \uses{def:delivery-moves, def:delivery-final-statuses}
+  A service's delivery record holds its delivery status and, while it is
+  suspended, the status it left.  The airline can suspend a service in any
+  status that is not final, except \texttt{REMOVED HOLD VALUE}.  Lifting
+  the suspension returns the service to the status it left, and a suspended
+  service can also be removed.  Every other event follows the moves between
+  delivery statuses.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}
+
+\begin{theorem}[Suspending a service records where it was]
+  \label{thm:delivery-suspend}
+  \lean{Rules.OneOrder.Delivery.suspend_records_status}
+  \uses{def:delivery-suspension}
+  Under every reading, suspending a service that is \texttt{REQUESTED},
+  \texttt{CONFIRMED}, \texttt{READY TO PROCEED}, \texttt{READY TO DELIVER},
+  \texttt{IN PROGRESS} or \texttt{UNABLE TO DELIVER} makes it
+  \texttt{SUSPENDED} and records the status it left.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-suspension}
+  Check each status.
+\end{proof}
+
+\begin{theorem}[Lifting a suspension returns the service]
+  \label{thm:delivery-resume}
+  \lean{Rules.OneOrder.Delivery.resume_returns}
+  \uses{def:delivery-suspension, thm:delivery-suspend}
+  Under every reading, lifting the suspension of a service returns it to the
+  delivery status it had when it was suspended, whatever other events
+  arrived in between.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:delivery-suspend}
+  The suspension records the status, every event in between is refused,
+  and lifting the suspension restores the recorded status.
+\end{proof}
+
+\begin{theorem}[Cancelling a suspended service]
+  \label{thm:delivery-suspended-cancel}
+  \lean{Rules.OneOrder.Delivery.suspended_cancel_removes}
+  \uses{def:delivery-suspension}
+  Under every reading, a suspended service that is cancelled becomes
+  \texttt{REMOVED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-suspension}
+  The move is in the rule for suspended services.
+\end{proof}
+
 \begin{theorem}[Suspended services (C-09)]
   \label{thm:c09-suspended}
-  \uses{def:c08-delivery-status, def:delivery-moves}
+  \lean{Rules.OneOrder.Delivery.suspended_moves_back_or_removed}
+  \uses{def:c08-delivery-status, def:delivery-moves, def:delivery-suspension}
   A suspended service can only return to the status it had before it was
   suspended, or be removed.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{theorem}
+\begin{proof}
+  \uses{def:delivery-suspension}
+  Lifting the suspension restores the recorded status, a cancellation
+  removes the service, and every other event is refused.
+\end{proof}
+
+\begin{theorem}[Other events follow the table]
+  \label{thm:delivery-step-follows-table}
+  \lean{Rules.OneOrder.Delivery.step_follows_table}
+  \uses{def:delivery-suspension, def:delivery-moves}
+  Under every reading, any event but a suspension follows the moves between
+  delivery statuses for a service that is not suspended.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-suspension}
+  Check each status and event.
+\end{proof}
 
 \begin{definition}[Refunds while delivery is in progress (C-10)]
   \label{def:c10-in-progress}
@@ -102,12 +301,19 @@
 
 \begin{theorem}[Payment before delivery starts (C-115)]
   \label{thm:delivery-paid-before-delivery}
-  \uses{def:c08-delivery-status, def:payment, def:c12-zero-commitment, def:delivery-moves}
-  \notready
-  A service reaches \texttt{READY TO DELIVER}, \texttt{IN PROGRESS} or
-  \texttt{DELIVERED} only after it has been \texttt{READY TO PROCEED}.
-  \texttt{READY TO PROCEED} means the airline has been paid for the service
-  and the customer is entitled to it.
+  \lean{Rules.OneOrder.Delivery.paid_before_delivery}
+  \uses{def:c08-delivery-status, def:payment, def:c12-zero-commitment, def:delivery-moves, def:delivery-suspension}
+  A service reaches \texttt{READY TO PROCEED}, \texttt{READY TO DELIVER},
+  \texttt{IN PROGRESS} or \texttt{DELIVERED} only after a payment for it
+  succeeds.  \texttt{READY TO PROCEED} means the airline has been paid for
+  the service and the customer is entitled to it.
+
+  Counterexample: under a reading that allows delivery before payment, a
+  \texttt{CONFIRMED} bag nobody paid for becomes \texttt{DELIVERED} when the
+  provider reports it.  Under a reading where an \texttt{UNABLE TO DELIVER}
+  service returns to \texttt{READY TO PROCEED} once the constraint lifts, an
+  unpaid flight stopped by a force majeure event comes back
+  \texttt{READY TO PROCEED} and is then delivered.
 
   Case to check: In the deferred-payment change example, transferred flight
   services stay \texttt{READY TO PROCEED} inside a new order item that is
@@ -117,7 +323,9 @@
   Open point: The sources treat \texttt{READY TO PROCEED} as the payment
   gate and say a delivery notice to the provider does not by itself allow
   delivery to start, but they never forbid delivery from \texttt{CONFIRMED}.
-  The business must make that rule and say what counts as paid for deposits,
+  The business must make that rule, decide whether an
+  \texttt{UNABLE TO DELIVER} service returns to the status it left or to
+  \texttt{READY TO PROCEED}, and say what counts as paid for deposits,
   zero-amount commitments (C-12) and credit terms.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
@@ -126,11 +334,34 @@
   \href{https://retailing.iata.org/armi/docs/ORDDEL/}{IATA capability ORDDEL};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund}.
 \end{theorem}
+\begin{proof}
+  \uses{def:delivery-moves, def:delivery-suspension}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written, under readings the sources allow.
+\end{proof}
+
+\begin{theorem}[Payment before delivery when the undecided moves are refused]
+  \label{thm:delivery-paid-with-gate}
+  \lean{Rules.OneOrder.Delivery.paid_before_delivery_with_gate}
+  \uses{def:delivery-moves, def:delivery-suspension}
+  Under every reading that refuses delivery before payment and keeps an
+  \texttt{UNABLE TO DELIVER} service from returning to
+  \texttt{READY TO PROCEED}, a service reaches \texttt{READY TO PROCEED},
+  \texttt{READY TO DELIVER}, \texttt{IN PROGRESS} or \texttt{DELIVERED} only
+  after a payment for it succeeds.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-moves, def:delivery-suspension}
+  Without a payment, every event keeps the service in a status reached
+  before payment, or suspended from one.
+\end{proof}
 
 \begin{definition}[Final delivery statuses (C-116)]
   \label{def:delivery-final-statuses}
+  \lean{Rules.OneOrder.Delivery.isFinal}
   \uses{def:c08-delivery-status, thm:delivered-not-cancellable, def:delivery-moves}
-  \notready
   \texttt{DELIVERED}, \texttt{REMOVED}, \texttt{EXPIRED}, \texttt{NOT
   CLAIMED} and \texttt{FAILED TO DELIVER} are final: no event moves a
   service out of them. Reaching one is the event the OMS reports to
@@ -144,7 +375,9 @@
   \texttt{UNABLE TO DELIVER}, and the ORDSTS guidance only says the final
   status depends on the use case. The business must decide whether
   \texttt{UNABLE TO DELIVER} is final or can return to \texttt{READY TO
-  PROCEED} once the legal or force majeure constraint lifts.
+  PROCEED} once the legal or force majeure constraint lifts.  The model
+  leaves it out of the final statuses; under a reading where it cannot
+  return, the only way out is to suspend the service and then remove it.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
   \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS};
@@ -152,10 +385,84 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2533031940}{EASD guide, 25.4 Release Notes}.
 \end{definition}
 
+\begin{theorem}[No event leaves a final status]
+  \label{thm:delivery-final-refuses}
+  \lean{Rules.OneOrder.Delivery.final_refuses_all}
+  \uses{def:delivery-final-statuses, def:delivery-suspension}
+  Under every reading, no event moves a service out of \texttt{DELIVERED},
+  \texttt{REMOVED}, \texttt{EXPIRED}, \texttt{NOT CLAIMED} or
+  \texttt{FAILED TO DELIVER}: not a delivery, a cancellation or a
+  suspension.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-suspension, def:delivery-moves}
+  Check each final status and event.
+\end{proof}
+
+\begin{theorem}[Every service can reach a final status]
+  \label{thm:delivery-final-reachable}
+  \lean{Rules.OneOrder.Delivery.final_reachable}
+  \uses{def:delivery-final-statuses, def:delivery-suspension}
+  Under every reading, a service that is not in a final delivery status can
+  reach one through some sequence of events.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS}.
+\end{theorem}
+\begin{proof}
+  \uses{def:delivery-suspension}
+  Suspend the service and then remove it; a \texttt{REMOVED HOLD VALUE}
+  service reaches \texttt{REMOVED} when its value is released.
+\end{proof}
+
+\begin{theorem}[Closed orders keep their delivery statuses]
+  \label{thm:delivery-closed-order-refuses}
+  \lean{Rules.OneOrder.Delivery.closed_order_refuses_events}
+  \uses{thm:delivery-final-refuses, def:c07-order-status}
+  Under every reading of the sources and of the guide, no event changes the
+  delivery status of a service in a closed order.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:delivery-final-refuses, thm:one-order-closed}
+  A closed order's services are all \texttt{DELIVERED} or \texttt{REMOVED},
+  and both are final.
+\end{proof}
+
+\begin{theorem}[Orders whose services are all final are closed]
+  \label{thm:delivery-all-final-closed}
+  \lean{Rules.OneOrder.Delivery.all_final_order_closed}
+  \uses{def:delivery-final-statuses, def:c07-order-status, def:c05-holds-value}
+  Under every reading of the guide, an order whose services have all
+  reached a final delivery status is closed.
+
+  Counterexample: an order whose one flight is \texttt{NOT CLAIMED} after a
+  no-show is not closed.  Under a reading where \texttt{NOT CLAIMED} holds
+  value the order stays opened for good, since no event leaves a final
+  status; under one where it holds none the order has no status.  An order
+  whose one flight is \texttt{FAILED TO DELIVER} gives the same result.
+
+  Open point: the guide closes an order only when every service is
+  \texttt{DELIVERED} or \texttt{REMOVED}.  The business must decide whether
+  an order closes once every service is final, which changes C-07, and
+  whether \texttt{EXPIRED}, \texttt{NOT CLAIMED} and
+  \texttt{FAILED TO DELIVER} hold value.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c07-order-status, def:delivery-final-statuses}
+  Not proven.  The counterexample above shows the statement is false for
+  the rule as written.
+\end{proof}
+
 \begin{definition}[Held value after cancellation (C-117)]
   \label{def:delivery-removed-hold-value}
-  \uses{def:c05-holds-value, thm:c20-value-store, def:c15-cancel-order, def:refund, def:delivery-moves}
-  \notready
+  \lean{Rules.OneOrder.Delivery.held_value_only_released}
+  \uses{def:c05-holds-value, thm:c20-value-store, def:c15-cancel-order, def:refund, def:delivery-moves, def:delivery-end-service}
   A cancelled service moves to \texttt{REMOVED HOLD VALUE} while the airline
   keeps its value for reuse, and to \texttt{REMOVED} once that value is
   refunded, moved into a value store item, or used up by a paid change. The
@@ -180,12 +487,13 @@
 
 \begin{definition}[Expiry of an unclaimed service (C-118)]
   \label{def:delivery-expired-unclaimed}
-  \uses{def:instant, def:c05-holds-value, def:c07-order-status, def:c11-payment-time-limit, def:delivery-final-statuses}
-  \notready
+  \lean{Rules.OneOrder.Delivery.expire_marks_expired}
+  \uses{def:instant, def:c05-holds-value, def:c07-order-status, def:c11-payment-time-limit, def:delivery-final-statuses, def:delivery-end-service}
   A service with a consumption time limit moves to \texttt{EXPIRED} when the
   limit passes before the customer claims it, provided the service reached
   at least \texttt{CONFIRMED}. The OMS may set this automatically when the
-  limit passes, and \texttt{EXPIRED} is final.
+  limit passes, and \texttt{EXPIRED} is final.  The model has the move to
+  \texttt{EXPIRED} as an event; it does not model the time limit itself.
 
   Case to check: An unpaid \texttt{CONFIRMED} service whose consumption
   window ends before its payment time limit would become \texttt{EXPIRED}
@@ -206,8 +514,8 @@
 
 \begin{definition}[Passenger no-show (C-119)]
   \label{def:delivery-no-show}
-  \uses{def:c05-holds-value, def:refund, def:delivery-final-statuses, def:delivery-expired-unclaimed}
-  \notready
+  \lean{Rules.OneOrder.Delivery.no_show_marks_not_claimed}
+  \uses{def:c05-holds-value, def:refund, def:delivery-final-statuses, def:delivery-expired-unclaimed, def:delivery-end-service}
   A service moves to \texttt{NOT CLAIMED} when the passenger's own action or
   inaction, such as a no-show, prevents delivery. \texttt{NOT CLAIMED} is
   final, and its report to accounting lets the airline recognize the
@@ -232,7 +540,7 @@
 
 \begin{definition}[Refund after a failed delivery (C-120)]
   \label{def:delivery-failed-delivery-owed}
-  \uses{def:c05-holds-value, def:refund, def:delivery-final-statuses}
+  \uses{def:c05-holds-value, def:refund, def:delivery-final-statuses, thm:delivery-unable, thm:delivery-fail, thm:delivery-all-final-closed}
   \notready
   \texttt{FAILED TO DELIVER} records a delivery the airline or its provider
   could not perform because of its own limits. \texttt{UNABLE TO DELIVER}
@@ -303,7 +611,7 @@
 
 \begin{theorem}[No changes after closing (C-123)]
   \label{thm:delivery-closed-frozen}
-  \uses{def:c07-order-status, def:delivery-final-statuses}
+  \uses{def:c07-order-status, def:delivery-final-statuses, thm:delivery-closed-order-refuses}
   \notready
   Once an order is \texttt{CLOSED} it accepts no further change, including
   any change to a service's delivery status, though it can still be
@@ -314,7 +622,10 @@
   requires services \texttt{DELIVERED} or \texttt{REMOVED}, the code set
   requires items fully paid and services \texttt{DELIVERED}, refunded or
   \texttt{EXPIRED}, and the closing message once named as the only trigger
-  was withdrawn in 25.4. The business must pick one trigger for C-07.
+  was withdrawn in 25.4. The business must pick one trigger for C-07.  The
+  model proves only that no event changes the delivery status of a service
+  in a closed order; changes to items and service statuses are not
+  modelled.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/2531491864}{Order Accounting, Order Closing Example};
@@ -356,3 +667,16 @@
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages}.
 \end{theorem}
+
+\begin{definition}[The pilot's delivery states in ONE Order]
+  \label{def:delivery-pilot}
+  \lean{Rules.OneOrder.Delivery.fromPilotState, Rules.OneOrder.Delivery.fromPilotEvent, Rules.OneOrder.Delivery.pilot_step_within_table}
+  \uses{def:step, def:delivery-moves}
+  The pilot's four delivery states map to ONE Order delivery statuses:
+  ready to \texttt{READY TO PROCEED}, delivered to \texttt{DELIVERED},
+  cancelled to \texttt{REMOVED HOLD VALUE} and refunded to
+  \texttt{REMOVED}.  Its events map to delivery, a cancellation that holds
+  the value, and the release of that value.  Under every reading, each
+  pilot transition is a ONE Order move between the matching statuses, and
+  each event the pilot refuses is refused by the ONE Order table too.
+\end{definition}

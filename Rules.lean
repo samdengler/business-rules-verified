@@ -27,3 +27,6 @@ import Rules.OneOrder.Payment.Outcome
 import Rules.OneOrder.Payment.TimeLimit
 import Rules.OneOrder.Payment.Theorems
 import Rules.OneOrder.Payment.Examples
+import Rules.OneOrder.Delivery.Moves
+import Rules.OneOrder.Delivery.Theorems
+import Rules.OneOrder.Delivery.Examples
