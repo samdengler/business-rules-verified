@@ -2,7 +2,7 @@
 
 This brief prepares a motion piece that shows the model growing: nodes are identified from the ONE Order material, wait on business decisions, and turn into Lean rules and proven guarantees, while a few stay open with a counterexample. It describes the story, the data the piece can be built from, and the visual language the site already uses. The History tab of the site's [Explore page](https://samdengler.github.io/airline-order-verified/graph/?view=history) plays the same milestones in the browser, with each area as a box of dots that appear and change color. The old `/history/` address sends readers there.
 
-The piece exists and follows the storyboard below. [`motion/`](../motion/) is a [Remotion](https://www.remotion.dev) project: a React composition that reads `history/` and `build/frames/frames.json` when it is bundled, draws the cards and connectors on the shared canvas, and is rendered frame by frame in headless Chrome. `scripts/render-motion.sh` renders it to `motion/out/history.mp4` (1920 by 1080, 30 fps, H.264, 70 seconds) and its poster, the final state, to `motion/out/history-poster.jpg`. Both are committed, since CI does not render video, and the History tab shows the film above its step control. [`motion/README.md`](../motion/README.md) explains how it is made. [The piece as rendered](#the-piece-as-rendered) lists where it departs from the storyboard.
+The piece exists and follows the storyboard below. [`motion/`](../motion/) is a [Remotion](https://www.remotion.dev) project: a React composition that reads `history/` and `build/frames/frames.json` when it is bundled, draws the cards and connectors on the shared canvas, and is rendered frame by frame in headless Chrome. `scripts/render-motion.sh` renders it to `motion/out/history.mp4` (1920 by 1080, 30 fps, H.264, 85 seconds) and its poster, the final state, to `motion/out/history-poster.jpg`. They are committed, since CI does not render video. The History tab shows the film above its milestone player and plays it one step at a time. [`motion/README.md`](../motion/README.md) explains how it is made. [The piece as rendered](#the-piece-as-rendered) lists where it departs from the storyboard.
 
 ## The story, by milestone
 
@@ -22,13 +22,15 @@ Each milestone is a commit with a git tag `milestone/<name>` and a snapshot in [
 | 10 | `airline-change` | 314 | Airline-initiated change: 24 cards appear, 19 more green, 8 red. |
 | 11 | `offers-prices` | 348 | Offers and prices: 34 cards appear, 28 more green, 7 red. |
 | 12 | `ancillaries` | 382 | Ancillaries, seats and bundles: 34 cards appear, 24 more green, 11 red. |
-| 13 | `accounting` | 429 | Commission, accounting and settlement: 47 cards appear, 41 more green, 10 red. The canvas ends with 92 In Lean, 204 Proven, 58 open questions, 67 still needing a decision, 7 ready to build and 1 waiting. |
+| 13 | `accounting` | 429 | Commission, accounting and settlement: 47 cards appear, 41 more green, 10 red. |
+| 14 | `critique-before-fixes` | 429 | No change. The model as an independent review found it on 30 October: rules in four areas changed a service's delivery status without the delivery status table. |
+| 15 | `critique-fixes` | 432 | The fixes: a shared way to end a service from another area, a theorem that every rule changing a delivery status moves along the table, and a new red card, a cancelled flight that keeps a live service. One green card, orders cancelled at once are closed, turns red. The canvas ends with 93 In Lean, 204 Proven, 60 open questions, 67 still needing a decision, 7 ready to build and 1 waiting. |
 
-Amber falls from 133 at milestone 5 to 67 at milestone 13, while red rises from 3 to 58. Both directions are the point: the model settles what the sources settle, and turns the rest into questions with examples.
+Amber falls from 133 at milestone 5 to 67 at milestone 15, while red rises from 3 to 60. Both directions are the point: the model settles what the sources settle, and turns the rest into questions with examples.
 
 ## Storyboard
 
-About 70 seconds. Every frame uses the same canvas, so cards never move; they appear, change color, or pulse.
+About 85 seconds, in the nine steps the History tab plays one at a time. Every frame uses the same canvas, so cards never move; they appear, change color, or pulse.
 
 1. **The pilot** (0 to 8 s). Milestone 1 fades in at the top centre, zoomed to its box. The red card pulses once, with the caption "Two refunds of 60.00 against a payment of 100.00 return 120.00."
 2. **First survey** (8 to 14 s). Milestone 2's candidates fade in amber, grey and blue. The camera eases out to milestone 2's box.
@@ -44,7 +46,9 @@ About 70 seconds. Every frame uses the same canvas, so cards never move; they ap
    * Offers and prices: with a zero payment duration, the item can never be paid on time.
    * Ancillaries: one request gives seat 12B to two passengers.
    * Accounting: two pages split a 100.00 short payment 50 and 50, or 100 and 0.
-7. **Where it stands** (60 to 70 s). Undim, hold on the full canvas, and count up: 204 proven, 58 open questions, 67 still need a decision. Closing line: "Every red card is a question for the business, with the example that breaks the rule."
+7. **An independent review** (60 to 67 s). Milestone 14 changes nothing. Caption: "An independent review compares each criterion with its theorems, and each area with the others." Then every card dims except the rules that change a delivery status, with the caption "Rules in four areas change a delivery status without the table: changing a trip after its first flight turns that flight from DELIVERED to REMOVED."
+8. **The fixes** (67 to 75 s). Milestone 15's three cards fade in, with connectors from the rules to the new theorem, and "orders cancelled at once are closed" turns red. Caption: "Every rule that ends a service now goes through the table, and one theorem checks every rule that changes a delivery status." Then both new red cards pulse, a callout names the one that turned, and the caption reads "The table cannot end a REQUESTED service, so a cancelled unpaid order is not closed and a cancelled flight keeps a live bag."
+9. **Where it stands** (75 to 85 s). Undim, hold on the full canvas, and count up: 204 proven, 60 open questions, 67 still need a decision. Closing line: "Every red card is a question for the business, with the example that breaks the rule."
 
 Motion: a new card fades in and scales from 96 to 100 percent over about 300 ms; a status change crossfades the rim and tint over about 400 ms; a new red card pulses its rim once. The camera moves are slow eases between the boxes in `frames.json`.
 
@@ -83,6 +87,7 @@ lake exe status                                   # current statuses
 python3 scripts/graph_history.py snapshot <name> "<one sentence on what changed>" --tag
 python3 scripts/graph_history.py layout           # recompute shared positions
 python3 scripts/graph_history.py frames           # redraw build/frames/ (add --dark for dark frames)
+scripts/render-motion.sh                          # the film and its poster; commit motion/out/
 git push origin main --follow-tags
 ```
 
@@ -90,7 +95,9 @@ git push origin main --follow-tags
 
 ## The piece as rendered
 
-The beats run as the storyboard times them: the pilot 0 to 8 s, the first survey 8 to 14 s, starting small 14 to 18 s, the foundations 18 to 24 s, the second survey 24 to 33 s, the eight areas 3.375 s each from 33 to 60 s, and where it stands 60 to 70 s. A new area milestone adds a beat of the same length. Where the piece departs from the storyboard:
+The beats run as the storyboard times them: the pilot 0 to 8 s, the first survey 8 to 14 s, starting small 14 to 18 s, the foundations 18 to 24 s, the second survey 24 to 33 s, the eight areas 3.375 s each from 33 to 60 s, the review 60 to 67 s, the fixes 67 to 75 s, and where it stands 75 to 85 s. The steps are the storyboard's sections, in `STEPS` in `motion/src/story.ts`. A new milestone stops the bundle until the storyboard places it, and the steps move with it. Where the piece departs from the storyboard:
+
+* Each step ends on a still frame, since the History tab pauses there: `motion/src/story.ts` checks that nothing moves in the half second before. To make room, the pilot's camera reaches the refund card at 7 s instead of 7.8 s, the camera moves to the foundations' box between 18 and 20 s instead of drifting from 11 to 18 s, an area's new cards fade in within its first second and its changes within 1.3 s, and an area's callout fades with the end of its beat.
 
 * The captions, the milestone and the counts of each status are in a band at the top of the frame. A browser's video controls sit at the bottom, so on the paused poster they cover cards and leave the captions readable.
 * The counters count the cards on screen as they appear and change, with the change from the previous milestone beside each count. At the end of every beat they equal that milestone's counts in `history/index.json`; the composition stops if they do not.
@@ -104,5 +111,5 @@ The beats run as the storyboard times them: the pilot 0 to 8 s, the first survey
 ## Open for the follow-up
 
 * The captions above are our own words about the model's examples. They quote nothing from IATA's material.
-* The counts above will change as open questions are answered. After a new milestone, run `scripts/render-motion.sh` (which reruns `frames`) and commit `motion/out/`.
+* The counts above will change as open questions are answered. After a new milestone, run `scripts/render-motion.sh` (which reruns `frames`) and commit `motion/out/`. The site build stops until the film is rendered again, since `motion/out/history-film.json` records the milestones it was drawn from.
 * The film is rendered in the light theme. The composition takes `theme: "dark"`, and the page could offer a dark film with `<source media="(prefers-color-scheme: dark)">`, at the cost of a second file of about the same size in the repository.

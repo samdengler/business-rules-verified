@@ -1,0 +1,20 @@
+{
+ "milestones": [
+  "first-slice",
+  "candidates-identified",
+  "starting-small",
+  "oneorder-foundations",
+  "second-survey",
+  "change-cancellation",
+  "payment",
+  "delivery",
+  "order-creation",
+  "airline-change",
+  "offers-prices",
+  "ancillaries",
+  "accounting",
+  "critique-before-fixes",
+  "critique-fixes"
+ ],
+ "source": "99766cbdf4f4f71ec208e9af51221c11bbb65d540a4b5f10da0a85b5c81fd063"
+}

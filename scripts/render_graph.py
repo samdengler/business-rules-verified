@@ -24,8 +24,10 @@ Statuses come from build/status.json through scripts/render_progress.py, so
 the page changes when the model does.
 """
 
+import hashlib
 import html
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -40,6 +42,52 @@ HERE = Path(__file__).resolve().parent
 CARD_W = 184          # card width
 NAME_CHARS = 25       # characters per name line at 13/600
 LINE = 17             # name line height
+
+MOTION = ROOT / "motion"
+FILM_RECORD = MOTION / "out" / "history-film.json"
+
+
+def film_source():
+    """What the film in motion/out/ is drawn from: the milestones in history/
+    and a hash of the composition's source."""
+    h = hashlib.sha256()
+    for p in sorted((MOTION / "src").glob("*.ts*")):
+        h.update(p.name.encode() + b"\0" + p.read_bytes())
+    names = [m["name"] for m in json.loads((ROOT / "history" / "index.json").read_text())["milestones"]]
+    return {"milestones": names, "source": h.hexdigest()}
+
+
+def film_steps():
+    """The film's steps from STEPS in motion/src/story.ts: for each, its title,
+    its start in seconds and where the page pauses after it."""
+    if not FILM_RECORD.exists() or json.loads(FILM_RECORD.read_text()) != film_source():
+        sys.exit(f"{FILM_RECORD.relative_to(ROOT)} does not match history/ and motion/src/: the film is older than "
+                 "the milestones or the storyboard.  Run scripts/render-motion.sh and commit motion/out/.")
+    src = (MOTION / "src" / "story.ts").read_text()
+    table = re.search(r"export const STEPS = \[\n(.*?)\n\];", src, re.S)
+    rest = re.search(r"export const REST_SECONDS = ([\d.]+);", src)
+    if not table or not rest:
+        sys.exit("motion/src/story.ts: no STEPS table or REST_SECONDS")
+    steps = []
+    for line in table.group(1).splitlines():
+        m = re.fullmatch(r'\s*\{ start: ([\d.]+), title: "([^"]+)" \},?', line)
+        if not m:
+            sys.exit(f"motion/src/story.ts: cannot read the step {line.strip()!r}; keep one step to a line")
+        steps.append({"start": float(m.group(1)), "title": m.group(2)})
+    for i, s in enumerate(steps):
+        s["rest"] = steps[i + 1]["start"] - float(rest.group(1)) if i + 1 < len(steps) else None
+    # motion/README.md lists the steps under the poster.
+    readme = [x for x in (MOTION / "README.md").read_text().splitlines() if re.fullmatch(r"\d+\. .+ \(\d+:\d\d\)", x)]
+    want = [f"{i + 1}. {s['title']} ({clock(s['start'])})" for i, s in enumerate(steps)]
+    if readme != want:
+        sys.exit("motion/README.md lists the film's steps as\n  " + "\n  ".join(readme)
+                 + "\nand STEPS in motion/src/story.ts gives\n  " + "\n  ".join(want))
+    return steps
+
+
+def clock(seconds):
+    s = round(seconds)
+    return f"{s // 60}:{s % 60:02d}"
 
 
 def wrap(text, width=NAME_CHARS):
@@ -310,6 +358,10 @@ def page(m, history):
     cluster_svg = clusters(m, history["members"], history["statuses"], history["titles"], history["pairs"])
     ms = history["data"]["milestones"]
     steps = "".join(f'<button title="{html.escape(x["name"])}">{x["seq"]}</button>' for x in ms)
+    film = film_steps()
+    film_list = "".join(
+        f'<li data-start="{s["start"]:g}"' + (f' data-rest="{s["rest"]:g}"' if s["rest"] is not None else "")
+        + f'>{html.escape(s["title"])} <span class="time">{clock(s["start"])}</span></li>' for s in film)
     lens = "".join(f'<button data-area="{html.escape(a)}">{html.escape(short(a))} <span>{len(m.area_nodes[a])}</span></button>'
                    for a in m.order)
     groups = {}
@@ -427,8 +479,10 @@ def page(m, history):
       <source src="../motion/history.mp4" type="video/mp4">
       <a href="../motion/history.mp4">Download the film</a>
     </video>
-    <figcaption id="film-caption">A film of the graph growing card by card over the {len(ms)} milestones; the step
-    control below goes through them one milestone at a time.</figcaption>
+    <ol class="film-steps">{film_list}</ol>
+    <figcaption id="film-caption">A film of the graph growing card by card over the {len(ms)} milestones, in
+    {len(film)} steps. Each step stops on its last frame. The step control below goes through the milestones one at a
+    time.</figcaption>
   </figure>
   <div class="player">
     <button class="play">Play</button>

@@ -46,7 +46,7 @@ A new requirement needs `{include 1 Review.Generated.<ID without the dash>}` (su
 ## Branches, tags and milestones
 
 - `main` grows toward as much of ONE Order as the public material allows. The `starting-small` branch (tag `snapshot/starting-small`) keeps the version to propose for an internal pilot; fixes to that version go on that branch.
-- Each milestone (a survey round's candidates added, a capability's rules in Lean) gets a snapshot and an annotated tag with `python3 scripts/graph_history.py snapshot <name> "<sentence>" --tag`, then `python3 scripts/graph_history.py layout`. `docs/motion-brief.md` explains why: the snapshots feed a motion piece about how the graph grew.
+- Each milestone (a survey round's candidates added, a capability's rules in Lean) gets a snapshot and an annotated tag with `python3 scripts/graph_history.py snapshot <name> "<sentence>" --tag`, then `python3 scripts/graph_history.py layout` and `scripts/render-motion.sh`, and commit `motion/out/`. `docs/motion-brief.md` explains why: the snapshots feed a motion piece about how the graph grew. The site build stops while the film is older than the milestones or `motion/src/`, and the storyboard in `motion/src/story.ts` stops the render until it places a new milestone.
 - After a milestone, run `scripts/render-motion.sh` and commit `motion/out/history.mp4` and `motion/out/history-poster.jpg`. CI does not render video, so the committed files are the ones the site publishes. A milestone after `accounting` gets an area beat of its own; give it an open question and its example in `AREA_QUESTIONS` in `motion/src/story.ts`. A new survey round needs a beat written there. `motion/README.md` explains the piece.
 
 ## ONE Order areas

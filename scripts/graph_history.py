@@ -4,6 +4,7 @@
   python3 scripts/graph_history.py snapshot <name> "<description>" [--commit REF] [--tag]
   python3 scripts/graph_history.py layout
   python3 scripts/graph_history.py frames [--dark]
+  python3 scripts/graph_history.py film
 
 `snapshot` saves the graph at a commit (HEAD by default) as
 history/NNNN-<name>.json and adds it to history/index.json; with --tag it
@@ -24,6 +25,11 @@ same canvas, and writes build/frames/frames.json: for each milestone, the
 nodes that appear, the nodes whose status changes and from what, and the box
 around the nodes present, for a camera to follow.  `--dark` draws the frames
 in the site's dark colors.
+
+`film` records what the rendered film in motion/out/ was drawn from: the
+milestones and a hash of motion/src/.  scripts/render-motion.sh runs it after
+a render, and scripts/render_graph.py stops the site build when the record no
+longer matches, so the committed film is never older than the milestones.
 
 The snapshots feed the motion piece described in docs/motion-brief.md.
 """
@@ -193,5 +199,8 @@ if __name__ == "__main__":
         union_layout()
     elif args[:1] == ["frames"]:
         frames("dark" if "--dark" in args else "light")
+    elif args == ["film"]:
+        render_graph.FILM_RECORD.write_text(json.dumps(render_graph.film_source(), indent=1) + "\n")
+        print(f"wrote {render_graph.FILM_RECORD.relative_to(ROOT)}")
     else:
         sys.exit(__doc__)

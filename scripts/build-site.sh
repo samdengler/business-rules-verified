@@ -38,4 +38,4 @@ python3 scripts/render_airline.py
 scripts/build-wasm.sh
 
 scripts/assemble-site.sh
-echo "site/ is ready; preview with: python3 -m http.server -d site"
+echo "site/ is ready; preview with: python3 scripts/serve_site.py"

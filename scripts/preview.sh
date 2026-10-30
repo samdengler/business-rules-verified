@@ -38,4 +38,4 @@ if command -v rustup >/dev/null; then scripts/build-wasm.sh; fi
 ALLOW_MISSING=1 scripts/assemble-site.sh
 
 echo "serving site/ at http://localhost:$port/ (Ctrl-C to stop)"
-python3 -m http.server -d site "$port"
+python3 scripts/serve_site.py "$port"

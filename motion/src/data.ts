@@ -23,6 +23,7 @@ type SnapNode = {
   area: string;
   status: Status;
   statusWords: string;
+  uses: string[];
 };
 
 type IndexMilestone = {

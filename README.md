@@ -1008,4 +1008,22 @@ Choices made where the plan left room, in the order they came up.
     DELIVER service, so an unpaid order with one is not closed by
     cancelling it (ONE-203.2), and a flight the airline cancels can leave a
     REQUESTED or IN PROGRESS service live (ONE-704.6). The graph snapshot
-    `critique-before-fixes` records the model as the critique found it.
+    `critique-before-fixes` records the model as the critique found it, and
+    the milestone `critique-fixes` the model after the fixes.
+48. **The film plays one step at a time, and the build stops when it is
+    stale.** The film was rendered before the critique's first snapshot was
+    recorded, and nothing noticed. Its storyboard treated every milestone
+    after the second survey as an area being written, so it could not even
+    be rendered again. It now has a step for the review and one for the
+    fixes. `scripts/render-motion.sh` records the milestones and a hash of
+    `motion/src/` in `motion/out/history-film.json`, and
+    `scripts/render_graph.py` stops the site build when they no longer
+    match. The History tab plays the film in the nine steps of `STEPS` in
+    `motion/src/story.ts`, listed under it with their start times: a step
+    plays and stops on its last frame, and buttons go to the previous or
+    next step, replay one, or play to the end. The story checks that
+    nothing moves in the half second before each pause, so the page stops
+    on a still frame with its caption in full. `motion/README.md` shows the
+    film's last frame, linked to the History tab, with the same list of
+    steps. A GIF of the film for GitHub was tried and left out: at a size
+    where captions stay readable it was 8 MB, and the site plays the MP4.

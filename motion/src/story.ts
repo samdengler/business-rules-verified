@@ -22,6 +22,33 @@ export const DIM = 0.2; // the opacity of other areas during an area's beat
 
 const sec = (s: number) => Math.round(s * FPS);
 
+// The steps the History tab plays one at a time, with the start of each in
+// seconds.  scripts/render_graph.py reads this table for the list of steps
+// under the film, so keep one step to a line.  The page pauses REST_SECONDS
+// before the next step starts, and the check at the end of this file makes
+// sure nothing moves for half a second before that frame.
+export const STEPS = [
+  { start: 0, title: "The pilot" },
+  { start: 8, title: "First survey" },
+  { start: 14, title: "Starting small" },
+  { start: 18, title: "Foundations" },
+  { start: 24, title: "Second survey" },
+  { start: 33, title: "Each area in Lean" },
+  { start: 60, title: "An independent review" },
+  { start: 67, title: "The fixes" },
+  { start: 75, title: "Where it stands" },
+];
+export const REST_SECONDS = 0.3;
+const FINAL_LENGTH = 10;
+
+// How captions and the question callout fade (History.tsx draws them).
+export const CAPTION_IN = 6;
+export const CAPTION_RISE = 10; // a caption rises 10 px into place
+export const CAPTION_OUT = 4;
+export const QUESTION_IN = 8;
+export const QUESTION_OUT = 6;
+export const DIM_CHANGE = 12; // other areas dim or undim at the start of a beat
+
 export type Track = {
   id: string;
   x0: number; // top left corner on the canvas
@@ -43,7 +70,7 @@ export type Beat = {
   m: number; // index of the milestone on screen
   title: string;
   captions: Caption[];
-  focus?: { area: string; ids: Set<string> }; // dim every other card
+  focus?: { area?: string; ids: Set<string> }; // dim every other card
   question?: { id: string; from: number; to: number; callout: boolean };
   final?: boolean;
 };
@@ -187,7 +214,7 @@ const hold = (at: number) => camera.push({ at, box: camera[camera.length - 1].bo
   const cx = b.x + b.width / 2 + (card.x - (b.x + b.width / 2)) * 0.35;
   const cy = b.y + b.height / 2 + (card.y - (b.y + b.height / 2)) * 0.35;
   const closer = { x: cx - (b.width * k) / 2, y: cy - (b.height * k) / 2, width: b.width * k, height: b.height * k };
-  camera.push({ at: 0, box: b }, { at: at - sec(0.4), box: b }, { at: sec(7.8), box: closer });
+  camera.push({ at: 0, box: b }, { at: at - sec(0.4), box: b }, { at: sec(7), box: closer });
   beats.push({
     from: 0,
     to: sec(8),
@@ -249,7 +276,8 @@ const hold = (at: number) => camera.push({ at, box: camera[camera.length - 1].bo
   const at = sec(21.2);
   for (const id of opened) tracks.get(id)!.pulses.push(at);
   pulseNewOpen(m, new Set(opened));
-  camera.push({ at: sec(18), box: m.box });
+  hold(sec(18));
+  camera.push({ at: sec(20), box: m.box });
   beats.push({
     from: sec(18),
     to: sec(24),
@@ -291,10 +319,14 @@ const hold = (at: number) => camera.push({ at, box: camera[camera.length - 1].bo
   });
 }
 
-// 6. Eight areas (33 to 60 s): each area in Lean in turn, with the others dimmed.
+// 6. Each area in Lean (33 to 60 s): each area in turn, with the others dimmed.
 const AREA_BEAT = 3.375;
-let t0 = 33;
-for (let i = 5; i < milestones.length; i++) {
+const REVIEW = "critique-before-fixes";
+const FIXES = "critique-fixes";
+const stepStart = (title: string) => STEPS.find((s) => s.title === title)!.start;
+let t0 = stepStart("Each area in Lean");
+let i = 5;
+for (; i < milestones.length && milestones[i].name !== REVIEW; i++) {
   const m = milestones[i];
   const from = sec(t0);
   const to = sec(t0 + AREA_BEAT);
@@ -306,8 +338,8 @@ for (let i = 5; i < milestones.length; i++) {
   }
   const area = [...byArea.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
   if (!area) throw new Error(`${m.name} adds no cards, so it has no area to show`);
-  appearAt(m, cascade(m.appear, from + sec(0.2), from + sec(1.2), 0.25));
-  changeAt(m, cascade(m.change.map((c) => c.id), from + sec(0.7), from + sec(1.6), 0.25));
+  appearAt(m, cascade(m.appear, from + sec(0.2), from + sec(1), 0.25));
+  changeAt(m, cascade(m.change.map((c) => c.id), from + sec(0.6), from + sec(1.3), 0.25));
   pulseNewOpen(m);
   const q = AREA_QUESTIONS[m.name];
   const captions: Caption[] = [];
@@ -315,7 +347,7 @@ for (let i = 5; i < milestones.length; i++) {
   if (q) {
     const at = Math.max(openAt(q.id, m) + 6, from + sec(0.5));
     captions.push({ from: from + 2, to, chip: OPEN, text: q.text });
-    question = { id: q.id, from: at, to: to - 3, callout: true };
+    question = { id: q.id, from: at, to, callout: true };
   } else {
     const prev = milestones[i - 1].counts;
     captions.push({
@@ -328,11 +360,100 @@ for (let i = 5; i < milestones.length; i++) {
   beats.push({ from, to, m: i, title: area, captions, focus: { area, ids }, question });
   t0 += AREA_BEAT;
 }
+if (t0 !== stepStart("An independent review")) {
+  throw new Error(`the areas end at ${t0} s and the next step starts at ${stepStart("An independent review")} s; move the steps in STEPS`);
+}
 camera.push({ at: sec(t0), box: milestones[milestones.length - 1].box });
 
-// 7. Where it stands (10 s): undim, hold on the full canvas, count up.
-export const FINAL_FROM = sec(t0);
-export const DURATION = sec(t0 + 10);
+const NUMBER_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+const words = (n: number) => NUMBER_WORDS[n] ?? String(n);
+
+// The rules that change a delivery status: the cards the theorem added by the
+// fixes uses, as they were before the fixes.
+const ACROSS = "thm:delivery-moves-across-areas";
+expect(i, REVIEW);
+expect(i + 1, FIXES);
+if (milestones.length > i + 2) {
+  throw new Error(`the storyboard ends with ${FIXES}; extend motion/src/story.ts for ${milestones[i + 2].name}`);
+}
+const fixes = milestones[i + 1];
+const statusRules = (fixes.nodes.get(ACROSS)?.uses ?? []).filter((id) => milestones[i].nodes.has(id));
+if (!statusRules.length) throw new Error(`${ACROSS} uses no card that was there before the fixes`);
+
+// 7. An independent review (60 to 67 s): milestone 14 changes nothing.  Hold,
+// then dim every card except the rules that changed a delivery status without
+// the delivery status table.
+{
+  const m = milestones[i];
+  if (m.appear.length || m.change.length) throw new Error(`the storyboard holds on ${REVIEW}, which should change nothing`);
+  const from = sec(stepStart("An independent review"));
+  const split = from + sec(3);
+  const to = sec(stepStart("The fixes"));
+  const areas = new Set(statusRules.map((id) => m.nodes.get(id)!.area));
+  beats.push({
+    from,
+    to: split,
+    m: i,
+    title: "An independent review",
+    captions: [{ from: from + 6, to: split, text: "An independent review compares each criterion with its theorems, and each area with the others." }],
+  });
+  beats.push({
+    from: split,
+    to,
+    m: i,
+    title: "An independent review",
+    captions: [
+      {
+        from: split + 6,
+        to,
+        text: `Rules in ${words(areas.size)} areas change a delivery status without the table: changing a trip after its first flight turns that flight from DELIVERED to REMOVED.`,
+      },
+    ],
+    focus: { ids: new Set(statusRules) },
+  });
+}
+
+// 8. The fixes (67 to 75 s): the shared way to end a service and the theorem
+// over every rule appear; the guarantees the table cannot keep turn red and
+// pulse when their caption appears.
+{
+  const m = fixes;
+  const from = sec(stepStart("The fixes"));
+  const to = sec(stepStart("Where it stands"));
+  appearAt(m, cascade(m.appear, from + sec(0.4), from + sec(1.4), 0.25));
+  changeAt(m, cascade(m.change.map((c) => c.id), from + sec(0.9), from + sec(1.6), 0.25));
+  const opened = [...m.appear.filter((id) => m.nodes.get(id)!.status === "open"), ...m.change.filter((c) => c.to === "open").map((c) => c.id)];
+  const at = from + sec(3.4);
+  for (const id of opened) tracks.get(id)!.pulses.push(at);
+  pulseNewOpen(m, new Set(opened));
+  const closed = "thm:change-cancellation-cancelled-closed";
+  openAt(closed, m);
+  beats.push({
+    from,
+    to,
+    m: i + 1,
+    title: "The fixes",
+    captions: [
+      {
+        from: from + 6,
+        to: at,
+        text: "Every rule that ends a service now goes through the table, and one theorem checks every rule that changes a delivery status.",
+      },
+      {
+        from: at,
+        to,
+        chip: opened.length === 1 ? OPEN : "Open questions",
+        text: "The table cannot end a REQUESTED service, so a cancelled unpaid order is not closed and a cancelled flight keeps a live bag.",
+      },
+    ],
+    focus: { ids: new Set([...m.appear, ...m.change.map((c) => c.id), ...statusRules]) },
+    question: { id: closed, from: at + 6, to, callout: true },
+  });
+}
+
+// 9. Where it stands (10 s): undim, hold on the full canvas, count up.
+export const FINAL_FROM = sec(stepStart("Where it stands"));
+export const DURATION = FINAL_FROM + sec(FINAL_LENGTH);
 beats.push({
   from: FINAL_FROM,
   to: DURATION,
@@ -388,6 +509,39 @@ for (const b of beats) {
 
 export function beatAt(frame: number): Beat {
   return beats.find((b) => frame >= b.from && frame < b.to) ?? beats[beats.length - 1];
+}
+
+// Every step starts with a beat, and ends on a still frame: for half a second
+// before the frame the page pauses on, no card fades in, changes or pulses,
+// the camera holds, no beat starts, and each caption on screen is fully in.
+const sameBox = (a: Box, b: Box) => a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+for (const [k, s] of STEPS.entries()) {
+  const from = sec(s.start);
+  const end = k + 1 < STEPS.length ? sec(STEPS[k + 1].start) : DURATION;
+  if (!beats.some((b) => b.from === from)) throw new Error(`no beat starts with the step "${s.title}"`);
+  const rest = k + 1 < STEPS.length ? end - sec(REST_SECONDS) : end - 1;
+  const still = rest - sec(0.5);
+  // A change over frames [x, y) is on screen between `still` and two frames
+  // after `rest`, where a browser may land when the page seeks.
+  const during = (x: number, y: number) => x <= rest + 2 && y > still;
+  const fail = (what: string) => {
+    throw new Error(`the step "${s.title}" does not end on a still frame: ${what}`);
+  };
+  for (const t of trackList) {
+    if (during(t.appear, t.appear + APPEAR)) fail(`${t.id} fades in`);
+    for (const x of t.states.slice(1)) if (during(x.at, x.at + CHANGE)) fail(`${t.id} changes status`);
+    for (const p of t.pulses) if (during(p, p + PULSE)) fail(`${t.id} pulses`);
+  }
+  for (let j = 1; j < camera.length; j++) {
+    if (!sameBox(camera[j - 1].box, camera[j].box) && during(camera[j - 1].at, camera[j].at)) fail("the camera moves");
+  }
+  for (const b of beats) if (b.from !== 0 && during(b.from, b.from + DIM_CHANGE)) fail(`the beat "${b.title}" starts`);
+  const b = beatAt(rest);
+  for (const c of b.captions) {
+    if (during(c.from, c.from + CAPTION_RISE) || during(c.to - CAPTION_OUT + 1, c.to + 1)) fail(`a caption of "${b.title}" fades`);
+  }
+  const q = b.question;
+  if (q && (during(q.from, q.from + QUESTION_IN) || during(q.to - QUESTION_OUT + 1, q.to + 1))) fail(`the callout of "${b.title}" fades`);
 }
 
 export const lastMilestone = milestones[milestones.length - 1];

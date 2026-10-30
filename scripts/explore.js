@@ -413,6 +413,160 @@ const Graph = (() => {
   return { show };
 })();
 
+// ---------------------------------------------------------------- the film
+
+// Plays the film in the History tab one step at a time.  Each item of the list
+// under the video is a step, with its start and the time to pause at, just
+// before the next step starts; motion/src/story.ts makes sure nothing moves
+// there.  The browser's controls are replaced by a seek bar and buttons.
+// Without this script the film keeps the browser's controls and the list
+// stays a plain list.
+function filmPlayer(video, list) {
+  const steps = [...list.querySelectorAll("li[data-start]")].map((li) => ({
+    li, start: +li.dataset.start, rest: li.dataset.rest ? +li.dataset.rest : null, title: li.firstChild.textContent.trim(),
+  }));
+  if (!steps.length) return;
+  const clock = (t) => { const s = Math.round(t || 0); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+  const endOf = (i) => steps[i].rest ?? (video.duration || Infinity);
+  const stepAt = (t) => { for (let i = steps.length - 1; i >= 0; i--) if (t >= steps[i].start - 0.05) return i; return 0; };
+
+  video.controls = false;
+  video.tabIndex = 0;
+  const seek = document.createElement("div");
+  seek.className = "film-seek";
+  seek.innerHTML = '<input type="range" min="0" step="0.1" value="0" aria-label="Position in the film"><span class="film-time">0:00</span>';
+  const range = seek.querySelector("input"), time = seek.querySelector(".film-time");
+  const bar = document.createElement("div");
+  bar.className = "film-controls";
+  bar.innerHTML = '<button type="button" data-act="prev">Previous</button><button type="button" data-act="replay">Replay step</button>'
+    + '<button type="button" class="primary" data-act="next"></button><button type="button" data-act="all"></button>'
+    + '<button type="button" data-act="full">Full screen</button><span class="film-status" aria-live="polite"></span>';
+  list.before(seek, bar);
+  const btn = Object.fromEntries([...bar.querySelectorAll("button")].map((b) => [b.dataset.act, b]));
+  const status = bar.querySelector(".film-status");
+  steps.forEach((st, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = `<span class="n">${i + 1}</span><span class="label"></span><span class="time">${clock(st.start)}</span>`;
+    b.querySelector(".label").textContent = st.title;
+    b.addEventListener("click", () => playStep(i));
+    st.li.replaceChildren(b);
+    st.button = b;
+  });
+  list.classList.add("ready");
+
+  // mode: "start" (nothing played yet), "step" (playing one step), "rest" (a
+  // step has finished), "all" (playing to the end), "paused" (stopped part way)
+  // or "ended".  `resume` is the mode a pause returns to.
+  let mode = "start", resume = "all", current = -1, stopAt = Infinity, dragging = false, looping = false;
+
+  function render() {
+    steps.forEach((st, i) => { if (i === current) st.button.setAttribute("aria-current", "step"); else st.button.removeAttribute("aria-current"); });
+    const last = current >= steps.length - 1;
+    btn.prev.disabled = current <= 0;
+    btn.replay.disabled = current < 0;
+    btn.next.textContent = current < 0 ? "Play step 1" : "Next step";
+    btn.next.disabled = last;
+    btn.all.textContent = !video.paused ? "Pause" : mode === "paused" ? "Resume" : mode === "rest" && !last ? "Play to the end" : "Play all";
+    status.textContent = current < 0 ? `${steps.length} steps` : `Step ${current + 1} of ${steps.length}: ${steps[current].title}`;
+    if (!dragging) range.value = video.currentTime;
+    time.textContent = `${clock(video.currentTime)} / ${clock(video.duration)}`;
+  }
+  function play() {
+    const p = video.play();
+    if (p && p.catch) p.catch(() => {});
+    if (!looping) { looping = true; requestAnimationFrame(tick); }
+  }
+  function playStep(i) {
+    if (i < 0 || i >= steps.length) return;
+    mode = "step";
+    current = i;
+    stopAt = endOf(i);
+    video.currentTime = steps[i].start;
+    play();
+    render();
+  }
+  function playToEnd(fromStart) {
+    if (fromStart) { video.currentTime = 0; current = 0; }
+    mode = "all";
+    play();
+    render();
+  }
+  function pause() {
+    resume = mode === "step" ? "step" : "all";
+    mode = "paused";
+    video.pause();
+    render();
+  }
+  // The button beside "Next step": pause, resume, play to the end, or play all.
+  function toggle() {
+    if (!video.paused) return pause();
+    if (mode === "paused") { mode = resume; play(); return render(); }
+    if (mode === "rest" && current < steps.length - 1) return playToEnd(false);
+    playToEnd(true);
+  }
+  // A click on the film or the space bar: after a step, the next step.
+  function advance() {
+    if (mode === "rest" && current < steps.length - 1) return playStep(current + 1);
+    if (mode === "start") return playStep(0);
+    toggle();
+  }
+  function tick() {
+    if (mode === "step" && video.currentTime >= stopAt - 0.04) {
+      // Rest on the step's last still frame, going back to it if playback
+      // ran past.
+      mode = "rest";
+      video.pause();
+      if (video.currentTime > stopAt) video.currentTime = stopAt;
+    } else if (mode === "all") {
+      current = stepAt(video.currentTime);
+    }
+    render();
+    if (!video.paused) requestAnimationFrame(tick);
+    else looping = false;
+  }
+
+  btn.prev.addEventListener("click", () => playStep(Math.max(current - 1, 0)));
+  btn.replay.addEventListener("click", () => playStep(Math.max(current, 0)));
+  btn.next.addEventListener("click", () => playStep(current + 1));
+  btn.all.addEventListener("click", toggle);
+  video.addEventListener("click", advance);
+  video.addEventListener("keydown", (e) => {
+    if (e.key === " " || e.key === "k") { e.preventDefault(); advance(); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); playStep(current + 1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); playStep(Math.max(current - 1, 0)); }
+  });
+  const fig = video.closest("figure");
+  btn.full.addEventListener("click", () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (fig.requestFullscreen) fig.requestFullscreen();
+  });
+  document.addEventListener("fullscreenchange", () => {
+    btn.full.textContent = document.fullscreenElement === fig ? "Exit full screen" : "Full screen";
+  });
+  // Seeking with the bar pauses there; "Resume" plays on to the end.
+  range.addEventListener("input", () => {
+    dragging = true;
+    if (!video.paused) video.pause();
+    video.currentTime = +range.value;
+    current = stepAt(video.currentTime);
+    mode = "paused";
+    resume = "all";
+    render();
+  });
+  range.addEventListener("change", () => { dragging = false; render(); });
+  // Paused from elsewhere, such as the milestone player below.
+  video.addEventListener("pause", () => {
+    if (mode === "step" || mode === "all") { resume = mode; mode = "paused"; }
+    render();
+  });
+  video.addEventListener("loadedmetadata", () => { if (video.duration) range.max = video.duration; render(); });
+  video.addEventListener("timeupdate", () => { if (video.paused) render(); });
+  video.addEventListener("ended", () => { mode = "ended"; current = steps.length - 1; render(); });
+  if (video.duration) range.max = video.duration;
+  render();
+}
+
 // ---------------------------------------------------------------- history
 
 const History = (() => {
@@ -434,10 +588,11 @@ const History = (() => {
   const IDX = Object.fromEntries(H.ids.map((id, i) => [id, i]));
   const stage = view.querySelector(".history-stage");
   const playBtn = view.querySelector(".play");
-  // The film above the step control.  It never starts by itself, so a reader
-  // who asks for reduced motion sees only its poster until they press play.
-  // Playing one stops the other.
+  // The film above the step control, played a step at a time.  It never starts
+  // by itself, so a reader who asks for reduced motion sees only its poster
+  // until they press play.  Playing one stops the other.
   const film = view.querySelector(".film video");
+  if (film) filmPlayer(film, view.querySelector(".film-steps"));
   let at = -1, timer = null;
   function paint(i) {
     const m = H.milestones[i], prev = i > 0 ? H.milestones[i - 1] : null;
@@ -494,7 +649,7 @@ const History = (() => {
   view.querySelector("[data-step=next]").onclick = () => { stop(); step(Math.min(H.milestones.length - 1, at + 1)); };
   view.querySelectorAll(".steps button").forEach((b, k) => b.onclick = () => { stop(); step(k); });
   document.addEventListener("keydown", (e) => {
-    if (state.view !== "history" || e.target.closest("input, select, textarea")) return;
+    if (state.view !== "history" || e.target.closest("input, select, textarea, .film")) return;
     if (e.key === "ArrowRight") view.querySelector("[data-step=next]").click();
     if (e.key === "ArrowLeft") view.querySelector("[data-step=prev]").click();
   });

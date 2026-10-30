@@ -101,10 +101,32 @@
 #view-history > * { flex-shrink: 0; }
 #view-history .history-stage { flex: none; height: clamp(360px, calc(100vh - 200px), 760px); }
 @media (max-width: 900px) { #view-history .history-stage { height: auto; min-height: 0; } #view-history .history-stage svg { height: auto; } }
-.film { margin: 0 28px 14px; width: min(1040px, max(480px, calc((100vh - 380px) * 16 / 9)), calc(100% - 56px)); }
+.film { margin: 0 28px 14px; width: min(1040px, max(480px, calc((100vh - 500px) * 16 / 9)), calc(100% - 56px)); }
 .film video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--surface);
-  border: 1px solid var(--ring); border-radius: 10px; }
+  border: 1px solid var(--ring); border-radius: 10px; cursor: pointer; }
 .film figcaption { margin-top: 6px; font-size: 13px; color: var(--ink-2); }
+/* The film's step player (filmPlayer in explore.js). */
+.film-seek { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.film-seek input[type=range] { flex: 1; margin: 0; accent-color: var(--ink); }
+.film-time { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 6.5em; text-align: right; }
+.film-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.film-controls button, .film-steps.ready button { font: 13px system-ui, sans-serif; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--ring); border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+.film-controls button.primary { background: var(--ink); border-color: var(--ink); color: var(--page); font-weight: 600; }
+.film-controls button:disabled { opacity: .45; cursor: default; }
+.film-controls button:not(:disabled):hover, .film-steps.ready button:hover { border-color: var(--axis); }
+.film-status { margin-left: auto; font-size: 13px; color: var(--muted); }
+.film-steps { margin: 6px 0 0; padding-left: 22px; font-size: 13px; color: var(--ink-2); }
+.film-steps .time { color: var(--muted); font-variant-numeric: tabular-nums; }
+.film-steps.ready { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px; padding: 0; }
+.film-steps.ready li { margin: 0; }
+.film-steps.ready button { width: 100%; height: 100%; text-align: left; display: flex; gap: 8px; align-items: baseline; padding: 5px 10px; }
+.film-steps .n { font-weight: 700; min-width: 1.1em; }
+.film-steps.ready .time { margin-left: auto; padding-left: 8px; font-size: 12px; }
+.film-steps.ready button[aria-current="step"] { border-color: var(--ink); box-shadow: inset 3px 0 0 var(--ink); }
+.film:fullscreen { background: var(--page); padding: 24px; overflow: auto; display: flex; flex-direction: column; justify-content: center; }
+.film:fullscreen video { max-height: 70vh; object-fit: contain; }
+@media (max-width: 760px) { .film-status { margin-left: 0; width: 100%; } }
 .history-stage { flex: 1; min-height: 360px; margin: 0 28px 12px; background: var(--surface); border: 1px solid var(--ring);
   border-radius: 10px; padding: 10px; display: flex; }
 .history-stage svg { width: 100%; height: 100%; }

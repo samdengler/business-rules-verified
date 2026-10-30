@@ -8,11 +8,17 @@ import {
   beatAt,
   beats,
   camera,
+  CAPTION_IN,
+  CAPTION_OUT,
+  CAPTION_RISE,
   countsAt,
   DIM,
+  DIM_CHANGE,
   FINAL_FROM,
   lastMilestone,
   PULSE,
+  QUESTION_IN,
+  QUESTION_OUT,
   STAGE_H,
   statusAt,
   type Track,
@@ -67,13 +73,13 @@ function shown(t: Track, f: number) {
 
 function focusIn(b: Beat | undefined, t: Track): number {
   if (!b?.focus) return 1;
-  return t.area[b.m] === b.focus.area || b.focus.ids.has(t.id) ? 1 : DIM;
+  return (b.focus.area !== undefined && t.area[b.m] === b.focus.area) || b.focus.ids.has(t.id) ? 1 : DIM;
 }
 
 function dimOf(t: Track, f: number, b: Beat, prev: Beat | undefined): number {
   const now = focusIn(b, t);
   if (!prev || t.appear >= b.from) return now;
-  return lerp(focusIn(prev, t), now, easeInOut(clamp((f - b.from) / 12)));
+  return lerp(focusIn(prev, t), now, easeInOut(clamp((f - b.from) / DIM_CHANGE)));
 }
 
 const mixColor = (a: string, b: string, k: number) => (k <= 0 ? a : k >= 1 ? b : mix(b, a, k));
@@ -293,7 +299,7 @@ function Captions({ beat, f, th, width }: { beat: Beat; f: number; th: Theme; wi
   return (
     <>
       {beat.captions.map((c, i) => {
-        const op = fade(f, c.from, c.to, 6, 4);
+        const op = fade(f, c.from, c.to, CAPTION_IN, CAPTION_OUT);
         if (op <= 0) return null;
         return (
           <div
@@ -308,7 +314,7 @@ function Captions({ beat, f, th, width }: { beat: Beat; f: number; th: Theme; wi
               textWrap: "balance",
               color: th.ink,
               opacity: op,
-              transform: `translateY(${(1 - easeOut(clamp((f - c.from) / 10))) * 10}px)`,
+              transform: `translateY(${(1 - easeOut(clamp((f - c.from) / CAPTION_RISE))) * 10}px)`,
             }}
           >
             {c.chip ? (
@@ -417,7 +423,7 @@ export const History: React.FC<HistoryProps> = ({ theme, at }) => {
   const edgeWidth = Math.max(1.25, 0.7 / cam.s);
   const q = beat.question;
   const qTrack = q ? byId.get(q.id) : undefined;
-  const qOp = q ? fade(f, q.from, q.to, 8, 6) : 0;
+  const qOp = q ? fade(f, q.from, q.to, QUESTION_IN, QUESTION_OUT) : 0;
   const countersOp = beat.final ? 1 - clamp((f - beat.from) / 10) : 1;
   return (
     <AbsoluteFill style={{ background: th.surface, fontFamily: FONT }}>
