@@ -13,6 +13,12 @@ import Review.Generated.ONE202
 import Review.Generated.ONE203
 import Review.Generated.ONE204
 import Review.Generated.ONE205
+import Review.Generated.ONE301
+import Review.Generated.ONE302
+import Review.Generated.ONE303
+import Review.Generated.ONE304
+import Review.Generated.ONE305
+import Review.Generated.ONE306
 import Review.OpenQuestions
 import Review.Generated.Questions
 import Review.Objects
@@ -58,6 +64,18 @@ Review.Generated.Front.html
 {include 1 Review.Generated.ONE204}
 
 {include 1 Review.Generated.ONE205}
+
+{include 1 Review.Generated.ONE301}
+
+{include 1 Review.Generated.ONE302}
+
+{include 1 Review.Generated.ONE303}
+
+{include 1 Review.Generated.ONE304}
+
+{include 1 Review.Generated.ONE305}
+
+{include 1 Review.Generated.ONE306}
 
 {include 1 Review.OpenQuestions}
 

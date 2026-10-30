@@ -20,3 +20,10 @@ import Rules.OneOrder.Change.Transfer
 import Rules.OneOrder.Change.Balance
 import Rules.OneOrder.Change.Theorems
 import Rules.OneOrder.Change.Examples
+import Rules.OneOrder.Payment.Basic
+import Rules.OneOrder.Payment.Status
+import Rules.OneOrder.Payment.Accept
+import Rules.OneOrder.Payment.Outcome
+import Rules.OneOrder.Payment.TimeLimit
+import Rules.OneOrder.Payment.Theorems
+import Rules.OneOrder.Payment.Examples

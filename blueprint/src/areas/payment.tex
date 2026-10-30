@@ -4,10 +4,11 @@
 
 \begin{definition}[Payment time limit (C-11)]
   \label{def:c11-payment-time-limit}
+  \lean{Rules.OneOrder.Payment.PayableItem, Rules.OneOrder.Payment.PayableOrder}
   \uses{def:c08-delivery-status, def:instant}
-  \notready
   A confirmed service waits for payment until the payment time limit the
-  airline gave the seller.
+  airline gave the seller.  In the model an order item carries its payment
+  time limit, if it has one, and its order carries the payments made for it.
 
   Open point: the source does not say what happens to the service when the
   limit passes without payment.
@@ -30,7 +31,8 @@
 
 \begin{definition}[Paying with several methods (C-13)]
   \label{def:c13-several-methods}
-  \uses{def:payment}
+  \lean{Rules.OneOrder.Payment.Transaction.status, Rules.OneOrder.Payment.Transaction, Rules.OneOrder.Payment.Method}
+  \uses{def:payment, def:payment-payment-status}
   Several payment methods can pay for one order item in a single payment.  The
   payment succeeds only if every method succeeds; if any fails, the whole
   payment fails.
@@ -38,10 +40,53 @@
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
 \end{definition}
 
+\begin{theorem}[A failed method fails the payment]
+  \label{thm:payment-status-failed}
+  \lean{Rules.OneOrder.Payment.status_failed_iff}
+  \uses{def:c13-several-methods}
+  A payment is \texttt{FAILED} exactly when the transaction of at least one
+  of its payment methods failed.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c13-several-methods}
+  Unfold the status rule.
+\end{proof}
+
+\begin{theorem}[A payment succeeds when every method succeeds]
+  \label{thm:payment-status-successful}
+  \lean{Rules.OneOrder.Payment.status_successful_iff}
+  \uses{def:c13-several-methods}
+  A payment is \texttt{SUCCESSFUL} exactly when the transactions of all its
+  payment methods succeeded.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c13-several-methods}
+  Unfold the status rule; a failed method contradicts all methods succeeding.
+\end{proof}
+
+\begin{theorem}[A payment is pending while a method is pending]
+  \label{thm:payment-status-pending}
+  \lean{Rules.OneOrder.Payment.status_pending_iff}
+  \uses{def:c13-several-methods}
+  A payment is \texttt{PENDING} exactly when no method's transaction failed
+  and at least one is still pending.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c13-several-methods}
+  Unfold the status rule; a method that neither failed nor succeeded is
+  pending.
+\end{proof}
+
 \begin{theorem}[Amount charged across methods (C-14)]
   \label{thm:c14-amount-covers-price}
-  \uses{def:c13-several-methods, thm:c04-item-unsplit}
-  \notready
+  \lean{Rules.OneOrder.Payment.acceptPayment_total}
+  \uses{def:c13-several-methods, thm:c04-item-unsplit, def:payment-accept}
   The amounts charged across the methods cover the item's price plus any
   surcharges.
 
@@ -51,6 +96,11 @@
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
 \end{theorem}
+\begin{proof}
+  \uses{def:payment-accept}
+  Each method is charged its requested amount plus its surcharge, and the
+  requested amounts add up to the price.
+\end{proof}
 
 \begin{definition}[Refunds across payment methods (C-17)]
   \label{def:c17-refund-methods}
@@ -71,13 +121,15 @@
 
 \begin{definition}[Paid order item (C-126)]
   \label{def:payment-paid-order-item}
+  \lean{Rules.OneOrder.Payment.isPaid, Rules.OneOrder.Payment.Transaction.pays}
   \uses{def:payment, def:c01-structure, def:c08-delivery-status, thm:c14-amount-covers-price, def:c18-change}
-  \notready
   An order item is paid once the successful payments allocated to it,
   together with any value carried over from the item it replaced, cover its
   amount due. A \texttt{PENDING} payment does not count. After a change, the
   original payment stays on record and its allocation moves to the replacing
-  item.
+  item.  The model counts an item paid once a \texttt{SUCCESSFUL} payment
+  covers it, and checks the amounts when the payment is accepted.  It does
+  not model value carried over from a replaced item.
 
   Case to check: In the change worked example the new item costs 910.00 and
   the only payment made after the change is 60.00. The item is paid only if
@@ -94,10 +146,24 @@
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
 \end{definition}
 
+\begin{theorem}[Only successful payments pay]
+  \label{thm:payment-paid-iff}
+  \lean{Rules.OneOrder.Payment.isPaid_iff}
+  \uses{def:payment-paid-order-item, def:c13-several-methods}
+  An order item is counted paid exactly when a \texttt{SUCCESSFUL} payment
+  covers it.  \texttt{PENDING} and \texttt{FAILED} payments never count.
+
+  Source: \href{https://retailing.iata.org/armi/docs/PAYORD/}{IATA capability PAYORD}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-paid-order-item}
+  Unfold the paid test.
+\end{proof}
+
 \begin{definition}[Payment status and its moves (C-127)]
   \label{def:payment-payment-status}
+  \lean{Rules.OneOrder.Payment.recordOutcome, Rules.OneOrder.Payment.PaymentStatus, Rules.OneOrder.Payment.OutcomeReading, Rules.OneOrder.Payment.MethodPart}
   \uses{def:payment, def:instant}
-  \notready
   A payment transaction is \texttt{PENDING}, \texttt{SUCCESSFUL} or
   \texttt{FAILED}. \texttt{SUCCESSFUL} means the airline is certain to
   collect the funds, \texttt{FAILED} means it knows it will not, and
@@ -115,7 +181,9 @@
   \texttt{FAILED} are final. The business must decide whether a
   \texttt{SUCCESSFUL} payment can later fail, for example after a card
   chargeback or a seller's default on a settlement plan, and what then
-  happens to the items it paid.
+  happens to the items it paid.  The model takes the answer as a parameter, a
+  reading of the guide that says which moves out of \texttt{SUCCESSFUL} and
+  \texttt{FAILED} are allowed.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849161/Payment+Codes}{EASD guide, Payment Codes};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423154/Payment+Status}{EASD guide, Payment Status};
@@ -124,10 +192,95 @@
   \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145/Remittance+of+Funds}{Settlement with Orders, Remittance of Funds}.
 \end{definition}
 
+\begin{theorem}[Outcomes of pending transactions are recorded]
+  \label{thm:payment-record-pending}
+  \lean{Rules.OneOrder.Payment.recordOutcome_pending}
+  \uses{def:payment-payment-status}
+  Under every reading of the guide, when the airline reports that a pending
+  transaction succeeded or failed, the outcome is recorded.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-payment-status}
+  Every reading allows the moves out of \texttt{PENDING}.
+\end{proof}
+
+\begin{theorem}[Other methods keep their outcomes]
+  \label{thm:payment-record-other}
+  \lean{Rules.OneOrder.Payment.recordOutcome_other_methods}
+  \uses{def:payment-payment-status}
+  Reporting the outcome of one method's transaction leaves the transactions
+  of the payment's other methods as they were.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-payment-status}
+  The report changes only the transaction it names.
+\end{proof}
+
+\begin{theorem}[Settled payments under the final reading]
+  \label{thm:payment-final-reading}
+  \lean{Rules.OneOrder.Payment.recordOutcome_final_of_reading}
+  \uses{def:payment-payment-status, def:c13-several-methods}
+  Under a reading where no transaction leaves \texttt{SUCCESSFUL} or
+  \texttt{FAILED}, a \texttt{SUCCESSFUL} or \texttt{FAILED} payment keeps its
+  status whatever outcome is reported.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423154/Payment+Status}{EASD guide, Payment Status}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:payment-status-successful, thm:payment-status-failed}
+  Every transaction of a successful payment stays successful, and the failed
+  transaction of a failed payment stays failed.
+\end{proof}
+
+\begin{theorem}[Settled payments keep their status]
+  \label{thm:payment-settled-final}
+  \lean{Rules.OneOrder.Payment.recordOutcome_settled_final}
+  \uses{def:payment-payment-status, thm:payment-final-reading}
+  A \texttt{SUCCESSFUL} or \texttt{FAILED} payment keeps its status whatever
+  outcome the airline later reports for one of its methods.
+
+  Counterexample: under a reading where a card chargeback turns a successful
+  transaction into a failed one, a card payment for the trip goes from
+  \texttt{SUCCESSFUL} to \texttt{FAILED}.  Under a reading where a late
+  redirected payment is recorded, a payment the airline marked
+  \texttt{FAILED} at the time limit becomes \texttt{SUCCESSFUL} a minute
+  later, while the trip it paid for stays removed.
+
+  Open point: whether a \texttt{SUCCESSFUL} payment can later fail, whether
+  a \texttt{FAILED} payment can later succeed, and what then happens to the
+  order items it covers.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423154/Payment+Status}{EASD guide, Payment Status};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-payment-status}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{definition}[Applying a payment outcome]
+  \label{def:payment-apply-outcome}
+  \lean{Rules.OneOrder.Payment.applyOutcome, Rules.OneOrder.Payment.PayableItem.markPaid}
+  \uses{def:payment-payment-status, def:c13-several-methods, def:c11-payment-time-limit, def:c08-delivery-status}
+  When a payment is \texttt{SUCCESSFUL}, every \texttt{CONFIRMED} service of
+  the order items it covers moves to \texttt{READY TO PROCEED} and the items
+  lose their payment time limits.  A \texttt{FAILED} or \texttt{PENDING}
+  payment changes nothing.  The guide states these effects for redirected
+  payments; the model applies them to a payment of any method.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{definition}
+
 \begin{theorem}[Effects of a payment outcome (C-128)]
   \label{thm:payment-payment-outcome-effects}
-  \uses{def:payment-payment-status, def:payment-paid-order-item, def:c08-delivery-status, def:c11-payment-time-limit}
-  \notready
+  \lean{Rules.OneOrder.Payment.applyOutcome_ready}
+  \uses{def:payment-payment-status, def:payment-paid-order-item, def:c08-delivery-status, def:c11-payment-time-limit, def:payment-apply-outcome}
   When a payment covering unpaid order items becomes \texttt{SUCCESSFUL},
   every service in those items moves from \texttt{CONFIRMED} to
   \texttt{READY TO PROCEED} and the items lose their payment time limits.
@@ -145,11 +298,58 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/670203914}{EASD guide, Payment Via Redirection with Airline Notification of Payment Success​};
   \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund}.
 \end{theorem}
+\begin{proof}
+  \uses{def:payment-apply-outcome}
+  A successful payment marks each item it covers paid, and marking an item
+  paid moves each confirmed service to ready to proceed.  The time limits and
+  the failed case are the next two theorems.
+\end{proof}
+
+\begin{theorem}[Paid items lose their payment time limits]
+  \label{thm:payment-outcome-time-limit}
+  \lean{Rules.OneOrder.Payment.applyOutcome_no_time_limit}
+  \uses{def:payment-apply-outcome}
+  After a \texttt{SUCCESSFUL} payment, no order item it covers has a payment
+  time limit.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-apply-outcome}
+  A covered item is marked paid, which removes its time limit.
+\end{proof}
+
+\begin{theorem}[Failed and pending payments change nothing]
+  \label{thm:payment-outcome-unsuccessful}
+  \lean{Rules.OneOrder.Payment.applyOutcome_unsuccessful}
+  \uses{def:payment-apply-outcome}
+  A payment that is \texttt{FAILED} or \texttt{PENDING} leaves every order
+  item, its services and its payment time limit as they were.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-apply-outcome}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Items a payment does not cover are unchanged]
+  \label{thm:payment-outcome-uncovered}
+  \lean{Rules.OneOrder.Payment.applyOutcome_uncovered}
+  \uses{def:payment-apply-outcome}
+  A payment's outcome leaves the order items it does not cover as they were.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-apply-outcome}
+  By induction on the items; marking an item paid keeps its reference.
+\end{proof}
 
 \begin{theorem}[Time limit on unpaid items (C-129)]
   \label{thm:payment-time-limit-on-unpaid}
-  \uses{def:c11-payment-time-limit, def:payment-paid-order-item, def:instant}
-  \notready
+  \lean{Rules.OneOrder.Payment.unpaid_item_removed_eventually}
+  \uses{def:c11-payment-time-limit, def:payment-paid-order-item, def:instant, def:payment-time-limit-expiry}
   Every order item that is unpaid or partly paid carries a payment time
   limit, and a paid item carries none. A time limit of zero on an offer item
   means the item must be paid when the order is created.
@@ -157,6 +357,14 @@
   Case to check: An order created without payment returns no time limit for
   one item. Under the second reading that item never expires and holds its
   seat with nothing paid.
+
+  In the model the guarantee is that an unpaid item does not stay in the
+  order indefinitely.  That a paid item has no time limit is a theorem of the
+  outcome rule.
+
+  Counterexample: an order whose trip was created without a payment time
+  limit still holds the trip a year later, its flights confirmed and nothing
+  paid.
 
   Open point: The ARMI guidance expects the airline to set a limit on every
   unpaid item, while the EASD Time Limits page says a missing limit only
@@ -171,11 +379,16 @@
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{theorem}
+\begin{proof}
+  \uses{def:payment-time-limit-expiry}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{definition}[Unpaid item at its time limit (C-130)]
   \label{def:payment-time-limit-expiry}
-  \uses{def:c11-payment-time-limit, def:c08-delivery-status, def:c06-item-status, def:payment-payment-status}
-  \notready
+  \lean{Rules.OneOrder.Payment.expireUnpaid, Rules.OneOrder.Payment.Removal, Rules.OneOrder.Payment.PayableOrder.lapses}
+  \uses{def:c11-payment-time-limit, def:c08-delivery-status, def:c06-item-status, def:payment-payment-status, def:payment-paid-order-item}
   When an order item's payment time limit passes without a successful
   payment, the item is removed from the order, and a payment still
   \texttt{PENDING} for it is marked \texttt{FAILED}. The airline may move
@@ -191,12 +404,109 @@
   business must decide the item status and delivery status after removal
   (for example \texttt{CANCELLED} with \texttt{REMOVED}, or
   \texttt{EXPIRED}) and what happens when a redirected payment is captured
-  after the limit.
+  after the limit.  The model takes the statuses as a parameter.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/1404665857}{EASD guide, 24.1 Release Notes}.
 \end{definition}
+
+\begin{theorem}[Unpaid items are removed at their time limit]
+  \label{thm:payment-expire-removes}
+  \lean{Rules.OneOrder.Payment.expireUnpaid_removes}
+  \uses{def:payment-time-limit-expiry}
+  An order item whose payment time limit has passed, with no
+  \texttt{SUCCESSFUL} payment covering it, is removed: its services take the
+  statuses of the removal.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-time-limit-expiry}
+  Unfold the rule.
+\end{proof}
+
+\begin{theorem}[Pending payments fail at the time limit]
+  \label{thm:payment-expire-fails-pending}
+  \lean{Rules.OneOrder.Payment.expireUnpaid_fails_pending}
+  \uses{def:payment-time-limit-expiry, thm:payment-status-pending, thm:payment-status-failed}
+  When an order item is removed at its payment time limit, every payment
+  covering it that was \texttt{PENDING} is \texttt{FAILED} afterwards.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:payment-status-pending, thm:payment-status-failed}
+  A pending payment has a pending transaction, which the rule marks failed.
+\end{proof}
+
+\begin{theorem}[Paid items are not removed]
+  \label{thm:payment-expire-keeps-paid}
+  \lean{Rules.OneOrder.Payment.expireUnpaid_keeps_paid}
+  \uses{def:payment-time-limit-expiry, def:payment-paid-order-item}
+  An order item that a \texttt{SUCCESSFUL} payment covers is never removed at
+  a payment time limit.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-time-limit-expiry}
+  The rule removes only unpaid items.
+\end{proof}
+
+\begin{theorem}[Items before their time limit are unchanged]
+  \label{thm:payment-expire-before-limit}
+  \lean{Rules.OneOrder.Payment.expireUnpaid_keeps_before_limit}
+  \uses{def:payment-time-limit-expiry}
+  An order item whose payment time limit has not passed, or that has none,
+  is left as it was.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-time-limit-expiry}
+  The rule removes only items whose time limit has passed.
+\end{proof}
+
+\begin{theorem}[Removal to REMOVED leaves no value]
+  \label{thm:payment-removed-to-removed}
+  \lean{Rules.OneOrder.Payment.removed_item_holds_no_value_of_removed}
+  \uses{def:payment-time-limit-expiry, def:c05-holds-value}
+  When the services of a removed item take the delivery status
+  \texttt{REMOVED}, none of them holds value, under every reading of the
+  guide.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:c05-holds-value}
+  The guide settles that a removed service holds no value.
+\end{proof}
+
+\begin{theorem}[Removed items hold no value]
+  \label{thm:payment-removed-no-value}
+  \lean{Rules.OneOrder.Payment.removed_item_holds_no_value}
+  \uses{def:payment-time-limit-expiry, def:c05-holds-value, def:c06-item-status, thm:payment-removed-to-removed}
+  An order item removed at its payment time limit holds no value: none of its
+  services holds value afterwards.
+
+  Counterexample: when the removed trip's services become \texttt{EXPIRED},
+  the trip stays active under the cautious reading of the guide, where an
+  expired service holds value.  When they become \texttt{REMOVED HOLD VALUE}
+  it stays active under every reading.  With \texttt{REMOVED} it is cancelled
+  under both readings.
+
+  Open point: which service status and delivery status an item takes when its
+  payment time limit passes unpaid, and whether it then holds value.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-time-limit-expiry}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
 
 \begin{theorem}[No payment after the limits (C-131)]
   \label{thm:payment-no-late-payment}
@@ -222,9 +532,25 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
 \end{theorem}
 
+\begin{theorem}[No payment at or after the time limit]
+  \label{thm:payment-accept-time-limit}
+  \lean{Rules.OneOrder.Payment.acceptPayment_rejects_after_time_limit}
+  \uses{def:payment-accept, def:c11-payment-time-limit}
+  A payment made at or after the payment time limit of an order item it
+  covers is rejected.  This is the time limit part of C-131; the price
+  guarantee part waits on its open point.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226556/Pay+for+an+Existing+Order}{EASD guide, Pay for an Existing Order}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-accept}
+  The time limit is the first check.
+\end{proof}
+
 \begin{theorem}[Failed payment leaves items unpaid (C-132)]
   \label{thm:payment-failed-payment-all-items}
-  \uses{def:c13-several-methods, def:payment-paid-order-item}
+  \lean{Rules.OneOrder.Payment.failed_method_pays_nothing}
+  \uses{def:c13-several-methods, def:payment-paid-order-item, def:payment-apply-outcome}
   One payment transaction may cover several order items with several payment
   methods. If any method's transaction fails, the whole payment fails and
   none of the items it covers becomes paid.
@@ -237,6 +563,11 @@
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593325059/Pay+using+multiple+payment+methods+for+a+single+item}{EASD guide, Pay using multiple payment methods for a single item};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation}.
 \end{theorem}
+\begin{proof}
+  \uses{thm:payment-status-failed, def:payment-apply-outcome}
+  A failed method fails the payment, a failed payment pays nothing, and its
+  outcome changes no item.
+\end{proof}
 
 \begin{definition}[Allocating a payment across items (C-133)]
   \label{def:payment-allocation-across-items}
@@ -283,7 +614,8 @@
 
 \begin{definition}[Surcharge on each payment method (C-135)]
   \label{def:payment-surcharge-per-method}
-  \uses{thm:c14-amount-covers-price, def:c13-several-methods, def:money-add}
+  \lean{Rules.OneOrder.Payment.MethodPart.charged, Rules.OneOrder.Payment.Transaction.requestedTotal, Rules.OneOrder.Payment.Transaction.surchargeTotal}
+  \uses{def:c13-several-methods, def:money-add}
   Each method in a payment has a requested amount and a surcharge that
   depends on the method and that amount, and the amount charged to the
   method is the requested amount plus its surcharge. The requested amounts
@@ -297,6 +629,50 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item}.
 \end{definition}
+
+\begin{definition}[Accepting a payment]
+  \label{def:payment-accept}
+  \lean{Rules.OneOrder.Payment.acceptPayment, Rules.OneOrder.Payment.PaymentRejection, Rules.OneOrder.Payment.PayableOrder.coveredBy, Rules.OneOrder.Payment.priceTotal}
+  \uses{def:payment-surcharge-per-method, def:c11-payment-time-limit, def:c12-zero-commitment, def:money-add}
+  The airline accepts a payment for order items only before their payment
+  time limits, with every amount in the payment's currency, with any
+  commitment method at zero and only for items with nothing to pay, and with
+  requested amounts that add up to the items' price.  Each method is then
+  charged its requested amount plus its surcharge.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226556/Pay+for+an+Existing+Order}{EASD guide, Pay for an Existing Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593488900/Commitment+to+pay+when+no+amount+due}{EASD guide, Commitment to pay when no amount due}.
+\end{definition}
+
+\begin{theorem}[Each method is charged its amount plus its surcharge]
+  \label{thm:payment-accept-charges}
+  \lean{Rules.OneOrder.Payment.acceptPayment_charges}
+  \uses{def:payment-accept, def:money-add}
+  An accepted payment charges each payment method its requested amount plus
+  its surcharge, added as money in one currency.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-accept, def:money-add}
+  The currency check puts both amounts in the payment's currency, so adding
+  them as money succeeds.
+\end{proof}
+
+\begin{theorem}[Requested amounts add up to the price]
+  \label{thm:payment-accept-requested}
+  \lean{Rules.OneOrder.Payment.acceptPayment_requested_eq_price}
+  \uses{def:payment-accept}
+  An accepted payment's requested amounts add up to the price of the order
+  items it covers.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation}.
+\end{theorem}
+\begin{proof}
+  \uses{def:payment-accept}
+  The requested total is the last check.
+\end{proof}
 
 \begin{theorem}[Quoted surcharge at payment time (C-136)]
   \label{thm:payment-quoted-surcharge}
@@ -397,8 +773,8 @@
 
 \begin{theorem}[Commitment only when nothing due (C-140)]
   \label{thm:payment-commitment-zero-due}
-  \uses{def:c12-zero-commitment, def:payment-paid-order-item}
-  \notready
+  \lean{Rules.OneOrder.Payment.acceptPayment_commitment_zero}
+  \uses{def:c12-zero-commitment, def:payment-paid-order-item, def:payment-accept}
   The commitment payment method always carries an amount of zero and may
   cover only items with nothing to pay or collect. Items with nothing due
   may also be covered by a normal payment for a payable item, and every item
@@ -415,6 +791,11 @@
   \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund}.
 \end{theorem}
+\begin{proof}
+  \uses{def:payment-accept}
+  The acceptance check rejects a commitment with an amount, and a commitment
+  for items whose prices add up to more than zero.
+\end{proof}
 
 \begin{definition}[Paying with a voucher (C-141)]
   \label{def:payment-voucher-payment}
