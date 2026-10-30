@@ -50,6 +50,24 @@
     "waiting": 9,
     "decision": 12
    }
+  },
+  {
+   "seq": 4,
+   "name": "oneorder-foundations",
+   "description": "The ONE Order foundations are in Lean: services, order items, orders, acceptance and the status rules, with two open questions about statuses.",
+   "commit": "1d8d50fd8740a9a2bf191c8b33ed4251dae1321b",
+   "date": "2026-10-29T23:32:42-04:00",
+   "tag": "milestone/oneorder-foundations",
+   "file": "0004-oneorder-foundations.json",
+   "nodes": 63,
+   "statusCounts": {
+    "modelled": 27,
+    "proven": 16,
+    "open": 3,
+    "waiting": 4,
+    "ready": 4,
+    "decision": 9
+   }
   }
  ]
 }
