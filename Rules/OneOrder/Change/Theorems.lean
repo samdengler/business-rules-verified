@@ -186,13 +186,16 @@ theorem unpaid_cancelled_at_once (m : Delivery.MoveReading) (r : ExcessPenalty) 
 every reading of the guide.
 
 Open question for the business.  A cancellation removes each service through
-the delivery status table, and the table has no move out of REQUESTED but the
-airline's confirmation.  A service the airline has not yet confirmed therefore
-stays REQUESTED, and its item is not cancelled.  The example
-{lit}`unpaidCancellationWhileRequested` shows it.  Under the reading that
-allows delivery before payment, a service already DELIVERED stays delivered
-too.  Can a seller cancel a service the airline is still deciding on, and what
-delivery status does it take? -/
+the delivery status table, and the table has no move to REMOVED from
+REQUESTED or from UNABLE TO DELIVER, under any reading.  A service the
+airline has not yet confirmed therefore stays REQUESTED, and its item is not
+cancelled.  The example {lit}`unpaidCancellationWhileRequested` shows it.  A
+service UNABLE TO DELIVER, such as one on a flight the airline cancelled,
+stays too, so cancelling that order never closes it.  Under the readings that
+refuse to cancel a service IN PROGRESS, or that allow delivery before
+payment, a service IN PROGRESS or already DELIVERED stays as well.  Can a
+seller cancel a service the airline is still deciding on, or one the airline
+cannot deliver, and what delivery status does it take? -/
 @[open_question, checks "ONE-203.2"]
 theorem cancelled_at_once_closed (m : Delivery.MoveReading) (v : ValueReading) (r : ExcessPenalty)
     (o o' : Order) (payments : List Rules.OfferOrder.Payment) (t : CancelTerms)
@@ -235,12 +238,13 @@ theorem offer_within_payments (m : Delivery.MoveReading) (r : ExcessPenalty) (o 
   sorry
 
 /-- A cancellation offer is priced from the order items that still hold a live
-service, so an item that a change replaced is not counted a second time. -/
+service.  An item whose services a change transferred or cancelled adds
+nothing, so its price is not returned a second time. -/
 @[checks "ONE-203.5"]
 theorem offer_priced_from_live_items (m : Delivery.MoveReading) (r : ExcessPenalty) (o : Order)
     (payments : List Rules.OfferOrder.Payment) (t : CancelTerms) (d : PriceDifferential)
     (h : requestCancellation m r o payments t = .offer d) :
-    d.oldPrice.amount = ((liveItems o).map (·.price.amount)).sum := by
+    d.oldPrice.amount = ((pricedItems o).map (·.price.amount)).sum := by
   unfold requestCancellation at h
   split_ifs at h
   cases hq : cancellationQuote o t with
@@ -255,7 +259,7 @@ theorem offer_priced_from_live_items (m : Delivery.MoveReading) (r : ExcessPenal
       unfold priceDifferential at hd
       split_ifs at hd
       cases hd
-      simp only [cancellationQuote, livePrice, orderPrice] at hq
+      simp only [cancellationQuote, pricedTotal, orderPrice] at hq
       split_ifs at hq
       · cases hq
         rfl

@@ -27,15 +27,18 @@ currency given. -/
 def orderPrice (o : Order) (c : Currency) : Option Money :=
   if o.items.all (·.price.currency == c) then some ⟨(o.items.map (·.price.amount)).sum, c⟩ else none
 
-/-- The order items that still hold a live service: one that is neither
-cancelled nor transferred, and not in a final delivery status. -/
-def liveItems (o : Order) : List OrderItem :=
+/-- The order items a cancellation prices: those that still hold a live
+service, one that is neither cancelled nor transferred and not in a final
+delivery status.  The balance of an order counts value instead
+({lit}`liveValue`), so an item whose services are all REMOVED HOLD VALUE
+counts there and not here. -/
+def pricedItems (o : Order) : List OrderItem :=
   o.items.filter fun i => i.services.any isLive
 
 /-- The total price of an order's items that still hold a live service, when
 all of them are priced in the currency given. -/
-def livePrice (o : Order) (c : Currency) : Option Money :=
-  orderPrice { o with items := liveItems o } c
+def pricedTotal (o : Order) (c : Currency) : Option Money :=
+  orderPrice { o with items := pricedItems o } c
 
 /-- The airline's terms for cancelling an order. -/
 structure CancelTerms where
@@ -53,7 +56,7 @@ structure CancelTerms where
 the price of the order's items that still hold a live service, in the
 penalty's currency, and the new price is zero. -/
 def cancellationQuote (o : Order) (t : CancelTerms) : Option ChangeQuote :=
-  (livePrice o t.penalty.currency).map fun p =>
+  (pricedTotal o t.penalty.currency).map fun p =>
     { oldPrice := p, newPrice := ⟨0, p.currency⟩, penalty := t.penalty, forfeited := t.forfeited,
       handling := t.handling, settlement := t.settlement }
 
@@ -94,11 +97,12 @@ Acceptance criteria:
 The payments received are the pilot model's payments for the order
 ({name}`Rules.OfferOrder.totalPaid`).  The offer is priced with
 {name}`priceDifferential` from the items that still hold a live service
-({name}`liveItems`): an item that a change replaced stays in the order with
-its price, and counting it would return that price a second time.  A service
-that the delivery status table does not let be removed, such as one still
-REQUESTED or one already DELIVERED, stays as it was
-({name}`Delivery.endWith`). -/
+({name}`pricedItems`).  An item whose services a change transferred or
+cancelled stays in the order with its price, and this keeps it from being
+returned a second time.  A service that the delivery status table does not let
+be removed, such as one still REQUESTED, one UNABLE TO DELIVER or one already
+DELIVERED, stays as it was ({name}`Delivery.endWith`); while it is live, its
+item is priced. -/
 @[ears "ONE-203"]
 def requestCancellation (m : MoveReading) (r : ExcessPenalty) (o : Order)
     (payments : List Rules.OfferOrder.Payment) (t : CancelTerms) : CancelOutcome :=

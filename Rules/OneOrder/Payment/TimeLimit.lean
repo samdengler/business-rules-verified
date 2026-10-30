@@ -17,10 +17,10 @@ open Rules.OneOrder.Delivery (MoveReading endWith)
 
 /-- What happens to an order item's services when its payment time limit
 passes unpaid.  The guide says the item is removed and names no statuses.
-Removing an item cancels its services, so each takes the service status
-CANCELLED.  The delivery status it ends in is a reading of the guide: REMOVED,
-REMOVED HOLD VALUE or EXPIRED, each reached through the delivery status
-table. -/
+Removing an item cancels its services, so each service the delivery status
+table lets end takes the service status CANCELLED.  The delivery status it
+ends in is a reading of the guide: REMOVED, REMOVED HOLD VALUE or EXPIRED,
+each reached through the delivery status table. -/
 structure Removal where
   /-- The event that ends each service of the removed item. -/
   event : Delivery.DeliveryEvent

@@ -50,8 +50,8 @@
   \label{thm:payment-status-failed}
   \lean{Rules.OneOrder.Payment.status_failed_iff}
   \uses{def:c13-several-methods}
-  A payment is \texttt{FAILED} exactly when the transaction of at least one
-  of its payment methods failed.
+  A payment is \texttt{FAILED} exactly when it has no payment method or the
+  transaction of at least one of its payment methods failed.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
 \end{theorem}
@@ -64,8 +64,8 @@
   \label{thm:payment-status-successful}
   \lean{Rules.OneOrder.Payment.status_successful_iff}
   \uses{def:c13-several-methods}
-  A payment is \texttt{SUCCESSFUL} exactly when the transactions of all its
-  payment methods succeeded.
+  A payment is \texttt{SUCCESSFUL} exactly when it has at least one payment
+  method and the transactions of all its payment methods succeeded.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods}.
 \end{theorem}
@@ -419,10 +419,11 @@
 
   Open point: This partly answers the open point of C-11: the Time Limits
   page says removal is expected but names no resulting statuses. The
-  business must decide the item status and delivery status after removal
-  (for example \texttt{CANCELLED} with \texttt{REMOVED}, or
-  \texttt{EXPIRED}) and what happens when a redirected payment is captured
-  after the limit.  The model takes the statuses as a parameter.
+  business must decide the delivery status after removal
+  (\texttt{REMOVED}, \texttt{REMOVED HOLD VALUE} or \texttt{EXPIRED}) and
+  what happens when a redirected payment is captured after the limit.  The
+  model cancels the removed item's services and takes the delivery status as
+  a parameter, reached through the delivery status table.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};

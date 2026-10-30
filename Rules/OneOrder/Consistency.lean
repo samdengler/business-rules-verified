@@ -7,10 +7,10 @@ import Rules.OneOrder.Payment.Theorems
 /-!
 # Delivery statuses across the areas
 
-Rules in four areas change a service's delivery status.  Each of them does it
-through the delivery status table, and this module states that once for all of
-them.  A rule that wrote a delivery status directly, as the areas did before,
-would break the theorem here.
+Rules in four areas change a service's delivery status.  Each moves it only
+along a move of the delivery status table, and this module proves that once
+for all of them.  A rule listed here that made any other move would break the
+theorem, and a new rule that changes a delivery status is added to it.
 -/
 
 namespace Rules.OneOrder

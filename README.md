@@ -979,3 +979,33 @@ Choices made where the plan left room, in the order they came up.
     the home page sends links to the old sections, such as `/#found`, to
     the same section of `/progress/`. On a phone the site bar keeps the
     plane, which leads home, and drops the site name.
+47. **Fixes from the independent critique.** A review on 30 October compared
+    every criterion with its theorems and the areas with each other, and
+    found 30 problems. The fixes for the modelling errors:
+    - Five rules outside Delivery set a service's delivery status directly,
+      so a DELIVERED service could become REMOVED. Every rule that ends a
+      service now goes through `Delivery.endWith`, which applies the event
+      through the delivery status table and leaves the service as it was
+      when the table refuses the move. `delivery_moves_follow_table` in
+      `Rules/OneOrder/Consistency.lean` proves, for every rule that changes a
+      delivery status, that it moves only along the table (ONE-105).
+    - A cancellation is priced from the items that still hold a live
+      service, so an item a change replaced is not refunded twice
+      (ONE-203.5). The balance of an order still counts value, so an item
+      whose services are all REMOVED HOLD VALUE counts there and not in a
+      cancellation; which of the two a refund follows is open.
+    - A payment with no payment method is FAILED, and is never accepted
+      (ONE-301.4, ONE-304.7).
+    - The reading of what an unpaid item becomes at its time limit is now the
+      event that ends its services: REMOVED, REMOVED HOLD VALUE or EXPIRED,
+      with the services cancelled.
+    - Five criteria written for one reading were removed (ONE-101.5, 703.3,
+      803.5, 804.6, 805.6); their theorems are `_of_` versions with no
+      criterion.
+
+    Going through the table made two gaps visible, which are now open
+    questions: the table has no way to cancel a REQUESTED or UNABLE TO
+    DELIVER service, so an unpaid order with one is not closed by
+    cancelling it (ONE-203.2), and a flight the airline cancels can leave a
+    REQUESTED or IN PROGRESS service live (ONE-704.6). The graph snapshot
+    `critique-before-fixes` records the model as the critique found it.

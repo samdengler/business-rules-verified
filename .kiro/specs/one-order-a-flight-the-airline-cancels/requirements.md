@@ -76,4 +76,5 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Airline
 > REQUESTED, IN PROGRESS or SUSPENDED, under any reading.  A service the airline
 > has not yet confirmed therefore stays live on a flight that will not operate.
 > The example `cancelFlightWhileRequested` shows it.  What delivery status
-> does a requested or suspended service take when its flight is cancelled?
+> does a requested, in-progress or suspended service take when its flight is
+> cancelled?

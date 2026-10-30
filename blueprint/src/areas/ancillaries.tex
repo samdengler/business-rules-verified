@@ -260,8 +260,9 @@
   \lean{Rules.OneOrder.Ancillaries.cancel_items_named, Rules.OneOrder.Ancillaries.cancelItems_ok}
   \uses{def:ancillaries-flight-cancel-dependents}
   When a seller's cancellation is accepted, every named item is in the
-  order with each live service \texttt{CANCELLED} with delivery status
-  \texttt{REMOVED}, under every reading.
+  order with each live service that the delivery status table lets be
+  removed \texttt{CANCELLED} with delivery status \texttt{REMOVED}, under
+  every reading.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
 \end{theorem}
@@ -889,8 +890,9 @@
   \lean{Rules.OneOrder.Ancillaries.bundle_removes, Rules.OneOrder.Ancillaries.removeFromBundle_ok}
   \uses{def:ancillaries-bundle-part-value}
   After an accepted removal the bundle keeps its reference and price, each
-  named live service is \texttt{CANCELLED} with delivery status
-  \texttt{REMOVED}, and every other service is as it was.
+  named live service that the delivery status table lets be removed is
+  \texttt{CANCELLED} with delivery status \texttt{REMOVED}, and every service
+  that is not named is as it was.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
 \end{theorem}

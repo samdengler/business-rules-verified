@@ -449,9 +449,10 @@ airline.
 
 *Then* it is cancelled at once.  The outbound service is cancelled and
 removed.  The inbound service stays REQUESTED, because the delivery status
-table has no move out of REQUESTED but the airline's confirmation, so the item
-is not cancelled. -/
-@[case, checks "ONE-203.1 ONE-203.2"]
+table has no move from REQUESTED to REMOVED, so the item is not cancelled.
+Under the cautious reading the item is active; under the strict reading it has
+no status at all. -/
+@[case, checks "ONE-203.1 ONE-203.2 ONE-002.4"]
 def unpaidCancellationWhileRequested : Option ChangedOrder :=
   match requestCancellation Delivery.strictMoves .collect requestedTripOrder [] freeCancellation with
   | .cancelled o => some (.of o)

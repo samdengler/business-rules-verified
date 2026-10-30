@@ -152,7 +152,7 @@ theorem cancelItems_ok (m : MoveReading) (h : DependentHandling) (r : LinkReadin
 
 /-- Every named item is in the order afterwards with each live service that
 the delivery status table lets be removed CANCELLED with delivery status
-REMOVED, and every other service as it was, under every reading. -/
+REMOVED, under every reading. -/
 @[checks "ONE-603.1"]
 theorem cancel_items_named (m : MoveReading) (h : DependentHandling) (r : LinkReading)
     (d : ServiceDetails) (allows : String → Bool) (o o' : Order) (named : List String)
@@ -322,7 +322,7 @@ passenger no longer flies.  The example {lit}`cancelFlightWithBag` shows it.
 The other two readings keep the guarantee when every live service of the order
 can be removed ({name}`cancel_items_no_live_dependents_of_not_leave`).  A bag
 still REQUESTED from the airline cannot be: the delivery status table has no
-move out of REQUESTED but confirmation, so it stays live under every reading.
+move from REQUESTED to REMOVED, so it stays live under every reading.
 Should cancelling a flight cancel its bag and seat, refuse until the seller
 names them, or leave them in place, and what happens to one the airline has
 not yet confirmed? -/
@@ -619,18 +619,30 @@ theorem removeFromBundle_ok (mr : MoveReading) (sh : BundleShare) (o o' : Order)
 
 /-- After an accepted removal the bundle is in the order with its reference and
 price, each named live service that the delivery status table lets be removed
-CANCELLED with delivery status REMOVED, and every other service as it was,
-under every reading. -/
+CANCELLED with delivery status REMOVED, and every service that is not named as
+it was, under every reading. -/
 @[checks "ONE-607.1"]
 theorem bundle_removes (mr : MoveReading) (sh : BundleShare) (o o' : Order) (item : String)
     (ids : List String) (m : Money) (h : removeFromBundle mr sh o item ids = .ok (o', m)) :
     ∃ i ∈ o.items, i.id = item ∧ ∃ i' ∈ o'.items, i'.id = i.id ∧ i'.price = i.price ∧
-      i'.services = i.services.map fun s => if ids.contains s.id then endService mr s else s := by
+      (∀ s ∈ i.services, ids.contains s.id = true → isLive s = true →
+        (nextDelivery mr .remove s).isSome →
+        { s with status := .cancelled, delivery := .removed } ∈ i'.services) ∧
+      ∀ s ∈ i.services, ids.contains s.id = false → s ∈ i'.services := by
   obtain ⟨i, hi, hitems, -⟩ := removeFromBundle_ok mr sh o o' item ids m h
   have hid : i.id = item := by simpa using List.find?_some hi
-  refine ⟨i, List.mem_of_find?_eq_some hi, hid, removeServices mr ids i, ?_, rfl, rfl, rfl⟩
-  rw [hitems]
-  exact List.mem_map.mpr ⟨i, List.mem_of_find?_eq_some hi, by simp [hid]⟩
+  refine ⟨i, List.mem_of_find?_eq_some hi, hid, removeServices mr ids i, ?_, rfl, rfl, ?_, ?_⟩
+  · rw [hitems]
+    exact List.mem_map.mpr ⟨i, List.mem_of_find?_eq_some hi, by simp [hid]⟩
+  · intro s hs hn hlive hrem
+    obtain ⟨d, hd⟩ := Option.isSome_iff_exists.mp hrem
+    have hdr := Delivery.nextDelivery_remove mr s d hd
+    subst hdr
+    have hmem : s.id ∈ ids := by simpa using hn
+    exact List.mem_map.mpr ⟨s, hs, by simp [hmem, endService, hlive, Delivery.endWith, hd]⟩
+  · intro s hs hn
+    have hnm : s.id ∉ ids := by simpa using hn
+    exact List.mem_map.mpr ⟨s, hs, by simp [hnm]⟩
 
 /-- An accepted removal returns the sum of the shares of the services it
 cancels under the reading, in the bundle's currency: the named live services

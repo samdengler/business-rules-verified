@@ -47,7 +47,11 @@
   Open point: the sources show only some of these moves; the rest are
   inferred.  The business must confirm the table, decide each undecided
   move, and decide how a declined \texttt{REQUESTED} service ends; the model
-  has no move for it.  The sources also say that any status that is not
+  has no move for it.  The table also has no way to cancel a
+  \texttt{REQUESTED} or \texttt{UNABLE TO DELIVER} service.  Every area
+  that cancels services goes through this table, so a service in either
+  status stays as it was when its order, its item or its flight is
+  cancelled.  The sources also say that any status that is not
   final can be suspended and that \texttt{REMOVED HOLD VALUE} moves only to
   \texttt{REMOVED}.  The model follows the second, so the business must say
   whether a \texttt{REMOVED HOLD VALUE} service can be suspended.

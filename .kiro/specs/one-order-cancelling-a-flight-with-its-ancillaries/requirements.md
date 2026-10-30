@@ -46,7 +46,7 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Ancilla
 > The other two readings keep the guarantee when every live service of the order
 > can be removed \(`cancel_items_no_live_dependents_of_not_leave`\).  A bag
 > still REQUESTED from the airline cannot be: the delivery status table has no
-> move out of REQUESTED but confirmation, so it stays live under every reading.
+> move from REQUESTED to REMOVED, so it stays live under every reading.
 > Should cancelling a flight cancel its bag and seat, refuse until the seller
 > names them, or leave them in place, and what happens to one the airline has
 > not yet confirmed?

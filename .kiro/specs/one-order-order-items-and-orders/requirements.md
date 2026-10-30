@@ -27,7 +27,7 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Order.l
 3. WHEN at least one service of an order item is delivered and every other service is delivered or removed THE SYSTEM SHALL mark the item closed.
    - ONE-002.3, proven: proven theorem `item_closed_iff`; example `closedItem`
 4. THE SYSTEM SHALL give each order item exactly one status.
-   - ONE-002.4, open: proven theorem `active_not_cancelled`; proven theorem `active_not_closed`; open theorem `item_has_one_status`; counterexample `deliveredThenTransferred`; counterexample `suspendedService`
+   - ONE-002.4, open: proven theorem `active_not_cancelled`; proven theorem `active_not_closed`; open theorem `item_has_one_status`; counterexample `unpaidCancellationWhileRequested`; counterexample `deliveredThenTransferred`; counterexample `suspendedService`
 
 #### Open question on ONE-002.4
 

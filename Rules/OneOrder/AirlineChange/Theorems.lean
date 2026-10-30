@@ -405,7 +405,8 @@ delivery status table, and the table has no move to UNABLE TO DELIVER from
 REQUESTED, IN PROGRESS or SUSPENDED, under any reading.  A service the airline
 has not yet confirmed therefore stays live on a flight that will not operate.
 The example {lit}`cancelFlightWhileRequested` shows it.  What delivery status
-does a requested or suspended service take when its flight is cancelled? -/
+does a requested, in-progress or suspended service take when its flight is
+cancelled? -/
 @[open_question, checks "ONE-704.6"]
 theorem cancel_flight_leaves_no_live (m : MoveReading) (r : FlightRefund) (seg : String) (o : Order) :
     ∀ i ∈ (cancelFlight m r seg o).order.items, ∀ s ∈ i.services, s.segment = seg → isLive s = false := by

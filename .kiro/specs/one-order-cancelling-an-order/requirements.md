@@ -37,13 +37,16 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Change/
 > every reading of the guide.
 >
 > Open question for the business.  A cancellation removes each service through
-> the delivery status table, and the table has no move out of REQUESTED but the
-> airline's confirmation.  A service the airline has not yet confirmed therefore
-> stays REQUESTED, and its item is not cancelled.  The example
-> `unpaidCancellationWhileRequested` shows it.  Under the reading that
-> allows delivery before payment, a service already DELIVERED stays delivered
-> too.  Can a seller cancel a service the airline is still deciding on, and what
-> delivery status does it take?
+> the delivery status table, and the table has no move to REMOVED from
+> REQUESTED or from UNABLE TO DELIVER, under any reading.  A service the
+> airline has not yet confirmed therefore stays REQUESTED, and its item is not
+> cancelled.  The example `unpaidCancellationWhileRequested` shows it.  A
+> service UNABLE TO DELIVER, such as one on a flight the airline cancelled,
+> stays too, so cancelling that order never closes it.  Under the readings that
+> refuse to cancel a service IN PROGRESS, or that allow delivery before
+> payment, a service IN PROGRESS or already DELIVERED stays as well.  Can a
+> seller cancel a service the airline is still deciding on, or one the airline
+> cannot deliver, and what delivery status does it take?
 
 #### Open question on ONE-203.4
 

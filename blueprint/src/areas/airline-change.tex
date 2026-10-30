@@ -400,7 +400,10 @@
   When the airline cancels a flight and does not move the customer to
   another one, every live service on that flight, in every order item,
   becomes \texttt{CANCELLED} with delivery status \texttt{UNABLE TO
-  DELIVER}.  A service is live when it is neither cancelled nor transferred
+  DELIVER} where the delivery status table allows the move.  The table has
+  no such move from \texttt{REQUESTED}, \texttt{IN PROGRESS} or
+  \texttt{SUSPENDED}, so a service in one of those statuses stays live on a
+  flight that will not operate.  A service is live when it is neither cancelled nor transferred
   and not in a final delivery status.  The services that depend on the
   flight, such as a bag on it, are services on the same segment.  Order
   items keep their references and prices.  What is refunded for each item
