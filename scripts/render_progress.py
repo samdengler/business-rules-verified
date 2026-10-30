@@ -16,13 +16,11 @@ rules from the ONE Order survey, each with a status in plain words:
 
 Nothing on the page is typed by hand: the statuses come from the build and
 the text comes from the blueprint, so the page changes when the model does.
-Needs graphviz (`dot`) for the dependency map.
 """
 
 import html
 import json
 import re
-import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import quote
@@ -72,7 +70,8 @@ def tex_html(s):
     s = re.sub(r"\\href\{([^}]*)\}\{([^}]*)\}", r'<a href="\1">\2</a>', s)
     s = re.sub(r"\\texttt\{([^}]*)\}", r"<code>\1</code>", s)
     s = re.sub(r"\\emph\{([^}]*)\}", r"<em>\1</em>", s)
-    s = s.replace("\\%", "%").replace("~", " ")
+    for a, b in [("\\%", "%"), ("\\_", "_"), ("\\#", "#"), ("\\$", "$"), ("~", " ")]:
+        s = s.replace(a, b)
     return re.sub(r"\s+", " ", s).strip()
 
 
@@ -194,44 +193,6 @@ def card(n):
 </article>"""
 
 
-def wrap(s, width=22):
-    words, lines, cur = s.split(), [], ""
-    for w in words:
-        if cur and len(cur) + 1 + len(w) > width:
-            lines.append(cur)
-            cur = w
-        else:
-            cur = f"{cur} {w}".strip()
-    return "\\n".join(lines + [cur])
-
-
-def dep_map(show, by_label):
-    ids = {n["label"]: f"n{i}" for i, n in enumerate(show)}
-    lines = [
-        "digraph G {",
-        '  graph [rankdir=TB, concentrate=true, bgcolor="transparent", nodesep=0.18, ranksep=0.4, fontname="Helvetica", fontsize=11, pad=0.1];',
-        '  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10.5, margin="0.10,0.05", height=0.3, penwidth=1.4];',
-        '  edge [arrowsize=0.55, penwidth=0.8];',
-    ]
-    for n in show:
-        tip = plain(" ".join(split_question(n)[0])).replace('"', "'")
-        lines.append(f'  {ids[n["label"]]} [label="{wrap(n["title"])}", class="s-{n["status"]}", tooltip="{tip}", '
-                     f'href="{n["href"]}"];')
-    for n in show:
-        for u in n["uses"]:
-            if u in ids:
-                lines.append(f'  {ids[u]} -> {ids[n["label"]]};')
-    lines.append("}")
-    svg = subprocess.run(["dot", "-Tsvg"], input="\n".join(lines), capture_output=True, text=True, check=True).stdout
-    svg = svg[svg.index("<svg"):]
-    # Graphviz titles every element with its internal ID ("n0", "n0->n2"), which browsers
-    # show on hover; the node tooltips carry the descriptions instead.
-    svg = re.sub(r"<title>[^<]*</title>\n?", "", svg)
-    # Colors come from the page's stylesheet so the map follows light and dark mode.
-    svg = re.sub(r' (fill|stroke)="(?!none)[^"]*"', "", svg)
-    return svg.replace("<svg ", '<svg class="map" ', 1)
-
-
 CSS = """
 :root { color-scheme: light;
   --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
@@ -301,18 +262,6 @@ h3 { font-size: 15px; margin: 26px 0 10px; color: var(--ink-2); font-weight: 600
 .tag { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 4px 0 12px; }
-.mapwrap { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 12px; overflow-x: auto; }
-svg.map { display: block; margin: 0 auto; max-width: 100%; height: auto; }
-svg.map text { fill: var(--ink); }
-svg.map .cluster path, svg.map .cluster polygon { fill: none; stroke: var(--hair); }
-svg.map .cluster text { fill: var(--muted); font-weight: 600; }
-svg.map .edge path { stroke: var(--muted); fill: none; } svg.map .edge polygon { fill: var(--muted); stroke: var(--muted); }
-svg.map .node path, svg.map .node polygon { fill: var(--surface); stroke: var(--waiting); }
-svg.map .node.s-modelled path { fill: color-mix(in srgb, var(--lean) 14%, var(--surface)); stroke: var(--lean); }
-svg.map .node.s-proven path { fill: color-mix(in srgb, var(--good) 16%, var(--surface)); stroke: var(--good); }
-svg.map .node.s-open path { fill: color-mix(in srgb, var(--critical) 14%, var(--surface)); stroke: var(--critical); }
-svg.map .node.s-decision path { fill: color-mix(in srgb, var(--warning) 20%, var(--surface)); stroke: var(--warning); }
-svg.map .node.s-ready path { fill: color-mix(in srgb, var(--ready) 12%, var(--surface)); stroke: var(--ready); }
 footer { margin-top: 48px; color: var(--muted); font-size: 13px; }
 @media (max-width: 900px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
 """
@@ -334,13 +283,13 @@ def page(show, by_label, decls):
                 f'<p><strong>Counterexample:</strong> {ce}</p><p><strong>Open point:</strong> {question}</p></div>')
     found = "".join(found_box(n) for n in show if n["status"] == "open")
     groups = []
-    for chapter in dict.fromkeys(n["chapter"] for n in show):
-        secs = dict.fromkeys(n["section"] for n in show if n["chapter"] == chapter)
-        head = "In the model today" if chapter != "ONE Order rules from the survey" else "Next: candidate rules from the ONE Order survey"
+    for key, head, in_lean in (("today", "In the model today", True),
+                               ("next", "Next: candidate rules from the ONE Order survey", False)):
+        part = [n for n in show if bool(n["lean"]) == in_lean]
         body = "".join(
-            f"<h3>{html.escape(s)}</h3><div class=\"board\">" + "".join(card(n) for n in show if n["section"] == s) + "</div>"
-            for s in secs)
-        groups.append(f'<h2 id="{'today' if 'today' in head else 'next'}">{head}</h2>{body}')
+            f"<h3>{html.escape(s)}</h3><div class=\"board\">" + "".join(card(n) for n in part if n["section"] == s) + "</div>"
+            for s in dict.fromkeys(n["section"] for n in part))
+        groups.append(f'<h2 id="{key}">{head}</h2>{body}')
     legend = "".join(chip(k) for k in STATUSES)
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -375,10 +324,10 @@ This page is generated from the model on every build.</p>
 {''.join(groups)}
 
 <h2 id="map">How the rules depend on each other</h2>
-<p class="sub">An arrow points from a rule to the rules that build on it. A rule can only be written in Lean once
-everything it depends on is, so the map shows what to build next. Hover over a box for its description, or open the <a href="./graph/">dependency graph</a> to read every rule and definition.</p>
+<p class="sub">A rule can only be written in Lean once everything it depends on is, so the dependencies show what to build next.
+The <a href="./graph/">dependency graph</a> draws every rule and definition in the blueprint with an arrow from each one to the ones that build on it.
+Click a card there to read it and see what it depends on.</p>
 <div class="legend">{legend}</div>
-<div class="mapwrap">{dep_map(show, by_label)}</div>
 
 <footer>Generated by <code>scripts/render_progress.py</code> from the Lean build and the blueprint.
 Statuses are computed; nothing on this page is typed by hand.</footer>

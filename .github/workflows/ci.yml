@@ -34,8 +34,8 @@ jobs:
             .lake/packages/checkdecls/.lake
             .lake/packages/aeneas/backends/lean/.lake
           key: lake-deps-v2-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
-      # Graphviz draws the delivery state diagram (render_status.py), the
-      # progress page's map and the blueprint's dependency graph.
+      # Graphviz draws the delivery state diagram (render_status.py) and the
+      # blueprint's dependency graph.
       - run: sudo apt-get update && sudo apt-get install -y graphviz libgraphviz-dev
       # Fails on any sorry not tagged @[open_question], before anything renders.
       - run: lake exe status
@@ -74,9 +74,9 @@ jobs:
       - run: pip install leanblueprint
       # web writes blueprint/lean_decls, which checkdecls reads.
       - run: leanblueprint web && leanblueprint checkdecls && leanblueprint pdf
-      # The progress page for business readers; needs graphviz, installed above.
+      # The progress page for business readers.
       - run: python3 scripts/render_progress.py
-      # The dependency graph page; needs graphviz.
+      # The dependency graph page.
       - run: python3 scripts/render_graph.py
       # The try-it panels: the Rust rules compiled to WebAssembly.
       - run: scripts/build-wasm.sh

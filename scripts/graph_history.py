@@ -13,7 +13,7 @@ commit; the statuses of nodes in Lean come from the current build/status.json
 proof's status has changed since, which docs/motion-brief.md notes for each
 milestone.
 
-`layout` places every node that appears in any snapshot once, with Graphviz,
+`layout` places every node that appears in any snapshot once, as the site does,
 and writes history/layout.json, so a node keeps its position from frame to
 frame.  Run it after the last snapshot you want to animate.
 

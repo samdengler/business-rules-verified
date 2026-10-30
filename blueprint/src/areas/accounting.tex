@@ -10,3 +10,506 @@
 
   Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
 \end{theorem}
+
+% Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
+
+\begin{definition}[Settlement value of a service (C-142)]
+  \label{def:accounting-settlement-value}
+  \uses{def:order, def:c01-structure, def:money}
+  \notready
+  Each service in an order carries a settlement value for the provider that
+  delivers it: the amount that provider may bill the ORA. The order holds
+  this value from the moment it is created or changed, and financial
+  processes read it from the order without recalculating it.
+
+  Case to check: A partner's agreed settlement value of 120.00 for a segment
+  sold inside a 100.00 bundled item makes the ORA pay out more than it
+  collected; no source forbids this.
+
+  Open point: Resolution 797 uses the term without defining it. The business
+  must decide whether the value is held per service or per order item,
+  whether it includes taxes and fees, and whether a provider's settlement
+  values may exceed the price of the item they sit in.
+
+  Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185338}{Order Accounting, De-specializing Financial Processes};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order}.
+\end{definition}
+
+\begin{theorem}[Billing limited to delivered services (C-143)]
+  \label{thm:accounting-billed-within-delivered}
+  \uses{thm:c22-bill-after-delivery, def:accounting-settlement-value, def:c08-delivery-status}
+  \notready
+  At any time, the total a service provider has billed the ORA for an order
+  is at most the sum of its settlement values for services in that order
+  that have been delivered or consumed, unless a bilateral agreement allows
+  earlier billing. The bound covers what the ORA pays providers; the
+  seller's payment to the ORA is cleared within a day of payment and lies
+  outside it.
+
+  Case to check: A seat whose passenger did not show ends \texttt{NOT
+  CLAIMED}. If that counts as consumed, the provider bills for a seat nobody
+  used; if it does not, the provider can never bill for a seat it held.
+
+  Open point: The resolution says delivered and/or consumed without mapping
+  the words to delivery statuses. The business must decide whether
+  \texttt{NOT CLAIMED} (a no-show), \texttt{EXPIRED}, or a delivered service
+  that is later refunded counts, and how a bilateral exception is recorded.
+
+  Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653069}{Settlement with Orders, Clearance Overview}.
+\end{theorem}
+
+\begin{theorem}[First accounting posting after payment (C-144)]
+  \label{thm:accounting-accounting-after-payment}
+  \uses{def:payment, def:c08-delivery-status, def:c11-payment-time-limit, def:c12-zero-commitment}
+  \notready
+  The airline's accounting system receives nothing about an order until at
+  least one of its items has a successful payment. The first posting records
+  a liability for the services' values, including taxes and fees, and a
+  receivable for the amount paid.
+
+  Case to check: An order has two items, one paid and one still waiting for
+  payment. If the first posting books liability for both, accounting shows
+  an obligation for a service nobody has paid for.
+
+  Open point: The source does not say whether that liability covers only the
+  paid items or every item in the order. The business must decide, and must
+  say whether a commitment to pay zero (C-12) counts as a successful payment
+  here.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/578912546}{Order Accounting, Order Accounting Home};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/578813954}{Order Accounting, New Order Creation};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185467}{Order Accounting, Account for Order with Payment};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/579010561}{Order Accounting, Introduction};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/AIDM/pages/607420437/View+IATA+Codeset+Directory}{IATA code set directory};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages}.
+\end{theorem}
+
+\begin{theorem}[Revenue recognized at final status (C-145)]
+  \label{thm:accounting-revenue-at-final-status}
+  \uses{thm:accounting-accounting-after-payment, def:c08-delivery-status, def:c05-holds-value, thm:c22-bill-after-delivery}
+  \notready
+  Revenue for a paid service is recognized only after the airline reports to
+  accounting that the service has reached a final delivery status. Until
+  then the amount paid for it stays a liability.
+
+  Case to check: A cancellation with a 25.00 penalty moves every service to
+  \texttt{CANCELLED} and \texttt{REMOVED}. No service is delivered, so a
+  rule keyed to delivery never recognizes the penalty.
+
+  Open point: The sources tie recognition to final delivery status but do
+  not say which final statuses earn revenue. The business must decide, for
+  \texttt{DELIVERED}, \texttt{NOT CLAIMED}, \texttt{EXPIRED} and
+  \texttt{REMOVED}, whether each recognizes revenue, releases the liability
+  as a refund, or keeps it, and when penalties and forfeited amounts
+  reported at cancellation count as revenue.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ACCSTS/}{IATA capability ACCSTS};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/579272705}{Order Accounting, Service Consumption};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333143}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Amount Refunded with a Forfeited amount and a penalty with reporting to Accounting};
+  \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185391}{Order Accounting, Accounting messages}.
+\end{theorem}
+
+\begin{theorem}[Money balance of an order (C-146)]
+  \label{thm:accounting-order-money-balance}
+  \uses{def:totals, thm:refunds-le-payments, thm:accounting-revenue-at-final-status, thm:accounting-accounting-after-payment, def:c05-holds-value, thm:c16-penalty-net}
+  \notready
+  For each order, the total of successful payments equals the total refunded
+  plus the paid value still held as liability plus revenue recognized plus
+  forfeited amounts. With every term at zero or above, this yields the
+  result that refunds never exceed payments.
+
+  Case to check: A customer pays 100.00, cancels, and receives 90.00 because
+  a 10.00 tax is non-refundable. Without a forfeited term the 10.00 is
+  neither refunded, held nor earned, and the balance fails.
+
+  Open point: The sources send payments, refunds as negative payments,
+  penalties and forfeited amounts to accounting but never state a balance.
+  The business must decide whether forfeited non-refundable taxes form their
+  own term and whether a value store counts as held liability.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333086}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844333143}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Amount Refunded with a Forfeited amount and a penalty with reporting to Accounting};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844169268}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order}.
+\end{theorem}
+
+\begin{definition}[Commission on an item (C-147)]
+  \label{def:accounting-commission-structure}
+  \uses{def:money, def:offer-item}
+  \notready
+  A commission on an item is either a fixed amount or a percentage of a
+  stated base amount, and never both. An item may carry several commissions
+  with different codes, such as a standard, a supplemental and an SwO
+  clearance incentive, and the seller is owed their total.
+
+  Case to check: In the guide's Italian VAT example the commission of 4.50
+  already includes 0.41 of tax. A seller reading 4.50 as net expects 4.95;
+  one reading it as gross expects 4.50.
+
+  Open point: The guide says several commissions would be applied without
+  saying they add. The business must decide how they combine, whether the
+  percentage base is the fare alone or includes taxes and fees, how a
+  percentage result is rounded, and whether a commission subject to
+  consumption tax is stated gross or net of that tax.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849050}{EASD guide, Commission and Margin};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2588377182}{EASD guide, Consumption Taxes};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List};
+  \href{https://retailing.iata.org/armi/docs/PAYCOM/}{IATA capability PAYCOM}.
+\end{definition}
+
+\begin{definition}[Net clearance amount (C-148)]
+  \label{def:accounting-net-clearance-amount}
+  \uses{def:payment, def:refund, def:accounting-commission-structure}
+  \notready
+  For each payment commitment, the net clearance amount is the money that
+  moves between the ORA and the seller, with one of them as payer. When the
+  seller collected the customer's money it is the payment amount minus the
+  seller's commission and the seller pays; when the airline collected it, it
+  is the commission and the airline pays. For a refund through the seller it
+  is the refund minus the commission first paid on it, and the airline pays.
+
+  Case to check: The source's refund example writes 7.50 minus 75.00, gets
+  minus 67.50, and labels it a net settlement amount. Taken literally, the
+  seller pays the airline for the customer's refund.
+
+  Open point: The standard defines the amount only as what the two parties
+  agreed; the formulas come from worked examples. The business must decide
+  whether the formula is fixed or open to agreement, and how commission is
+  recalled on a refund, since the source recalls it only where the market
+  allows and gives no rule for partial refunds.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056}{Settlement with Orders, Definitions};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091}{Settlement with Orders, Enhanced and Simplified Distribution};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259760}{Settlement with Orders, Request for Clearance};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478}{Settlement with Orders, Settlement};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881933}{Settlement with Orders, Process Overview};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478/Settlement}{Settlement with Orders, Settlement}.
+\end{definition}
+
+\begin{theorem}[Commission cleared exactly once (C-149)]
+  \label{thm:accounting-commission-cleared-once}
+  \uses{def:accounting-net-clearance-amount, def:accounting-commission-structure, def:payment}
+  For each payment, the seller's commission is cleared exactly once: either
+  netted inside the payment's net clearance amount or in a separate
+  clearance in which the airline pays. Either way, the airline's net receipt
+  for the payment is the payment amount minus the commission.
+
+  Case to check: An EasyPay payment of 410.00 is authorized and cleared net
+  at 369.00 after a 41.00 commission. If the airline also sends a separate
+  41.00 commission clearance, the seller receives the commission twice.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/PAYCMT/}{IATA capability PAYCMT};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259760}{Settlement with Orders, Request for Clearance}.
+\end{theorem}
+
+\begin{theorem}[Clearance request matches the order (C-150)]
+  \label{thm:accounting-clearance-matches-order}
+  \uses{def:accounting-net-clearance-amount, def:payment, thm:c21-version}
+  The amount, currency, payer, payee and payment method in a clearance
+  request equal the clearance data agreed in the order at payment
+  commitment. The seller proposes its role and the amount, the ORA adds a
+  clearance ID and the commitment time only if it agrees, and the order
+  keeps that ID permanently.
+
+  Case to check: With deferred EasyPay payment the airline quotes an
+  expected net clearance amount at order creation. If the seller adds a bag
+  before paying and reuses the old figure, the clearance disagrees with the
+  order unless the ORA checks it again at payment.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259760}{Settlement with Orders, Request for Clearance};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881945}{Settlement with Orders, Clearance Information During Shopping};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091}{Settlement with Orders, Enhanced and Simplified Distribution}.
+\end{theorem}
+
+\begin{theorem}[One clearance per payment commitment (C-151)]
+  \label{thm:accounting-clearance-per-commitment}
+  \uses{def:c13-several-methods, def:payment, thm:accounting-clearance-matches-order}
+  \notready
+  Every clearance comes from one payment commitment, identified by the order
+  ID and the payment ID, and each commitment has at most one accepted
+  clearance. A payment split across two methods has two commitments and so
+  two clearances.
+
+  Case to check: The Clearance Manager decides each clearance in a request
+  separately, so one half of a split payment can clear while the other is
+  rejected, though C-13 says the payment fails unless every method succeeds.
+  The source's own sample request also carries two different clearances
+  under one clearance ID and accepts both.
+
+  Open point: The Clearance Manager checks for a repeated order and payment
+  pair only when the clearance data is not signed by both parties; for
+  signed data it checks only the clearance ID. The business must decide
+  whether two signed clearances with different IDs for one payment are
+  allowed.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091}{Settlement with Orders, Enhanced and Simplified Distribution};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653069}{Settlement with Orders, Clearance Overview};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259772}{Settlement with Orders, Clearance Sample Messages};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091/Enhanced+and+Simplified+Distribution}{Settlement with Orders, Enhanced and Simplified Distribution};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653069/Clearance+Overview}{Settlement with Orders, Clearance Overview};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145/Remittance+of+Funds}{Settlement with Orders, Remittance of Funds};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478/Settlement}{Settlement with Orders, Settlement};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574587124/Cancellation+Overview}{Settlement with Orders, Cancellation Overview};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056/Definitions}{Settlement with Orders, Definitions}.
+\end{theorem}
+
+\begin{definition}[Clearance status (C-152)]
+  \label{def:accounting-clearance-status}
+  \uses{def:accounting-clearance-request}
+  \notready
+  A submitted clearance is Accepted or Rejected, and a rejected one is not
+  recorded. An accepted clearance is either Cancelled by the ORA or settled:
+  Fully Settled at once, or first Not Settled or Partially Settled and later
+  Final Settlement. A settled clearance can be Clawed Back, and one the
+  Clearance Manager cannot collect is Written Off; EasyPay clearances show
+  Funds Collected or Funds Partially Collected.
+
+  Case to check: A clawed-back clearance is included again in a later
+  clearing once the Clearance Manager collects the funds, so Claw Back
+  cannot be final; a model that treats every settlement status as final
+  refuses that move.
+
+  Open point: The code list names the statuses but gives no table of allowed
+  moves and no final statuses. The business must decide, for example,
+  whether a clawed-back clearance can be settled again once funds are
+  collected, and whether Final Settlement can be clawed back.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574554300}{Settlement with Orders, Financial and Accounting Systems};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056}{Settlement with Orders, Definitions}.
+\end{definition}
+
+\begin{definition}[Cancelling a clearance (C-153)]
+  \label{def:accounting-clearance-cancellation}
+  \uses{def:accounting-clearance-status, def:c15-cancel-order, def:refund}
+  \notready
+  Only the ORA may cancel a clearance, and only one the Clearance Manager
+  has accepted. A cancelled clearance is never settled and the seller is
+  notified; a refused cancellation leaves the clearance in its current
+  status with a reason.
+
+  Case to check: An order is cancelled with a full refund before the
+  remittance date. If the ORA cancels the original clearance and also clears
+  the refund to the seller, the seller receives a refund for money it never
+  remitted.
+
+  Open point: When a clearance can still be cancelled is left to each
+  Clearance Manager. The business must decide the cutoff, such as before the
+  clearing notice or before the remittance date, and whether cancelling a
+  paid order item cancels its clearance or raises a reverse refund
+  clearance.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574587124}{Settlement with Orders, Cancellation Overview};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574685428}{Settlement with Orders, Cancellation Sample Messages};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816478}{Settlement with Orders, Settlement}.
+\end{definition}
+
+\begin{theorem}[Clearing total (C-154)]
+  \label{thm:accounting-clearing-total}
+  \uses{def:accounting-clearance-status, def:accounting-net-clearance-amount}
+  \notready
+  The total in a clearing to a settlement payee is the sum of the amounts
+  settled for clearances marked Fully Settled, Partially Settled or Final
+  Settlement, minus the amounts clawed back, and a separate bank transfer to
+  the payee equals that total. In a clearing to a remittance payer, EasyPay
+  clearances are listed but left out of the total, since the EasyPay
+  provider pays them.
+
+  Case to check: A payee is due 200.00 in the next clearing and has 300.00
+  clawed back. The formula gives minus 100.00, which a transfer to the payee
+  cannot carry.
+
+  Open point: The source's sentence on clawbacks that exceed what a payee is
+  due in the next clearing is unclear, and such a case makes the total
+  negative. The business must decide whether the payee then becomes a
+  remittance payer or the clawback is carried forward.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574554300}{Settlement with Orders, Financial and Accounting Systems};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574587102}{Settlement with Orders, Clearing Overview};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881978}{Settlement with Orders, Clearing Sample Messages}.
+\end{theorem}
+
+\begin{theorem}[Net position per remittance date (C-155)]
+  \label{thm:accounting-net-position}
+  \uses{def:accounting-net-clearance-amount, thm:accounting-clearing-total}
+  \notready
+  For each party and remittance date, the Clearance Manager adds the net
+  clearance amounts of clearances where the party is payee and subtracts
+  those where it is payer. A positive result makes the party a settlement
+  payee for that amount and a negative one a remittance payer, and the
+  results across all parties sum to zero.
+
+  Case to check: A seller owes an airline 100.00 by settlement plan and
+  50.00 by EasyPay. If both enter the seller's net position, the seller is
+  asked to remit 150.00 while the EasyPay provider also pays the 50.00.
+
+  Open point: The netting rule does not say how EasyPay clearances enter it.
+  The EasyPay provider pays them, so they are left out of the seller's
+  remittance but included in the airline's settlement; the business must
+  decide whether the provider counts as a party in the sum.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488802}{Settlement with Orders, New for release 21.3}.
+\end{theorem}
+
+\begin{theorem}[Settled and unsettled clearance amounts (C-156)]
+  \label{thm:accounting-settled-plus-remaining}
+  \uses{def:accounting-clearance-status, thm:accounting-clearing-total, def:accounting-net-clearance-amount}
+  \notready
+  For each clearance, the amounts settled across all clearings plus the
+  amount still unsettled equal its agreed net clearance amount. A write-off
+  removes exactly the amount still unsettled.
+
+  Case to check: The sample clearing shows a partially settled clearance
+  with net clearance amount 250.00 and 50.00 unsettled, beside a 200.00
+  clearance, with a total of 450.00. The total adds up only if 250.00 is the
+  amount settled, so the agreed amount was 300.00 and appears nowhere.
+
+  Open point: In a clearing message the net clearance amount field carries
+  the amount settled in that clearing, so the agreed amount travels nowhere.
+  The business must decide where the agreed amount is kept and whether a
+  clawed-back amount counts as unsettled again.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574554300}{Settlement with Orders, Financial and Accounting Systems};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574881978}{Settlement with Orders, Clearing Sample Messages};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574915056}{Settlement with Orders, Definitions}.
+\end{theorem}
+
+\begin{definition}[Netting on a change (C-157)]
+  \label{def:accounting-change-netting}
+  \uses{def:c18-change, thm:c16-penalty-net, thm:c04-item-unsplit, def:c05-holds-value}
+  \notready
+  When a ticketed flight order item is changed, the airline may offset the
+  old item's residual value against the new item's fare and taxes, against a
+  change penalty, or both; one of the guide's modes lets the penalty use
+  fare residual only. The result is a single amount due to the airline, a
+  single amount due by the airline, or nothing. Netting never crosses order
+  items or orders, and does not apply to non-flight items with an EMD or to
+  unticketed flight items.
+
+  Case to check: The old item leaves 50.00 of fare residual and 50.00 of tax
+  residual, and the penalty is 100.00. If the penalty may use fare residual
+  only, 50.00 of penalty stays due to the airline while 50.00 of tax
+  residual is due by it: two amounts where the guide promises one.
+
+  Open point: The guide says the amount due is calculated correctly but
+  gives no formula. The business must decide the formula, including how
+  forfeited amounts and a penalty larger than the fare residual enter it;
+  the answer also settles part of C-18's open point on the sign of the
+  difference.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574488643}{EASD guide, Netting};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783623}{EASD guide, Netting in Ticketing};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202079}{Order Accounting, Customer requests a change to an Order containing a paid OrderItem}.
+\end{definition}
+
+\begin{theorem}[Order of accounting postings (C-158)]
+  \label{thm:accounting-accounting-in-sequence}
+  \uses{thm:c21-version, thm:accounting-accounting-after-payment}
+  \notready
+  Accounting posts an order's notifications in the sequence in which the
+  order changed, with no gaps; a missed notification is recovered before any
+  later one is posted. Each posting uses the values the order held at that
+  change, and accounting never corrects or recalculates them outside the
+  order.
+
+  Case to check: The cancellation notification arrives before the creation
+  notification. Posting it first records a refund against an order that has
+  no receivable.
+
+  Open point: The source requires chronological posting and a recovery
+  process but does not say what fixes the sequence. The business must decide
+  whether the order version (C-21), a timestamp or a per-order counter
+  orders the postings, and whether a later notification waits for a missing
+  one.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185366}{Order Accounting, Principles for Finance with Offer and Order};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/617185338}{Order Accounting, De-specializing Financial Processes};
+  \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{theorem}
+
+\begin{theorem}[Commission from offer to order (C-159)]
+  \label{thm:accounting-commission-offer-to-order}
+  \uses{def:accept, thm:c02-item-per-offer-item, def:accounting-commission-structure}
+  \notready
+  The commission the airline disclosed on an offer item is the commission
+  recorded on the order item created from it. A commission stated once for a
+  whole shopping response applies to every offer in that response.
+
+  Case to check: An aggregator merges a response carrying a 5\% commission
+  at response level with offers from a second airline. The merged offers
+  then seem to carry the first airline's commission.
+
+  Open point: The capability asks the airline to repeat the commission in
+  the order confirmation but does not say it must equal what was shown when
+  shopping. The business must decide whether commission may change at
+  pricing or order creation, and what the seller is owed if the order shows
+  less.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/PAYCOM/}{IATA capability PAYCOM};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849050}{EASD guide, Commission and Margin}.
+\end{theorem}
+
+\begin{definition}[Requesting a clearance (C-160)]
+  \label{def:accounting-clearance-request}
+  \uses{def:instant, def:payment}
+  \notready
+  Only the ORA sends clearance requests, and it must be the payer or the
+  payee of each clearance it sends. It sends the request no later than the
+  day after payment commitment, the moment the payment became successful.
+  The Clearance Manager rejects an EasyPay clearance whose commitment is
+  more than 48 hours older than the request.
+
+  Case to check: A payment committed at 23:55 on day 1 and requested at
+  23:50 on day 3 breaks the next-day rule yet passes the 48-hour check.
+
+  Open point: The next-day limit applies to all payment methods, but the
+  only enforced limit is 48 hours and only for EasyPay. The business must
+  decide what happens to a late settlement plan clearance and whether the
+  limit is a calendar day or a duration.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653069}{Settlement with Orders, Clearance Overview};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574259794}{Settlement with Orders, Clearance Manager};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574456090}{Settlement with Orders, Codeset List};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816490}{Settlement with Orders, Roles};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091}{Settlement with Orders, Enhanced and Simplified Distribution}.
+\end{definition}
+
+\begin{definition}[Allocating a short remittance (C-161)]
+  \label{def:accounting-short-remittance-allocation}
+  \uses{thm:accounting-settled-plus-remaining, def:accounting-clearance-status}
+  \notready
+  When a remittance payer pays short and the Clearance Manager has no credit
+  line, the funds are split across the settlement payees in proportion to
+  what each is owed. Within each payee, clearances are settled oldest first;
+  the first one not fully covered is partially settled and the rest are Not
+  Settled.
+
+  Case to check: A payer owes airline A 100.00 (older) and airline B 100.00
+  (newer) and pays 100.00. The proportional rule gives each 50.00; the
+  oldest-first rule gives A 100.00 and B nothing.
+
+  Open point: Another page says the Clearance Manager applies any payment to
+  the payer's outstanding obligations in the order they were recorded,
+  whatever the payee. The business must pick one allocation.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145}{Settlement with Orders, Remittance of Funds};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574488849}{Settlement with Orders, Transfer of Funds}.
+\end{definition}

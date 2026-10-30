@@ -94,7 +94,7 @@ The site's front page is a progress page for business readers, written by
 `scripts/render_progress.py`. It shows every rule, guarantee and survey
 candidate as a card with a status in plain words (modelled, proven, open
 question, needs a decision, ready to build, waiting), the counterexample behind
-each open question, and a map of which rules depend on which. The statuses come
+each open question, and a link to the dependency graph at `/graph/`. The statuses come
 from `build/status.json` and the text from the blueprint statements, so the
 page changes when the model does. The review document is under `/review/`.
 
@@ -679,8 +679,9 @@ Choices made where the plan left room, in the order they came up.
       `Review/review.js` builds the same bar inside Verso's header, which
       keeps Verso's search box.
     - The dependency graph has its own page, `/graph/`, drawn by
-      `scripts/render_graph.py` in the style of the progress page. Graphviz
-      places the nodes; the page draws flat cards with a status line and
+      `scripts/render_graph.py` in the style of the progress page. The script
+      places the nodes in rows below the nodes they use, at most 14 to a
+      row; the page draws flat cards with a status line and
       light connectors. Every status has its own color, used the same way on
       every page: In Lean magenta, Proven green, Open question red, Needs a
       decision amber, Ready to build blue, Waiting grey and dashed. Finished
@@ -731,3 +732,29 @@ Choices made where the plan left room, in the order they came up.
     the blueprint's history. The site publishes the current graph at
     `/graph/graph.json`. `docs/motion-brief.md` describes how the snapshots
     can drive a motion piece about the graph's growth.
+33. **ONE Order as published, in its own namespace.** `Rules.OneOrder`
+    models the standard as IATA's public guide describes it: services with a
+    service status and a delivery status, order items and orders, accepting an
+    offer for several passengers and segments, and the item and order status
+    rules (ONE-001 to ONE-003). The pilot rules in `Rules.OfferOrder` and
+    their Java and Rust checks stay as they are; a later theorem can relate
+    the two. The guide says which of five delivery statuses hold value and is
+    silent on the other eight, so the model takes the answer as a parameter
+    (`ValueReading`). A guarantee about value is proven only when it holds for
+    every reading the guide allows; where a reading breaks it, the guarantee
+    is open and an example shows the case. Open guarantees outside the pilot
+    get a generated chapter, Questions from the ONE Order rules. Chapters find
+    their guarantees and examples by criterion ID in any namespace, and section
+    tags carry the namespace when a name repeats.
+34. **A second survey round, C-24 to C-161.** Eight surveys, one per area,
+    read each area's public pages in full and returned 160 candidates; 22
+    duplicates across areas were merged. Every candidate is a blueprint node
+    with its rule, a case to check where the sources suggest one, the open
+    point for vague and silent rules, and links to its pages.
+    `docs/one-order-survey.md` lists them and `docs/one-order-coverage.md`
+    maps them to capabilities: every capability with high rule content now
+    has candidates. With 200 nodes, Graphviz laid the dependency graph out
+    in one row many thousands of pixels wide, so `scripts/render_graph.py`
+    now places cards itself, in rows of at most 14 below the cards they use,
+    ordered to keep connectors short. The progress page links to the graph
+    instead of drawing its own map.

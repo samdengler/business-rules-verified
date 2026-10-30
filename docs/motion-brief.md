@@ -20,7 +20,7 @@ Later milestones follow the work on `main`: each survey round adds candidates, a
 | --- | --- |
 | [`history/index.json`](../history/index.json) | Every milestone in order: name, description, commit, date, tag, node count, and the count of nodes in each status. |
 | `history/NNNN-<name>.json` | The graph at that milestone: every node with its id, title, candidate ID (C-01 and so on), kind (definition or theorem), area, status, Lean names, and the ids of the nodes it uses. |
-| [`history/layout.json`](../history/layout.json) | One position for every node that appears in any milestone, and the connector paths, computed by Graphviz as on the site. A node keeps its place from frame to frame, so the piece can fade nodes in and recolor them without the graph jumping. |
+| [`history/layout.json`](../history/layout.json) | One position for every node that appears in any milestone, and the connector paths, computed by the same layout as the site. A node keeps its place from frame to frame, so the piece can fade nodes in and recolor them without the graph jumping. |
 | `/graph/graph.json` on the site | The current graph in the same shape as a snapshot, rebuilt on every push. |
 
 Node ids are the blueprint labels (`def:c08-delivery-status`) and do not change between milestones. Statuses are `modelled` (In Lean), `proven`, `open`, `decision` (needs a decision), `ready` (ready to build) and `waiting`.

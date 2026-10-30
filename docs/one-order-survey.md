@@ -4,7 +4,7 @@ This survey lists rules from IATA's public ONE Order material that are candidate
 
 This repository is a proof of concept. It is not affiliated with or endorsed by IATA, and IATA owns the standard and its documentation.
 
-Surveyed on 2026-10-29. The entries describe each rule in our own words and link to the page it comes from. The Enhanced and Simplified Distribution guide carries an IATA notice that prohibits reproducing its content without permission, so nothing here is quoted from it. Status names such as `READY TO PROCEED` are used as identifiers.
+First surveyed on 2026-10-29; the [second round](#second-round) read every area in full. The entries describe each rule in our own words and link to the page it comes from. The Enhanced and Simplified Distribution guide carries an IATA notice that prohibits reproducing its content without permission, so nothing here is quoted from it. Status names such as `READY TO PROCEED` are used as identifiers.
 
 ## How candidates were chosen
 
@@ -102,3 +102,188 @@ These candidates are likely to end as open theorems or `\notready` nodes:
 | OO-001, accepting an offer | C-02, C-03, C-04. C-01 changes the shape of the order `accept` builds. |
 | OO-002, delivering, cancelling and refunding a service | C-08 replaces its four states with the standard's delivery statuses. C-09 and C-10 add to it. |
 | OO-003, payments and refunds | C-13, C-14, C-16, C-17. |
+
+## Second round
+
+The second round, on 2026-10-29, read each area's pages in full, including the worked examples and their XML samples, and returned 160 candidates. Candidates that two areas found independently were merged, which leaves 138, numbered C-24 to C-161. Each is a blueprint node in `blueprint/src/areas/`, with the rule in our own words, a case to check where the sources suggest one, the open point for vague and silent rules, and links to its pages.
+
+Some candidates record places where the sources disagree with each other, for example a worked example that contradicts a concept page. Those are open points too: the business decides which reading holds.
+
+
+### Offers, prices and conditions
+
+| ID | Rule | Kind | Standard | Capabilities |
+| --- | --- | --- | --- | --- |
+| C-24 | Offer expiry ends other limits | Guarantee | Vague | SHPFLT |
+| C-25 | Price guarantee at an instant | Definition | Clear | SHPFLT |
+| C-26 | Accepting after the guarantee lapses | Definition | Silent | SHPFLT |
+| C-27 | Order time limits only extend | Guarantee | Clear | SHPFLT |
+| C-28 | Payment time limit at creation | Definition | Vague | SHPFLT |
+| C-29 | Nesting of guarantee time limits | Guarantee | Vague | SHPFLT |
+| C-30 | Restriction rule in force | Definition | Vague | SHPOR1, SHPOR2 |
+| C-31 | Voluntary change under a restriction | Guarantee | Vague | SHPOR1, SHPOR2 |
+| C-32 | Refund owed on voluntary cancellation | Definition | Vague | SHPOR1, SHPOR2 |
+| C-33 | Taxes on a non-refundable fare | Guarantee | Silent | SHPOR1, SHPOR2 |
+| C-34 | Price total from its parts | Guarantee | Vague | SHPFLT, SHPDSC |
+| C-35 | Tax summary total and detail | Guarantee | Clear | SHPFLT |
+| C-36 | Consumption tax lines add up | Guarantee | Silent | SHPFLT |
+| C-37 | Seller margin stays outside order | Guarantee | Clear |  |
+| C-38 | Mandatory and optional offer items | Definition | Vague | SHPFLT |
+| C-39 | Offer responsible airline owns order | Guarantee | Clear | SHPITL |
+| C-40 | Terms of a combined interline offer | Definition | Silent | SHPITL |
+| C-41 | Currency of an offer's amounts | Definition | Vague | SHPLOC |
+| C-42 | Time limits as UTC instants | Definition | Vague | SHPFLT |
+
+### Ancillaries, seats and bundles
+
+| ID | Rule | Kind | Standard | Capabilities |
+| --- | --- | --- | --- | --- |
+| C-43 | Dependent service and its parent | Definition | Vague | SHPANC, ORDRE2 |
+| C-44 | Ancillary needs a flight service | Guarantee | Vague | SHPANC, SHPSTO, SHPSTA, ORDRE2 |
+| C-45 | Cancelling a flight with ancillaries | Definition | Silent | ORDRE2, SHPANC |
+| C-46 | Dependents when a flight changes | Definition | Silent | ORDRE2, ORDOCN |
+| C-47 | Dependent impact shown before acceptance | Guarantee | Vague | ORDRE2 |
+| C-48 | Dependent service lost by airline change | Definition | Silent | ORDRE2 |
+| C-49 | One passenger per seat | Guarantee | Silent | SHPSTA, SHPSTO, SHPSTP |
+| C-50 | One seat per passenger per segment | Guarantee | Silent | SHPSTA, SHPSTP, ORDRE2 |
+| C-51 | Seat needs an eligible price point | Guarantee | Vague | SHPSTP, SHPSTA |
+| C-52 | A-la-carte offer item | Definition | Clear | SHPANC, SHPSTP, ORDRE2 |
+| C-53 | Price of an a-la-carte selection | Definition | Vague | SHPANC, ORDRE2, SHPSTP |
+| C-54 | Bundle of services | Definition | Vague | SHPBND |
+| C-55 | Value of one bundled service | Definition | Silent | SHPBND |
+| C-56 | Pick M of N price | Guarantee | Vague | SHPBND |
+| C-57 | Free seat creates a zero-priced item | Guarantee | Vague | SHPSTP, ORDRE2 |
+| C-58 | Pooled baggage allowance | Definition | Vague | SHPANC |
+| C-59 | Extra baggage weight | Definition | Vague | SHPANC |
+| C-60 | Matching a taxonomy criterion | Definition | Silent | SHPSRV, SHPAN2, SHPAN3 |
+| C-61 | Removing a passenger and dependents | Guarantee | Vague | ORDRE2, SHPANC |
+
+### Order creation and order information
+
+| ID | Rule | Kind | Standard | Capabilities |
+| --- | --- | --- | --- | --- |
+| C-62 | Selecting items from an offer | Definition | Vague | ORDCRE, ORDWPM, ORDCWT, SHPANC, SHPBND |
+| C-63 | Order items match the selection | Guarantee | Clear | ORDCRE, ORDWPM |
+| C-64 | Atomic order creation | Guarantee | Vague | ORDCRE, ORDWPM |
+| C-65 | Failed payment at order creation | Definition | Vague | ORDCRE |
+| C-66 | One order per offer | Guarantee | Silent | ORDCRE, ORDWPM |
+| C-67 | Statuses of a new order | Guarantee | Vague | ORDWPM, ORDCRE |
+| C-68 | Paying for part of an order | Definition | Silent | ORDWPM, ORDCRE |
+| C-69 | Order items in a retrieved order | Definition | Vague | ORDRET |
+| C-70 | Read access to an order | Definition | Silent | ORDRET, ORDLST, ORDHIS |
+| C-71 | Group order limits | Definition | Silent | ORDGRP |
+| C-72 | History rebuilds every version | Guarantee | Vague | ORDHIS, ORDRET, ORDOC2 |
+| C-73 | Version tracks seller-visible changes | Guarantee | Vague | ORDRET, ORDHIS, ORDOC2 |
+| C-74 | Change against a stale version | Definition | Vague | ORDRET, ORDHIS, ORDOC2 |
+| C-75 | Service IDs in an order | Guarantee | Vague | ORDCRE, ORDRET, ORDOC2 |
+| C-76 | Retention after first usage | Definition | Vague | ORDRET, ORDHIS |
+| C-77 | Order ID | Definition | Vague | ORDCRE, ORDWPM, ORDRET |
+| C-78 | Order owner is the offer owner | Guarantee | Vague | ORDCRE, ORDWPM |
+| C-79 | Order total from item prices | Guarantee | Vague | ORDCRE, ORDWPM |
+| C-80 | Verifying distribution chain identities | Definition | Vague | ORDCRE, ORDWPM |
+
+### Change and cancellation (seller-initiated)
+
+| ID | Rule | Kind | Standard | Capabilities |
+| --- | --- | --- | --- | --- |
+| C-81 | Price differential of a change | Definition | Vague | ORDRSH, ORDCAN, ORDCA2, ORDPEN, ORDFOR, ORDREU |
+| C-82 | Due amounts net to the difference | Guarantee | Vague | ORDRSH, ORDCAN, ORDPEN, ORDFOR |
+| C-83 | Order balance after servicing | Guarantee | Vague | ORDPEN, ORDFOR, ORDRSH, PAYREF, PAYSUM |
+| C-84 | Change accepted before payment | Definition | Silent | ORDRSH, ORDPEN, ORDFOR, PAYREF, PAYORD |
+| C-85 | Penalty larger than the refund | Definition | Silent | ORDCAN, ORDCA2, ORDPEN |
+| C-86 | Full cancellation keeps no residual | Guarantee | Vague | ORDCA2, ORDREU |
+| C-87 | Cancelling a partly paid order | Definition | Vague | ORDCA2, ORDCAN |
+| C-88 | Removing one passenger from an item | Definition | Silent | ORDCAN, ORDRSH |
+| C-89 | Reusable amount on cancellation | Definition | Silent | ORDREU, ORDCAN |
+| C-90 | Settling money the airline owes | Definition | Vague | ORDCAN, ORDRSH, ORDREU, ORDFOR |
+| C-91 | Value store time windows | Definition | Silent | ORDCA2, ORDCAN |
+| C-92 | Stored value is used once | Guarantee | Silent | ORDREU |
+| C-93 | Transferred originals hold no value | Guarantee | Vague | ORDRSH |
+| C-94 | Refund waits for separate penalty | Guarantee | Clear | ORDPEN, ORDCAN |
+| C-95 | Penalties and forfeits persist | Guarantee | Clear | ORDPEN, ORDFOR |
+| C-96 | Name change through an offer | Definition | Silent | ORDNAM |
+| C-97 | Changes made without an offer | Definition | Vague | ORDPAX, ORDRSH, ORDNAM, ORDCAN, ORDCA2 |
+| C-98 | Full cancellation equals item cancellations | Guarantee | Vague | ORDCA2, ORDCAN |
+| C-99 | Stored value belongs to payer | Guarantee | Silent | ORDREU |
+
+### Airline-initiated change
+
+| ID | Rule | Kind | Standard | Capabilities |
+| --- | --- | --- | --- | --- |
+| C-100 | Penalty when declining an airline change | Guarantee | Silent | ORDOCN |
+| C-101 | Refund for a cancelled flight | Guarantee | Silent | ORDOCN |
+| C-102 | Consequence of a missed time limit | Definition | Vague | ORDOCN |
+| C-103 | Change applied before seller response | Guarantee | Vague | ORDOCN, ORDOC2 |
+| C-104 | Paid status after re-accommodation | Guarantee | Vague | ORDOCN, ORDOC2 |
+| C-105 | Unacknowledged change notice | Guarantee | Silent | ORDOCN |
+| C-106 | Changes that require a customer choice | Definition | Silent | ORDOCN |
+| C-107 | Voluntary and involuntary change | Definition | Vague | ORDOCN, ORDOC2 |
+| C-108 | Pending follow-up actions | Guarantee | Vague | ORDOCN |
+| C-109 | Repricing after waitlist confirmation | Definition | Vague | ORDOCN |
+| C-110 | Who is told of a change | Definition | Vague | ORDOCN, STPNTF |
+| C-111 | Cancelled service in an active item | Guarantee | Vague | ORDOCN |
+| C-112 | Price of reshopping after airline change | Guarantee | Vague | ORDOCN |
+| C-113 | Seller follow-up action | Definition | Clear | ORDOCN, ORDOC2 |
+
+### Delivery and fulfilment
+
+| ID | Rule | Kind | Standard | Capabilities |
+| --- | --- | --- | --- | --- |
+| C-114 | Who sets each delivery status | Definition | Vague | ORDSTS, ORDDEL |
+| C-115 | Payment before delivery starts | Guarantee | Vague | ORDDEL |
+| C-116 | Final delivery statuses | Definition | Vague | ORDSTS |
+| C-117 | Held value after cancellation | Definition | Vague |  |
+| C-118 | Expiry of an unclaimed service | Definition | Vague | ORDSTS |
+| C-119 | Passenger no-show | Definition | Vague | ORDSTS |
+| C-120 | Refund after a failed delivery | Definition | Silent | ORDSTS |
+| C-121 | Seller told of status changes | Guarantee | Vague | ORDST2 |
+| C-122 | Announced future delivery status | Guarantee | Vague |  |
+| C-123 | No changes after closing | Guarantee | Vague |  |
+| C-124 | Transfer keeps delivery status | Guarantee | Vague |  |
+| C-125 | Delivery milestones and status | Guarantee | Vague | ORDSTS |
+
+### Payment
+
+| ID | Rule | Kind | Standard | Capabilities |
+| --- | --- | --- | --- | --- |
+| C-126 | Paid order item | Definition | Vague | PAYORD, PAYSUM, PAYMIX |
+| C-127 | Payment status and its moves | Definition | Vague | PAYSUM, PAYRCV, PAYGTW, PAYSET |
+| C-128 | Effects of a payment outcome | Guarantee | Vague | PAYORD, PAYGTW, PAYSUM, ORDDEL |
+| C-129 | Time limit on unpaid items | Guarantee | Vague | PAYORD, ORDWPM |
+| C-130 | Unpaid item at its time limit | Definition | Vague | PAYORD, PAYGTW |
+| C-131 | No payment after the limits | Guarantee | Vague | PAYORD, PAYRCV |
+| C-132 | Failed payment leaves items unpaid | Guarantee | Clear | PAYMIX |
+| C-133 | Allocating a payment across items | Definition | Silent | PAYMIX |
+| C-134 | Combinable payment methods | Definition | Silent | PAYMIX, PAYCPC |
+| C-135 | Surcharge on each payment method | Definition | Clear | PAYMIX, PAYCPC |
+| C-136 | Quoted surcharge at payment time | Guarantee | Vague | PAYCPC, PAYRCV |
+| C-137 | Refundable payment surcharges | Definition | Vague | PAYREF, PAYMIX |
+| C-138 | Refund as a negative payment | Definition | Silent | PAYREF, PAYSUM |
+| C-139 | Retrying a failed payment | Definition | Vague | PAYRCV, PAY3D2 |
+| C-140 | Commitment only when nothing due | Guarantee | Vague | PAYORD, PAYMIX |
+| C-141 | Paying with a voucher | Definition | Silent | PAYVCH, PAYMIX |
+
+### Commission, accounting and settlement
+
+| ID | Rule | Kind | Standard | Capabilities |
+| --- | --- | --- | --- | --- |
+| C-142 | Settlement value of a service | Definition | Vague | ACCRE2 |
+| C-143 | Billing limited to delivered services | Guarantee | Vague | ACCSTS |
+| C-144 | First accounting posting after payment | Guarantee | Vague | ACCRE2, ACCREP |
+| C-145 | Revenue recognized at final status | Guarantee | Vague | ACCSTS, ORDSTS |
+| C-146 | Money balance of an order | Guarantee | Silent | ACCSTS, ACCRE2 |
+| C-147 | Commission on an item | Definition | Vague | PAYCOM |
+| C-148 | Net clearance amount | Definition | Vague | PAYCMT, STTCAP, PAYSET, PAYREF |
+| C-149 | Commission cleared exactly once | Guarantee | Clear | PAYCMT |
+| C-150 | Clearance request matches the order | Guarantee | Clear | STTCAP, PAYCMT |
+| C-151 | One clearance per payment commitment | Guarantee | Vague | STTCAP, PAYSET |
+| C-152 | Clearance status | Definition | Vague | STTSUM, STTCAP, STTCAN |
+| C-153 | Cancelling a clearance | Definition | Vague | STTCAN |
+| C-154 | Clearing total | Guarantee | Vague | STTSUM |
+| C-155 | Net position per remittance date | Guarantee | Vague | STTSUM, STTCAP |
+| C-156 | Settled and unsettled clearance amounts | Guarantee | Vague | STTSUM, STTHST |
+| C-157 | Netting on a change | Definition | Vague |  |
+| C-158 | Order of accounting postings | Guarantee | Vague | ACCSTS, ACCRE2 |
+| C-159 | Commission from offer to order | Guarantee | Vague | PAYCOM |
+| C-160 | Requesting a clearance | Definition | Vague | STTCAP |
+| C-161 | Allocating a short remittance | Definition | Vague | STTSUM |

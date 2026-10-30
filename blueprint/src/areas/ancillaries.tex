@@ -2,4 +2,416 @@
 
 \section{Ancillaries, seats and bundles}
 
-% No candidates yet.
+% Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
+
+\begin{definition}[Dependent service and its parent (C-43)]
+  \label{def:ancillaries-service-dependency}
+  \uses{def:c01-structure}
+  \notready
+  A dependent service, such as a bag, seat or meal, belongs to a parent
+  flight service for the same passenger on the same passenger segment. The
+  order records the link either as a direct reference from the dependent
+  service to its parent or only through the shared passenger and segment.
+
+  Case to check: In the seat worked example the seat services carry no
+  reference to a flight service. A rule that follows direct references finds
+  no dependents of the SEG1 flight service and so reports no impact when
+  that flight changes.
+
+  Open point: The business must choose which link defines the dependency,
+  and whether one ancillary may depend on another ancillary, such as a
+  lounge pass on a premium seat. The impacted dependent services page shows
+  a direct service reference, while the add ancillary worked examples link
+  bags and seats only to the passenger segment.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226524}{EASD guide, Shop for Ancillaries}.
+\end{definition}
+
+\begin{theorem}[Ancillary needs a flight service (C-44)]
+  \label{thm:ancillaries-ancillary-needs-flight}
+  \uses{def:ancillaries-service-dependency, def:accept, thm:accept-rejects-expired}
+  \notready
+  A flight-related ancillary enters an order only together with a flight
+  service for the same passenger and segment, either in the same acceptance
+  or already in the order. A seat map requested for an offer requires the
+  offer to hold a flight and be unexpired.
+
+  Open point: The source states this as a purchase precondition and never
+  defines flight related. The taxonomy tree gives one answer: codes under
+  Flight (0064) are flight related and codes under Journey (319C), such as
+  insurance, are not. The business must confirm that and say whether the
+  rule holds for the life of the order or only at purchase.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226524}{EASD guide, Shop for Ancillaries};
+  \href{https://retailing.iata.org/armi/docs/SHPANC/}{IATA capability SHPANC};
+  \href{https://retailing.iata.org/armi/docs/SHPSTO/}{IATA capability SHPSTO};
+  \href{https://retailing.iata.org/armi/docs/ORDRE2/}{IATA capability ORDRE2};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301482}{EASD guide, Customer Adds an Ancillary to Existing Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652513}{EASD guide, Airline Taxonomy Codeset}.
+\end{theorem}
+
+\begin{definition}[Cancelling a flight with ancillaries (C-45)]
+  \label{def:ancillaries-flight-cancel-dependents}
+  \uses{def:ancillaries-service-dependency, def:c15-cancel-order, def:c06-item-status, def:c08-delivery-status, def:refund}
+  \notready
+  When a flight service is cancelled, each service that depends on it ends
+  up cancelled, kept, or flagged for the customer. The source shows a seller
+  naming the flight item and the ancillary item together in one cancellation
+  and gives no rule for a flight cancelled alone.
+
+  Case to check: In the add bag worked example the extra bag item says
+  cancellation is not allowed. Cancelling the flight then either cancels the
+  bag against its own condition or leaves a confirmed bag on a segment the
+  passenger no longer flies. Included bags held as separate zero-priced
+  items, which the ARMI guidance permits, face the same choice.
+
+  Open point: The business must decide whether cancelling a flight cancels
+  its dependents automatically, is refused until the seller names them too,
+  or leaves them in place. It must also decide whose conditions govern the
+  refund of each cancelled dependent: the dependent's own or the flight's.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980}{ARMI, General Guidance};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
+\end{definition}
+
+\begin{definition}[Dependents when a flight changes (C-46)]
+  \label{def:ancillaries-flight-change-dependents}
+  \uses{def:ancillaries-service-dependency, def:c18-change, thm:c19-transfer-balanced, thm:c20-value-store, thm:ancillaries-seat-one-passenger}
+  \notready
+  When a flight is replaced, the system decides for each dependent service
+  whether it moves to the new flight, is cancelled with its value refunded
+  or stored, or must be reshopped. The source requires the effect to be
+  stated and does not say which effect applies.
+
+  Case to check: Moving paid seat 12C from SEG1 to a replacement flight
+  where another passenger holds 12C breaks one passenger per seat. Moving it
+  to a different seat may land on a seat with a different price point.
+
+  Open point: The business must give the effect for each service type. Seats
+  are the hard case, because the seat number may not exist or may already be
+  taken on the new flight.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574914614}{EASD guide, Shop For Replacement Services};
+  \href{https://retailing.iata.org/armi/docs/ORDRE2/}{IATA capability ORDRE2};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order}.
+\end{definition}
+
+\begin{theorem}[Dependent impact shown before acceptance (C-47)]
+  \label{thm:ancillaries-dependent-impact-disclosed}
+  \uses{def:ancillaries-service-dependency, def:ancillaries-flight-change-dependents}
+  \notready
+  For a customer-initiated change, every reshop offer that would affect a
+  dependent service says so and states the effect. The customer either
+  accepts or reshops with the affected service included, so no dependent
+  service changes without a stated effect the customer accepted.
+
+  Open point: The source does not define when a dependent service counts as
+  impacted or what the stated effect must contain. The business must decide
+  whether a change of price, seat number or delivery status counts. It must
+  also decide whether the seller must pass the disclosure to the customer
+  before acceptance, since the source says only that it should.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
+\end{theorem}
+
+\begin{definition}[Dependent service lost by airline change (C-48)]
+  \label{def:ancillaries-involuntary-dependent-loss}
+  \uses{def:ancillaries-service-dependency, def:ancillaries-flight-change-dependents, def:refund, def:c08-delivery-status}
+  \notready
+  When an airline-initiated change affects a dependent service, the airline
+  notifies the seller with any follow-up actions, a time limit and the
+  consequence of no action. The customer accepts the change, or declines and
+  cancels or reshops, and the reshop may cost more.
+
+  Case to check: A customer paid 50.00 for seat 12C. The airline swaps the
+  aircraft and 12C no longer exists. With no automatic refund and
+  Auto-acceptance as the consequence of inaction, a customer who does
+  nothing loses the 50.00, and one who reshops may pay again for a seat.
+
+  Open point: The business must decide what the customer is owed when an
+  airline change removes a paid ancillary: an automatic refund, a free
+  replacement, or a reshop at the customer's cost. The source allows extra
+  payment on reshop and sets no limit.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849094}{EASD guide, Seller Follow-up Actions}.
+\end{definition}
+
+\begin{theorem}[One passenger per seat (C-49)]
+  \label{thm:ancillaries-seat-one-passenger}
+  \uses{def:c01-structure, def:passenger}
+  \notready
+  On a given flight, no seat is assigned to two passengers at once. A seat
+  assignment holds a seat and the passenger segment it applies to, and the
+  seat map marks each seat available or occupied.
+
+  Case to check: The seat worked example selects 12B for PAX01 and 12C for
+  PAX02. Nothing in the described rules refuses a request selecting 12B for
+  both on SEG1. A segment flown on two legs with a change of aircraft has
+  two seat maps, so one seat per segment is ambiguous.
+
+  Open point: The source states no uniqueness rule. The business must decide
+  whether uniqueness is checked within one order or across every order on
+  the flight. It must also decide whether the unit is the passenger segment
+  or the operating leg, since an assigned seat sits on a leg while
+  referencing a segment.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574586953}{EASD guide, Seat Map and Availability};
+  \href{https://retailing.iata.org/armi/docs/SHPSTA/}{IATA capability SHPSTA};
+  \href{https://retailing.iata.org/armi/docs/SHPSTO/}{IATA capability SHPSTO};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability}.
+\end{theorem}
+
+\begin{theorem}[One seat per passenger per segment (C-50)]
+  \label{thm:ancillaries-seat-one-per-passenger}
+  \uses{thm:ancillaries-seat-one-passenger, def:c01-structure, def:c06-item-status}
+  \notready
+  A passenger holds at most one active seat assignment on each segment of an
+  order.
+
+  Case to check: A seller adds 14A for PAX01 on SEG1 through a second quote
+  while 12B is still confirmed. Both seat items are \texttt{ACTIVE}, and the
+  passenger holds two seats on one segment.
+
+  Open point: The business must decide whether a passenger may hold extra
+  seats, for comfort or for a large instrument, and how such a seat is
+  represented. It must also decide whether choosing a new seat cancels the
+  old seat item and with what refund.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574586953}{EASD guide, Seat Map and Availability}.
+\end{theorem}
+
+\begin{theorem}[Seat needs an eligible price point (C-51)]
+  \label{thm:ancillaries-seat-eligible-price-point}
+  \uses{def:ancillaries-alacarte-item, thm:ancillaries-seat-one-passenger}
+  \notready
+  A seat is assigned to a passenger on a segment only through the price
+  point offer item that the seat references on the seat map, and only if
+  that item lists the passenger and segment as eligible. The seat is
+  available when chosen.
+
+  Open point: The source attaches price points to available seats and lists
+  eligible passengers on each price point, and never says a selection is
+  checked against either. The business must decide whether an available seat
+  without a price point can be chosen, and who enforces eligibility such as
+  exit row restrictions.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/SHPSTP/}{IATA capability SHPSTP};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455867}{EASD guide, Seat Map and Price Points};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability}.
+\end{theorem}
+
+\begin{definition}[A-la-carte offer item (C-52)]
+  \label{def:ancillaries-alacarte-item}
+  \uses{def:offer-item, def:c01-structure, def:money}
+  An a-la-carte offer item is always optional and has a unit price, a set of
+  eligible passengers and a set of eligible segments or journeys. It holds
+  no flight service. Each service ordered from it applies to one passenger
+  on one segment.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464}{EASD guide, Offers};
+  \href{https://retailing.iata.org/armi/docs/SHPANC/}{IATA capability SHPANC};
+  \href{https://retailing.iata.org/armi/docs/SHPSTP/}{IATA capability SHPSTP}.
+\end{definition}
+
+\begin{definition}[Price of an a-la-carte selection (C-53)]
+  \label{def:ancillaries-alacarte-price}
+  \uses{def:ancillaries-alacarte-item, def:money, thm:accept-price-eq-sum, thm:c02-item-per-offer-item}
+  \notready
+  Choosing an a-la-carte item for a passenger with quantity q over n
+  eligible segments creates one order item per passenger and segment. Each
+  order item costs the unit price times q, so the selection costs the unit
+  price times q times n.
+
+  Case to check: In the add bag worked example the seller selects a 50.00
+  bag with quantity 1 over two journeys, and the order gains two order items
+  of 50.00, 100.00 in total. Reading quantity 1 as one charge gives 50.00.
+  The example also creates two order items from one offer item, which
+  contradicts C-02 as written. Each journey there has one segment, so it
+  cannot separate per journey from per segment pricing.
+
+  Open point: The source calls the price a unit price without naming the
+  unit. The business must decide whether the unit is per passenger per
+  segment, per journey or per order, and how quantity multiplies it.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464}{EASD guide, Offers};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301531}{EASD guide, Customer Adds an Ancillary to Existing Order - Service list}.
+\end{definition}
+
+\begin{definition}[Bundle of services (C-54)]
+  \label{def:ancillaries-bundle-meaning}
+  \uses{def:offer-item, thm:c04-item-unsplit, def:order-creation-offer-item-selection}
+  \notready
+  A bundle is a set of services sold together at one price that the customer
+  cannot take apart. Conditions set on the offer item apply to every service
+  in it.
+
+  Case to check: Under the ARMI reading a flight item and a mandatory meal
+  item form one bundle, yet the cancellation page lets a seller delete the
+  meal order item alone as a partial cancellation.
+
+  Open point: The EASD bundle page places a bundle inside one offer item,
+  while the ARMI bundle capability treats it as the mandatory offer items of
+  an offer, each with its own price. The business must pick one, because it
+  decides whether removing a bundled ancillary later is a change to one item
+  or a cancellation of a separate item.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619818}{EASD guide, Bundles};
+  \href{https://retailing.iata.org/armi/docs/SHPBND/}{IATA capability SHPBND};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464}{EASD guide, Offers};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+\end{definition}
+
+\begin{definition}[Value of one bundled service (C-55)]
+  \label{def:ancillaries-bundle-part-value}
+  \uses{def:ancillaries-bundle-meaning, def:refund, def:c05-holds-value, def:c18-change}
+  \notready
+  When one service in a bundle is cancelled, removed or not delivered, the
+  system must give it a share of the bundle price to compute any refund,
+  stored value or price difference. The source prices a bundle only as a
+  whole.
+
+  Case to check: In the seat worked example one 1000.00 order item holds
+  both passengers' flights and bags. The cancellation page removes a
+  passenger by cancelling that passenger's services inside such an item and
+  notes that the rest must be re-priced, with no rule for the removed share.
+
+  Open point: The business must decide how a bundle price splits among its
+  services: by stated component prices, by stand-alone prices, or not at
+  all, so that removing a part returns nothing.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619818}{EASD guide, Bundles};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability}.
+\end{definition}
+
+\begin{theorem}[Pick M of N price (C-56)]
+  \label{thm:ancillaries-pick-m-of-n}
+  \uses{def:ancillaries-bundle-meaning, def:offer-item}
+  \notready
+  In a pick M of N offer item, the customer chooses at most M of the N
+  listed services. The price is the same whatever the choice.
+
+  Case to check: Under the fixed price reading a customer who picks no
+  service still pays the full price of the item.
+
+  Open point: The source gives a maximum and no minimum. The business must
+  decide whether choosing fewer than M, or none, still costs the full price,
+  and whether unused picks can be claimed after the order exists.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619818}{EASD guide, Bundles}.
+\end{theorem}
+
+\begin{theorem}[Free seat creates a zero-priced item (C-57)]
+  \label{thm:ancillaries-free-seat-zero-item}
+  \uses{def:c12-zero-commitment, def:ancillaries-alacarte-item}
+  \notready
+  Assigning a free seat creates its own order item priced at zero, as a paid
+  seat does. The payment step covers the free seat with a commitment and
+  charges nothing.
+
+  Open point: The two pages of the seat worked example disagree: one says
+  payment is processed for free and paid seats alike, the other says a free
+  seat is only committed. The business must decide which, which ties to
+  C-12.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301482}{EASD guide, Customer Adds an Ancillary to Existing Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268814}{EASD guide, Customer Adds an Ancillary to Existing Order - Seat Availability};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980}{ARMI, General Guidance}.
+\end{theorem}
+
+\begin{definition}[Pooled baggage allowance (C-58)]
+  \label{def:ancillaries-pooled-baggage}
+  \uses{def:passenger}
+  \notready
+  A baggage allowance associated with several passengers together is shared
+  among them, and one associated with each passenger separately limits that
+  passenger alone. Under a sum reading, any bags that fit the separate
+  allowances also fit the pooled one.
+
+  Case to check: Two passengers pool 2 pieces each with a 46 kg total. Under
+  the sum reading they may check 4 bags up to 92 kg. Under the stated totals
+  reading they may check 2 bags up to 46 kg, less than they had separately.
+
+  Open point: The pooled example gives each passenger two pieces of 23 kg
+  with a 46 kg total. The business must decide whether the pooled limit is
+  the sum over passengers or the stated totals once, and whether the
+  per-piece maximum still applies to each bag.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423130}{EASD guide, Baggage Ancillary [\texttt{CON\_SHP\_01}]}.
+\end{definition}
+
+\begin{definition}[Extra baggage weight (C-59)]
+  \label{def:ancillaries-extra-baggage-weight}
+  \uses{def:ancillaries-alacarte-price}
+  \notready
+  Buying extra weight as quantity q of a unit-weight bag service yields one
+  extra allowance of q times the unit weight. The airline returns it as a
+  single extra bag allowance.
+
+  Case to check: A passenger with one 23 kg bag buys 5 kg extra and checks
+  one 28 kg bag. The bag is allowed if the extra raises the existing limit
+  and refused if the extra is a separate 5 kg piece.
+
+  Open point: The source describes the extra weight as added on top of an
+  existing allowance, but its example returns a separate one-piece allowance
+  with its own maximum. The business must decide whether extra weight raises
+  an existing bag's limit or adds a separate piece.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423130}{EASD guide, Baggage Ancillary [\texttt{CON\_SHP\_01}]}.
+\end{definition}
+
+\begin{definition}[Matching a taxonomy criterion (C-60)]
+  \label{def:ancillaries-taxonomy-criteria}
+  \uses{def:offer}
+  \notready
+  Taxonomy codes form a tree rooted at code 0000, and a service tagged with
+  a code is also described by every ancestor of that code. A seller's
+  service criterion is Required, Exclude or Preferred, and a criterion with
+  no level counts as Preferred.
+
+  Case to check: A seller excludes Checked Baggage (13EC). An offer with a
+  service tagged Bag (1450), a child of 13EC, passes an exact-code filter
+  and fails a tree filter.
+
+  Open point: The source does not say whether a criterion matches
+  descendants of its code. It also does not say whether Required and Exclude
+  bind the airline, since both capability pages say the airline may consider
+  them and taxonomy use is not mandated. The business must settle both
+  before any filtering guarantee can hold.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652545}{EASD guide, Airline Taxonomy};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652513}{EASD guide, Airline Taxonomy Codeset};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574816319}{EASD guide, Use of Taxonomy};
+  \href{https://retailing.iata.org/armi/docs/SHPSRV/}{IATA capability SHPSRV};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574914671}{EASD guide, Offer and Order Criteria}.
+\end{definition}
+
+\begin{theorem}[Removing a passenger and dependents (C-61)]
+  \label{thm:ancillaries-remove-passenger}
+  \uses{def:c01-structure, def:c15-cancel-order, def:ancillaries-pooled-baggage, def:ancillaries-service-dependency}
+  \notready
+  Removing a passenger from an order cancels every service of that
+  passenger, ancillaries included, and keeps every service of the other
+  passengers.
+
+  Case to check: Removing adult PAX-1 leaves an infant that references PAX-1
+  with no accompanying adult, and leaves PAX-2 holding a pooled allowance
+  sized for two.
+
+  Open point: The source is silent on what depends on the removed passenger
+  through another passenger. The business must decide what happens to an
+  infant on lap whose record references the removed adult, and to a baggage
+  allowance pooled with the removed passenger.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980}{ARMI, General Guidance};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423130}{EASD guide, Baggage Ancillary [\texttt{CON\_SHP\_01}]}.
+\end{theorem}

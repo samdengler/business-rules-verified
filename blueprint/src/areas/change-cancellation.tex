@@ -60,3 +60,450 @@
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245/Value+Store}{EASD guide, Value Store}.
 \end{theorem}
+
+% Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
+
+\begin{definition}[Price differential of a change (C-81)]
+  \label{def:change-cancellation-price-differential}
+  \uses{def:money, def:c18-change, def:c15-cancel-order}
+  \notready
+  Every change or cancellation offer carries a price differential: the old
+  price, the new price (zero for a cancellation), the penalties, the
+  forfeited amounts, and two non-negative amounts, one due to the airline
+  and one due by the airline. A type code names the outcome: EvenExchange,
+  AddCol, Refund, Residual (a value store), Reusable, AddColAndRefund or
+  AddColAndResidual.
+
+  Open point: The sign of the differential total is inconsistent. The
+  Cancellation of Order Items page shows a refund with a positive total of
+  625.00, while the worked examples show refunds with negative totals, such
+  as minus 1,000.00 in \texttt{EXM\_ORD\_030A}. The business must fix one
+  sign rule, or model only the two non-negative due amounts.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268673}{EASD guide, Customer requests a change to an Order containing a paid OrderItem};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594369}{EASD guide, Customer requests a cancellation to paid Order or OrderItems};
+  \href{https://retailing.iata.org/armi/docs/ORDRSH/}{IATA capability ORDRSH};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554213/Price+Differentials}{EASD guide, Price Differentials}.
+\end{definition}
+
+\begin{theorem}[Due amounts net to the difference (C-82)]
+  \label{thm:change-cancellation-due-net-identity}
+  \uses{def:change-cancellation-price-differential, thm:c16-penalty-net, def:c18-change, def:money}
+  \notready
+  For every change or cancellation offer, the amount due to the airline
+  minus the amount due by the airline equals the new price minus the old
+  price, plus penalties, plus forfeited amounts. Netting of penalties or
+  taxes changes how this net is split between the two due amounts and never
+  changes the net. In \texttt{EXM\_ORD\_003C}, 900 minus 1,000 plus a 40
+  penalty plus 120 forfeited gives 60 due to the airline.
+
+  Case to check: The sample change record on the Modification of an Order
+  page shows a Refund with old and new prices of zero and 100 due by the
+  airline, in currency XSD against prices in USD; no penalty or forfeit
+  explains it. A Reusable cancellation (\texttt{EXM\_ORD\_030E}) shows every
+  amount as zero, so the identity holds only if the value kept on the
+  cancelled item counts as the new price.
+
+  Open point: The equation holds in all eleven worked examples that settle
+  money, but the guide never states it, and C-18 leaves the sign and the
+  penalty term open. The business must adopt this formula, or another one,
+  as the definition of the amount owed on a change.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268745}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection due to penalty and forfeited amount};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594543}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Refund with a Forfeited amount incurred};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594795}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Refund with a Forfeited amount incurred and requiring payment of a penalty};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782}{EASD guide, Modification of an Order}.
+\end{theorem}
+
+\begin{theorem}[Order balance after servicing (C-83)]
+  \label{thm:change-cancellation-order-balance}
+  \uses{def:totals, def:payment, def:refund, thm:c19-transfer-balanced, def:c06-item-status, thm:change-cancellation-penalties-persist, thm:change-cancellation-due-net-identity}
+  \notready
+  At every point in an order's life, payments minus refunds equal the prices
+  of its live order items plus all recorded penalties plus all recorded
+  forfeited amounts. Value store and reusable items count as live at their
+  price. In \texttt{EXM\_ORD\_030B}, 1,000 paid minus 930 refunded equals a
+  50 penalty plus 20 forfeited.
+
+  Case to check: In \texttt{EXM\_ORD\_003C} after acceptance and before
+  payment, the old item is still \texttt{ACTIVE} at 1,000 and the new item
+  is \texttt{ACTIVE} at 900 with 1,000 paid, so the equation fails until the
+  old item stops counting. In the Modification of an Order illustration,
+  payments total 3,100 while the new item shows a price of 3,000 against a
+  quoted new price of 3,100.
+
+  Open point: The ORDPEN and ORDFOR guidance requires that sellers can
+  reconcile all order values against payments and refunds but gives no
+  equation, and C-19 leaves balance undefined. The business must choose the
+  equation and say how an accepted but unpaid change enters it.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDPEN/}{IATA capability ORDPEN};
+  \href{https://retailing.iata.org/armi/docs/ORDFOR/}{IATA capability ORDFOR};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268745}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection due to penalty and forfeited amount};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594543}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Refund with a Forfeited amount incurred};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782}{EASD guide, Modification of an Order};
+  \href{https://retailing.iata.org/armi/docs/PAYREF/}{IATA capability PAYREF};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+additional+collection+and+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594417/Customer+requests+a+cancellation+to+paid+Order+or+OrderItems+resulting+in+full+refund}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in full refund}.
+\end{theorem}
+
+\begin{definition}[Change accepted before payment (C-84)]
+  \label{def:change-cancellation-deferred-payment-change}
+  \uses{def:c11-payment-time-limit, def:c08-delivery-status, def:c05-holds-value, def:c18-change}
+  \notready
+  A seller may accept a change offer and pay later. Until payment, the new
+  item's services are \texttt{CONFIRMED} with a payment time limit, and the
+  old item stays \texttt{ACTIVE} with its replaced services
+  \texttt{CANCELLED} and in \texttt{REMOVED HOLD VALUE}. Payment moves the
+  new services to \texttt{READY TO PROCEED} and the old item to
+  \texttt{CANCELLED}.
+
+  Case to check: In \texttt{EXM\_ORD\_003C} the change is accepted late on
+  18 May 2023 with payment due by 16:00 UTC on 19 May. If the 60.00 is never
+  paid, neither item gives the customer a flight.
+
+  Open point: The source does not say what happens if the payment time limit
+  passes. The business must decide whether the old services return to
+  \texttt{READY TO PROCEED}, or the customer is left with an unpaid new item
+  and cancelled old services.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268673}{EASD guide, Customer requests a change to an Order containing a paid OrderItem};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268745}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection due to penalty and forfeited amount};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+additional+collection+and+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund}.
+\end{definition}
+
+\begin{definition}[Penalty larger than the refund (C-85)]
+  \label{def:change-cancellation-penalty-exceeds-refund}
+  \uses{thm:c16-penalty-net, thm:change-cancellation-due-net-identity, def:c15-cancel-order}
+  \notready
+  With a netted penalty, the amount due by the airline is the refundable
+  value of the cancelled items minus the penalty. The source has no case
+  where the penalty is larger than the refundable value.
+
+  Case to check: Take \texttt{EXM\_ORD\_030B} with a cancellation fee of
+  1,000 in place of 50. The refundable value is 980, so the netted result is
+  20 due to the airline on an offer typed Refund.
+
+  Open point: The business must decide whether a penalty is capped at the
+  refundable value, so that cancelling never leaves the customer owing
+  money, or whether the excess is collected.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594543}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Partial Refund with a Forfeited amount incurred}.
+\end{definition}
+
+\begin{theorem}[Full cancellation keeps no residual (C-86)]
+  \label{thm:change-cancellation-full-cancel-no-residual}
+  \uses{def:c15-cancel-order, thm:c20-value-store, def:c07-order-status}
+  \notready
+  Cancelling a whole order cancels every service and settles any refundable
+  amount. The customer cannot keep residual value in the order for a later
+  reshop.
+
+  Case to check: If a full cancellation must close the order, 030C conflicts
+  with C-07, because its value store service still holds value and keeps the
+  order \texttt{OPENED}.
+
+  Open point: The ORDCA2 guidance states this, but worked example
+  \texttt{EXM\_ORD\_030C} cancels a whole order through the full
+  cancellation request and keeps the full 1,000 as a Value Store order item,
+  leaving the order \texttt{OPENED}. The business must decide whether a full
+  cancellation may end in a value store or a reusable amount.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDCA2/}{IATA capability ORDCA2};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594669}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store}.
+\end{theorem}
+
+\begin{definition}[Cancelling a partly paid order (C-87)]
+  \label{def:change-cancellation-partly-paid-cancel}
+  \uses{def:c15-cancel-order, thm:refunds-le-payments, def:payment}
+  \notready
+  An order with any payment, full or partial, is cancelled through a
+  cancellation offer. Only an order with no payment at all may be cancelled
+  directly.
+
+  Case to check: Take an order priced 1,000 with 300 paid. The worked
+  examples compute refundable value from the old price, which would show
+  1,000 due by the airline against 300 received and break the rule that
+  refunds never exceed payments.
+
+  Open point: The EASD page speaks only of paid and unpaid orders; the
+  partial case comes from ORDCA2. The business must decide which route
+  applies when some items are paid and others are not, and whether the
+  refundable amount is capped at the amount received.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDCA2/}{IATA capability ORDCA2};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+\end{definition}
+
+\begin{definition}[Removing one passenger from an item (C-88)]
+  \label{def:change-cancellation-remove-passenger}
+  \uses{thm:c04-item-unsplit, thm:c19-transfer-balanced, def:c18-change, def:passenger}
+  \notready
+  When one order item covers several passengers, removing a passenger
+  deletes the whole item and lists the other passengers' services to retain.
+  The retained services move to a new item, which is repriced.
+
+  Case to check: Two passengers share one item priced 1,000 under a
+  companion fare. Removing one reprices the other at a 900 single fare, so
+  the leaving passenger is refunded 100 where an even split gives 500.
+
+  Open point: The source does not say whether the retained services keep
+  their share of the original price or are repriced at current fares, or how
+  a penalty is assigned when one passenger leaves. The same page also
+  classes cancelling services inside an item as a change of order, yet uses
+  that method for passenger removal under cancellation.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://retailing.iata.org/armi/docs/ORDCAN/}{IATA capability ORDCAN}.
+\end{definition}
+
+\begin{definition}[Reusable amount on cancellation (C-89)]
+  \label{def:change-cancellation-reusable-amount}
+  \uses{def:c05-holds-value, def:c06-item-status, def:c07-order-status, thm:c20-value-store}
+  \notready
+  A cancellation that asks to respend (RespendInd true) triggers no refund.
+  The item stays \texttt{ACTIVE} at its full price, its services become
+  \texttt{CANCELLED} with delivery status \texttt{REMOVED HOLD VALUE}, the
+  differential is typed Reusable with zero amounts, and the order stays
+  \texttt{OPENED}. The exact amount is computed later, at a refund request
+  or a reshop.
+
+  Case to check: In \texttt{EXM\_ORD\_030E} the customer paid 1,000 and
+  holds an \texttt{ACTIVE} item at 1,000. If the airline recomputes the
+  value lower at reuse, nothing in the source protects the 1,000.
+
+  Open point: The source sets no floor, ceiling or time limit on the amount
+  computed later. The business must decide whether the customer is owed at
+  least what a refund would have paid on the day of cancellation, and when
+  the held value lapses.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDREU/}{IATA capability ORDREU};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594921}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in a Reusable amount};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items}.
+\end{definition}
+
+\begin{definition}[Settling money the airline owes (C-90)]
+  \label{def:change-cancellation-owed-settlement}
+  \uses{def:refund, def:c17-refund-methods, thm:c20-value-store, def:change-cancellation-reusable-amount, def:change-cancellation-price-differential}
+  \notready
+  Money the airline owes after a change or cancellation is settled as a
+  refund (by default to the original form of payment), a Value Store order
+  item, a reusable amount held on the cancelled item, or value on an open
+  accountable document. Non-refundable parts, such as a non-refundable tax,
+  are recorded as forfeited.
+
+  Case to check: In \texttt{EXM\_ORD\_003D} and 003E the refund offer and
+  the value store offer are both worth 150. Nothing in the source stops a
+  150 refund offer alongside a 120 value store offer.
+
+  Open point: The sources differ on who picks the form. The change page has
+  the airline choose between refund and value store, the cancellation page
+  lets the seller request respend, and \texttt{EXM\_ORD\_003D} and 003E show
+  the airline offering both while the seller accepts one. The business must
+  decide who chooses, and whether a value store must equal the refund it
+  replaces.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554168}{EASD guide, Seller Initiated Change to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245}{EASD guide, Value Store};
+  \href{https://retailing.iata.org/armi/docs/ORDCAN/}{IATA capability ORDCAN};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268791}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a value store}.
+\end{definition}
+
+\begin{definition}[Value store time windows (C-91)]
+  \label{def:change-cancellation-value-store-windows}
+  \uses{thm:c20-value-store, def:instant, def:c05-holds-value, def:c07-order-status}
+  \notready
+  A Value Store order item carries its own cancel and change restrictions
+  with start and end dates. In \texttt{EXM\_ORD\_030C} the 1,000 value store
+  may be cancelled at no fee for one year and used in a change for two
+  years, and cancelling is not allowed after the first year.
+
+  Case to check: A customer who holds the 030C value store for 25 months can
+  neither cancel nor use it, yet the order stays \texttt{OPENED} with a
+  service that still holds value under C-05.
+
+  Open point: The source does not say what the customer receives on
+  cancelling a value store, or what happens to unused value when the change
+  window closes: refund, forfeit or a voucher. C-20 leaves expiry open;
+  these windows supply the dates but not the outcome.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594669}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268791}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a value store};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245}{EASD guide, Value Store}.
+\end{definition}
+
+\begin{theorem}[Stored value is used once (C-92)]
+  \label{thm:change-cancellation-stored-value-used-once}
+  \uses{thm:c20-value-store, def:c05-holds-value, def:change-cancellation-owed-settlement}
+  \notready
+  The total drawn from any stored value, whether a Value Store item, a
+  reusable item or an open accountable document, never exceeds its value
+  across all orders. Value moved to a new order leaves the order it came
+  from.
+
+  Case to check: A seller reallocates 500 from an open ticket to a new order
+  through OrderCreate, then quotes a change on the original order naming the
+  same ticket. Nothing in the source marks the 500 as spent.
+
+  Open point: The Value Store page lets value on an open document be
+  reallocated to a new order or within the changed order, recalculated on
+  reuse, but states no rule against using it twice. The business must decide
+  how stored value is tracked and when it is used up, including the partial
+  use that C-20 leaves open.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245}{EASD guide, Value Store}.
+\end{theorem}
+
+\begin{theorem}[Transferred originals hold no value (C-93)]
+  \label{thm:change-cancellation-transferred-original-no-value}
+  \uses{def:c05-holds-value, def:c06-item-status, thm:c19-transfer-balanced, def:c08-delivery-status}
+  \notready
+  A service transferred to a new item holds value only in the new item. The
+  original copy, with status \texttt{TRANSFERRED}, holds no value, so its
+  old item can be \texttt{CANCELLED}.
+
+  Case to check: In \texttt{EXM\_ORD\_003B} after the change, ORDITM01 is
+  \texttt{CANCELLED} while six of its services show \texttt{TRANSFERRED}
+  with \texttt{READY TO PROCEED}. The same six service IDs appear in
+  \texttt{ORDITM02\_NEW} as \texttt{READY TO PROCEED}, so their value is
+  counted twice.
+
+  Open point: In the worked examples the original copy keeps delivery status
+  \texttt{READY TO PROCEED} while its item is \texttt{CANCELLED}. C-05
+  judges value by delivery status alone, under which the cancelled item
+  still holds value and meets the \texttt{ACTIVE} condition of C-06. The
+  business must decide whether the \texttt{TRANSFERRED} status overrides the
+  delivery status.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/841187358}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection};
+  \href{https://retailing.iata.org/armi/docs/ORDRSH/}{IATA capability ORDRSH};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268712}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a value store}.
+\end{theorem}
+
+\begin{theorem}[Refund waits for separate penalty (C-94)]
+  \label{thm:change-cancellation-refund-after-penalty}
+  \uses{thm:c16-penalty-net, def:refund, def:payment, thm:c20-value-store}
+  When a penalty is charged separately, the airline releases the refund, or
+  makes the value store usable, only after the penalty is paid. A netted
+  penalty leaves nothing to wait for.
+
+  Case to check: C-16 treats netted and separate penalties as equivalent. In
+  \texttt{EXM\_ORD\_003G} the separate penalty means the customer pays 60 in
+  cash and receives a 160 value store; netted, the customer would pay
+  nothing and receive 100 stored. The net is equal, but 60 of cash becomes
+  restricted stored value.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594369}{EASD guide, Customer requests a cancellation to paid Order or OrderItems};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268712}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a value store};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844169238}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a value store}.
+\end{theorem}
+
+\begin{theorem}[Penalties and forfeits persist (C-95)]
+  \label{thm:change-cancellation-penalties-persist}
+  \uses{def:order, def:c18-change, def:money}
+  From release 24.1, penalties and forfeited amounts are recorded at order
+  level with links to order items. Once recorded, each keeps its amount and
+  stays on the order when its order item is later replaced, cancelled or
+  dropped from the order view.
+
+  Case to check: In the change worked examples the change penalty points at
+  the new item \texttt{ORDITM02\_NEW}, and the next retrieval no longer
+  shows the cancelled item. A model that stores penalties on items would
+  lose them at the next change.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDPEN/}{IATA capability ORDPEN};
+  \href{https://retailing.iata.org/armi/docs/ORDFOR/}{IATA capability ORDFOR};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268673}{EASD guide, Customer requests a change to an Order containing a paid OrderItem}.
+\end{theorem}
+
+\begin{definition}[Name change through an offer (C-96)]
+  \label{def:change-cancellation-name-change}
+  \uses{def:passenger, thm:delivered-not-cancellable, def:c08-delivery-status, def:c06-item-status}
+  \notready
+  A name change or correction is made by accepting a name change offer, free
+  or paid. It adds a name change order item priced at the fee, whose service
+  is \texttt{DELIVERED} at once; it overwrites all name elements of the same
+  passenger and leaves the flight items and their services unchanged.
+  Birthdate, gender, birthplace and additional names cannot be changed this
+  way.
+
+  Case to check: In the paid name change example the fee item ORDITM02 is
+  \texttt{CLOSED} at 100 and the flight item ORDITM01 is unchanged. A full
+  cancellation the next day would refund the flight item under its own rules
+  and keep the 100.
+
+  Open point: The source does not separate correcting a name from handing
+  the booking to another person. It also does not say whether a paid name
+  change fee is refunded if the order is later cancelled; because its
+  service is \texttt{DELIVERED}, the existing rule forbids cancelling it.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDNAM/}{IATA capability ORDNAM};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825346}{EASD guide, Customer Changes Their Name};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672792581}{EASD guide, Paid name changes}.
+\end{definition}
+
+\begin{definition}[Changes made without an offer (C-97)]
+  \label{def:change-cancellation-no-offer-changes}
+  \uses{def:c15-cancel-order, thm:c21-version, def:passenger, def:change-cancellation-partly-paid-cancel}
+  \notready
+  A change goes through an offer when it replaces, adds or cancels items of
+  an order with any payment, removes a passenger, or changes a name. Other
+  passenger details, sharing preferences, cancelling an unpaid order and
+  accepting a follow-up action are made directly; they keep the passenger ID
+  and have no payment step.
+
+  Open point: The direct path has no price, yet the sample change record on
+  the Modification of an Order page pairs an Accept follow-up action with
+  100 due by the airline. The business must decide whether a direct change
+  can create an amount owed and, if so, how it is priced.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554168}{EASD guide, Seller Initiated Change to an Order};
+  \href{https://retailing.iata.org/armi/docs/ORDPAX/}{IATA capability ORDPAX};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782}{EASD guide, Modification of an Order}.
+\end{definition}
+
+\begin{theorem}[Full cancellation equals item cancellations (C-98)]
+  \label{thm:change-cancellation-full-equals-items}
+  \uses{def:c15-cancel-order, thm:c16-penalty-net, thm:change-cancellation-full-cancel-no-residual}
+  \notready
+  Cancelling a whole order produces the same refundable amounts and
+  penalties as cancelling each of its items under the same rules.
+
+  Case to check: An order has two items and a cancellation fee of 50 per
+  transaction. Cancelling the order costs 50; cancelling the items one at a
+  time costs 100.
+
+  Open point: ORDCA2 says the calculation mechanisms are identical but does
+  not say the totals must match. The business must decide whether
+  order-level fees apply once per transaction or once per item, and whether
+  item-by-item cancellation may keep reusable value that a full cancellation
+  may not.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDCA2/}{IATA capability ORDCA2}.
+\end{theorem}
+
+\begin{theorem}[Stored value belongs to payer (C-99)]
+  \label{thm:change-cancellation-stored-value-payer}
+  \uses{def:payment, def:c13-several-methods, def:c17-refund-methods, thm:c20-value-store}
+  \notready
+  A value store is held by the airline for the payer of the transactions
+  that created it.
+
+  Open point: The source does not say whose value it is when several payers
+  or payment methods paid the original item, or when the payer is not the
+  passenger. The business must decide who may use, move or reclaim it.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245}{EASD guide, Value Store}.
+\end{theorem}

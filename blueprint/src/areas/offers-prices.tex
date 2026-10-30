@@ -2,4 +2,404 @@
 
 \section{Offers, prices and conditions}
 
-% No candidates yet.
+% Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
+
+\begin{theorem}[Offer expiry ends other limits (C-24)]
+  \label{thm:offers-offer-expiry-ends-limits}
+  \uses{def:offer, def:instant, thm:accept-rejects-expired}
+  \notready
+  Before an order exists, no other time limit on an offer outlasts the
+  offer's expiry. Once the offer has expired, its inventory guarantee, price
+  guarantee and payment time limit have lapsed too, unless an order was
+  created from it.
+
+  Case to check: An offer item whose price guarantee ends an hour after the
+  offer expires. A model that reads the guarantee field alone treats the
+  price as guaranteed for an hour after the offer is gone.
+
+  Open point: The Offers page also keeps the other limits alive when an
+  order was changed, while the Time Limits page names only order creation.
+  The business must decide whether the expiry of a reshop offer ends limits
+  that would apply to the existing order it changes.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464/Offers}{EASD guide, Offers};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+
+\begin{definition}[Price guarantee at an instant (C-25)]
+  \label{def:offers-price-guarantee}
+  \uses{def:offer-item, def:instant}
+  An offer item's price is guaranteed at an instant only when the item
+  carries a price guarantee time limit and the instant is before that limit.
+  With no such limit the price is unguaranteed. The offer's expiry on its
+  own guarantees neither price nor inventory.
+
+  Case to check: An item whose price guarantee ends at the same instant as
+  the offer. Accepted at that instant, the offer is rejected as expired, yet
+  an inclusive reading of the guarantee still calls the price guaranteed.
+  The source does not fix the boundary.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464/Offers}{EASD guide, Offers}.
+\end{definition}
+
+\begin{definition}[Accepting after the guarantee lapses (C-26)]
+  \label{def:offers-accept-after-guarantee-lapse}
+  \uses{def:accept, thm:accept-price-eq-sum, thm:accept-rejects-expired, def:offers-price-guarantee}
+  \notready
+  When a customer accepts an unexpired offer after an item's price guarantee
+  has lapsed, the airline decides the order price for that item. The source
+  recommends repricing into a new offer before payment.
+
+  Case to check: thm:accept-price-eq-sum makes the order price equal the
+  offer item prices. An offer with a 30 minute price guarantee accepted two
+  hours later, one minute before expiry, is sold at a price the airline no
+  longer stands behind.
+
+  Open point: The business must decide whether acceptance in this window is
+  rejected, forces a reprice into a new offer, or creates the order at the
+  offered price. If repricing at order creation is allowed, the order price
+  can differ from the offer price.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423098/Pricing+Offers}{EASD guide, Pricing Offers}.
+\end{definition}
+
+\begin{theorem}[Order time limits only extend (C-27)]
+  \label{thm:offers-order-limits-only-extend}
+  \uses{def:accept, def:instant, def:c11-payment-time-limit, def:offers-price-guarantee}
+  When an order is created, the time left on an offer item's price guarantee
+  carries into the matching order item. After that the airline may move the
+  order item's price guarantee or payment time limit later and never
+  earlier.
+
+  Case to check: An order change that recomputes the payment time limit from
+  the change instant with a shorter duration than the original would move
+  the limit earlier.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+
+\begin{definition}[Payment time limit at creation (C-28)]
+  \label{def:offers-payment-limit-at-creation}
+  \uses{def:accept, def:instant, def:c11-payment-time-limit, def:c12-zero-commitment}
+  \notready
+  An offer item states its payment time limit as a duration or as a fixed
+  date and time. At order creation the order item's limit becomes the
+  creation instant plus the duration, or the fixed date and time. A zero
+  duration means payment is due at creation.
+
+  Case to check: A fixed offer limit that falls before the order is created
+  gives an order item that is overdue the moment it exists.
+
+  Open point: The source does not say which form wins if an offer item
+  carries both, or how long an order item with no payment time limit may
+  stay unpaid. The business must decide both.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{definition}
+
+\begin{theorem}[Nesting of guarantee time limits (C-29)]
+  \label{thm:offers-guarantee-limits-nest}
+  \uses{def:offers-price-guarantee, def:c11-payment-time-limit}
+  \notready
+  When an item has a price guarantee time limit, that limit is at or after
+  every separate guarantee limit on its base amount, each tax and each fee.
+  Those part limits count only when the overall limit is present. The price
+  guarantee should also end no later than the payment time limit.
+
+  Case to check: The source's table guarantees the base amount and one tax
+  for 5 days in the order. If the order item's overall guarantee stays at
+  the 30 minutes carried from the offer, the parts outlive the whole.
+
+  Open point: The source calls the overall limit the maximum of the parts,
+  which reads either as equal to the latest part or as an upper bound, and
+  the payment limit bound is only a recommendation. The business must pick
+  one reading and decide whether a price guarantee past the payment limit is
+  cut back or refused.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574914636/Fees}{EASD guide, Fees}.
+\end{theorem}
+
+\begin{definition}[Restriction rule in force (C-30)]
+  \label{def:offers-restriction-in-force}
+  \uses{def:offer-item, def:instant}
+  \notready
+  Each change or cancel rule on an offer item belongs to one journey stage
+  (before payment, before departure, after departure, no show) and starts at
+  its effective date. At a given instant the rule in force is the one in the
+  current stage with the latest effective date not after that instant. A
+  rule stops when its stage ends or a later rule takes over.
+
+  Case to check: In the source example (payment 1 Jan 2019, departure 1 Feb
+  2019) the no-change rule described as 7 days before departure starts on 24
+  Jan, which is 8 days before. The text gives the middle fee as 1 CHF where
+  the table and diagram give 60 CHF. Another example sets equal effective
+  and expiration dates, so that rule is never in force.
+
+  Open point: The message examples also give rules an expiration date, which
+  the stage and override reading never uses. The business must decide which
+  governs, and what applies before the first effective date or in a gap
+  between one rule's expiration and the next rule.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574816307/Offer+Conditions+and+Restrictions}{EASD guide, Offer Conditions and Restrictions}.
+\end{definition}
+
+\begin{theorem}[Voluntary change under a restriction (C-31)]
+  \label{thm:offers-change-under-restriction}
+  \uses{def:offers-restriction-in-force, def:c18-change, def:change-cancellation-price-differential}
+  \notready
+  A voluntary change of a given type, such as flight or name, is rejected
+  when the rule in force forbids it. When the rule allows it, the customer
+  pays the rule's fee, or nothing if the rule states no fee, plus any fare
+  difference.
+
+  Case to check: The source example described as a no-show change with total
+  loss of fare carries a name change rule with a 1 CHF fee and no stage, so
+  its description and its data disagree on what the customer owes.
+
+  Open point: The source does not say what applies when no rule covers the
+  current stage, or whether a fee marked approximate binds when the change
+  is made. The business must choose a default for an uncovered stage and
+  decide how an approximate fee is settled.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574816307/Offer+Conditions+and+Restrictions}{EASD guide, Offer Conditions and Restrictions}.
+\end{theorem}
+
+\begin{definition}[Refund owed on voluntary cancellation (C-32)]
+  \label{def:offers-refund-on-cancellation}
+  \uses{def:offers-restriction-in-force, def:c15-cancel-order, thm:c16-penalty-net, def:refund}
+  \notready
+  The cancel rule in force decides what a voluntary cancellation returns. A
+  rule that forbids cancellation returns nothing. A rule that allows it
+  returns a full or a fixed refund, paid to the original form of payment
+  when the rule says so.
+
+  Case to check: Reading that example as the full item price and reading it
+  as 1.00 CHF give two different refunds for the same rule.
+
+  Open point: One source example marks a refund as full and also gives a
+  fixed amount of 1.00 CHF. The business must decide which governs when both
+  are present, and how the rule's refund relates to the penalty netting in
+  thm:c16-penalty-net.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{definition}
+
+\begin{theorem}[Taxes on a non-refundable fare (C-33)]
+  \label{thm:offers-refundable-taxes}
+  \uses{def:offers-refund-on-cancellation, thm:offers-tax-summary-total, def:refund}
+  \notready
+  Each tax, fee and charge on a price carries its own refund flag. When an
+  unused item is cancelled under a rule that forfeits the fare, the customer
+  is still owed the taxes, fees and charges flagged refundable.
+
+  Open point: The source gives refund flags per tax and per fee and refund
+  rules per offer item, but never says how they combine. The business must
+  decide whether a no-refund cancel rule also keeps refundable taxes, and
+  whether a no show changes the answer.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455915/Taxes+Fees+and+Charges}{EASD guide, Taxes, Fees, and Charges};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574914636/Fees}{EASD guide, Fees};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions}.
+\end{theorem}
+
+\begin{theorem}[Price total from its parts (C-34)]
+  \label{thm:offers-price-total-from-parts}
+  \uses{def:money-add, def:offer-item, thm:offers-tax-summary-total, thm:offers-consumption-tax-lines}
+  \notready
+  A price's total equals its base amount plus surcharges, fees, the tax
+  summary total and any consumption tax not already included. The base
+  amount is stated after discounts: the pre-discount amount minus the
+  discount, where a percentage discount is that share of the pre-discount
+  amount.
+
+  Case to check: In the Canadian example every HST line is marked as not
+  included, yet each reports zero excluded tax. Adding the excluded tax
+  raises the total by 58.78 CAD; trusting the zero totals leaves it
+  unchanged.
+
+  Open point: The source names the parts and gives one example that adds up
+  (95.00 base and 20.00 tax give 115.00), but states no formula. The
+  business must decide whether fees and surcharges sit inside the tax
+  summary or add separately, whether a discount applies before taxes are
+  computed, and whether excluded consumption tax adds to the total.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455915/Taxes+Fees+and+Charges}{EASD guide, Taxes, Fees, and Charges};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574914636/Fees}{EASD guide, Fees};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849038/Discounts}{EASD guide, Discounts};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2588377182/Consumption+Taxes}{EASD guide, Consumption Taxes}.
+\end{theorem}
+
+\begin{theorem}[Tax summary total and detail (C-35)]
+  \label{thm:offers-tax-summary-total}
+  \uses{def:money-add, def:accept, def:order-item}
+  A tax summary's total equals the sum of its individual tax, fee and charge
+  amounts, all in one currency. A shopping response may give only the total,
+  but the order created from an accepted offer must hold the individual
+  entries, including consumption tax detail.
+
+  Case to check: An offer shopped with only a tax total and accepted without
+  a pricing step has no entries to copy into the order. The source does not
+  say where they come from or require them to add up to the shopped total.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455915/Taxes+Fees+and+Charges}{EASD guide, Taxes, Fees, and Charges};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2588377182/Consumption+Taxes}{EASD guide, Consumption Taxes}.
+\end{theorem}
+
+\begin{theorem}[Consumption tax lines add up (C-36)]
+  \label{thm:offers-consumption-tax-lines}
+  \uses{def:money, def:money-add, thm:offers-tax-summary-total}
+  \notready
+  In each consumption tax entry, the tax is the rate applied to the taxable
+  base, and the entry's total tax is the sum of its line taxes. A gross
+  amount equals its net amount plus every consumption tax charged on it. All
+  amounts in an entry are in the price's currency.
+
+  Case to check: Italian example: line tax 1.82 against entry total 1.80.
+  Canadian example: line tax 0.93 against entry total 4.55. Australian
+  example: gross in AUD with tax in EUR. Tahiti example: two taxes on one
+  base, so a per-line check that gross equals net plus that line's tax
+  fails.
+
+  Open point: The source shows these relations only through examples,
+  several of which break them, and gives no rounding rule. The business must
+  decide which figure is authoritative when a line and its total disagree,
+  and how to round.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2588377182/Consumption+Taxes}{EASD guide, Consumption Taxes}.
+\end{theorem}
+
+\begin{theorem}[Seller margin stays outside order (C-37)]
+  \label{thm:offers-margin-outside-order}
+  \uses{def:accept, thm:accept-price-eq-sum, def:payment}
+  When the seller is merchant of record and adds a margin, the airline's
+  order total equals the airline offer price including taxes, fees and
+  charges. The order holds no record of the margin, and the seller pays the
+  airline the offer price.
+
+  Case to check: The source places the airline as merchant of record out of
+  scope. In that case the payment recorded on the order would include the
+  margin and exceed the order total, which a rule tying payments to the
+  order total would reject.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849050/Commission+and+Margin}{EASD guide, Commission and Margin}.
+\end{theorem}
+
+\begin{definition}[Mandatory and optional offer items (C-38)]
+  \label{def:offers-mandatory-optional-items}
+  \uses{def:offer, def:offer-item, def:accept, thm:c02-item-per-offer-item, thm:accept-price-eq-sum, thm:c04-item-unsplit}
+  \notready
+  Each offer item is mandatory or optional, and its services and price are
+  fixed once offered. Accepting an offer takes every mandatory item whole
+  plus the optional items chosen; a-la-carte items are all optional, priced
+  per unit, and bought in a chosen quantity. Every offer other than an
+  a-la-carte offer should hold at least one mandatory item.
+
+  Case to check: thm:c02-item-per-offer-item creates one order item per
+  offer item, which fails when the customer skips an optional item. The
+  source's own figure shows an offer total of 80 USD equal to one item while
+  a second item is listed.
+
+  Open point: The source does not say whether an offer's total price counts
+  its optional items. The business must decide that, and how acceptance
+  records the chosen items and quantities.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464/Offers}{EASD guide, Offers};
+  \href{https://standards.atlassian.net/wiki/spaces/SRSIA/pages/574619905/General+Principles+and+Assumptions}{Interline guide, General Principles and Assumptions}.
+\end{definition}
+
+\begin{theorem}[Offer responsible airline owns order (C-39)]
+  \label{thm:offers-ora-owns-order}
+  \uses{def:offer, def:accept, def:order}
+  Each offer has one Offer Responsible Airline, the airline that returns the
+  combined offer; every other airline in it is a Participating Offer
+  Airline. The order created from the offer is owned by the Offer
+  Responsible Airline, which receives the seller's payment commitment and
+  holds the single source of the order's data.
+
+  Case to check: In the interline ordering flow each participating airline
+  also keeps its own order for its services. Status read from that order can
+  disagree with the owner's order unless every status change reaches the
+  owner.
+
+  Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574816490/Roles}{Settlement with Orders, Roles};
+  \href{https://standards.atlassian.net/wiki/spaces/SRSIA/pages/574685353/Ordering}{Interline guide, Ordering}.
+\end{theorem}
+
+\begin{definition}[Terms of a combined interline offer (C-40)]
+  \label{def:offers-interline-offer-terms}
+  \uses{thm:offers-ora-owns-order, def:offers-restriction-in-force, def:offers-mandatory-optional-items}
+  \notready
+  When the Offer Responsible Airline combines a participating airline's
+  offer item into its own offer, it keeps that item whole and accepts the
+  item's settlement value, settlement terms and sales conditions. It sets
+  the customer price itself, and the settlement value, held per service,
+  stays between the two airlines.
+
+  Case to check: A participating airline's segment is non-refundable while
+  the combined offer item is shown as fully refundable. The customer gets a
+  full refund and the Offer Responsible Airline still owes the settlement
+  value.
+
+  Open point: The source does not say how the participating airline's change
+  and cancel rules become the restrictions shown to the customer, or whether
+  the customer price must cover the settlement values. The business must
+  decide both.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/SRSIA/pages/574816454/Shopping}{Interline guide, Shopping};
+  \href{https://standards.atlassian.net/wiki/spaces/SRSIA/pages/574619905/General+Principles+and+Assumptions}{Interline guide, General Principles and Assumptions};
+  \href{https://standards.atlassian.net/wiki/spaces/SRSIA/pages/574914728/Glossary+of+Terms}{Interline guide, Glossary of Terms};
+  \href{https://standards.atlassian.net/wiki/spaces/SRSIA/overview}{Interline guide}.
+\end{definition}
+
+\begin{definition}[Currency of an offer's amounts (C-41)]
+  \label{def:offers-offer-currency}
+  \uses{def:money, def:currency, def:offer, def:money-add}
+  \notready
+  Every amount carries a currency, zero included. Amounts that add into an
+  offer's totals are in the offer's currency and use that currency's number
+  of decimals (two for GBP, three for TND, none for JPY). Local or
+  equivalent amounts in another currency stay out of totals.
+
+  Case to check: The source's Tahiti example states XPF amounts to two
+  decimals, although ISO 4217 gives XPF none. A minor-unit model reads
+  100000.00 XPF as either 100000 or 10000000 units depending on which rule
+  it trusts.
+
+  Open point: The source lets a seller request a currency and lets a fee
+  carry a local amount, but never says which amount binds or whether a
+  conversion rate is guaranteed. The business must decide what the customer
+  pays when the requested currency differs from the airline's pricing
+  currency.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/749305864/Currency+in+Monetary+Amounts}{EASD guide, Currency in Monetary Amounts};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574685264/Price+Decimals}{EASD guide, Price Decimals};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574914636/Fees}{EASD guide, Fees};
+  \href{https://retailing.iata.org/armi/docs/SHPLOC/}{IATA capability SHPLOC}.
+\end{definition}
+
+\begin{definition}[Time limits as UTC instants (C-42)]
+  \label{def:offers-time-limits-as-instants}
+  \uses{def:instant, thm:offers-offer-expiry-ends-limits, def:offers-payment-limit-at-creation}
+  \notready
+  Every time limit on an offer or order resolves to one UTC instant before
+  it is compared with the current time. Flight times are local to their
+  airport and need its offset to resolve.
+
+  Case to check: A payment limit of 2018-01-01 read as midnight UTC and read
+  as the end of that day in a seller zone of UTC-12 differ by 36 hours, so
+  one payment is on time under one reading and late under the other.
+
+  Open point: The source prefers UTC, but its own time limit examples
+  include a bare date and a date and time with no offset. The business must
+  decide which instant such a limit denotes, for example the end of that day
+  at the point of sale.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574488607/Reference+to+Times}{EASD guide, Reference to Times};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{definition}

@@ -20,3 +20,444 @@
 
   Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
 \end{definition}
+
+% Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
+
+\begin{definition}[Selecting items from an offer (C-62)]
+  \label{def:order-creation-offer-item-selection}
+  \uses{def:offer, def:offer-item, def:passenger, def:accept}
+  \notready
+  An order is created from a selection of offer items. The selection must
+  include every item the offer marks mandatory and name the passengers each
+  selected item was built for; optional items may be left out. An item
+  without a mandatory mark counts as optional.
+
+  Case to check: An offer holds a flight item and a seat item and neither
+  carries the mandatory mark. A seller orders the seat alone, and the order
+  holds a seat service with no flight.
+
+  Open point: The guidance says each offer should have at least one
+  mandatory item and exempts a la carte offers, so an offer can have none.
+  The business must decide which selections are allowed then, such as a seat
+  or bag without its flight, and whether an empty selection is rejected.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDCRE/}{IATA capability ORDCRE};
+  \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://retailing.iata.org/armi/docs/SHPANC/}{IATA capability SHPANC};
+  \href{https://retailing.iata.org/armi/docs/SHPBND/}{IATA capability SHPBND};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/600637464}{EASD guide, Offers};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980}{ARMI, General Guidance}.
+\end{definition}
+
+\begin{theorem}[Order items match the selection (C-63)]
+  \label{thm:order-creation-items-match-selection}
+  \uses{def:order-creation-offer-item-selection, thm:c02-item-per-offer-item, thm:accept-price-eq-sum, def:accept}
+  Creating an order yields exactly one order item for each selected offer
+  item and none for the items left out. The new order's price is the sum of
+  the selected items' prices.
+
+  Case to check: C-02 and the theorem that the order price is the sum of the
+  offer's items both range over the whole offer. A seller who leaves out an
+  optional bag gets an order without the bag, and both statements as written
+  fail.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+\end{theorem}
+
+\begin{theorem}[Atomic order creation (C-64)]
+  \label{thm:order-creation-create-atomic}
+  \uses{def:accept, def:rejection, thm:accept-rejects-expired, def:order-creation-offer-item-selection}
+  \notready
+  A create request either produces one order holding every selected item, or
+  produces no order and returns an error. This holds when the selection
+  spans several offers.
+
+  Case to check: A selection takes items from offer A, still valid, and
+  offer B, expired at the request instant. An airline that creates an order
+  from A alone leaves the customer with half of a trip chosen as a whole.
+
+  Open point: The capability pages allow one order from several offers and
+  do not say what happens when one of them has expired or fails validation.
+  The business must decide whether the whole request fails or the valid
+  offers go ahead.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619727/Create+Order+With+Instant+Payment}{EASD guide, Create Order With Instant Payment};
+  \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+\end{theorem}
+
+\begin{definition}[Failed payment at order creation (C-65)]
+  \label{def:order-creation-instant-payment-failure}
+  \uses{thm:order-creation-create-atomic, def:payment, def:c11-payment-time-limit, def:c08-delivery-status}
+  \notready
+  When an order is created with instant payment and the payment fails, the
+  airline either returns the order with a warning or returns an error. The
+  guide allows both.
+
+  Case to check: The airline keeps the order and answers with an error. The
+  seller concludes nothing was created and sends the request again, so the
+  passenger holds two orders on the same flights.
+
+  Open point: The business must decide whether an order survives a failed
+  instant payment and, if it does, whether it becomes an unpaid order with a
+  payment time limit. It must also decide whether an error response may ever
+  leave an order behind.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619727/Create+Order+With+Instant+Payment}{EASD guide, Create Order With Instant Payment};
+  \href{https://retailing.iata.org/armi/docs/ORDCRE/}{IATA capability ORDCRE}.
+\end{definition}
+
+\begin{theorem}[One order per offer (C-66)]
+  \label{thm:order-creation-offer-used-once}
+  \uses{def:offer, def:accept, thm:order-creation-create-atomic}
+  \notready
+  An offer produces at most one order. A repeated create request for an
+  offer that already produced an order returns the existing order or is
+  rejected.
+
+  Case to check: A create request times out at the seller and is sent again
+  with a new transaction ID. Nothing in the sources stops the airline
+  creating a second order from the same offer.
+
+  Open point: The guide says the airline checks that the offer is valid
+  without listing the checks, and its retransmission ID for recovering a
+  lost response is not tied to order creation. The business must decide
+  whether creating an order uses up the offer and how a repeated request is
+  recognized.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226512/Identifier+Usage}{EASD guide, Identifier Usage};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619693/Payload+Attributes}{EASD guide, Payload Attributes}.
+\end{theorem}
+
+\begin{theorem}[Statuses of a new order (C-67)]
+  \label{thm:order-creation-new-order-state}
+  \uses{def:c05-holds-value, def:c06-item-status, def:c07-order-status, def:c08-delivery-status, def:c11-payment-time-limit}
+  \notready
+  A new order is \texttt{OPENED} and each of its order items is
+  \texttt{ACTIVE}. Each service starts as \texttt{CONFIRMED},
+  \texttt{REQUESTED} or \texttt{WAITLISTED}. A confirmed service has
+  delivery status \texttt{CONFIRMED} when the order is created without
+  payment and \texttt{READY TO PROCEED} when it is paid at creation.
+
+  Case to check: If C-05 rules that delivery status \texttt{CONFIRMED} holds
+  no value, a new unpaid item has no service holding value and fails the
+  \texttt{ACTIVE} condition of C-06 at the moment it is created.
+
+  Open point: The guide calls \texttt{CONFIRMED} one of the initial service
+  statuses without listing the others, and gives no delivery status for a
+  requested or waitlisted service. The business must decide those statuses
+  and whether such a service gets a payment time limit or can be paid at
+  creation.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619727/Create+Order+With+Instant+Payment}{EASD guide, Create Order With Instant Payment}.
+\end{theorem}
+
+\begin{definition}[Paying for part of an order (C-68)]
+  \label{def:order-creation-pay-some-items}
+  \uses{thm:payment-time-limit-on-unpaid, def:payment, thm:c04-item-unsplit, def:c11-payment-time-limit, def:c12-zero-commitment}
+  \notready
+  A seller can pay for unpaid order items in a later change, so an order can
+  be partly paid. Each payment names the order items it pays for, including
+  items priced at zero.
+
+  Case to check: A bag item is paid and moves to \texttt{READY TO PROCEED}
+  while the flight item stays unpaid. When the flight item's limit passes,
+  the order holds a paid bag for a flight the passenger no longer has.
+
+  Open point: The sources do not say whether a seller may pay one item and
+  leave unpaid another item it depends on, or what happens to the paid item
+  when the other item's time limit passes. The business must also decide
+  whether the price of an unpaid item is held until its time limit.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+\end{definition}
+
+\begin{definition}[Order items in a retrieved order (C-69)]
+  \label{def:order-creation-retrieved-view-items}
+  \uses{def:c01-structure, def:c06-item-status, def:c23-retention}
+  \notready
+  A retrieved order shows every \texttt{ACTIVE} and \texttt{CLOSED} order
+  item. \texttt{CANCELLED} items are left out, except when all items were
+  cancelled in one transaction; those are shown for the retention period.
+  The response to a change also shows the items that change cancelled.
+
+  Case to check: Items A and B are cancelled in separate transactions. Every
+  item is \texttt{CANCELLED} but the exception does not apply, so the
+  retrieved order shows no items while Resolution 797 still requires access
+  to it and C-01 requires at least one item.
+
+  Open point: The business must decide whether the exception covers every
+  order whose items are all cancelled, however many transactions that took.
+  It must also decide which retention period applies, since the guide points
+  to Resolution 797 without saying whether the 7 day or the 13 month period
+  is meant.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{definition}
+
+\begin{definition}[Read access to an order (C-70)]
+  \label{def:order-creation-read-access}
+  \uses{def:principal, def:classification, def:order-creation-order-id, def:order-creation-chain-identity-check}
+  \notready
+  A retrieve, list or history request returns an order only to a requester
+  entitled to it. The sources describe these requests as made by the seller
+  and give no rule on which sellers.
+
+  Case to check: If holding the order ID is enough, anyone who reads it from
+  a receipt can retrieve the order and its history, since the ID is the
+  airline's public codes plus 8 characters.
+
+  Open point: The business must decide who is entitled: the seller that
+  created the order, any seller or secondary agent that has acted on it, any
+  party in the distribution chain of a past request, or anyone holding the
+  order ID or booking reference. It must also decide which orders a search
+  across many orders may return.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455891/Retrieve+an+Order}{EASD guide, Retrieve an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574816364/Historical+Information+on+Orders}{EASD guide, Historical Information on Orders};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652557/Order+History}{EASD guide, Order History};
+  \href{https://retailing.iata.org/armi/docs/ORDLST/}{IATA capability ORDLST};
+  \href{https://retailing.iata.org/armi/docs/ORDHIS/}{IATA capability ORDHIS};
+  \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{definition}
+
+\begin{definition}[Group order limits (C-71)]
+  \label{def:order-creation-group-order}
+  \uses{def:order, def:passenger, def:payment}
+  \notready
+  An order is a group order when the create request names a passenger group.
+  Each airline sets the minimum and maximum number of passengers and the
+  passenger details required at creation and at payment, and refuses
+  creation or payment when these are not met.
+
+  Case to check: A group order is created with 10 passengers against a
+  minimum of 10. One passenger cancels, and the sources do not say whether
+  the remaining 9 still form a group order.
+
+  Open point: The business must set the thresholds and the required details.
+  It must also decide what happens when passengers leave a group order and
+  the count falls below the minimum.
+
+  Source: \href{https://retailing.iata.org/armi/docs/ORDGRP/}{IATA capability ORDGRP}.
+\end{definition}
+
+\begin{theorem}[History rebuilds every version (C-72)]
+  \label{thm:order-creation-history-rebuilds-versions}
+  \uses{thm:c21-version, def:order, def:c18-change}
+  \notready
+  An order's history starts with the whole order at version 1, recorded as
+  one addition, followed by one change group per later version. Applying the
+  groups up to version n to version 1 gives the order as it was at version
+  n, and applying all of them gives the order that retrieval returns.
+
+  Case to check: Applied newest first, a group that removes an item in
+  version 4 runs before the group that added it in version 3, and the item
+  reappears in the rebuilt current order.
+
+  Open point: The guide lists change groups oldest first with each raising
+  the version by one, while the ORDHIS capability page lists them newest
+  first and says each group lowers the version. The business must fix the
+  order, and decide whether a history request from version v includes the
+  group that produced v.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652557/Order+History}{EASD guide, Order History};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574816364/Historical+Information+on+Orders}{EASD guide, Historical Information on Orders};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455891/Retrieve+an+Order}{EASD guide, Retrieve an Order};
+  \href{https://retailing.iata.org/armi/docs/ORDHIS/}{IATA capability ORDHIS};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652557}{EASD guide, Order History};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659}{EASD guide, Order Versioning};
+  \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
+\end{theorem}
+
+\begin{theorem}[Version tracks seller-visible changes (C-73)]
+  \label{thm:order-creation-version-tracks-view}
+  \uses{thm:c21-version, thm:order-creation-history-rebuilds-versions}
+  \notready
+  The airline raises an order's version whenever an element the seller can
+  see changes. Two views of one order with the same version therefore show
+  the same seller-visible data.
+
+  Case to check: The airline records a new payment status without raising
+  the version. A seller holding version 4 passes the version check and
+  changes the order on data that no longer holds.
+
+  Open point: The guide says the airline should raise the version, and it
+  lets the airline group many changes into one version. The business must
+  decide whether every seller-visible change, including airline-initiated
+  ones, must raise the version before the seller next sees the order.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659}{EASD guide, Order Versioning};
+  \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
+\end{theorem}
+
+\begin{definition}[Change against a stale version (C-74)]
+  \label{def:order-creation-stale-version-change}
+  \uses{thm:c21-version, def:c18-change, def:accept, thm:order-creation-version-tracks-view}
+  \notready
+  A change request may carry the order version the seller believes is
+  current. The airline proceeds when it matches and may return an error when
+  it does not, and a request without a version proceeds. Offers made while
+  servicing an order carry the version they were built on.
+
+  Case to check: Two sellers read version 3. The first change makes version
+  4. The second change still carries version 3, and because the guide only
+  permits an error, the airline may apply it over a change its seller never
+  saw.
+
+  Open point: The business must decide whether a version mismatch always
+  rejects the change and whether a change without a version is allowed. It
+  must also decide whether an offer built on an older version can still be
+  accepted.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659/Order+Versioning}{EASD guide, Order Versioning};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259659}{EASD guide, Order Versioning};
+  \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
+\end{definition}
+
+\begin{theorem}[Service IDs in an order (C-75)]
+  \label{thm:order-creation-service-id-unique}
+  \uses{def:c01-structure, thm:c03-unique-item-ids, thm:c19-transfer-balanced}
+  \notready
+  Service IDs are unique within an order and never change. A service moved
+  to a new order item in a change keeps its ID.
+
+  Case to check: A change moves service S1 from item A to item B. Item A
+  keeps S1 marked \texttt{TRANSFERRED} and item B holds S1, so the order has
+  two service records with ID S1.
+
+  Open point: The identifier rules call unique service IDs and unique order
+  item IDs a best practice, while the Order page states item IDs are unique,
+  which bears on C-03. A transfer leaves the original \texttt{TRANSFERRED}
+  service and the moved service in one order with the same ID, so the
+  business must decide whether uniqueness covers every service record or
+  only those not \texttt{TRANSFERRED}.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226512/Identifier+Usage}{EASD guide, Identifier Usage};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order};
+  \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2}.
+\end{theorem}
+
+\begin{definition}[Retention after first usage (C-76)]
+  \label{def:order-creation-retention-first-usage}
+  \uses{def:c23-retention, def:c05-holds-value, def:c06-item-status, thm:c20-value-store, def:instant}
+  \notready
+  Building on C-23, the offer responsible airline also keeps an order with
+  an open item accessible for 13 months from its first usage. While an item
+  is open, access is required until the later of 13 months from creation and
+  13 months from first usage.
+
+  Case to check: An item whose services are \texttt{REMOVED HOLD VALUE}
+  stays open with the customer's stored value for two years and is never
+  used. After 13 months the resolution no longer requires access, so the
+  order holding that value can be purged.
+
+  Open point: Resolution 797 does not define first usage or open item, and
+  requires nothing for an order whose item is still open after both 13 month
+  periods. The business must define both terms, decide how 13 months is
+  counted on UTC instants, and decide whether order history follows the same
+  periods.
+
+  Source: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{definition}
+
+\begin{definition}[Order ID (C-77)]
+  \label{def:order-creation-order-id}
+  \uses{def:order}
+  \notready
+  An order ID joins the owning airline's 2 or 3 character designator, its 3
+  character accounting code (XXX when it has none) and an 8 character
+  reference unique within that airline. The ID is treated as globally
+  unique, never changes, and every later request for the order uses it.
+
+  Case to check: Two airlines that share a controlled duplicate designator
+  and both use XXX issue the same order ID whenever their 8 character
+  references coincide.
+
+  Open point: Global uniqueness follows only if designator and accounting
+  code together name one airline. The business must decide how uniqueness
+  holds when two airlines share a designator and neither has an accounting
+  code, and how long a booking reference may still be used to retrieve an
+  order.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259647/Order+ID}{EASD guide, Order ID};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226512/Identifier+Usage}{EASD guide, Identifier Usage};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+\end{definition}
+
+\begin{theorem}[Order owner is the offer owner (C-78)]
+  \label{thm:order-creation-order-owner}
+  \uses{def:offer, def:order, def:order-creation-order-id, thm:order-creation-create-atomic}
+  \notready
+  The airline responsible for the accepted offer owns the resulting order.
+  The order's owner code is that airline's designator, which also begins the
+  order ID.
+
+  Case to check: A seller selects offer A from airline XB and offer B from
+  airline YY in one create request. The resulting order would have two
+  owners.
+
+  Open point: Resolution 797 makes each offer responsible airline the owner
+  of the orders for its own offers, and the capability pages allow one order
+  from several offers. The business must decide whether one order may
+  combine offers from different responsible airlines.
+
+  Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259647/Order+ID}{EASD guide, Order ID};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment}.
+\end{theorem}
+
+\begin{theorem}[Order total from item prices (C-79)]
+  \label{thm:order-creation-order-total-derived}
+  \uses{def:order, def:money-add, thm:accept-price-eq-sum, thm:c04-item-unsplit, thm:order-creation-create-atomic}
+  \notready
+  Prices are held on order items, and a stored total price at order level is
+  deprecated. An order's total at any version is the sum of its current item
+  prices.
+
+  Case to check: Items from an offer priced in EUR and an offer priced in
+  USD go into one order. Adding them fails under def:money-add, so the order
+  has no total.
+
+  Open point: The sources do not say whether one order may hold items in
+  more than one currency, which can happen when items come from several
+  offers. The business must decide, since a mixed-currency total has no
+  value under the current money rules.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+
+\begin{definition}[Verifying distribution chain identities (C-80)]
+  \label{def:order-creation-chain-identity-check}
+  \uses{def:principal}
+  \notready
+  The carrier accepts a participant's identity only when its credential is
+  authentic, unexpired and unrevoked, carries the identifier the participant
+  uses in the message, is presented by its owner, and is presented for this
+  transaction. Every participant except the one connected to the carrier
+  sends such a presentation, and intermediaries pass on all they receive.
+
+  Case to check: A seller's credential is revoked at 09:00. An airline that
+  refreshes revocation lists once a day accepts that seller's create request
+  at 10:00.
+
+  Open point: The guide does not say what the carrier does when a check
+  fails, and leaves the refresh rate of revocation lists to each airline.
+  The business must decide both.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815464449/Verification+of+Identities+in+Distribution+Chain}{EASD guide, Verification of Identities in Distribution Chain};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574488619/Distribution+Chain}{EASD guide, Distribution Chain};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+\end{definition}

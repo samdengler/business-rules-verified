@@ -66,3 +66,377 @@
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569/Cancellation+of+Order+Items}{EASD guide, Cancellation of Order Items}.
 \end{definition}
+
+% Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
+
+\begin{definition}[Paid order item (C-126)]
+  \label{def:payment-paid-order-item}
+  \uses{def:payment, def:c01-structure, def:c08-delivery-status, thm:c14-amount-covers-price, def:c18-change}
+  \notready
+  An order item is paid once the successful payments allocated to it,
+  together with any value carried over from the item it replaced, cover its
+  amount due. A \texttt{PENDING} payment does not count. After a change, the
+  original payment stays on record and its allocation moves to the replacing
+  item.
+
+  Case to check: In the change worked example the new item costs 910.00 and
+  the only payment made after the change is 60.00. The item is paid only if
+  the 1000.00 payment made for the old item counts toward it.
+
+  Open point: The source speaks of unpaid, partly paid and paid items but
+  never states the test. The business must decide whether surcharges count
+  toward the amount due and how value carried over from a replaced item is
+  counted.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://retailing.iata.org/armi/docs/PAYORD/}{IATA capability PAYORD};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+additional+collection+and+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+\end{definition}
+
+\begin{definition}[Payment status and its moves (C-127)]
+  \label{def:payment-payment-status}
+  \uses{def:payment, def:instant}
+  \notready
+  A payment transaction is \texttt{PENDING}, \texttt{SUCCESSFUL} or
+  \texttt{FAILED}. \texttt{SUCCESSFUL} means the airline is certain to
+  collect the funds, \texttt{FAILED} means it knows it will not, and
+  \texttt{PENDING} means it cannot yet tell; a redirected payment starts
+  \texttt{PENDING} and later moves to \texttt{SUCCESSFUL} or
+  \texttt{FAILED}. The moment a payment becomes \texttt{SUCCESSFUL} is its
+  payment commitment time.
+
+  Case to check: A settlement plan payment is \texttt{SUCCESSFUL} at order
+  time, then the seller remits only 75 percent and the platform marks the
+  clearances Not Settled or claws them back. The order still shows the
+  payment as \texttt{SUCCESSFUL}.
+
+  Open point: The source does not say whether \texttt{SUCCESSFUL} and
+  \texttt{FAILED} are final. The business must decide whether a
+  \texttt{SUCCESSFUL} payment can later fail, for example after a card
+  chargeback or a seller's default on a settlement plan, and what then
+  happens to the items it paid.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849161/Payment+Codes}{EASD guide, Payment Codes};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423154/Payment+Status}{EASD guide, Payment Status};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574653091/Enhanced+and+Simplified+Distribution}{Settlement with Orders, Enhanced and Simplified Distribution};
+  \href{https://standards.atlassian.net/wiki/spaces/SWO/pages/574718145/Remittance+of+Funds}{Settlement with Orders, Remittance of Funds}.
+\end{definition}
+
+\begin{theorem}[Effects of a payment outcome (C-128)]
+  \label{thm:payment-payment-outcome-effects}
+  \uses{def:payment-payment-status, def:payment-paid-order-item, def:c08-delivery-status, def:c11-payment-time-limit}
+  \notready
+  When a payment covering unpaid order items becomes \texttt{SUCCESSFUL},
+  every service in those items moves from \texttt{CONFIRMED} to
+  \texttt{READY TO PROCEED} and the items lose their payment time limits.
+  When it becomes \texttt{FAILED}, the service statuses and payment time
+  limits stay as they were.
+
+  Open point: The source states both outcomes for redirected payments only.
+  The business must confirm they apply to card and settlement plan payments,
+  and decide what a successful payment that covers part of an item's amount
+  does to its services.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/670203914/Payment+Via+Redirection+with+Airline+Notification+of+Payment+Success}{EASD guide, Payment Via Redirection with Airline Notification of Payment Success​};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/670203914}{EASD guide, Payment Via Redirection with Airline Notification of Payment Success​};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund}.
+\end{theorem}
+
+\begin{theorem}[Time limit on unpaid items (C-129)]
+  \label{thm:payment-time-limit-on-unpaid}
+  \uses{def:c11-payment-time-limit, def:payment-paid-order-item, def:instant}
+  \notready
+  Every order item that is unpaid or partly paid carries a payment time
+  limit, and a paid item carries none. A time limit of zero on an offer item
+  means the item must be paid when the order is created.
+
+  Case to check: An order created without payment returns no time limit for
+  one item. Under the second reading that item never expires and holds its
+  seat with nothing paid.
+
+  Open point: The ARMI guidance expects the airline to set a limit on every
+  unpaid item, while the EASD Time Limits page says a missing limit only
+  means no advice was given. The business must decide whether an unpaid item
+  may exist without a limit and, if so, whether it can stay unpaid
+  indefinitely.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/PAYORD/}{IATA capability PAYORD};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
+  \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+
+\begin{definition}[Unpaid item at its time limit (C-130)]
+  \label{def:payment-time-limit-expiry}
+  \uses{def:c11-payment-time-limit, def:c08-delivery-status, def:c06-item-status, def:payment-payment-status}
+  \notready
+  When an order item's payment time limit passes without a successful
+  payment, the item is removed from the order, and a payment still
+  \texttt{PENDING} for it is marked \texttt{FAILED}. The airline may move
+  the limit when it accepts a redirected payment as \texttt{PENDING}.
+
+  Case to check: A customer completes a redirected card payment one minute
+  after the limit. The airline has already marked the payment
+  \texttt{FAILED} and removed the item, so the customer has paid for nothing
+  unless the capture is refunded or the item restored.
+
+  Open point: This partly answers the open point of C-11: the Time Limits
+  page says removal is expected but names no resulting statuses. The
+  business must decide the item status and delivery status after removal
+  (for example \texttt{CANCELLED} with \texttt{REMOVED}, or
+  \texttt{EXPIRED}) and what happens when a redirected payment is captured
+  after the limit.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/1404665857}{EASD guide, 24.1 Release Notes}.
+\end{definition}
+
+\begin{theorem}[No payment after the limits (C-131)]
+  \label{thm:payment-no-late-payment}
+  \uses{def:c11-payment-time-limit, thm:accept-rejects-expired, def:instant}
+  \notready
+  The airline accepts a payment for an order item only before the item's
+  payment time limit and, when the item has a price guarantee, before that
+  guarantee expires. A payment attempted after the price guarantee has
+  expired fails with a price guarantee error.
+
+  Case to check: The airline extends an item's price guarantee two days past
+  its payment time limit, which the source allows. The item can no longer be
+  paid while its price is still guaranteed.
+
+  Open point: The payment time limit part is clear, but for the price
+  guarantee the source also says repricing is only recommended. The business
+  must decide whether an expired guarantee blocks payment or only lets the
+  airline change the price, and whether a guarantee may outlast the payment
+  time limit, which the source says it should not.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226556/Pay+for+an+Existing+Order}{EASD guide, Pay for an Existing Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574587020/Payment+Errors}{EASD guide, Payment Errors};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423066/Time+Limits}{EASD guide, Time Limits}.
+\end{theorem}
+
+\begin{theorem}[Failed payment leaves items unpaid (C-132)]
+  \label{thm:payment-failed-payment-all-items}
+  \uses{def:c13-several-methods, def:payment-paid-order-item}
+  One payment transaction may cover several order items with several payment
+  methods. If any method's transaction fails, the whole payment fails and
+  none of the items it covers becomes paid.
+
+  Case to check: A seller who wants item 1 paid even when the card for item
+  2 is declined must send two payments. One combined payment leaves both
+  items unpaid.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593325059/Pay+using+multiple+payment+methods+for+a+single+item}{EASD guide, Pay using multiple payment methods for a single item};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation}.
+\end{theorem}
+
+\begin{definition}[Allocating a payment across items (C-133)]
+  \label{def:payment-allocation-across-items}
+  \uses{thm:payment-failed-payment-all-items, def:payment-paid-order-item, def:c17-refund-methods}
+  \notready
+  When one payment with several methods covers several order items, the
+  airline decides how much of each method goes to each item and the seller
+  has no say. A seller who wants a fixed split sends one payment per item.
+
+  Case to check: Items of 800.00 and 100.00 are paid with 400.00 by
+  settlement plan and 500.00 by card. If the 100.00 item is cancelled, its
+  refund goes to the card under one allocation and to the settlement plan
+  under another.
+
+  Open point: The source gives the airline the allocation and states no rule
+  for it. The business must fix the rule, because it decides which method is
+  refunded when one of the items is later cancelled.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item};
+  \href{https://retailing.iata.org/armi/docs/PAYMIX/}{IATA capability PAYMIX}.
+\end{definition}
+
+\begin{definition}[Combinable payment methods (C-134)]
+  \label{def:payment-combinable-methods}
+  \uses{def:c13-several-methods}
+  \notready
+  The payment catalogue places each accepted method in one or more groups,
+  and two methods may be combined in one payment when they share a group.
+  The airline refuses a payment that combines methods it does not accept
+  together.
+
+  Case to check: Method A is in groups 1 and 2, B in groups 2 and 3, and C
+  in groups 1 and 3. Every pair shares a group, but no group holds all
+  three.
+
+  Open point: The source defines combinability for pairs only. The business
+  must decide whether three or more methods need one group that holds them
+  all or only a shared group for each pair.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593325059/Pay+using+multiple+payment+methods+for+a+single+item}{EASD guide, Pay using multiple payment methods for a single item}.
+\end{definition}
+
+\begin{definition}[Surcharge on each payment method (C-135)]
+  \label{def:payment-surcharge-per-method}
+  \uses{thm:c14-amount-covers-price, def:c13-several-methods, def:money-add}
+  Each method in a payment has a requested amount and a surcharge that
+  depends on the method and that amount, and the amount charged to the
+  method is the requested amount plus its surcharge. The requested amounts
+  of one payment add up to the whole cost of the items it pays.
+
+  Case to check: Reading paid in full as charged amounts equal to the price
+  fails on the source's own example: a 100.00 item is paid with 20.00 by
+  settlement plan and 82.00 by card, of which 2.00 is the card surcharge.
+  This settles most of the open point of C-14.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item}.
+\end{definition}
+
+\begin{theorem}[Quoted surcharge at payment time (C-136)]
+  \label{thm:payment-quoted-surcharge}
+  \uses{def:payment-surcharge-per-method, thm:c14-amount-covers-price}
+  \notready
+  When the airline has quoted a precise surcharge for a stated card brand
+  and card type, the payment must use that brand and type and is charged
+  that surcharge. A payment with a different brand, scheme, or consumer or
+  commercial card type fails with a mismatch error.
+
+  Case to check: The offer is priced with a 3.00 surcharge for a consumer
+  Visa debit card, and at payment the airline charges 5.00 for the same
+  card. Nothing in the source forbids it.
+
+  Open point: The mismatch errors exist, but no page says a quoted surcharge
+  binds the airline, and the catalogue calls its ranges estimates. The
+  business must decide whether the charged surcharge may differ from the
+  quote or fall outside a published minimum and maximum.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574488711/Payment+Catalogue}{EASD guide, Payment Catalogue};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574685328/Payment+Preference}{EASD guide, Payment Preference};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574587020/Payment+Errors}{EASD guide, Payment Errors};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance}.
+\end{theorem}
+
+\begin{definition}[Refundable payment surcharges (C-137)]
+  \label{def:payment-surcharge-refundability}
+  \uses{def:payment-surcharge-per-method, def:c17-refund-methods, def:accept-refund, thm:refunds-le-payments}
+  \notready
+  Each payment surcharge carries an indicator saying whether it is
+  refundable. A refund of an item's payment returns a surcharge only when
+  its indicator marks it refundable.
+
+  Case to check: A 100.00 item is paid with 20.00 by settlement plan and
+  82.00 by card, including a non-refundable 2.00 surcharge. A full refund of
+  102.00 returns the surcharge, while the cap under the indicator is 100.00.
+
+  Open point: The indicator appears in every simulation example, always
+  marked non-refundable, and no page says how a refund uses it. The business
+  must decide whether the indicator binds refunds; with refundable
+  surcharges a refund can exceed the item's price, which bears on C-17 and
+  the open refund question.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593030164/Payment+Simulation}{EASD guide, Payment Simulation};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2592899087/Use+of+multiple+payment+methods+to+pay+for+a+single+item}{EASD guide, Use of multiple payment methods to pay for a single item}.
+\end{definition}
+
+\begin{definition}[Refund as a negative payment (C-138)]
+  \label{def:payment-refund-negative-payment}
+  \uses{def:refund, def:payment, def:totals, thm:refunds-le-payments, def:c17-refund-methods}
+  \notready
+  A refund appears in the order as a payment transaction of its own, with a
+  new payment ID, a negative amount, a payment method and its own status. In
+  the worked examples the method is the one that paid, but the record does
+  not point to the payment it returns.
+
+  Case to check: An order holds a 1000.00 settlement plan payment.
+  Cancelling it adds a payment of minus 1000.00 with its own ID and no
+  reference to the first.
+
+  Open point: The source does not link a refund to the payment it reverses,
+  while our model attaches each refund to one payment. The business must
+  decide whether to keep that link; without it the per payment limit in the
+  open refund question cannot be checked and only an order level limit
+  remains.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/PAYREF/}{IATA capability PAYREF};
+  \href{https://retailing.iata.org/armi/docs/PAYSUM/}{IATA capability PAYSUM};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594417/Customer+requests+a+cancellation+to+paid+Order+or+OrderItems+resulting+in+full+refund}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in full refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842301447/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+additional+collection+and+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund}.
+\end{definition}
+
+\begin{definition}[Retrying a failed payment (C-139)]
+  \label{def:payment-failed-payment-recovery}
+  \uses{def:payment-payment-status, thm:payment-payment-outcome-effects, def:c11-payment-time-limit}
+  \notready
+  After a payment fails, its items stay unpaid with services and time limits
+  unchanged, and the seller may try again in a new payment transaction
+  before the time limit. The error tells the seller whether to correct the
+  card details, add payer authentication, use another method, or stop; after
+  a hard stop the airline accepts no payment from that payer.
+
+  Case to check: A payer flagged for suspected fraud on one order pays for a
+  second order with the same card. The source does not say whether the stop
+  carries over.
+
+  Open point: The source calls recovery optional and does not say whether
+  the airline must accept a retry. The business must decide how many retries
+  are allowed, whether a hard stop applies to the payer, the order or the
+  method, and whether the order is then cancelled.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574423154/Payment+Status}{EASD guide, Payment Status};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574587020/Payment+Errors}{EASD guide, Payment Errors};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455927/Pay+Offline+Using+Redirection}{EASD guide, Pay Offline Using Redirection};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574226627/Payer+Authentication}{EASD guide, Payer Authentication};
+  \href{https://retailing.iata.org/armi/docs/PAYRCV/}{IATA capability PAYRCV}.
+\end{definition}
+
+\begin{theorem}[Commitment only when nothing due (C-140)]
+  \label{thm:payment-commitment-zero-due}
+  \uses{def:c12-zero-commitment, def:payment-paid-order-item}
+  \notready
+  The commitment payment method always carries an amount of zero and may
+  cover only items with nothing to pay or collect. Items with nothing due
+  may also be covered by a normal payment for a payable item, and every item
+  a payment covers, zero priced ones included, is listed on it.
+
+  Open point: The EASD guide added a commitment method in release 26.1,
+  while the ARMI guidance and the change worked examples record the same
+  commitment as an OT payment of zero. The business must pick one form and
+  decide whether a zero OT payment counts when testing whether an item is
+  paid.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2593488900/Commitment+to+pay+when+no+amount+due}{EASD guide, Commitment to pay when no amount due};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2533031964/26.1+Release+Notes}{EASD guide, 26.1 Release Notes};
+  \href{https://standards.atlassian.net/wiki/spaces/ARMI/pages/584318980/General+Guidance}{ARMI, General Guidance};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268768/Customer+requests+a+change+of+a+paid+order+prior+to+travel+resulting+in+a+refund}{EASD guide, Customer requests a change of a paid order prior to travel resulting in a refund}.
+\end{theorem}
+
+\begin{definition}[Paying with a voucher (C-141)]
+  \label{def:payment-voucher-payment}
+  \uses{thm:c20-value-store, def:c17-refund-methods, def:c13-several-methods}
+  \notready
+  A voucher is a payment method that spends value the airline holds for the
+  payer, alone or combined with other methods. Value stored as an order item
+  can be spent in another order only after the airline issues it as a
+  voucher.
+
+  Case to check: An 800.00 item is paid with a 300.00 voucher and 500.00 by
+  card, then cancelled with a 100.00 penalty. Refunding the card first
+  returns 500.00 to the card and 200.00 to the voucher; a pro rata split
+  returns 437.50 and 262.50.
+
+  Open point: The voucher capability has no guidance beyond its name. The
+  business must decide whether a voucher can be partly spent, whether it
+  expires, and whether a refund of a voucher paid amount goes back to the
+  voucher or to another method.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/PAYVCH/}{IATA capability PAYVCH};
+  \href{https://retailing.iata.org/armi/docs/PAYMIX/}{IATA capability PAYMIX};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554245/Value+Store}{EASD guide, Value Store};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619671/Payment+Concepts}{EASD guide, Payment Concepts}.
+\end{definition}

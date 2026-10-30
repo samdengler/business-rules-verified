@@ -3,17 +3,17 @@
 
 Every node of the blueprint (blueprint/src/content.tex) is drawn as a card
 with its title and its status, and every \\uses as a connector from the node
-used to the node that uses it.  Graphviz computes the positions only; the page
-draws the cards and connectors itself, in the style of the progress page, and
-lets the reader move, zoom and open a node to read its statement.
+used to the node that uses it.  layout() places the cards in rows below the
+cards they use; the page draws the cards and connectors in the style of the
+progress page, and lets the reader move, zoom and open a node to read its
+statement.
 
 Statuses come from build/status.json through scripts/render_progress.py, so
-the page changes when the model does.  Needs graphviz (`dot` and `unflatten`).
+the page changes when the model does.
 """
 
 import html
 import json
-import subprocess
 import sys
 from pathlib import Path
 
@@ -44,41 +44,94 @@ def card_height(lines):
     return 22 + LINE * len(lines) + 22
 
 
-def layout(nodes, labels):
-    """Positions of the cards and the connector paths, from Graphviz."""
-    out = ["digraph G {",
-           "graph [rankdir=TB, nodesep=0.28, ranksep=0.62, splines=spline];",
-           'node [shape=box, fixedsize=true, label=""];']
-    for n in nodes:
-        out.append(f'"{n["label"]}" [width={CARD_W / 72:.3f}, height={card_height(n["lines"]) / 72:.3f}];')
+# The most cards side by side in one row of the graph.  Most candidate rules
+# depend on the same few definitions, so ranking by dependency alone would put
+# a hundred of them in one row; rows() spreads them over more rows.
+ROW_MAX = 14
+
+
+def rows(nodes, labels):
+    """The row of each card: below every card it uses, in the first row from
+    there with room.  Cards are placed by depth, then blueprint section, so
+    each area's candidates stay together."""
+    by_label = {n["label"]: n for n in nodes}
+    depth = {}
+
+    def d(label, seen=()):
+        if label not in depth:
+            ups = [u for u in by_label[label]["uses"] if u in labels and u not in seen]
+            depth[label] = 1 + max((d(u, seen + (label,)) for u in ups), default=-1)
+        return depth[label]
+
+    row, count = {}, {}
+    for n in sorted(nodes, key=lambda n: (d(n["label"]), n.get("section") or "", n["label"])):
+        r = 1 + max((row[u] for u in n["uses"] if u in row), default=-1)
+        while count.get(r, 0) >= ROW_MAX:
+            r += 1
+        row[n["label"]] = r
+        count[r] = count.get(r, 0) + 1
+    return row
+
+
+GAP_X = 28   # between cards in a row
+GAP_Y = 72   # between rows
+
+
+def order_rows(nodes, labels, row):
+    """Each row's cards from left to right.  A few sweeps of the barycentre
+    heuristic put each card under the cards it uses, and over the cards that
+    use it, which keeps connectors short and crossings few."""
+    by_label = {n["label"]: n for n in nodes}
+    used_by = {n["label"]: [] for n in nodes}
     for n in nodes:
         for u in n["uses"]:
             if u in labels:
-                out.append(f'"{u}" -> "{n["label"]}";')
-    out.append("}")
-    src = subprocess.run(["unflatten", "-l", "3"], input="\n".join(out), capture_output=True, text=True, check=True).stdout
-    g = json.loads(subprocess.run(["dot", "-Tjson"], input=src, capture_output=True, text=True, check=True).stdout)
-    _, _, width, height = (float(v) for v in g["bb"].split(","))
-    flip = lambda x, y: (round(float(x), 1), round(height - float(y), 1))
-    pos = {}
-    for o in g["objects"]:
-        x, y = flip(*o["pos"].split(","))
-        pos[o["name"]] = (x, y)
+                used_by[u].append(n["label"])
+    last = max(row.values())
+    order = [sorted((x for x, r in row.items() if r == i),
+                    key=lambda x: (by_label[x].get("section") or "", x)) for i in range(last + 1)]
+
+    def place():
+        return {x: (i + 0.5) / len(r) for r in order for i, x in enumerate(r)}
+
+    for _ in range(4):
+        for rng, links in ((range(1, last + 1), lambda x: [u for u in by_label[x]["uses"] if u in labels]),
+                           (range(last - 1, -1, -1), lambda x: used_by[x])):
+            for i in rng:
+                at = place()
+                key = {x: (sum(at[y] for y in links(x)) / len(links(x)) if links(x) else at[x]) for x in order[i]}
+                order[i].sort(key=lambda x: key[x])
+    return order
+
+
+def layout(nodes, labels):
+    """Positions of the cards and the connector paths.  Cards sit in rows of
+    at most ROW_MAX, each row centred; a connector runs from the bottom of a
+    card to the top of a card that uses it."""
+    row = rows(nodes, labels)
+    order = order_rows(nodes, labels, row)
+    heights = {n["label"]: card_height(n["lines"]) for n in nodes}
+    slot = CARD_W + GAP_X
+    width = max(len(r) for r in order) * slot - GAP_X
+    pos, y = {}, 0
+    for r in order:
+        h = max(heights[x] for x in r)
+        x0 = (width - (len(r) * slot - GAP_X)) / 2
+        for i, x in enumerate(r):
+            pos[x] = (round(x0 + i * slot + CARD_W / 2, 1), round(y + h / 2, 1))
+        y += h + GAP_Y
+    height = y - GAP_Y
     edges = []
-    for e in g["edges"]:
-        tail, head = g["objects"][e["tail"]]["name"], g["objects"][e["head"]]["name"]
-        parts = e["pos"].split()
-        end = None
-        if parts[0].startswith("e,"):
-            end = flip(*parts[0][2:].split(","))
-            parts = parts[1:]
-        pts = [flip(*p.split(",")) for p in parts]
-        d = f"M{pts[0][0]} {pts[0][1]}"
-        for i in range(1, len(pts) - 2, 3):
-            d += f"C{pts[i][0]} {pts[i][1]} {pts[i + 1][0]} {pts[i + 1][1]} {pts[i + 2][0]} {pts[i + 2][1]}"
-        if end:
-            d += f"L{end[0]} {end[1]}"
-        edges.append((tail, head, d))
+    for n in nodes:
+        for u in n["uses"]:
+            if u not in labels:
+                continue
+            (x1, y1), (x2, y2) = pos[u], pos[n["label"]]
+            y1 += heights[u] / 2
+            y2 -= heights[n["label"]] / 2 + 2
+            bend = min(GAP_Y, (y2 - y1) / 2)
+            d = f"M{x1} {y1}C{x1} {round(y1 + bend, 1)} {x2} {round(y2 - bend, 1)} {x2} {y2}"
+            edges.append((u, n["label"], d))
     return round(width + 32), round(height + 32), pos, edges
 
 

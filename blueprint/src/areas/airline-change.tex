@@ -2,4 +2,295 @@
 
 \section{Airline-initiated change}
 
-% No candidates yet.
+% Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
+
+\begin{theorem}[Penalty when declining an airline change (C-100)]
+  \label{thm:airline-change-cancel-after-involuntary}
+  \uses{thm:c16-penalty-net, def:c15-cancel-order, def:airline-change-follow-up-action, def:airline-change-involuntary-change}
+  \notready
+  A customer who declines an airline-initiated change through the Cancel
+  follow-up action pays no cancellation penalty.
+
+  Case to check: In the itinerary change worked example the new order item
+  carries a 50 EUR cancellation fee. Applying it to a Cancel follow-up
+  charges the customer for the airline's own change.
+
+  Open point: The sources offer Cancel as a response to an airline change
+  but never say whether penalties apply. The cancellation page covers only
+  customer-initiated cancellation and leaves penalties to the airline.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849094}{EASD guide, Seller Follow-up Actions};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order}.
+\end{theorem}
+
+\begin{theorem}[Refund for a cancelled flight (C-101)]
+  \label{thm:airline-change-refund-undeliverable}
+  \uses{def:c05-holds-value, def:c08-delivery-status, thm:c04-item-unsplit, def:refund, def:ancillaries-flight-change-dependents}
+  \notready
+  When the airline cancels a flight and does not re-accommodate, the flight
+  service and its dependent services become \texttt{CANCELLED} with delivery
+  status \texttt{UNABLE TO DELIVER}. The customer is then owed a refund of
+  the value of those services.
+
+  Case to check: A two-segment item costs 1000 EUR and the airline cancels
+  the second segment. The item stays \texttt{ACTIVE} because the first
+  segment still holds value, and no rule returns any part of the 1000 EUR.
+
+  Open point: The worked example offers no follow-up action and no refund,
+  and no source says whether \texttt{UNABLE TO DELIVER} caused by the
+  airline entitles the customer to money back. Because price is set per
+  order item, the business must also decide how much of an item's price
+  belongs to one cancelled segment.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062}{EASD guide, Order}.
+\end{theorem}
+
+\begin{definition}[Consequence of a missed time limit (C-102)]
+  \label{def:airline-change-inaction-consequence}
+  \uses{def:airline-change-follow-up-action, def:instant, def:c15-cancel-order, def:refund}
+  \notready
+  If a follow-up action carries a time limit and the seller has not acted by
+  then, the airline applies the stated consequence. Auto-acceptance keeps
+  the changed order and Auto-cancellation cancels it. The time limit and the
+  consequence are both optional.
+
+  Case to check: The concept page pairs Accept with Auto-cancellation. A
+  seller who misses the deadline then costs the customer the whole trip
+  after a change the airline made.
+
+  Open point: The business must decide what applies when either the time
+  limit or the consequence is missing (the Cancel example has neither), and
+  what Auto-cancellation cancels and refunds. It must also decide whether
+  the time limit has to fall before the affected flight departs.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849094}{EASD guide, Seller Follow-up Actions};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
+\end{definition}
+
+\begin{theorem}[Change applied before seller response (C-103)]
+  \label{thm:airline-change-applied-before-acceptance}
+  \uses{def:c06-item-status, thm:c21-version, thm:c19-transfer-balanced, def:airline-change-follow-up-action}
+  \notready
+  An airline-initiated change takes effect in the order when it is notified.
+  The version rises, replaced services are cancelled or transferred, and the
+  new order item is \texttt{ACTIVE} while the seller's Accept is still
+  pending.
+
+  Case to check: In the itinerary example the original item is already
+  \texttt{CANCELLED} at version 2 while Accept is pending. A customer who
+  rejects the change cannot get the original flights back, so Accept offers
+  no real choice.
+
+  Open point: This is shown only in a worked example. The business must
+  decide whether a change awaiting acceptance is provisional, and whether
+  declining it restores the original item or only lets the customer cancel
+  or reshop from the changed order.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574554168}{EASD guide, Seller Initiated Change to an Order}.
+\end{theorem}
+
+\begin{theorem}[Paid status after re-accommodation (C-104)]
+  \label{thm:airline-change-reaccommodated-paid-status}
+  \uses{def:c08-delivery-status, def:c11-payment-time-limit, thm:c19-transfer-balanced, thm:airline-change-applied-before-acceptance}
+  \notready
+  A service the airline creates to replace a paid service, with no price
+  difference owed, starts with delivery status \texttt{READY TO PROCEED}.
+
+  Case to check: If \texttt{CONFIRMED} is read as unpaid, a payment time
+  limit could apply to a re-accommodated trip the customer already paid for
+  in full.
+
+  Open point: The itinerary worked example gives such services delivery
+  status \texttt{CONFIRMED}, which the Order concept reserves for services
+  still awaiting payment, although the exchange is even. The business must
+  decide whether paid status carries across an airline-initiated change.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services}.
+\end{theorem}
+
+\begin{theorem}[Unacknowledged change notice (C-105)]
+  \label{thm:airline-change-lost-notice}
+  \uses{def:airline-change-inaction-consequence, def:airline-change-notice-chain}
+  \notready
+  A follow-up consequence takes effect only after the seller has
+  acknowledged the notice that carried it.
+
+  Case to check: A notice carrying Accept with Auto-cancellation is lost.
+  The seller sees the pending action only if it retrieves the order, and the
+  order may be cancelled before it does.
+
+  Open point: The guide names an unreceived or unacknowledged notice as the
+  failure case but attaches no rule to it: no retry, no fallback, and no
+  effect on the time limit. The business must decide whether the time limit
+  runs from sending or from acknowledgement.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455903}{EASD guide, Notification of Airline Initiated Change to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849094}{EASD guide, Seller Follow-up Actions}.
+\end{theorem}
+
+\begin{definition}[Changes that require a customer choice (C-106)]
+  \label{def:airline-change-change-needs-choice}
+  \uses{def:airline-change-follow-up-action, def:airline-change-involuntary-change}
+  \notready
+  The airline may change departure times, flight numbers, aircraft,
+  operating carrier or itinerary, or cancel a flight, and apply the change
+  without the customer. For each change it decides whether to attach
+  follow-up actions or send a notice only.
+
+  Case to check: In the worked examples a 10-minute departure change and a
+  change of operating carrier carry no follow-up action. A customer moved to
+  another carrier has no recorded way to refuse.
+
+  Open point: The sources give no threshold. The business must decide which
+  change types and sizes oblige the airline to offer Accept, Cancel or
+  Reshop.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455903}{EASD guide, Notification of Airline Initiated Change to an Order}.
+\end{definition}
+
+\begin{definition}[Voluntary and involuntary change (C-107)]
+  \label{def:airline-change-involuntary-change}
+  \uses{def:principal, def:order}
+  \notready
+  An order change is voluntary when the customer requests it and involuntary
+  when the airline imposes it. Resolution 797 commits One Order to support
+  servicing, delivery and accounting for both kinds.
+
+  Open point: No source defines the two kinds. Change notices also carry
+  changes the customer made directly with the airline, such as a name or
+  contact update, so the business must decide which change reasons count as
+  involuntary and trigger customer protections.
+
+  Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services};
+  \href{https://retailing.iata.org/armi/docs/ORDOC2/}{IATA capability ORDOC2};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order}.
+\end{definition}
+
+\begin{theorem}[Pending follow-up actions (C-108)]
+  \label{thm:airline-change-pending-actions}
+  \uses{def:airline-change-follow-up-action, def:airline-change-inaction-consequence}
+  \notready
+  A follow-up action the seller has not performed appears in every order
+  view until it is resolved. Performing any one of the actions offered for a
+  change resolves all of them.
+
+  Case to check: The itinerary example offers Accept, Cancel, Reshop and
+  ContactAirline under one time limit with Auto-acceptance. The seller
+  phones the airline, nothing in the order records it, and auto-acceptance
+  fires.
+
+  Open point: The source says pending actions are shown but not when they
+  stop being pending. The business must decide whether one response clears
+  the rest, and whether ContactAirline, which happens offline, ever clears a
+  pending Accept.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849094}{EASD guide, Seller Follow-up Actions};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order}.
+\end{theorem}
+
+\begin{definition}[Repricing after waitlist confirmation (C-109)]
+  \label{def:airline-change-reprice-and-accept}
+  \uses{def:airline-change-follow-up-action, def:airline-change-inaction-consequence, def:c08-delivery-status, def:c11-payment-time-limit}
+  \notready
+  When a waitlisted service is confirmed, the airline may ask the seller to
+  reprice the order item and accept. The guide's example pairs this with
+  Auto-acceptance if the seller does not act.
+
+  Case to check: The waitlist clears at a higher fare. The seller misses the
+  deadline, auto-acceptance confirms the service, and the customer is bound
+  to a price never quoted.
+
+  Open point: The source does not say at what price an auto-accepted
+  waitlist confirmation stands, or whether the customer must pay a
+  difference before the service becomes \texttt{READY TO PROCEED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849094}{EASD guide, Seller Follow-up Actions}.
+\end{definition}
+
+\begin{definition}[Who is told of a change (C-110)]
+  \label{def:airline-change-notice-chain}
+  \uses{def:principal, def:order}
+  \notready
+  A service provider reports every service status change to the airline that
+  owns the order. That airline notifies the seller of airline-initiated
+  changes and the seller acknowledges. The seller is expected to inform the
+  customer when a change needs action.
+
+  Case to check: Agency A creates the order and agency B services it later.
+  The disruption notice goes only to A, and B keeps selling changes against
+  an old version.
+
+  Open point: The sources do not say which seller is notified when several
+  sellers have serviced the order, whether the airline must reach the
+  customer when the seller does not acknowledge, or whether the seller's
+  duty to inform the customer is binding.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455903}{EASD guide, Notification of Airline Initiated Change to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652557}{EASD guide, Order History};
+  \href{https://retailing.iata.org/armi/docs/STPNTF/}{IATA capability STPNTF};
+  \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797}.
+\end{definition}
+
+\begin{theorem}[Cancelled service in an active item (C-111)]
+  \label{thm:airline-change-cancelled-in-active-item}
+  \uses{def:c06-item-status, def:c08-delivery-status, def:c18-change}
+  \notready
+  A service with status \texttt{CANCELLED} belongs to an order item with
+  status \texttt{CANCELLED}.
+
+  Case to check: In the flight cancellation worked example the second
+  segment's flight and bag services become \texttt{CANCELLED} while their
+  order item gets no status change.
+
+  Open point: The Order concept ties a \texttt{CANCELLED} service to a
+  cancelled item, and the cancellation page treats cancelling some services
+  of an item as a change. The flight cancellation example cancels one
+  segment's services and leaves the item untouched, so the business must
+  decide which model holds.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574783569}{EASD guide, Cancellation of Order Items};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order}.
+\end{theorem}
+
+\begin{theorem}[Price of reshopping after airline change (C-112)]
+  \label{thm:airline-change-reshop-after-involuntary}
+  \uses{def:c18-change, def:airline-change-follow-up-action, def:airline-change-involuntary-change}
+  \notready
+  A customer who declines an airline-initiated change through the Reshop
+  follow-up action pays no change fee.
+
+  Case to check: The new item in the itinerary example carries a 40 EUR
+  change fee. A natural reading charges it when the customer reshops away
+  from flights the airline moved.
+
+  Open point: The guide says such a reshop may or may not lead to additional
+  payment and gives no rule. The business must decide whether change fees
+  and fare differences apply, and which alternatives the airline must offer.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/672825400}{EASD guide, Inform of Impacted Dependent Services};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849094}{EASD guide, Seller Follow-up Actions};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order}.
+\end{theorem}
+
+\begin{definition}[Seller follow-up action (C-113)]
+  \label{def:airline-change-follow-up-action}
+  \uses{def:order, def:instant}
+  A change notice carries zero or more seller follow-up actions drawn from
+  Accept, Reshop, Cancel, ContactAirline and RepriceAndAccept. Each may
+  carry a time limit, a consequence of inaction, and an airline contact
+  link. A notice with no follow-up action needs only acknowledgement.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849094}{EASD guide, Seller Follow-up Actions};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455903}{EASD guide, Notification of Airline Initiated Change to an Order}.
+\end{definition}

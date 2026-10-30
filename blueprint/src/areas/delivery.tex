@@ -20,13 +20,32 @@
   \label{def:delivery-moves}
   \uses{def:c08-delivery-status, def:step}
   \notready
-  The moves a service may make between delivery statuses, and which statuses
-  are final.
+  The moves a service may make between delivery statuses, read from the
+  status definitions, the ORDSTS guidance and the worked examples.
+  \texttt{REQUESTED} goes to \texttt{CONFIRMED}; \texttt{CONFIRMED} goes to
+  \texttt{READY TO PROCEED} on payment; \texttt{READY TO PROCEED} goes to
+  \texttt{READY TO DELIVER}, \texttt{IN PROGRESS} or \texttt{DELIVERED};
+  \texttt{READY TO DELIVER} goes to \texttt{IN PROGRESS} or
+  \texttt{DELIVERED}; \texttt{IN PROGRESS} goes to \texttt{DELIVERED} or
+  \texttt{FAILED TO DELIVER}.  A service before delivery can be cancelled to
+  \texttt{REMOVED} or \texttt{REMOVED HOLD VALUE}, or end \texttt{EXPIRED},
+  \texttt{NOT CLAIMED}, \texttt{UNABLE TO DELIVER} or
+  \texttt{FAILED TO DELIVER}.  \texttt{REMOVED HOLD VALUE} goes only to
+  \texttt{REMOVED}.  Any status that is not final can be suspended.  Every
+  other move is refused.
 
-  Open point: the source describes thirteen statuses but does not list every
-  allowed move or say which statuses are final.
+  Case to check: the Order Closing worked example moves services from
+  \texttt{READY TO PROCEED} straight to \texttt{DELIVERED}, so a table that
+  forces every intermediate status in sequence rejects a published example.
 
-  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+  Open point: the sources show only some of these moves; the rest are
+  inferred.  The business must confirm the table, decide how a declined
+  \texttt{REQUESTED} service ends, and whether an \texttt{IN PROGRESS}
+  service can be cancelled or end \texttt{NOT CLAIMED}.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/2531491864}{Order Accounting, Order Closing Example}.
 \end{definition}
 
 \begin{theorem}[Suspended services (C-09)]
@@ -50,3 +69,290 @@
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{definition}
+
+% Second survey round: candidates written from the survey notes in docs/one-order-survey.md.
+
+\begin{definition}[Who sets each delivery status (C-114)]
+  \label{def:delivery-who-sets-status}
+  \uses{def:principal, def:c08-delivery-status, def:delivery-moves, thm:c09-suspended}
+  \notready
+  The ORA's order management system holds the single record of each
+  service's delivery status. The airline sets \texttt{REQUESTED},
+  \texttt{CONFIRMED}, \texttt{READY TO PROCEED}, \texttt{SUSPENDED},
+  \texttt{REMOVED}, \texttt{REMOVED HOLD VALUE} and \texttt{EXPIRED}; the
+  delivery provider sets \texttt{READY TO DELIVER}, \texttt{IN PROGRESS},
+  \texttt{DELIVERED}, \texttt{UNABLE TO DELIVER}, \texttt{FAILED TO DELIVER}
+  and \texttt{NOT CLAIMED} and must report every change to the ORA.
+
+  Case to check: A lounge provider reports \texttt{DELIVERED} for a service
+  the airline has \texttt{SUSPENDED} for suspected fraud; if the OMS records
+  every report as received, the suspension is lost.
+
+  Open point: The split comes from status definitions, and \texttt{FAILED TO
+  DELIVER} names either party. The business must decide whether the OMS
+  rejects a provider report that breaks the transition table, and whether
+  the airline may overwrite a status the provider set.
+
+  Sources: \href{https://www.iata.org/contentassets/72cbd60393ff42b5975d90ce9e049a7d/oneorder-resolution-797.pdf}{IATA Resolution 797};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS};
+  \href{https://standards.atlassian.net/wiki/spaces/AIDM/pages/607420437/View+IATA+Codeset+Directory}{IATA code set directory}.
+\end{definition}
+
+\begin{theorem}[Payment before delivery starts (C-115)]
+  \label{thm:delivery-paid-before-delivery}
+  \uses{def:c08-delivery-status, def:payment, def:c12-zero-commitment, def:delivery-moves}
+  \notready
+  A service reaches \texttt{READY TO DELIVER}, \texttt{IN PROGRESS} or
+  \texttt{DELIVERED} only after it has been \texttt{READY TO PROCEED}.
+  \texttt{READY TO PROCEED} means the airline has been paid for the service
+  and the customer is entitled to it.
+
+  Case to check: In the deferred-payment change example, transferred flight
+  services stay \texttt{READY TO PROCEED} inside a new order item that is
+  unpaid and carries a payment time limit, so the flight could be delivered
+  while the item's balance is outstanding.
+
+  Open point: The sources treat \texttt{READY TO PROCEED} as the payment
+  gate and say a delivery notice to the provider does not by itself allow
+  delivery to start, but they never forbid delivery from \texttt{CONFIRMED}.
+  The business must make that rule and say what counts as paid for deposits,
+  zero-amount commitments (C-12) and credit terms.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/AIDM/pages/607420437/View+IATA+Codeset+Directory}{IATA code set directory};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
+  \href{https://retailing.iata.org/armi/docs/ORDDEL/}{IATA capability ORDDEL};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund}.
+\end{theorem}
+
+\begin{definition}[Final delivery statuses (C-116)]
+  \label{def:delivery-final-statuses}
+  \uses{def:c08-delivery-status, thm:delivered-not-cancellable, def:delivery-moves}
+  \notready
+  \texttt{DELIVERED}, \texttt{REMOVED}, \texttt{EXPIRED}, \texttt{NOT
+  CLAIMED} and \texttt{FAILED TO DELIVER} are final: no event moves a
+  service out of them. Reaching one is the event the OMS reports to
+  accounting.
+
+  Case to check: Delivered services are still \texttt{TRANSFERRED} to new
+  order items during a change, so finality can only constrain the delivery
+  status; the service status and the containing item still change.
+
+  Open point: The accounting message names these five and leaves out
+  \texttt{UNABLE TO DELIVER}, and the ORDSTS guidance only says the final
+  status depends on the use case. The business must decide whether
+  \texttt{UNABLE TO DELIVER} is final or can return to \texttt{READY TO
+  PROCEED} once the legal or force majeure constraint lifts.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
+  \href{https://retailing.iata.org/armi/docs/ORDSTS/}{IATA capability ORDSTS};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2533031940}{EASD guide, 25.4 Release Notes}.
+\end{definition}
+
+\begin{definition}[Held value after cancellation (C-117)]
+  \label{def:delivery-removed-hold-value}
+  \uses{def:c05-holds-value, thm:c20-value-store, def:c15-cancel-order, def:refund, def:delivery-moves}
+  \notready
+  A cancelled service moves to \texttt{REMOVED HOLD VALUE} while the airline
+  keeps its value for reuse, and to \texttt{REMOVED} once that value is
+  refunded, moved into a value store item, or used up by a paid change. The
+  only move out of \texttt{REMOVED HOLD VALUE} is to \texttt{REMOVED}.
+
+  Case to check: A reusable cancellation leaves the item \texttt{ACTIVE} and
+  the order \texttt{OPENED}; if the customer never reuses the value and
+  nothing moves the service to \texttt{REMOVED}, the order never closes.
+
+  Open point: The sources give three meanings: value the seller can reuse
+  later, value held for further servicing, and value not yet refunded
+  because the residual cannot yet be calculated. The business must pick one
+  and decide whether held value expires and what status follows.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/1404665857}{EASD guide, 24.1 Release Notes};
+  \href{https://standards.atlassian.net/wiki/spaces/AIDM/pages/607420437/View+IATA+Codeset+Directory}{IATA code set directory};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594921}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in a Reusable amount};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844169268}{Order Accounting, Customer requests a cancellation to paid Order or OrderItems resulting in Value Store}.
+\end{definition}
+
+\begin{definition}[Expiry of an unclaimed service (C-118)]
+  \label{def:delivery-expired-unclaimed}
+  \uses{def:instant, def:c05-holds-value, def:c07-order-status, def:c11-payment-time-limit, def:delivery-final-statuses}
+  \notready
+  A service with a consumption time limit moves to \texttt{EXPIRED} when the
+  limit passes before the customer claims it, provided the service reached
+  at least \texttt{CONFIRMED}. The OMS may set this automatically when the
+  limit passes, and \texttt{EXPIRED} is final.
+
+  Case to check: An unpaid \texttt{CONFIRMED} service whose consumption
+  window ends before its payment time limit would become \texttt{EXPIRED}
+  and be reported to accounting as final, though no sale was ever posted for
+  it.
+
+  Open point: The sources do not say whether an unpaid \texttt{CONFIRMED}
+  service expires this way or is removed under its payment time limit,
+  whether the limit runs while the service is \texttt{SUSPENDED}, or whether
+  \texttt{EXPIRED} holds value. The code set lets an order close with
+  \texttt{EXPIRED} services and the guide does not, so the business must
+  choose.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/AIDM/pages/607420437/View+IATA+Codeset+Directory}{IATA code set directory};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages}.
+\end{definition}
+
+\begin{definition}[Passenger no-show (C-119)]
+  \label{def:delivery-no-show}
+  \uses{def:c05-holds-value, def:refund, def:delivery-final-statuses, def:delivery-expired-unclaimed}
+  \notready
+  A service moves to \texttt{NOT CLAIMED} when the passenger's own action or
+  inaction, such as a no-show, prevents delivery. \texttt{NOT CLAIMED} is
+  final, and its report to accounting lets the airline recognize the
+  revenue.
+
+  Case to check: Under the French tax rule in the 19.1 release notes, a
+  passenger who does not fly may be owed some taxes back; if \texttt{NOT
+  CLAIMED} holds no value, the order can close with that refund unpaid.
+
+  Open point: The sources do not say when \texttt{NOT CLAIMED} is set (at
+  departure, or once the passenger can no longer rebook), which status
+  applies when \texttt{EXPIRED} also fits, or whether \texttt{NOT CLAIMED}
+  holds value. The business must also decide how the No Show stage in cancel
+  and change restrictions applies to such a service.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/AIDM/pages/607420437/View+IATA+Codeset+Directory}{IATA code set directory};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574259692/Offer+Restrictions}{EASD guide, Offer Restrictions};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574488757}{EASD guide, 19.1 Release Notes}.
+\end{definition}
+
+\begin{definition}[Refund after a failed delivery (C-120)]
+  \label{def:delivery-failed-delivery-owed}
+  \uses{def:c05-holds-value, def:refund, def:delivery-final-statuses}
+  \notready
+  \texttt{FAILED TO DELIVER} records a delivery the airline or its provider
+  could not perform because of its own limits. \texttt{UNABLE TO DELIVER}
+  records a delivery the provider cannot perform because of legal,
+  regulatory or force majeure constraints. The sources set no rule on what
+  the customer is owed after either.
+
+  Case to check: If both statuses hold no value, an order whose paid flight
+  the airline failed to deliver can close with the customer's money kept.
+
+  Open point: The business must decide whether each status holds value,
+  whether a refund, value store or re-accommodation follows, and whether the
+  airline-fault case owes more than the force majeure case.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/AIDM/pages/607420437/View+IATA+Codeset+Directory}{IATA code set directory};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2533031940}{EASD guide, 25.4 Release Notes}.
+\end{definition}
+
+\begin{theorem}[Seller told of status changes (C-121)]
+  \label{thm:delivery-seller-told}
+  \uses{def:c08-delivery-status, def:delivery-who-sets-status, def:principal}
+  \notready
+  When a service's delivery status changes, the airline sends the seller an
+  order change notification carrying the new status, the seller acknowledges
+  it, and the seller tells the customer.
+
+  Case to check: If payment time limit expiry is shown only on retrieval, a
+  seller that never retrieves keeps showing the customer a
+  \texttt{CONFIRMED} service that no longer exists.
+
+  Open point: ORDST2 asks only that the airline can notify; no source says
+  which of the thirteen statuses must be pushed. The business must decide,
+  for example, whether \texttt{READY TO DELIVER} and \texttt{IN PROGRESS}
+  are pushed, and whether removal at the payment time limit is pushed or
+  only shown as error 918 when the seller retrieves the order.
+
+  Sources: \href{https://retailing.iata.org/armi/docs/ORDST2/}{IATA capability ORDST2};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455903}{EASD guide, Notification of Airline Initiated Change to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/670203914}{EASD guide, Payment Via Redirection with Airline Notification of Payment Success​};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/815202352}{EASD guide, Airline notifies Seller of changes to an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/1404665857}{EASD guide, 24.1 Release Notes}.
+\end{theorem}
+
+\begin{theorem}[Announced future delivery status (C-122)]
+  \label{thm:delivery-future-status-announced}
+  \uses{def:c18-change, def:c08-delivery-status, def:delivery-removed-hold-value}
+  \notready
+  When the airline offers a change or cancellation, it tells the seller the
+  future service status and delivery status of every affected service. Once
+  the change is accepted and completed, each affected service is in the
+  announced status.
+
+  Case to check: In the deferred-payment change example the reshop offer
+  announces \texttt{REMOVED}, but after acceptance the services sit in
+  \texttt{REMOVED HOLD VALUE} until payment arrives.
+
+  Open point: The field was added so the seller can see the outcome, and no
+  source says the outcome must match it or by when. The business must decide
+  whether the announced status binds at acceptance or only once any payment
+  completes.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/1404665857}{EASD guide, 24.1 Release Notes};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619782/Modification+of+an+Order}{EASD guide, Modification of an Order};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/817594921}{EASD guide, Customer requests a cancellation to paid Order or OrderItems resulting in a Reusable amount};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund}.
+\end{theorem}
+
+\begin{theorem}[No changes after closing (C-123)]
+  \label{thm:delivery-closed-frozen}
+  \uses{def:c07-order-status, def:delivery-final-statuses}
+  \notready
+  Once an order is \texttt{CLOSED} it accepts no further change, including
+  any change to a service's delivery status, though it can still be
+  retrieved. In the worked example the order closes when its last services
+  are reported \texttt{DELIVERED}.
+
+  Open point: The sources disagree on what closes an order: the guide
+  requires services \texttt{DELIVERED} or \texttt{REMOVED}, the code set
+  requires items fully paid and services \texttt{DELIVERED}, refunded or
+  \texttt{EXPIRED}, and the closing message once named as the only trigger
+  was withdrawn in 25.4. The business must pick one trigger for C-07.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/2531491864}{Order Accounting, Order Closing Example};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/2533031940}{EASD guide, 25.4 Release Notes};
+  \href{https://standards.atlassian.net/wiki/spaces/AIDM/pages/607420437/View+IATA+Codeset+Directory}{IATA code set directory};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
+\end{theorem}
+
+\begin{theorem}[Transfer keeps delivery status (C-124)]
+  \label{thm:delivery-transfer-keeps-status}
+  \uses{thm:c19-transfer-balanced, def:c01-structure, thm:change-cancellation-transferred-original-no-value}
+  \notready
+  When a service moves to a new order item it keeps its ServiceID and its
+  delivery status, and delivered services move too so the order stays
+  balanced. The copy left in the original item takes service status
+  \texttt{TRANSFERRED}.
+
+  Open point: The guide states that the ServiceID is kept; that the delivery
+  status is kept appears only in worked examples. The business must confirm
+  that a transfer never changes delivery status.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://standards.atlassian.net/wiki/spaces/OA/pages/844202130}{Order Accounting, Customer requests a change of a paid order prior to travel resulting in additional collection and a refund};
+  \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/842268712}{EASD guide, Customer requests a change of a paid order prior to travel resulting in additional collection and a value store}.
+\end{theorem}
+
+\begin{theorem}[Delivery milestones and status (C-125)]
+  \label{thm:delivery-milestones-not-status}
+  \uses{def:c08-delivery-status, def:delivery-who-sets-status}
+  \notready
+  A delivery milestone report, such as a passenger boarded or a bag loaded,
+  records progress and does not change the service's delivery status by
+  itself. A status change needs its own status report.
+
+  Open point: The source says a milestone does not necessarily change status
+  and gives boarding as a case that does not. The business must decide which
+  milestone, if any, moves a flight service to \texttt{IN PROGRESS} or
+  \texttt{DELIVERED}.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574652427/Messages}{EASD guide, Messages}.
+\end{theorem}
