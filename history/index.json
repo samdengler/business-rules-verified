@@ -212,6 +212,24 @@
     "decision": 79,
     "waiting": 3
    }
+  },
+  {
+   "seq": 13,
+   "name": "accounting",
+   "description": "Commission, accounting and settlement are in Lean: commission, clearances, clearings, net positions, short remittances, billing and the books, with ten open questions.",
+   "commit": "8f6eeb5c409d5315d36bddfa99ddd08197952278",
+   "date": "2026-10-30T01:35:53-04:00",
+   "tag": "milestone/accounting",
+   "file": "0013-accounting.json",
+   "nodes": 429,
+   "statusCounts": {
+    "modelled": 92,
+    "proven": 204,
+    "open": 58,
+    "ready": 7,
+    "decision": 67,
+    "waiting": 1
+   }
   }
  ]
 }
