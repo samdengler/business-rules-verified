@@ -690,10 +690,12 @@ Choices made where the plan left room, in the order they came up.
       with its statement, open point, source, Lean names, and what it
       depends on and what uses it. leanblueprint's graph stays at
       `/blueprint/dep_graph_document.html` for the blueprint's own legend.
-    - Every card and map box on the progress page is a link: rules and
-      guarantees open their card in the review document through Verso's own
-      name lookup (`review/find/?name=…`), and candidates open their node in
-      the dependency graph. A graph address ending in `#` and a node's label,
+    - Every card and map box on the progress page is a link, resolved
+      through Verso's own lookup (`review/find/?…`) so a moved chapter keeps
+      working: a rule opens its requirement chapter at the top, a guarantee
+      opens its section heading in that chapter (tagged
+      `guarantee-<name>` by `scripts/render_status.py`), and a candidate opens
+      its node in the dependency graph. A graph address ending in `#` and a node's label,
       such as `graph/#def%3Ac06-item-status`, opens with that node selected;
       selecting a node updates the address, so a selection can be shared.
     - The blueprint follows the reader's dark-mode setting too, through

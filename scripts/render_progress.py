@@ -28,6 +28,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from render_status import section_tag  # noqa: E402
 from site_nav import TOPBAR_CSS, topbar  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -125,6 +126,7 @@ def classify(nodes, decls):
         ears = [decls[x]["earsId"] for x in n["lean"] if decls.get(x, {}).get("earsId")]
         checks = [c for x in n["lean"] for c in decls.get(x, {}).get("checks", [])]
         n["tag"] = n["cid"] or (ears[0] if ears else None) or (("checks " + ", ".join(checks)) if checks else None)
+        n["href"] = card_href(n, decls)
     return by_label
 
 
@@ -160,10 +162,18 @@ def chip(status):
     return f'<span class="chip s-{status}"><span class="ico" aria-hidden="true">{icon}</span>{label}</span>'
 
 
-def card_href(n):
-    """Where a card leads: its card in the review document, found by Verso's own
-    name lookup, or for a candidate without Lean, its node in the dependency graph."""
+def card_href(n, decls):
+    """Where a card leads, found by Verso's own lookup so a moved chapter keeps
+    working: a rule opens its requirement chapter at the top, a guarantee its
+    section in that chapter (tags from scripts/render_status.py), and a
+    candidate without Lean its node in the dependency graph."""
+    find = "./review/find/?domain=Verso.Genre.Manual.section&name="
     if n["lean"]:
+        ears = decls.get(n["lean"][0], {}).get("earsId")
+        if ears:
+            return find + quote(ears.lower())
+        if n["env"] != "definition":
+            return find + quote(section_tag("guarantee", n["lean"][0]))
         return "./review/find/?domain=Verso.Genre.Manual.doc&name=" + quote(n["lean"][0])
     return "./graph/#" + quote(n["label"])
 
@@ -176,7 +186,7 @@ def card(n):
     src = f'<p class="source">Source: {source}</p>' if source else ""
     return f"""<article class="card s-{n['status']}">
   <header>{tag}{chip(n['status'])}</header>
-  <h4><a class="card-link" href="{html.escape(card_href(n))}">{html.escape(n['title'])}</a></h4>
+  <h4><a class="card-link" href="{html.escape(n['href'])}">{html.escape(n['title'])}</a></h4>
   <p>{' '.join(desc)}</p>
   {q}{src}
 </article>"""
@@ -204,7 +214,7 @@ def dep_map(show, by_label):
     for n in show:
         tip = plain(" ".join(split_question(n)[0])).replace('"', "'")
         lines.append(f'  {ids[n["label"]]} [label="{wrap(n["title"])}", class="s-{n["status"]}", tooltip="{tip}", '
-                     f'href="{card_href(n)}"];')
+                     f'href="{n["href"]}"];')
     for n in show:
         for u in n["uses"]:
             if u in ids:

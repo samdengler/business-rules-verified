@@ -448,6 +448,13 @@ def check_title(name, decls, titles):
     return titles.get(name, humanize(short)) if d.get("kind") == "theorem" else humanize(short)
 
 
+def section_tag(kind, name):
+    """The Verso tag of a guarantee's or example's section, such as
+    guarantee-delivered-not-cancellable.  Links elsewhere on the site find the
+    section through Verso's lookup with this tag (scripts/render_progress.py)."""
+    return f"{kind}-" + name.rsplit(".", 1)[-1].replace("_", "-")
+
+
 def render_requirement(rule, decls, titles):
     ears_id = rule["earsId"]
     prefix = ears_id + "."
@@ -524,6 +531,9 @@ def render_requirement(rule, decls, titles):
         for d in theorems:
             parts += [
                 f"## {verso_escape(check_title(d['name'], decls, titles))}",
+                "%%%",
+                f'tag := "{section_tag("guarantee", d["name"])}"',
+                "%%%",
                 "",
                 f'{{docstring {d["name"]} (label := "guarantee")}}',
                 "",
@@ -537,6 +547,9 @@ def render_requirement(rule, decls, titles):
         for d in cases:
             parts += [
                 f"## {humanize(d['name'].rsplit('.', 1)[-1])}",
+                "%%%",
+                f'tag := "{section_tag("example", d["name"])}"',
+                "%%%",
                 "",
                 f'{{docstring {d["name"]} (label := "example")}}',
                 "",
