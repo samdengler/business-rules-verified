@@ -46,24 +46,64 @@ These requirements are generated from the Lean model in [`Rules/OneOrder/Creatio
 
 **User Story:** As a customer, I want a trip I chose as a whole to be ordered as a whole, so that I never hold half of it.
 
-**Rule:** WHEN a seller sends a create request with selections from one or more offers THE SYSTEM SHALL create one order holding the selected items of every offer, or reject the whole request. (Lean: `createOrder`)
+**Rule:** WHEN a seller sends a create request with selections from one or more offers THE SYSTEM SHALL check each selection and create one order from them, or reject the request. (Lean: `createOrder`)
 
 #### Acceptance Criteria
 
 1. WHEN a create request is accepted THE SYSTEM SHALL create one order item for each item selected from each offer and none for the items left out.
-   - ONE-402.1, proven: proven theorem `create_items_match_selection`; example `tripWithoutBag`
+   - ONE-402.1, open: open theorem `create_items_match_selection`; counterexample `oneOfferExpired`; counterexample `tripWithoutBag`
 2. WHEN an order is created from offers priced in one currency THE SYSTEM SHALL make the order's total price the sum of the prices of the selected items.
-   - ONE-402.2, proven: proven theorem `create_price_eq_sum`; example `tripWithoutBag`
+   - ONE-402.2, open: open theorem `create_price_eq_sum`; counterexample `oneOfferExpired`; counterexample `tripWithoutBag`
 3. IF any offer named in a create request has expired at the instant of the request THEN THE SYSTEM SHALL reject the whole request and create no order.
-   - ONE-402.3, proven: proven theorem `create_rejects_expired`; example `oneOfferExpired`
+   - ONE-402.3, open: open theorem `create_rejects_expired`; counterexample `oneOfferExpired`
 4. IF a create request selects no item from any offer THEN THE SYSTEM SHALL reject it.
    - ONE-402.4, proven: proven theorem `create_rejects_empty`; example `nothingSelected`
 5. WHEN an order is created THE SYSTEM SHALL be able to state its total price in a single currency.
    - ONE-402.5, open: open theorem `create_single_currency`; counterexample `twoCurrencies`
 
+#### Open question on ONE-402.1
+
+> An accepted request becomes an order whose items are, for each selection
+> in turn, the items it selects from its offer and no others, under both
+> readings.
+>
+> Open question for the business.  The sources allow one request to select from
+> several offers and do not say what happens when one of them is rejected.
+> Under the reading where the selections that pass go ahead, the items selected
+> from a rejected offer are left out of the order.  The example
+> `oneOfferExpired` shows it: the return flight selected from an expired
+> offer has no order item.  Does a rejected offer reject the whole request, or
+> do the offers that pass go ahead?
+
+#### Open question on ONE-402.2
+
+> An order created from offers priced in one currency has a total in that
+> currency, the sum of the prices of the selected items, under both readings.
+>
+> Open question for the business.  Under the reading where the selections that
+> pass go ahead, the items selected from a rejected offer are left out, and the
+> order costs less than the items selected.  The example `oneOfferExpired`
+> shows it: the selected items cost 780.00 EUR and the order 400.00 EUR.  Does a
+> rejected offer reject the whole request, or do the offers that pass go
+> ahead?
+
+#### Open question on ONE-402.3
+
+> A request that names an offer which has expired at the instant of the
+> request is rejected as a whole, under both readings: no order is created.
+>
+> Open question for the business.  The sources allow one request to select from
+> several offers and do not say what happens when one of them has expired or
+> fails its checks.  Under the reading where the selections that pass go ahead,
+> an order is created from the valid offer alone, and the customer holds half
+> of a trip chosen as a whole.  The example `oneOfferExpired` shows it.
+> Does a rejected offer reject the whole request, or do the offers that pass go
+> ahead?
+
 #### Open question on ONE-402.5
 
-> Every order created has a total price in a single currency.
+> Every order created has a total price in a single currency, under both
+> readings.
 >
 > Open question for the business.  Each offer is checked for its own currency,
 > and a request may select from offers priced in different currencies.  The

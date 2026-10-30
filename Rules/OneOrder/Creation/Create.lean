@@ -122,9 +122,43 @@ def orderItemsForAll (offers : List MarkedOffer) (now : Instant) (orderId : Stri
     | .ok _, .error e => .error e
     | .ok items, .ok more => .ok (items ++ more)
 
+/-- What the airline does with a create request when a selection in it is
+rejected.  The sources allow one request to select from several offers and do
+not say, so the model takes the answer as a parameter: a reading of the
+sources.  A guarantee about creation counts as proven only when it holds
+under both readings. -/
+inductive MultiOfferHandling
+  /-- A rejected selection rejects the whole request. -/
+  | wholeRequest
+  /-- The selections that pass go ahead, and those rejected are left out. -/
+  | passingOffers
+  deriving DecidableEq, Repr, Inhabited
+
+/-- The order items of the selections of a request that pass, in turn,
+leaving out those rejected. -/
+def passingItems (offers : List MarkedOffer) (now : Instant) (orderId : String)
+    (req : List Selection) : List OrderItem :=
+  req.flatMap fun s =>
+    match orderItemsFor offers now orderId s with
+    | .ok items => items
+    | .error _ => []
+
+/-- The order items a request becomes under a reading of the sources, or why
+it is rejected.  When every selection passes, both readings give the items of
+every selection.  When one is rejected, the whole request is rejected, or the
+items of the selections that pass are kept; if none passes, the first
+rejection is returned. -/
+def pickItems (m : MultiOfferHandling) (offers : List MarkedOffer) (now : Instant) (orderId : String)
+    (req : List Selection) : Except CreateRejection (List OrderItem) :=
+  match orderItemsForAll offers now orderId req, m with
+  | .ok items, _ => .ok items
+  | .error e, .wholeRequest => .error e
+  | .error e, .passingOffers =>
+    if passingItems offers now orderId req = [] then .error e else .ok (passingItems offers now orderId req)
+
 /-- EARS: When a seller sends a create request with selections from one or
-more offers, the system shall create one order holding the selected items of
-every offer, or reject the whole request.
+more offers, the system shall check each selection and create one order from
+them, or reject the request.
 
 Story: As a customer, I want a trip I chose as a whole to be ordered as a
 whole, so that I never hold half of it.
@@ -145,17 +179,16 @@ Acceptance criteria:
 * ONE-402.5: When an order is created, the system shall be able to state its
   total price in a single currency.
 
-Each selection is checked as {name}`orderItemsFor` says, and the first
-rejection rejects the whole request.  The sources allow one request to select
-from several offers and do not say what happens when one of them is
-rejected; rejecting the whole request needs a decision by the business.  The
-order's total is the sum of its item prices when they share a currency
+Each selection is checked as {name}`orderItemsFor` says.  What happens when
+one is rejected depends on the reading of the sources
+({name}`MultiOfferHandling`, {name}`pickItems`).  The order's total is the sum
+of its item prices when they share a currency
 ({name}`Rules.OneOrder.Change.orderPrice`), since the guide no longer stores a
 total on the order. -/
 @[ears "ONE-402"]
-def createOrder (offers : List MarkedOffer) (req : List Selection) (now : Instant) (orderId : String) :
-    Except CreateRejection Order :=
-  match orderItemsForAll offers now orderId req with
+def createOrder (m : MultiOfferHandling) (offers : List MarkedOffer) (req : List Selection) (now : Instant)
+    (orderId : String) : Except CreateRejection Order :=
+  match pickItems m offers now orderId req with
   | .error e => .error e
   | .ok [] => .error .noItems
   | .ok items => .ok { id := orderId, items, createdAt := now }

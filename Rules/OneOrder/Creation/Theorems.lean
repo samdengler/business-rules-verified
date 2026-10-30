@@ -171,11 +171,18 @@ theorem orderItemsForAll_error (offers : List MarkedOffer) (now : Instant) (orde
       rw [he']
       cases orderItemsFor offers now orderId t <;> exact ⟨_, rfl⟩
 
-/-- What an accepted request became: the order items of every selection, at
-least one, in an order with the reference and instant given. -/
-theorem createOrder_ok (offers : List MarkedOffer) (req : List Selection) (now : Instant)
-    (orderId : String) (ord : Order) (h : createOrder offers req now orderId = .ok ord) :
-    ∃ items, orderItemsForAll offers now orderId req = .ok items ∧ items ≠ [] ∧
+/-- Under the reading that rejects the whole request, the items picked are
+those of every selection, or the first rejection. -/
+theorem pickItems_wholeRequest (offers : List MarkedOffer) (now : Instant) (orderId : String)
+    (req : List Selection) :
+    pickItems .wholeRequest offers now orderId req = orderItemsForAll offers now orderId req := by
+  cases h : orderItemsForAll offers now orderId req <;> simp [pickItems, h]
+
+/-- What an accepted request became: the order items picked, at least one, in
+an order with the reference and instant given. -/
+theorem createOrder_ok (m : MultiOfferHandling) (offers : List MarkedOffer) (req : List Selection)
+    (now : Instant) (orderId : String) (ord : Order) (h : createOrder m offers req now orderId = .ok ord) :
+    ∃ items, pickItems m offers now orderId req = .ok items ∧ items ≠ [] ∧
       ord = { id := orderId, items, createdAt := now } := by
   unfold createOrder at h
   split at h
@@ -185,16 +192,18 @@ theorem createOrder_ok (offers : List MarkedOffer) (req : List Selection) (now :
     cases h
     exact ⟨items, hitems, hne, rfl⟩
 
-/-- An accepted request becomes an order whose items are, for each selection
-in turn, the items it selects from its offer and no others. -/
-@[checks "ONE-402.1"]
-theorem create_items_match_selection (offers : List MarkedOffer) (req : List Selection) (now : Instant)
-    (orderId : String) (ord : Order) (h : createOrder offers req now orderId = .ok ord) :
+/-- Under the reading that rejects the whole request, an accepted request
+becomes an order whose items are, for each selection in turn, the items it
+selects from its offer and no others. -/
+theorem create_items_match_selection_of_wholeRequest (offers : List MarkedOffer) (req : List Selection)
+    (now : Instant) (orderId : String) (ord : Order)
+    (h : createOrder .wholeRequest offers req now orderId = .ok ord) :
     ord.items = req.flatMap (fun s => (selectedFrom offers s).map (toOrderItem (itemPrefix orderId s.offer))) ∧
       ∀ s ∈ req, ∀ oi, oi ∈ selectedFrom offers s ↔
         ∃ o, offers.find? (·.offer.id == s.offer) = some o ∧ oi ∈ o.offer.items ∧ oi.id ∈ s.items := by
   refine ⟨?_, fun s _ oi => ?_⟩
-  · obtain ⟨items, hitems, -, rfl⟩ := createOrder_ok offers req now orderId ord h
+  · obtain ⟨items, hitems, -, rfl⟩ := createOrder_ok .wholeRequest offers req now orderId ord h
+    rw [pickItems_wholeRequest] at hitems
     exact (orderItemsForAll_ok offers now orderId req items hitems).1
   · unfold selectedFrom
     split
@@ -203,14 +212,34 @@ theorem create_items_match_selection (offers : List MarkedOffer) (req : List Sel
     · rename_i hnone
       simp [hnone]
 
-/-- An order created from offers priced in one currency has a total in that
-currency: the sum of the prices of the selected items. -/
-@[checks "ONE-402.2"]
-theorem create_price_eq_sum (offers : List MarkedOffer) (req : List Selection) (now : Instant)
-    (orderId : String) (ord : Order) (c : Currency) (h : createOrder offers req now orderId = .ok ord)
+/-- An accepted request becomes an order whose items are, for each selection
+in turn, the items it selects from its offer and no others, under both
+readings.
+
+Open question for the business.  The sources allow one request to select from
+several offers and do not say what happens when one of them is rejected.
+Under the reading where the selections that pass go ahead, the items selected
+from a rejected offer are left out of the order.  The example
+{lit}`oneOfferExpired` shows it: the return flight selected from an expired
+offer has no order item.  Does a rejected offer reject the whole request, or
+do the offers that pass go ahead? -/
+@[open_question, checks "ONE-402.1"]
+theorem create_items_match_selection (m : MultiOfferHandling) (offers : List MarkedOffer)
+    (req : List Selection) (now : Instant) (orderId : String) (ord : Order)
+    (h : createOrder m offers req now orderId = .ok ord) :
+    ord.items = req.flatMap (fun s => (selectedFrom offers s).map (toOrderItem (itemPrefix orderId s.offer))) := by
+  sorry
+
+/-- Under the reading that rejects the whole request, an order created from
+offers priced in one currency has a total in that currency: the sum of the
+prices of the selected items. -/
+theorem create_price_eq_sum_of_wholeRequest (offers : List MarkedOffer) (req : List Selection)
+    (now : Instant) (orderId : String) (ord : Order) (c : Currency)
+    (h : createOrder .wholeRequest offers req now orderId = .ok ord)
     (hc : ∀ s ∈ req, ∀ o ∈ offers, o.offer.id = s.offer → o.offer.currency = c) :
     Change.orderPrice ord c = some ⟨((req.flatMap (selectedFrom offers)).map (·.price.amount)).sum, c⟩ := by
-  obtain ⟨items, hitems, -, rfl⟩ := createOrder_ok offers req now orderId ord h
+  obtain ⟨items, hitems, -, rfl⟩ := createOrder_ok .wholeRequest offers req now orderId ord h
+  rw [pickItems_wholeRequest] at hitems
   obtain ⟨rfl, hcur⟩ := orderItemsForAll_ok offers now orderId req items hitems
   have hall : (req.flatMap (fun s => (selectedFrom offers s).map
       (toOrderItem (itemPrefix orderId s.offer)))).all (·.price.currency == c) = true := by
@@ -221,33 +250,81 @@ theorem create_price_eq_sum (offers : List MarkedOffer) (req : List Selection) (
   simp only [Change.orderPrice, hall, ↓reduceIte, List.map_flatMap]
   simp [toOrderItem, Function.comp_def]
 
-/-- A request that names an offer which has expired at the instant of the
-request is rejected as a whole: no order is created. -/
-@[checks "ONE-402.3"]
-theorem create_rejects_expired (offers : List MarkedOffer) (req : List Selection) (now : Instant)
-    (orderId : String) (s : Selection) (hs : s ∈ req) (o : MarkedOffer)
+/-- An order created from offers priced in one currency has a total in that
+currency, the sum of the prices of the selected items, under both readings.
+
+Open question for the business.  Under the reading where the selections that
+pass go ahead, the items selected from a rejected offer are left out, and the
+order costs less than the items selected.  The example {lit}`oneOfferExpired`
+shows it: the selected items cost 780.00 EUR and the order 400.00 EUR.  Does a
+rejected offer reject the whole request, or do the offers that pass go
+ahead? -/
+@[open_question, checks "ONE-402.2"]
+theorem create_price_eq_sum (m : MultiOfferHandling) (offers : List MarkedOffer) (req : List Selection)
+    (now : Instant) (orderId : String) (ord : Order) (c : Currency)
+    (h : createOrder m offers req now orderId = .ok ord)
+    (hc : ∀ s ∈ req, ∀ o ∈ offers, o.offer.id = s.offer → o.offer.currency = c) :
+    Change.orderPrice ord c = some ⟨((req.flatMap (selectedFrom offers)).map (·.price.amount)).sum, c⟩ := by
+  sorry
+
+/-- Under the reading that rejects the whole request, a request that names an
+offer which has expired at the instant of the request is rejected as a whole:
+no order is created. -/
+theorem create_rejects_expired_of_wholeRequest (offers : List MarkedOffer) (req : List Selection)
+    (now : Instant) (orderId : String) (s : Selection) (hs : s ∈ req) (o : MarkedOffer)
     (ho : offers.find? (·.offer.id == s.offer) = some o) (hexp : now ≥ o.offer.expiresAt) :
-    ∃ e, createOrder offers req now orderId = .error e := by
+    ∃ e, createOrder .wholeRequest offers req now orderId = .error e := by
   have he : orderItemsFor offers now orderId s = .error (.expired s.offer) := by
     simp [orderItemsFor, ho, hexp]
   obtain ⟨e, he'⟩ := orderItemsForAll_error offers now orderId req s hs _ he
-  exact ⟨e, by simp [createOrder, he']⟩
+  exact ⟨e, by simp [createOrder, pickItems_wholeRequest, he']⟩
 
-/-- A request that selects no item from any offer is rejected. -/
+/-- A request that names an offer which has expired at the instant of the
+request is rejected as a whole, under both readings: no order is created.
+
+Open question for the business.  The sources allow one request to select from
+several offers and do not say what happens when one of them has expired or
+fails its checks.  Under the reading where the selections that pass go ahead,
+an order is created from the valid offer alone, and the customer holds half
+of a trip chosen as a whole.  The example {lit}`oneOfferExpired` shows it.
+Does a rejected offer reject the whole request, or do the offers that pass go
+ahead? -/
+@[open_question, checks "ONE-402.3"]
+theorem create_rejects_expired (m : MultiOfferHandling) (offers : List MarkedOffer)
+    (req : List Selection) (now : Instant) (orderId : String) (s : Selection) (hs : s ∈ req)
+    (o : MarkedOffer) (ho : offers.find? (·.offer.id == s.offer) = some o)
+    (hexp : now ≥ o.offer.expiresAt) :
+    ∃ e, createOrder m offers req now orderId = .error e := by
+  sorry
+
+/-- A request that selects no item from any offer is rejected, under both
+readings. -/
 @[checks "ONE-402.4"]
-theorem create_rejects_empty (offers : List MarkedOffer) (req : List Selection) (now : Instant)
-    (orderId : String) (hempty : ∀ s ∈ req, selectedFrom offers s = []) :
-    ∃ e, createOrder offers req now orderId = .error e := by
+theorem create_rejects_empty (m : MultiOfferHandling) (offers : List MarkedOffer) (req : List Selection)
+    (now : Instant) (orderId : String) (hempty : ∀ s ∈ req, selectedFrom offers s = []) :
+    ∃ e, createOrder m offers req now orderId = .error e := by
+  have hpass : passingItems offers now orderId req = [] := by
+    simp only [passingItems, List.flatMap_eq_nil_iff]
+    intro s hs
+    split
+    · rename_i items hitems
+      obtain ⟨rfl, -⟩ := orderItemsFor_ok offers now orderId s items hitems
+      simp [hempty s hs]
+    · rfl
   cases hall : orderItemsForAll offers now orderId req with
-  | error e => exact ⟨e, by simp [createOrder, hall]⟩
+  | error e =>
+    cases m with
+    | wholeRequest => exact ⟨e, by simp [createOrder, pickItems, hall]⟩
+    | passingOffers => exact ⟨e, by simp [createOrder, pickItems, hall, hpass]⟩
   | ok items =>
     obtain ⟨rfl, -⟩ := orderItemsForAll_ok offers now orderId req items hall
     have : req.flatMap (fun s => (selectedFrom offers s).map (toOrderItem (itemPrefix orderId s.offer))) = [] := by
       simp only [List.flatMap_eq_nil_iff, List.map_eq_nil_iff]
       exact hempty
-    exact ⟨.noItems, by simp [createOrder, hall, this]⟩
+    exact ⟨.noItems, by simp [createOrder, pickItems, hall, this]⟩
 
-/-- Every order created has a total price in a single currency.
+/-- Every order created has a total price in a single currency, under both
+readings.
 
 Open question for the business.  Each offer is checked for its own currency,
 and a request may select from offers priced in different currencies.  The
@@ -256,8 +333,9 @@ The example {lit}`twoCurrencies` shows it: a flight priced in EUR and a hotel
 transfer priced in USD go into one order that has no total.  May one order
 hold items priced in more than one currency, and if so, what is its total? -/
 @[open_question, checks "ONE-402.5"]
-theorem create_single_currency (offers : List MarkedOffer) (req : List Selection) (now : Instant)
-    (orderId : String) (ord : Order) (h : createOrder offers req now orderId = .ok ord) :
+theorem create_single_currency (m : MultiOfferHandling) (offers : List MarkedOffer)
+    (req : List Selection) (now : Instant) (orderId : String) (ord : Order)
+    (h : createOrder m offers req now orderId = .ok ord) :
     ∃ c, (Change.orderPrice ord c).isSome := by
   sorry
 
@@ -265,17 +343,17 @@ theorem create_single_currency (offers : List MarkedOffer) (req : List Selection
 
 /-- A request that names no offer with an order gets the order
 {name}`createOrder` creates, recorded against every offer it names, under
-every reading. -/
+every reading of both parameters. -/
 @[checks "ONE-403.1"]
-theorem create_once_records (hd : RepeatHandling) (book : List CreatedOrder) (offers : List MarkedOffer)
-    (req : List Selection) (now : Instant) (orderId : String) (ord : Order) (book' : List CreatedOrder)
-    (hfresh : ∀ e ∈ book, e.fromAny req = false)
-    (h : createOnce hd book offers req now orderId = .ok (ord, book')) :
-    createOrder offers req now orderId = .ok ord ∧ book' = book ++ [⟨req.map (·.offer), ord⟩] := by
+theorem create_once_records (hd : RepeatHandling) (m : MultiOfferHandling) (book : List CreatedOrder)
+    (offers : List MarkedOffer) (req : List Selection) (now : Instant) (orderId : String) (ord : Order)
+    (book' : List CreatedOrder) (hfresh : ∀ e ∈ book, e.fromAny req = false)
+    (h : createOnce hd m book offers req now orderId = .ok (ord, book')) :
+    createOrder m offers req now orderId = .ok ord ∧ book' = book ++ [⟨req.map (·.offer), ord⟩] := by
   have hnone : book.find? (·.fromAny req) = none :=
     List.find?_eq_none.mpr fun e he => by simp [hfresh e he]
   simp only [createOnce, hnone] at h
-  cases hc : createOrder offers req now orderId with
+  cases hc : createOrder m offers req now orderId with
   | error e => simp [hc, Except.map] at h
   | ok o =>
     simp only [hc, Except.map] at h
@@ -286,11 +364,11 @@ theorem create_once_records (hd : RepeatHandling) (book : List CreatedOrder) (of
 offer with an order is answered with an order recorded for one of the offers
 it names, and nothing new is recorded. -/
 @[checks "ONE-403.2"]
-theorem repeat_returns_existing (book : List CreatedOrder) (offers : List MarkedOffer)
-    (req : List Selection) (now : Instant) (orderId : String)
+theorem repeat_returns_existing (m : MultiOfferHandling) (book : List CreatedOrder)
+    (offers : List MarkedOffer) (req : List Selection) (now : Instant) (orderId : String)
     (hused : ∃ e ∈ book, e.fromAny req = true) :
     ∃ e ∈ book, e.fromAny req = true ∧
-      createOnce .returnExisting book offers req now orderId = .ok (e.order, book) := by
+      createOnce .returnExisting m book offers req now orderId = .ok (e.order, book) := by
   cases hf : book.find? (·.fromAny req) with
   | none =>
     obtain ⟨e, he, hany⟩ := hused
@@ -301,10 +379,10 @@ theorem repeat_returns_existing (book : List CreatedOrder) (offers : List Marked
 /-- Where the airline rejects repeated requests, a request that names an offer
 with an order is rejected. -/
 @[checks "ONE-403.3"]
-theorem repeat_rejected (book : List CreatedOrder) (offers : List MarkedOffer)
+theorem repeat_rejected (m : MultiOfferHandling) (book : List CreatedOrder) (offers : List MarkedOffer)
     (req : List Selection) (now : Instant) (orderId : String)
     (hused : ∃ e ∈ book, e.fromAny req = true) :
-    ∃ r, createOnce .reject book offers req now orderId = .error r := by
+    ∃ r, createOnce .reject m book offers req now orderId = .error r := by
   cases hf : book.find? (·.fromAny req) with
   | none =>
     obtain ⟨e, he, hany⟩ := hused
@@ -313,10 +391,10 @@ theorem repeat_rejected (book : List CreatedOrder) (offers : List MarkedOffer)
 
 /-- Under the readings that return the existing order or reject the request,
 no offer ever appears in two recorded orders. -/
-theorem once_per_offer_of_ne (hd : RepeatHandling) (hne : hd ≠ .createAgain) (book : List CreatedOrder)
-    (offers : List MarkedOffer) (req : List Selection) (now : Instant) (orderId : String) (ord : Order)
-    (book' : List CreatedOrder) (hbook : OncePerOffer book)
-    (h : createOnce hd book offers req now orderId = .ok (ord, book')) :
+theorem once_per_offer_of_ne (hd : RepeatHandling) (hne : hd ≠ .createAgain) (m : MultiOfferHandling)
+    (book : List CreatedOrder) (offers : List MarkedOffer) (req : List Selection) (now : Instant)
+    (orderId : String) (ord : Order) (book' : List CreatedOrder) (hbook : OncePerOffer book)
+    (h : createOnce hd m book offers req now orderId = .ok (ord, book')) :
     OncePerOffer book' := by
   cases hf : book.find? (·.fromAny req) with
   | some e =>
@@ -330,7 +408,7 @@ theorem once_per_offer_of_ne (hd : RepeatHandling) (hne : hd ≠ .createAgain) (
   | none =>
     have hfresh : ∀ e ∈ book, e.fromAny req = false := fun e he => by
       simpa using List.find?_eq_none.mp hf e he
-    obtain ⟨-, rfl⟩ := create_once_records hd book offers req now orderId ord book' hfresh h
+    obtain ⟨-, rfl⟩ := create_once_records hd m book offers req now orderId ord book' hfresh h
     intro offer
     rw [List.filter_append, List.length_append]
     by_cases hin : (req.map (·.offer)).contains offer = true
@@ -364,9 +442,10 @@ customer a second order from the same offer.  The example
 {lit}`repeatedRequest` shows it.  Does creating an order use up its offer, and
 how does the airline recognize a request it has already answered? -/
 @[open_question, checks "ONE-403.4"]
-theorem once_per_offer (hd : RepeatHandling) (book : List CreatedOrder) (offers : List MarkedOffer)
-    (req : List Selection) (now : Instant) (orderId : String) (ord : Order) (book' : List CreatedOrder)
-    (hbook : OncePerOffer book) (h : createOnce hd book offers req now orderId = .ok (ord, book')) :
+theorem once_per_offer (hd : RepeatHandling) (m : MultiOfferHandling) (book : List CreatedOrder)
+    (offers : List MarkedOffer) (req : List Selection) (now : Instant) (orderId : String) (ord : Order)
+    (book' : List CreatedOrder) (hbook : OncePerOffer book)
+    (h : createOnce hd m book offers req now orderId = .ok (ord, book')) :
     OncePerOffer book' := by
   sorry
 

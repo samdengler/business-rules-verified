@@ -220,6 +220,33 @@
   optional bag gets an order without the bag, and both statements as written
   fail.
 
+  Counterexample: one create request at 11:30 UTC selects an outbound flight
+  at 400.00 EUR from an offer valid until 12:00 UTC and a return flight at
+  380.00 EUR from an offer that expired at 11:00 UTC.  Under the reading where
+  the offers that pass go ahead, the order holds the outbound flight alone
+  and costs 400.00 EUR (Lean example \texttt{oneOfferExpired}).
+  The return flight the seller selected has no order item.
+
+  Open point: the business must decide whether a request with a rejected
+  offer fails as a whole or goes ahead with the offers that pass (see C-64).
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-create-order}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Orders hold the selection when the whole request is checked]
+  \label{thm:order-creation-items-match-selection-of-whole}
+  \lean{Rules.OneOrder.Creation.create_items_match_selection_of_wholeRequest}
+  \uses{def:order-creation-create-order}
+  Under the reading that rejects the whole request, an accepted request
+  becomes an order with one order item for each item selected from each offer
+  and none for the items left out.
+
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
 \end{theorem}
@@ -231,14 +258,15 @@
 
 \begin{definition}[Creating one order from several offers]
   \label{def:order-creation-create-order}
-  \lean{Rules.OneOrder.Creation.createOrder, Rules.OneOrder.Creation.orderItemsFor, Rules.OneOrder.Creation.orderItemsForAll, Rules.OneOrder.Creation.selectedFrom, Rules.OneOrder.Creation.itemPrefix}
+  \lean{Rules.OneOrder.Creation.createOrder, Rules.OneOrder.Creation.MultiOfferHandling, Rules.OneOrder.Creation.pickItems, Rules.OneOrder.Creation.passingItems, Rules.OneOrder.Creation.orderItemsFor, Rules.OneOrder.Creation.orderItemsForAll, Rules.OneOrder.Creation.selectedFrom, Rules.OneOrder.Creation.itemPrefix}
   \uses{def:order-creation-offer-item-selection, def:one-accept, def:rejection}
   A create request holds a selection from each of one or more offers.  Each
   offer must be one the airline holds and not expired, each selection must be
   accepted, and each selected item must be priced in its offer's currency.
-  The first rejection rejects the whole request.  Otherwise one order holds
-  the selected items of every offer, and a request that selects nothing is
-  rejected.
+  The sources do not say what happens when one selection is rejected, so the
+  model takes the answer as a parameter with two readings: the whole request
+  is rejected, or the selections that pass go ahead.  One order holds the
+  items picked, and a request that picks nothing is rejected.
 
   Sources: \href{https://retailing.iata.org/armi/docs/ORDCRE/}{IATA capability ORDCRE};
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
@@ -249,13 +277,40 @@
   \lean{Rules.OneOrder.Creation.create_price_eq_sum}
   \uses{def:order-creation-create-order, thm:order-creation-items-match-selection, def:money-add}
   An order created from offers priced in one currency has a total in that
-  currency: the sum of the prices of the selected items.
+  currency, the sum of the prices of the selected items, under both readings.
+
+  Counterexample: one create request at 11:30 UTC selects an outbound flight
+  at 400.00 EUR from an offer valid until 12:00 UTC and a return flight at
+  380.00 EUR from an offer that expired at 11:00 UTC.  Under the reading where
+  the offers that pass go ahead, the order holds the outbound flight alone
+  and costs 400.00 EUR (Lean example \texttt{oneOfferExpired}).
+  The selected items cost 780.00 EUR.
+
+  Open point: the business must decide whether a request with a rejected
+  offer fails as a whole or goes ahead with the offers that pass (see C-64).
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
 \end{theorem}
 \begin{proof}
-  \uses{thm:order-creation-items-match-selection}
+  \uses{def:order-creation-create-order}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Order price when the whole request is checked]
+  \label{thm:order-creation-price-sum-of-whole}
+  \lean{Rules.OneOrder.Creation.create_price_eq_sum_of_wholeRequest}
+  \uses{thm:order-creation-items-match-selection-of-whole, def:money-add}
+  Under the reading that rejects the whole request, an order created from
+  offers priced in one currency has a total in that currency: the sum of the
+  prices of the selected items.
+
+  Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order};
+  \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+\end{theorem}
+\begin{proof}
+  \uses{thm:order-creation-items-match-selection-of-whole}
   The order's items are the selected items, each priced in its offer's
   currency.
 \end{proof}
@@ -264,14 +319,14 @@
   \label{thm:order-creation-no-items}
   \lean{Rules.OneOrder.Creation.create_rejects_empty}
   \uses{def:order-creation-create-order, def:c01-structure}
-  A request that selects no item from any offer is rejected, since an order
-  holds at least one item.
+  A request that selects no item from any offer is rejected under both
+  readings, since an order holds at least one item.
 
   Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574849062/Order}{EASD guide, Order}.
 \end{theorem}
 \begin{proof}
   \uses{def:order-creation-create-order}
-  Either a selection is rejected, or the order would have no items.
+  Every selection is rejected or picks no item, so nothing is picked.
 \end{proof}
 
 \begin{theorem}[Atomic order creation (C-64)]
@@ -286,15 +341,37 @@
   offer B, expired at the request instant. An airline that creates an order
   from A alone leaves the customer with half of a trip chosen as a whole.
 
+  Counterexample: one create request at 11:30 UTC selects an outbound flight
+  at 400.00 EUR from an offer valid until 12:00 UTC and a return flight at
+  380.00 EUR from an offer that expired at 11:00 UTC.  Under the reading where
+  the offers that pass go ahead, the order holds the outbound flight alone
+  and costs 400.00 EUR (Lean example \texttt{oneOfferExpired}).
+
   Open point: The capability pages allow one order from several offers and
   do not say what happens when one of them has expired or fails validation.
   The business must decide whether the whole request fails or the valid
-  offers go ahead.  The model follows the rule above and rejects the whole
-  request.
+  offers go ahead.  The model takes the answer as a parameter with two
+  readings.
 
   Sources: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment};
   \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574619727/Create+Order+With+Instant+Payment}{EASD guide, Create Order With Instant Payment};
   \href{https://retailing.iata.org/armi/docs/ORDWPM/}{IATA capability ORDWPM}.
+\end{theorem}
+\begin{proof}
+  \uses{def:order-creation-create-order}
+  Not proven.  The counterexample above shows the statement is false for the
+  rule as written.
+\end{proof}
+
+\begin{theorem}[Rejecting the whole request]
+  \label{thm:order-creation-create-atomic-of-whole}
+  \lean{Rules.OneOrder.Creation.create_rejects_expired_of_wholeRequest}
+  \uses{def:order-creation-create-order, thm:order-creation-create-atomic}
+  Under the reading that rejects the whole request, a request that names an
+  offer which has expired at the instant of the request is rejected, and no
+  order is created.
+
+  Source: \href{https://standards.atlassian.net/wiki/spaces/EASD/pages/574455879/Create+Order+Without+Payment}{EASD guide, Create Order Without Payment}.
 \end{theorem}
 \begin{proof}
   \uses{def:order-creation-create-order}

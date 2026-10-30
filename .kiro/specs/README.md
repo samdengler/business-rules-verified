@@ -4,7 +4,7 @@
 
 Each folder is a requirement spec with one `requirements.md`, generated from the rules in one Lean module. The acceptance criteria are in EARS notation, and the folders follow the layout Kiro reads. The rule's docstring holds the user story and the acceptance criteria; the build computes each criterion's status from the theorems and examples tagged `@[checks]` with its ID. To change a requirement, edit the docstring and rebuild.
 
-71 acceptance criteria: 49 proven, 7 example only, 14 open, 1 not checked.
+71 acceptance criteria: 46 proven, 7 example only, 17 open, 1 not checked.
 
 | Spec | Requirement | User story | Criteria | Proven | Example only | Open | Not checked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ Each folder is a requirement spec with one `requirements.md`, generated from the
 | [Changing an order item](one-order-changing-an-order-item/requirements.md) | ONE-204 | As an airline, I want a changed item's kept services to move to the new item under the same references, so that each service is delivered and accounted for once. | 5 | 4 | 0 | 1 | 0 |
 | [Order balance after a change](one-order-order-balance-after-a-change/requirements.md) | ONE-205 | As a revenue accountant, I want every settled change recorded on the order, so that I can reconcile the order's items against its payments and refunds. | 3 | 2 | 0 | 1 | 0 |
 | [Ordering selected offer items](one-order-ordering-selected-offer-items/requirements.md) | ONE-401 | As a seller, I want to leave out the optional items of an offer, so that the customer pays only for what they chose. | 4 | 3 | 0 | 1 | 0 |
-| [Ordering selected offer items](one-order-ordering-selected-offer-items/requirements.md) | ONE-402 | As a customer, I want a trip I chose as a whole to be ordered as a whole, so that I never hold half of it. | 5 | 4 | 0 | 1 | 0 |
+| [Ordering selected offer items](one-order-ordering-selected-offer-items/requirements.md) | ONE-402 | As a customer, I want a trip I chose as a whole to be ordered as a whole, so that I never hold half of it. | 5 | 1 | 0 | 4 | 0 |
 | [Repeated create requests](one-order-repeated-create-requests/requirements.md) | ONE-403 | As a seller, I want a request I send again after a timeout to give me the order I already have, so that the customer is not booked twice. | 4 | 3 | 0 | 1 | 0 |
 | [Order versions and history](one-order-order-versions-and-history/requirements.md) | ONE-404 | As a seller, I want each version of an order to stand for one set of changes, so that I can rebuild any version from the order's history. | 5 | 4 | 0 | 1 | 0 |
 | [Order versions and history](one-order-order-versions-and-history/requirements.md) | ONE-405 | As a seller, I want a change I make on an order I saw at an older version to be refused, so that I never overwrite a change I have not seen. | 3 | 2 | 0 | 1 | 0 |
@@ -93,9 +93,9 @@ Each folder is a requirement spec with one `requirements.md`, generated from the
 | ONE-401.2 | IF a selection leaves out an item the offer marks mandatory THEN THE SYSTEM SHALL reject the selection. | proven | proven theorem `select_rejects_missing_mandatory`; example `selectingFromTrip` |
 | ONE-401.3 | WHEN a selection is accepted THE SYSTEM SHALL take every offer item it names and no other. | proven | proven theorem `select_takes_named_items`; example `selectingFromTrip` |
 | ONE-401.4 | WHEN a selection is accepted THE SYSTEM SHALL include at least one item the offer marks mandatory. | open | open theorem `select_includes_mandatory`; counterexample `seatWithoutFlight` |
-| ONE-402.1 | WHEN a create request is accepted THE SYSTEM SHALL create one order item for each item selected from each offer and none for the items left out. | proven | proven theorem `create_items_match_selection`; example `tripWithoutBag` |
-| ONE-402.2 | WHEN an order is created from offers priced in one currency THE SYSTEM SHALL make the order's total price the sum of the prices of the selected items. | proven | proven theorem `create_price_eq_sum`; example `tripWithoutBag` |
-| ONE-402.3 | IF any offer named in a create request has expired at the instant of the request THEN THE SYSTEM SHALL reject the whole request and create no order. | proven | proven theorem `create_rejects_expired`; example `oneOfferExpired` |
+| ONE-402.1 | WHEN a create request is accepted THE SYSTEM SHALL create one order item for each item selected from each offer and none for the items left out. | open | open theorem `create_items_match_selection`; counterexample `oneOfferExpired`; counterexample `tripWithoutBag` |
+| ONE-402.2 | WHEN an order is created from offers priced in one currency THE SYSTEM SHALL make the order's total price the sum of the prices of the selected items. | open | open theorem `create_price_eq_sum`; counterexample `oneOfferExpired`; counterexample `tripWithoutBag` |
+| ONE-402.3 | IF any offer named in a create request has expired at the instant of the request THEN THE SYSTEM SHALL reject the whole request and create no order. | open | open theorem `create_rejects_expired`; counterexample `oneOfferExpired` |
 | ONE-402.4 | IF a create request selects no item from any offer THEN THE SYSTEM SHALL reject it. | proven | proven theorem `create_rejects_empty`; example `nothingSelected` |
 | ONE-402.5 | WHEN an order is created THE SYSTEM SHALL be able to state its total price in a single currency. | open | open theorem `create_single_currency`; counterexample `twoCurrencies` |
 | ONE-403.1 | WHEN a create request that names no offer with an order is accepted THE SYSTEM SHALL record the new order against every offer it names. | proven | proven theorem `create_once_records`; example `repeatedRequest` |

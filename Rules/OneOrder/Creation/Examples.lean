@@ -151,25 +151,60 @@ seat, leaving out the bag.
 total is 425.00 EUR, the price of the flight and the seat. -/
 @[case, checks "ONE-402.1 ONE-402.2"]
 def tripWithoutBag : Except CreateRejection CreatedSummary :=
-  (createOrder heldOffers [⟨"OFF-A", ["OI-FLT", "OI-SEAT"]⟩] halfPastEleven "ORD-1").map .of
+  (createOrder .wholeRequest heldOffers [⟨"OFF-A", ["OI-FLT", "OI-SEAT"]⟩] halfPastEleven "ORD-1").map .of
 
 #guard tripWithoutBag ==
   .ok { itemRefs := ["ORD-1-OFF-A-OI-FLT", "ORD-1-OFF-A-OI-SEAT"], fromOfferItems := ["OI-FLT", "OI-SEAT"],
         total := some (eur 425) }
 
+/-- One create request under a reading of the sources: what the selected
+items cost, and the order it produced or why it was rejected. -/
+structure MultiOfferRow where
+  /-- The airline's reading for a request in which a selection is rejected. -/
+  handling : MultiOfferHandling
+  /-- What the selected items cost together. -/
+  selectedItemsCost : Money
+  /-- The order items' references, if an order was created. -/
+  orderItems : List String
+  /-- The order's total in euros, if an order was created. -/
+  orderTotal : Option Money
+  /-- Why the request was rejected, if it was. -/
+  rejection : Option CreateRejection
+  deriving DecidableEq, Repr
+
+/-- Send a create request at 11:30 UTC under a reading and show the result.
+The selected items are priced in euros. -/
+def MultiOfferRow.of (m : MultiOfferHandling) (req : List Selection) (orderId : String) : MultiOfferRow :=
+  let cost : Money := ⟨((req.flatMap (selectedFrom heldOffers)).map (·.price.amount)).sum, .EUR⟩
+  match createOrder m heldOffers req halfPastEleven orderId with
+  | .ok o =>
+    { handling := m, selectedItemsCost := cost, orderItems := o.items.map (·.id),
+      orderTotal := Change.orderPrice o .EUR, rejection := none }
+  | .error e =>
+    { handling := m, selectedItemsCost := cost, orderItems := [], orderTotal := none, rejection := some e }
+
 /-- *Given* the trip offer, valid until 12:00 UTC, and a return flight offer
 that expired at 11:00 UTC.
 
 *When* a seller sends one create request at 11:30 UTC for the outbound flight
-of the first offer and the return flight of the second.
+at 400.00 EUR from the first offer and the return flight at 380.00 EUR from
+the second.
 
-*Then* the whole request is rejected because the return offer has expired.
-No order is created for the outbound flight alone. -/
-@[case, checks "ONE-402.3"]
-def oneOfferExpired : Except CreateRejection CreatedSummary :=
-  (createOrder heldOffers [⟨"OFF-A", ["OI-FLT"]⟩, ⟨"OFF-B", ["OI-RET"]⟩] halfPastEleven "ORD-2").map .of
+*Then* where a rejected offer rejects the whole request, the request is
+rejected because the return offer has expired, and no order is created.
+Where the offers that pass go ahead, an order is created for the outbound
+flight alone: the return flight the seller selected has no order item, and
+the order costs 400.00 EUR against 780.00 EUR selected. -/
+@[case, checks "ONE-402.1 ONE-402.2 ONE-402.3"]
+def oneOfferExpired : List MultiOfferRow :=
+  [MultiOfferHandling.wholeRequest, .passingOffers].map fun m =>
+    .of m [⟨"OFF-A", ["OI-FLT"]⟩, ⟨"OFF-B", ["OI-RET"]⟩] "ORD-2"
 
-#guard oneOfferExpired == .error (.expired "OFF-B")
+#guard oneOfferExpired ==
+  [{ handling := .wholeRequest, selectedItemsCost := eur 780, orderItems := [], orderTotal := none,
+     rejection := some (.expired "OFF-B") },
+   { handling := .passingOffers, selectedItemsCost := eur 780, orderItems := ["ORD-2-OFF-A-OI-FLT"],
+     orderTotal := some (eur 400), rejection := none }]
 
 /-- *Given* the a la carte offer, which marks no item mandatory.
 
@@ -178,7 +213,7 @@ def oneOfferExpired : Except CreateRejection CreatedSummary :=
 *Then* the request is rejected, since the order would hold no item. -/
 @[case, checks "ONE-402.4"]
 def nothingSelected : Except CreateRejection CreatedSummary :=
-  (createOrder heldOffers [⟨"OFF-C", []⟩] halfPastEleven "ORD-3").map .of
+  (createOrder .wholeRequest heldOffers [⟨"OFF-C", []⟩] halfPastEleven "ORD-3").map .of
 
 #guard nothingSelected == .error .noItems
 
@@ -216,7 +251,8 @@ transfer.
 60.00 USD.  It has no total in any currency. -/
 @[case, checks "ONE-402.5"]
 def twoCurrencies : Except CreateRejection TotalsCase :=
-  (createOrder heldOffers [⟨"OFF-A", ["OI-FLT"]⟩, ⟨"OFF-D", ["OI-TRF"]⟩] halfPastEleven "ORD-4").map fun o =>
+  (createOrder .wholeRequest heldOffers [⟨"OFF-A", ["OI-FLT"]⟩, ⟨"OFF-D", ["OI-TRF"]⟩] halfPastEleven
+      "ORD-4").map fun o =>
     { items := o.items.map fun i => { item := i.id, price := i.price },
       totals := [Currency.EUR, .USD, .GBP].map fun c => { currency := c, total := Change.orderPrice o c } }
 
@@ -250,7 +286,7 @@ def tripRequest : List Selection := [⟨"OFF-A", ["OI-FLT"]⟩]
 answer. -/
 def RepeatRow.of (request : String) (h : RepeatHandling) (book : List CreatedOrder) (orderId : String) :
     RepeatRow :=
-  match createOnce h book heldOffers tripRequest halfPastEleven orderId with
+  match createOnce h .wholeRequest book heldOffers tripRequest halfPastEleven orderId with
   | .ok (o, book') =>
     { request, handling := h, answer := some o.id, rejection := none,
       ordersFromOffer := (book'.filter (·.offers.contains "OFF-A")).length }
@@ -260,7 +296,7 @@ def RepeatRow.of (request : String) (h : RepeatHandling) (book : List CreatedOrd
 
 /-- The airline's record after the first trip request. -/
 def bookAfterFirst : List CreatedOrder :=
-  match createOnce .reject [] heldOffers tripRequest halfPastEleven "ORD-5" with
+  match createOnce .reject .wholeRequest [] heldOffers tripRequest halfPastEleven "ORD-5" with
   | .ok (_, book) => book
   | .error _ => []
 
