@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Write build/airline-data/model.json, the part of the model that Verified
-Airline's pages read, served at /airline-data/ beside facts.json.
+"""Write build/airline-data/model.json and theorems.json, the parts of the
+model that Verified Airline's site reads, served at /airline-data/ beside
+facts.json.
 
 Verified Airline is a fictional airline whose site has its own repository,
-https://github.com/samdengler/verified-airline.  Its build reads two files
+https://github.com/samdengler/verified-airline.  Its build reads three files
 from here: facts.json, Verified Airline's fares in Airline/Fares.lean evaluated
-by the model's functions (lake exe airline-facts), and model.json, which this
+by the model's functions (lake exe airline-facts); model.json, which this
 script writes from build/status.json and the review document's
 cross-references:
 
@@ -13,7 +14,13 @@ cross-references:
     name, the address of its chapter, and its criteria with their statuses;
   * for each criterion an open theorem checks, those theorems, each with the
     start of its question and the address of its section;
-  * the commit the files were built from.
+  * the commit the files were built from;
+
+and theorems.json, which this script writes from build/airline-theorems.json
+(lake exe airline-facts --theorems): for each fact about a change or a
+cancellation, keyed by its place in facts.json, the theorem in
+Airline/Theorems.lean that states it for every input in its stage, with its
+docstring, its rule, and its line on GitHub at the same commit.
 
 Addresses are absolute, on this site, since the airline's pages are served
 from another.
@@ -34,6 +41,7 @@ from site_nav import REPO  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 STATUS = ROOT / "build" / "status.json"
+THEOREMS = ROOT / "build" / "airline-theorems.json"
 XREF = ROOT / "build" / "review" / "html-multi" / "xref.json"
 OUT = ROOT / "build" / "airline-data"
 SITE = "https://samdengler.github.io/verified-air/"
@@ -82,9 +90,24 @@ def commit():
         return None
 
 
+def theorem_index(source):
+    """Each fact's theorem with a link to its line at the source's commit."""
+    facts = json.loads(THEOREMS.read_text())["facts"]
+    blob = f"{REPO}/blob/{source['commit'] or 'main'}/"
+    return {
+        "source": source,
+        "facts": {key: {**t, "statement": " ".join(t["statement"].split()),
+                        "url": f"{blob}{t['path']}#L{t['line']}"}
+                  for key, t in sorted(facts.items())},
+    }
+
+
 def main():
     if not STATUS.exists():
         sys.exit("export_airline: build/status.json is missing; run: lake exe status")
+    if not THEOREMS.exists():
+        sys.exit("export_airline: build/airline-theorems.json is missing; "
+                 "run: lake exe airline-facts --theorems > build/airline-theorems.json")
     decls = json.loads(STATUS.read_text())["declarations"]
     review = load_review()
     requirements = {}
@@ -102,16 +125,20 @@ def main():
         for c in d.get("checks", []):
             questions.setdefault(c, []).append(
                 {"theorem": d["name"], "question": opening(d["docstring"]), "review": review_url(review, tag)})
+    source = {"repository": REPO, "commit": commit(), "site": SITE}
     model = {
-        "source": {"repository": REPO, "commit": commit(), "site": SITE},
+        "source": source,
         "requirements": requirements,
         "openQuestions": dict(sorted(questions.items())),
     }
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "model.json").write_text(json.dumps(model, indent=1, ensure_ascii=False) + "\n")
+    theorems = theorem_index(source)
+    (OUT / "theorems.json").write_text(json.dumps(theorems, indent=1, ensure_ascii=False) + "\n")
     print(f"wrote build/airline-data/model.json: {len(requirements)} requirements, "
           f"{len(questions)} criteria with open questions"
           + ("" if review else " (review document not built: links use its lookup page)"))
+    print(f"wrote build/airline-data/theorems.json: {len(theorems['facts'])} facts with their theorems")
 
 
 if __name__ == "__main__":

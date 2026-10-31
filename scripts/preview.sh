@@ -20,6 +20,7 @@ lake exe status
 lake build Airline airline-facts
 mkdir -p build/airline-data
 lake exe airline-facts > build/airline-data/facts.json
+lake exe airline-facts --theorems > build/airline-theorems.json
 python3 scripts/render_status.py
 lake build Review
 rm -rf build/review

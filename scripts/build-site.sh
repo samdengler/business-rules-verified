@@ -12,10 +12,11 @@ lake build
 lake exe status
 # Verified Airline's fares, evaluated by the model (Airline/); fails if two
 # readings of the guide disagree.  The airline's site reads them from
-# /airline-data/.
+# /airline-data/.  Then the theorem of each fact; fails if one is missing.
 lake build Airline airline-facts
 mkdir -p build/airline-data
 lake exe airline-facts > build/airline-data/facts.json
+lake exe airline-facts --theorems > build/airline-theorems.json
 python3 scripts/render_status.py
 lake build Review
 rm -rf build/review

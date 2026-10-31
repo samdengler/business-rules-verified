@@ -42,6 +42,9 @@ jobs:
       # Verified Airline's fares, evaluated by the model's functions for the
       # airline's site.  Fails if two readings of the guide disagree.
       - run: lake build Airline airline-facts && mkdir -p build/airline-data && lake exe airline-facts > build/airline-data/facts.json
+      # The theorem of each fact in Airline/Theorems.lean.  Fails if a fact
+      # has none, or its theorem depends on sorry.
+      - run: lake exe airline-facts --theorems > build/airline-theorems.json
       - run: python3 scripts/render_status.py
       # The Kiro specs are committed; a change to the model must commit them too.
       - name: Check .kiro/specs is up to date

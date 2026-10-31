@@ -257,7 +257,7 @@ point is still being decided. The site has its own repository,
 [`samdengler/verified-airline`](https://github.com/samdengler/verified-airline),
 whose README describes the pages; decision 50 explains the move.
 
-This repository builds the two files the site reads, served under
+This repository builds the files the site reads, served under
 `/airline-data/`, so nothing on the airline's pages is typed by hand:
 
 - `facts.json`. `Airline/Fares.lean` writes the three fares, Basic, Main and
@@ -277,8 +277,18 @@ This repository builds the two files the site reads, served under
   statuses, and the address of its chapter; for each criterion an open
   theorem checks, the start of the question and the address of its section;
   and the commit the files were built from.
+- `theorems.json`. `Airline/Theorems.lean` states each change and
+  cancellation fact as a theorem for every input in its stage: every journey
+  and instant in the stage once the fare terms have started, every item or
+  change request, and every reading of the guide. `probes_in_stage` proves
+  that the journey and instant the facts evaluate are in their stage, so each
+  fact is its theorem at that point. `lake exe airline-facts --theorems`
+  lists each fact's theorem, named after the fact's key in `facts.json`, and
+  fails if a fact has none or its theorem depends on `sorry`.
+  `scripts/export_airline.py` adds a link to each theorem's line at the
+  build's commit. The airline's support chat cites them.
 
-The airline's repository commits a copy of both files, so its site shows a
+The airline's repository commits a copy of the files, so its site shows a
 pinned version of the model until its `scripts/update-model.sh` takes a newer
 one.
 
@@ -394,8 +404,9 @@ Authored, and reviewed against the Lean by a second person:
   interface and vector inputs in `Oracle/Handle.lean`.
 - The Rust implementation in `impl/rust/`, and the proofs about it in
   `Verify/RustRules.lean`.
-- Verified Airline's fares in `Airline/Fares.lean`. The wording of its pages
-  is in the airline's own repository.
+- Verified Airline's fares in `Airline/Fares.lean`, and the theorem of each
+  fact about them in `Airline/Theorems.lean`. The wording of its pages is in
+  the airline's own repository.
 
 Computed by the build, never typed:
 
@@ -440,7 +451,9 @@ Computed by the build, never typed:
 - Every amount on Verified Airline's pages, in `build/airline-data/facts.json`,
   from the model's functions by `lake exe airline-facts`; and the statuses
   they show, in `build/airline-data/model.json`, by
-  `scripts/export_airline.py`.
+  `scripts/export_airline.py`; and the theorem of each fact, in
+  `build/airline-data/theorems.json`, by `lake exe airline-facts --theorems`
+  and the same script.
 
 `lake exe status` exits nonzero if any declaration depends on `sorry` without
 the `@[open_question]` tag, if an EARS statement or acceptance criterion does
@@ -463,6 +476,7 @@ python3 scripts/diagrams.py             # the README diagrams in docs/diagrams/
 lake build Oracle oracle                # the test oracle for implementation checks
 lake build Airline airline-facts        # Verified Airline's fares, then:
 lake exe airline-facts > build/airline-data/facts.json
+lake exe airline-facts --theorems > build/airline-theorems.json
 lake build Verify                       # the proofs about the Rust implementation
 
 python3 -m venv .venv && . .venv/bin/activate
@@ -1081,3 +1095,19 @@ Choices made where the plan left room, in the order they came up.
     addresses here now lead there. The files the site reads stay at
     `/airline-data/`, and `scripts/check-airline.sh` still renders the
     airline's wording against each build.
+53. **Each fare fact has a theorem.** Verified Airline's support chat
+    answers fare questions through an Automated Reasoning check whose rules
+    come from `facts.json`, and shows the facts an answer rests on. A fact
+    was a value Lean evaluated for one journey at one instant, and no theorem
+    named it. `Airline/Theorems.lean` now states each change and cancellation
+    fact for every journey and instant in its stage after the fare terms
+    start, every item or change request, and every reading of the guide,
+    since the chat's rules say "returns the full price paid" for any price.
+    A theorem about the evaluated journey alone would be an example. Each
+    proof unfolds the rule in force with `simp`. `/airline-data/theorems.json`
+    lists each fact's theorem with a link to its line; `facts.json` keeps its
+    shape. Lean checks the facts; whether an answer's words state them is
+    still the Automated Reasoning check. The chat's general rules (the fare
+    difference, the amount due on a change, the refund limit) rest on
+    theorems in `Rules` whose statements are not yet matched to the chat's
+    wording, so the file does not list them.

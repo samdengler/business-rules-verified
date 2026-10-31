@@ -8,7 +8,8 @@ repository, {lit}`samdengler/verified-airline`.  Its three fares, Basic, Main an
 change and cancel rules of the model, one for each action and each stage of a
 journey after payment.  The fare table and the worked examples on the pages are
 computed from them by the model's own functions ({lit}`Airline/Evaluate.lean`), so
-the pages type no amount.
+the pages type no amount.  {lit}`Airline/Theorems.lean` states each fact about a
+change or a cancellation as a theorem for every input in its stage.
 
 The terms keep clear of the two points the model takes as readings of the
 guide: no rule has an expiration date, and no refund is both full and fixed.
