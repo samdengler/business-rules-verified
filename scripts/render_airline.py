@@ -59,7 +59,7 @@ AIRLINE = "Verified Airline"
 FOOTER = ("Verified Airline is a fictional airline. Fares and fees are invented and computed from the Lean model. "
           "Not affiliated with IATA.")
 STORAGE_KEY = "verified-airline-lean"
-FONTS = ("https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700"
+FONTS = ("https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Fira+Sans:wght@400;500;600;700"
          "&family=JetBrains+Mono:wght@400;500;700&display=swap")
 
 # The mark is the site's plane (PLANE_SVG in scripts/site_nav.py) in the

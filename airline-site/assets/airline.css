@@ -20,13 +20,15 @@
   --amber-line: #F3D58A;
   --amber-edge: #D97706;
   --amber-ink: #92400E;
+  /* Fira Sans stands in for Whitney, which needs a paid web license. */
+  --sans: "Fira Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --serif: "DM Serif Display", Georgia, serif;
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; font: 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: #FFFFFF; }
+body { margin: 0; font: 16px/1.5 var(--sans); color: var(--ink); background: #FFFFFF; }
 a { color: var(--indigo); }
 a:hover { color: var(--ink); }
 :focus-visible { outline: 3px solid var(--indigo); outline-offset: 2px; border-radius: 4px; }
@@ -53,7 +55,7 @@ header.site nav a[aria-current] { font-weight: 600; color: var(--indigo); border
 .crumbs { font-size: 14px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px; }
 .band-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px; }
 .band-text { display: flex; flex-direction: column; gap: 10px; max-width: 700px; }
-h1 { margin: 0; font-size: 38px; line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; }
+h1 { margin: 0; font-size: 38px; line-height: 1.1; font-weight: 700; letter-spacing: -0.01em; }
 .lede { margin: 0; font-size: 18px; line-height: 1.55; color: var(--body); }
 
 .lean-toggle { min-height: 44px; padding: 0 16px; border: 1px solid var(--field); border-radius: 8px; background: #FFFFFF;
@@ -82,7 +84,7 @@ h1 { margin: 0; font-size: 38px; line-height: 1.1; font-weight: 700; letter-spac
 .home-section .wrap { padding-top: 64px; padding-bottom: 72px; display: flex; flex-direction: column; gap: 28px; }
 .home-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
 .home-head > div { display: flex; flex-direction: column; gap: 8px; max-width: 640px; }
-.home-head h2 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
+.home-head h2 { margin: 0; font-size: 28px; font-weight: 700; }
 .home-head .lede { font-size: 17px; color: var(--muted); }
 .home-head .all { font-weight: 600; padding: 12px 0; }
 .questions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px; }
