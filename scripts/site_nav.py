@@ -34,14 +34,14 @@ FAVICON = ('<link rel="icon" href="data:image/svg+xml,'
 
 # Each link's path from the site root.  Explore is the dependency graph's
 # page, with the area map, the matrix, every card, the history and a card's
-# neighbourhood as views; it stays at graph/ so older links keep working.  The
-# airline demo is Verified Airline's policy pages (scripts/render_airline.py),
-# which have their own header.
+# neighbourhood as views; it stays at graph/ so older links keep working.
+# Verified Airline is the fictional airline's policy pages
+# (scripts/render_airline.py), which have their own header.
 LINKS = [
     ("Progress", "progress/"),
     ("Review document", "review/"),
     ("Explore", "graph/"),
-    ("Airline demo", "airline/"),
+    ("Verified Airline", "airline/"),
     ("GitHub", REPO),
 ]
 

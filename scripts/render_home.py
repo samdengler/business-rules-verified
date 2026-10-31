@@ -100,8 +100,8 @@ def page(m):
              "Click a card to see what it uses and what builds on it.</p>",
              ['<a href="graph/?view=area-map">Area map</a>', '<a href="graph/?view=matrix">Matrix</a>',
               '<a href="graph/?view=all-cards">Every card</a>', '<a href="graph/?view=history">History</a>']),
-        part("airline/", "Airline demo",
-             f"<p>Verified Airline, a fictional airline, with {plural(policy_pages(), 'policy page', 'policy pages')} "
+        part("airline/", "Verified Airline",
+             f"<p>A fictional airline, with {plural(policy_pages(), 'policy page', 'policy pages')} "
              "written from the model in a traveler's words. Every fee and refund on them is computed from the model, and "
              "a button shows the requirement behind each answer.</p>"),
         part(f"{REPO}/tree/main/.kiro/specs", "Specs and data",
