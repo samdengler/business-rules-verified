@@ -20,7 +20,7 @@ with a link to the source page; IATA owns the standard and its documentation.
 - Requirement specs, criteria in EARS, in Kiro's format: [`.kiro/specs/`](.kiro/specs/)
 - Explore page, with the dependency graph: <https://samdengler.github.io/verified-air/graph/>
 - A five-step tour for business readers: <https://samdengler.github.io/verified-air/tour/>
-- Verified Airline, a fictional airline's site written from the model, in its own repository: <https://samdengler.github.io/verified-airline/>
+- Verified Airline, a fictional airline's site written from the model, in its own repository: <https://air.dengler.io/>
 
 ## Where to start
 
@@ -30,7 +30,7 @@ with a link to the source page; IATA owns the standard and its documentation.
 | Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/verified-air/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
 | Get the model explained in five steps | The [tour](https://samdengler.github.io/verified-air/tour/) |
-| See the rules as an airline's customer policies | The [Verified Airline site](https://samdengler.github.io/verified-airline/): fares, payment, changes, refunds, extras and schedule changes in a traveler's words. Show the Lean model to see the requirement behind each answer; [Verified Airline, the airline demo](#verified-airline-the-airline-demo) explains how this repository feeds it |
+| See the rules as an airline's customer policies | The [Verified Airline site](https://air.dengler.io/): fares, payment, changes, refunds, extras and schedule changes in a traveler's words. Show the Lean model to see the requirement behind each answer; [Verified Airline, the airline demo](#verified-airline-the-airline-demo) explains how this repository feeds it |
 | See which rules rest on which definitions, and what is proven | The [Explore page](https://samdengler.github.io/verified-air/graph/): a map of the areas, a matrix of the dependencies between them, every card, the history, and any card's neighbourhood. Each area has a summary page under `/area/`. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/verified-air/blueprint/dep_graph_document.html) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
 | See how much of ONE Order the model covers | [`docs/one-order-coverage.md`](docs/one-order-coverage.md): IATA's 63 business capabilities, each marked in Lean, candidate or not started |
@@ -246,7 +246,7 @@ Charon needs with rustup.
 ## Verified Airline, the airline demo
 
 Verified Airline is a fictional airline whose site, at
-<https://samdengler.github.io/verified-airline/>, answers a traveler's
+<https://air.dengler.io/>, answers a traveler's
 questions from the model: a home page, a travel policies hub, and six policy
 pages on fares, payment, changes and cancellations, refunds, extras, and
 schedule changes. They read as an ordinary airline's pages. The button "Show
@@ -1074,3 +1074,10 @@ Choices made where the plan left room, in the order they came up.
     proven. Four links by kind of reader come next, then the status tiles
     with a sentence on what each status means. The not-affiliated line moved
     under the introduction.
+52. **Verified Airline is served at air.dengler.io.** The airline's site
+    moved from GitHub Pages to <https://air.dengler.io/>, an Angular app on
+    AWS whose design is recorded in the airline's own README. The top bar,
+    the home page card, the review document's bar and the old `/airline/`
+    addresses here now lead there. The files the site reads stay at
+    `/airline-data/`, and `scripts/check-airline.sh` still renders the
+    airline's wording against each build.

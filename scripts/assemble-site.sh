@@ -46,7 +46,7 @@ cp -r build/airline-data site/airline-data
 # Verified Airline's pages were under airline/ until they moved to their own
 # site.  Each old address sends readers to the same page there, keeping
 # ?lean=1 and the anchor.
-airline_site=https://samdengler.github.io/verified-airline/
+airline_site=https://air.dengler.io/
 for p in "" policies/ policies/fares/ policies/paying/ policies/changes/ policies/refunds/ policies/extras/ \
   policies/schedule-changes/; do
   mkdir -p "site/airline/$p"

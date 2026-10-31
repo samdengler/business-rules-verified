@@ -20,7 +20,7 @@ REPO = "https://github.com/samdengler/verified-air"
 SITE_NAME = "Verified Air"
 # Verified Airline, the fictional airline whose site is written from the
 # model, in its own repository (github.com/samdengler/verified-airline).
-AIRLINE_SITE = "https://samdengler.github.io/verified-airline/"
+AIRLINE_SITE = "https://air.dengler.io/"
 
 # The site's mark: a plane taking off, in the text color so it follows the
 # theme.  Review/review.js repeats the path for the review document's bar.
