@@ -31,7 +31,7 @@ Business rules for airline offers and orders as a Lean model, with review docume
 
 The bar at the top of every page is defined once in `scripts/site_nav.py`: the site name, which leads to the home page, then Progress, Review document, Explore, Verified Airline and GitHub. `Review/review.js` repeats its links for the review document, so change both together. The home page describes each part of the site; a new part needs a card in `scripts/render_home.py`.
 
-The Explore page, the area pages, the tour, the home page and the progress page's "Decide these first" list read the graph through `scripts/graph_model.py`, so their counts agree. Its `AREA_LAYERS` places each blueprint section in a layer of the area map; a new section stops the build until it is added there. The tour's step 4 is the open refund guarantee; if it is proven, pick another open question in `scripts/render_tour.py`.
+The Explore page, the area pages, the tour, the home page and the progress page's "Decide these first" list read the graph through `scripts/graph_model.py`, so their counts agree. Its `AREA_LAYERS` places each blueprint section in a layer of the area map; a new section stops the build until it is added there. The tour's step 4 and the home page's worked example are the open refund guarantee, `QUESTION` in `scripts/render_tour.py`; if it is proven, the build stops until another open question is picked there.
 
 A new requirement needs `{include 1 Review.Generated.<ID without the dash>}` (such as `ONE301`) in `Review/Review.lean`; `render_status.py` fails until it is there.
 

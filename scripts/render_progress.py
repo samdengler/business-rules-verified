@@ -49,7 +49,7 @@ STATUSES = {
     # key: (label, icon, tile label)
     "modelled": ("Modelled", "✓", "rules in the model"),
     "proven": ("Proven", "✓", "guarantees proven"),
-    "open": ("Open question", "!", "open question"),
+    "open": ("Open question", "!", "open questions"),
     "decision": ("Needs a decision", "?", "need a business decision"),
     "ready": ("Ready to build", "→", "ready to build"),
     "waiting": ("Waiting", "…", "waiting on other rules"),

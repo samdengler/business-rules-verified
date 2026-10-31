@@ -95,9 +95,12 @@ value changes, `lake build` fails. If a theorem is left unproven without being
 marked as an open question, `lake exe status` fails. CI runs all of these on
 every push.
 
-The site's home page, written by `scripts/render_home.py`, shows the counts
-by status, describes each part of the site with a link to it, and lists the
-three questions whose answers reach the most cards. The progress page at
+The site's home page, written by `scripts/render_home.py`, is for a reader
+with no context. It says what the project is in plain words, works through
+one open guarantee (the rule, the guarantee, the example and what the rule
+gives for it, and the question for the business), points each kind of
+reader to a page, then shows the counts by status, the three questions whose
+answers reach the most cards, and a card for each part of the site. The progress page at
 `/progress/`, written by `scripts/render_progress.py`, is for business
 readers. It shows every rule, guarantee and survey candidate as a card with a
 status in plain words (modelled, proven, open question, needs a decision,
@@ -1058,3 +1061,16 @@ Choices made where the plan left room, in the order they came up.
     criterion still being decided, so the wording changes there before the
     proof is pushed here. The old addresses under `/airline/` send readers to
     the same pages on the new site.
+51. **A home page for a reader with no context.** The home page opened
+    with Lean and proofs, then six count tiles, so a reader new to the
+    project met the method and the numbers before the problem. It now says
+    what the project is in plain words: an airline's offers and orders, IATA's
+    ONE Order standard written in prose, and Lean checking rules written as
+    code. One open guarantee follows, worked through from the model: the
+    rule's EARS statement, the guarantee from its blueprint card, the
+    example's Given and When, what Lean computes for it, and the open point.
+    It is the same guarantee as the tour's step 4 (`QUESTION` in
+    `scripts/render_tour.py`), so the build stops for both pages when it is
+    proven. Four links by kind of reader come next, then the status tiles
+    with a sentence on what each status means. The not-affiliated line moved
+    under the introduction.
