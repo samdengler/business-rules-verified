@@ -11,10 +11,11 @@ cd "$(dirname "$0")/.."
 lake build
 lake exe status
 # Verified Airline's fares, evaluated by the model (Airline/); fails if two
-# readings of the guide disagree.
+# readings of the guide disagree.  The airline's site reads them from
+# /airline-data/.
 lake build Airline airline-facts
-mkdir -p build/airline
-lake exe airline-facts > build/airline/facts.json
+mkdir -p build/airline-data
+lake exe airline-facts > build/airline-data/facts.json
 python3 scripts/render_status.py
 lake build Review
 rm -rf build/review
@@ -34,7 +35,9 @@ python3 scripts/render_graph.py
 python3 scripts/render_history.py
 python3 scripts/render_areas.py
 python3 scripts/render_tour.py
-python3 scripts/render_airline.py
+# The rest of /airline-data/, then Verified Airline's wording checked against it.
+python3 scripts/export_airline.py
+scripts/check-airline.sh
 scripts/build-wasm.sh
 
 scripts/assemble-site.sh

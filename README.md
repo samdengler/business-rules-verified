@@ -20,7 +20,7 @@ with a link to the source page; IATA owns the standard and its documentation.
 - Requirement specs, criteria in EARS, in Kiro's format: [`.kiro/specs/`](.kiro/specs/)
 - Explore page, with the dependency graph: <https://samdengler.github.io/verified-air/graph/>
 - A five-step tour for business readers: <https://samdengler.github.io/verified-air/tour/>
-- Verified Airline, a fictional airline's policy pages written from the model: <https://samdengler.github.io/verified-air/airline/>
+- Verified Airline, a fictional airline's site written from the model, in its own repository: <https://samdengler.github.io/verified-airline/>
 
 ## Where to start
 
@@ -30,7 +30,7 @@ with a link to the source page; IATA owns the standard and its documentation.
 | Understand the rules and the open question, without reading code | The [review document](https://samdengler.github.io/verified-air/review/): one chapter per requirement, with a try-it panel for delivery and refunds, then Open Questions |
 | Use the requirements in a spec-driven flow | [`.kiro/specs/README.md`](.kiro/specs/README.md), then one `requirements.md` per area |
 | Get the model explained in five steps | The [tour](https://samdengler.github.io/verified-air/tour/) |
-| See the rules as an airline's customer policies | The [Verified Airline pages](https://samdengler.github.io/verified-air/airline/): fares, payment, changes, refunds, extras and schedule changes in a traveler's words. Show the Lean model to see the requirement behind each answer; [Verified Airline, the airline demo](#verified-airline-the-airline-demo) explains them |
+| See the rules as an airline's customer policies | The [Verified Airline site](https://samdengler.github.io/verified-airline/): fares, payment, changes, refunds, extras and schedule changes in a traveler's words. Show the Lean model to see the requirement behind each answer; [Verified Airline, the airline demo](#verified-airline-the-airline-demo) explains how this repository feeds it |
 | See which rules rest on which definitions, and what is proven | The [Explore page](https://samdengler.github.io/verified-air/graph/): a map of the areas, a matrix of the dependencies between them, every card, the history, and any card's neighbourhood. Each area has a summary page under `/area/`. The blueprint's own graph is at [`/blueprint/dep_graph_document.html`](https://samdengler.github.io/verified-air/blueprint/dep_graph_document.html) |
 | See which ONE Order rules are candidates for the model next | [`docs/one-order-survey.md`](docs/one-order-survey.md) |
 | See how much of ONE Order the model covers | [`docs/one-order-coverage.md`](docs/one-order-coverage.md): IATA's 63 business capabilities, each marked in Lean, candidate or not started |
@@ -242,49 +242,53 @@ Charon needs with rustup.
 
 ## Verified Airline, the airline demo
 
-Verified Airline is a fictional airline whose policy pages, under
-[`/airline/`](https://samdengler.github.io/verified-air/airline/),
-answer a traveler's questions from the model: a home page, a travel policies
-hub, and six policy pages on fares, payment, changes and cancellations,
-refunds, extras, and schedule changes. They read as an ordinary airline's
-pages. The button "Show the Lean model" (or `?lean=1` in the address, for a
-demo link) adds a ∀ marker beside each section. A marker opens the
-requirement behind the section: its EARS statement, how many of its criteria
-are proven or open, the Lean definition, and a link to its chapter in the
-review document. A marker is blue when every criterion is proven and amber
-when any is open. Where a criterion is open, the page says the point is still
-being decided and tells the traveler to contact the airline; its marker shows
-the open question and links to it.
+Verified Airline is a fictional airline whose site, at
+<https://samdengler.github.io/verified-airline/>, answers a traveler's
+questions from the model: a home page, a travel policies hub, and six policy
+pages on fares, payment, changes and cancellations, refunds, extras, and
+schedule changes. They read as an ordinary airline's pages. The button "Show
+the Lean model" adds a ∀ marker beside each section, which opens the
+requirement behind it, the statuses of its criteria, and a link to its
+chapter in the review document. Where a criterion is open, the page says the
+point is still being decided. The site has its own repository,
+[`samdengler/verified-airline`](https://github.com/samdengler/verified-airline),
+whose README describes the pages; decision 50 explains the move.
 
-Three sources feed the pages, and nothing on them is typed by hand:
+This repository builds the two files the site reads, served under
+`/airline-data/`, so nothing on the airline's pages is typed by hand:
 
-- `Airline/Fares.lean` writes the three fares, Basic, Main and Flex, as change
-  and cancel rules of the model (`Restriction`), one for each action and
-  stage of a journey after payment. `lake exe airline-facts` loads them in
-  Lean's interpreter, as `lake exe oracle` loads the rules, and evaluates
-  `ruleInForce`, `voluntaryChange` and `cancellationRefund` for every fare and
-  stage, and `priceDifferential` for the worked change. It does so under every
-  reading the model leaves open (whether expiration dates end rules, which
-  amount a refund marked full and fixed returns, what happens to a penalty
-  above the refundable value) and both ways of charging a fee, and fails if
-  any two give different answers. The fares avoid those points, so no reading
-  is chosen for the business. The output is `build/airline/facts.json`,
-  published beside the pages.
-- `build/status.json` gives every status and count.
-- `airline-site/content/` holds the wording, one file per page. Each section
-  names the requirements it rests on (`{model: ONE-504}`), each "still being
-  decided" item its open criterion (`{open: ONE-503.5}`), and every amount is
-  a placeholder such as `{{examples.mainChange.youPay}}`.
+- `facts.json`. `Airline/Fares.lean` writes the three fares, Basic, Main and
+  Flex, as change and cancel rules of the model (`Restriction`), one for each
+  action and stage of a journey after payment. `lake exe airline-facts` loads
+  them in Lean's interpreter, as `lake exe oracle` loads the rules, and
+  evaluates `ruleInForce`, `voluntaryChange` and `cancellationRefund` for
+  every fare and stage, and `priceDifferential` for the worked change. It does
+  so under every reading the model leaves open (whether expiration dates end
+  rules, which amount a refund marked full and fixed returns, what happens to
+  a penalty above the refundable value) and both ways of charging a fee, and
+  fails if any two give different answers. The fares avoid those points, so
+  no reading is chosen for the business. The output is
+  `build/airline-data/facts.json`.
+- `model.json`. `scripts/export_airline.py` writes every requirement from
+  `build/status.json`, with its EARS statement, its criteria and their
+  statuses, and the address of its chapter; for each criterion an open
+  theorem checks, the start of the question and the address of its section;
+  and the commit the files were built from.
 
-`scripts/render_airline.py` fails the build if a content file cites a
-requirement or criterion the model does not have, lists as still being
-decided a criterion that is no longer open, uses a placeholder the facts do
-not have, types an amount, or leaves a section without a marker; and if a
-page shows a requirement ID or the words rule, theorem or criterion while the
-model is hidden. So a proof that closes an open question stops the build
-until the wording is updated, and a change of status changes the badges with
-no edit to the pages. The `Airline` namespace is outside `Rules`, so the
-status counts and the specs do not include it.
+The airline's repository commits a copy of both files, so its site shows a
+pinned version of the model until its `scripts/update-model.sh` takes a newer
+one.
+
+`scripts/check-airline.sh`, which CI and `scripts/build-site.sh` run, renders
+the airline's pages with that repository's own script from this build's
+files. It fails if a content file cites a requirement or criterion the model
+does not have, lists as still being decided a criterion that is no longer
+open, uses a placeholder the facts do not have, types an amount, or leaves a
+section without a marker; and if a page shows a requirement ID or the words
+rule, theorem or criterion while the model is hidden. So a proof that closes
+an open question stops this build until the airline's wording is updated.
+The `Airline` namespace is outside `Rules`, so the status counts and the
+specs do not include it.
 
 ## How this repository was made
 
@@ -387,9 +391,8 @@ Authored, and reviewed against the Lean by a second person:
   interface and vector inputs in `Oracle/Handle.lean`.
 - The Rust implementation in `impl/rust/`, and the proofs about it in
   `Verify/RustRules.lean`.
-- Verified Airline's fares in `Airline/Fares.lean`, and the wording of its
-  policy pages in `airline-site/content/`, with their stylesheet and script in
-  `airline-site/assets/`.
+- Verified Airline's fares in `Airline/Fares.lean`. The wording of its pages
+  is in the airline's own repository.
 
 Computed by the build, never typed:
 
@@ -431,10 +434,10 @@ Computed by the build, never typed:
   `history/` by `scripts/render-motion.sh`. It is committed, since CI does not
   render video; its storyboard and captions are authored in
   `motion/src/story.ts`.
-- Every amount on Verified Airline's pages, in `build/airline/facts.json`, from
-  the model's functions by `lake exe airline-facts`; and the pages
-  themselves, with their statuses from `build/status.json`, by
-  `scripts/render_airline.py`.
+- Every amount on Verified Airline's pages, in `build/airline-data/facts.json`,
+  from the model's functions by `lake exe airline-facts`; and the statuses
+  they show, in `build/airline-data/model.json`, by
+  `scripts/export_airline.py`.
 
 `lake exe status` exits nonzero if any declaration depends on `sorry` without
 the `@[open_question]` tag, if an EARS statement or acceptance criterion does
@@ -456,7 +459,7 @@ python3 scripts/render_status.py        # .kiro/specs and the generated review s
 python3 scripts/diagrams.py             # the README diagrams in docs/diagrams/
 lake build Oracle oracle                # the test oracle for implementation checks
 lake build Airline airline-facts        # Verified Airline's fares, then:
-lake exe airline-facts > build/airline/facts.json
+lake exe airline-facts > build/airline-data/facts.json
 lake build Verify                       # the proofs about the Rust implementation
 
 python3 -m venv .venv && . .venv/bin/activate
@@ -1037,3 +1040,21 @@ Choices made where the plan left room, in the order they came up.
     Air until then with a serif P as its mark, is now Verified Airline with
     the site's plane in its own indigo. The Lake package keeps the name
     `airline-order-verified`, which nothing outside the build shows.
+50. **Verified Airline has its own repository.** The airline's pages moved
+    from `/airline/` to
+    [`samdengler/verified-airline`](https://github.com/samdengler/verified-airline),
+    served at <https://samdengler.github.io/verified-airline/>, so the airline
+    can grow a booking flow and a customer support widget. Those need a
+    JavaScript toolchain, and the widget a server, which do not belong in
+    this repository's CI. The fares stay in `Airline/Fares.lean`, since they
+    are values of the model's types and need Lean to evaluate. This
+    repository publishes what the pages read under `/airline-data/`:
+    `facts.json`, and `model.json` from `scripts/export_airline.py`, with
+    every requirement's statuses and absolute links into the review
+    document. The airline's repository commits a copy, so its version of the
+    model is pinned and each update shows as a diff. Decision 45's check still
+    stops a stale caveat: `scripts/check-airline.sh` renders the airline's
+    current wording against each build here and fails if it calls a proven
+    criterion still being decided, so the wording changes there before the
+    proof is pushed here. The old addresses under `/airline/` send readers to
+    the same pages on the new site.

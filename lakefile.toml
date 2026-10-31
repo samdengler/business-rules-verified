@@ -65,10 +65,10 @@ name = "oracle"
 root = "Oracle.Main"
 supportInterpreter = true
 
-# Parliament Air, the fictional airline of the policy pages at /airline/: its
-# fares as rules of the model, evaluated by the model's functions.  The
+# Verified Airline, the fictional airline whose site has its own repository:
+# its fares as rules of the model, evaluated by the model's functions.  The
 # executable loads the library into Lean's interpreter (see Airline/Facts.lean)
-# and prints the facts the pages read.  The names are outside Rules, so the
+# and prints the facts the airline's pages read.  The names are outside Rules, so the
 # status counts do not include them.
 [[lean_lib]]
 name = "Airline"

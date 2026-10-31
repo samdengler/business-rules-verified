@@ -40,8 +40,8 @@ jobs:
       # Fails on any sorry not tagged @[open_question], before anything renders.
       - run: lake exe status
       # Verified Airline's fares, evaluated by the model's functions for the
-      # airline pages.  Fails if two readings of the guide disagree.
-      - run: lake build Airline airline-facts && mkdir -p build/airline && lake exe airline-facts > build/airline/facts.json
+      # airline's site.  Fails if two readings of the guide disagree.
+      - run: lake build Airline airline-facts && mkdir -p build/airline-data && lake exe airline-facts > build/airline-data/facts.json
       - run: python3 scripts/render_status.py
       # The Kiro specs are committed; a change to the model must commit them too.
       - name: Check .kiro/specs is up to date
@@ -89,10 +89,12 @@ jobs:
       # A summary page per area, and the guided tour.
       - run: python3 scripts/render_areas.py
       - run: python3 scripts/render_tour.py
-      # Verified Airline's policy pages at /airline/.  Fails if the wording cites
-      # a requirement the model lacks, a criterion no longer open, or an
-      # amount the facts lack.
-      - run: python3 scripts/render_airline.py
+      # The files Verified Airline's site reads, at /airline-data/, then the
+      # airline's wording checked against them with its own script.  Fails if
+      # the wording cites a requirement the model lacks, a criterion no longer
+      # open, or an amount the facts lack.
+      - run: python3 scripts/export_airline.py
+      - run: scripts/check-airline.sh
       # The try-it panels: the Rust rules compiled to WebAssembly.
       - run: scripts/build-wasm.sh
       - run: scripts/assemble-site.sh

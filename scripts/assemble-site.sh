@@ -4,8 +4,9 @@
 # page under graph/, a summary page per area under area/, the tour under
 # tour/, the review document under review/, the blueprint under blueprint/,
 # the try-it panels' WebAssembly under try/, the motion piece under motion/,
-# Verified Airline's policy pages under airline/, and the specs and exports
-# beside them.  history/ sends readers to the Explore page's History tab,
+# the files Verified Airline's site reads under airline-data/, and the specs
+# and exports beside them.  airline/ sends readers to Verified Airline's own
+# site.  history/ sends readers to the Explore page's History tab,
 # which shows the motion piece.
 #
 #   scripts/assemble-site.sh
@@ -40,8 +41,29 @@ mkdir -p site/history site/tour
 cp build/history/index.html site/history/
 cp -r build/area site/area
 cp build/tour/index.html site/tour/
-# Verified Airline's policy pages, with the facts.json their amounts come from.
-cp -r build/airline site/airline
+# The files Verified Airline's site reads: facts.json and model.json.
+cp -r build/airline-data site/airline-data
+# Verified Airline's pages were under airline/ until they moved to their own
+# site.  Each old address sends readers to the same page there, keeping
+# ?lean=1 and the anchor.
+airline_site=https://samdengler.github.io/verified-airline/
+for p in "" policies/ policies/fares/ policies/paying/ policies/changes/ policies/refunds/ policies/extras/ \
+  policies/schedule-changes/; do
+  mkdir -p "site/airline/$p"
+  cat > "site/airline/${p}index.html" <<EOF
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Verified Airline has moved</title>
+<link rel="canonical" href="$airline_site$p">
+<script>location.replace("$airline_site$p" + location.search + location.hash);</script>
+<meta http-equiv="refresh" content="0; url=$airline_site$p">
+</head>
+<body><p>Verified Airline has moved to <a href="$airline_site$p">its own site</a>.</p></body>
+</html>
+EOF
+done
 cp -r build/review/html-multi/. site/review/
 cp -r pages/. site/
 cp -r blueprint/web/. site/blueprint/

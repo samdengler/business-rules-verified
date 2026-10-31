@@ -3,8 +3,8 @@ import Rules.OneOrder.Offers.Restrictions
 /-!
 # Verified Airline's fares
 
-Verified Airline is a fictional airline, the subject of the policy pages under
-{lit}`/airline/`.  Its three fares, Basic, Main and Flex, are written here as
+Verified Airline is a fictional airline whose policy pages are in their own
+repository, {lit}`samdengler/verified-airline`.  Its three fares, Basic, Main and Flex, are written here as
 change and cancel rules of the model, one for each action and each stage of a
 journey after payment.  The fare table and the worked examples on the pages are
 computed from them by the model's own functions ({lit}`Airline/Evaluate.lean`), so

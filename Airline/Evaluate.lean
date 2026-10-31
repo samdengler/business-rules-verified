@@ -2,11 +2,11 @@ import Lean.Data.Json
 import Airline.Fares
 
 /-!
-# The facts the airline pages read
+# The facts the airline's pages read
 
 Evaluates Verified Airline's fares with the model's functions and states the
-results as JSON, which {lit}`lake exe airline-facts` prints and
-{lit}`scripts/render_airline.py` reads.  For each fare and each stage after
+results as JSON, which {lit}`lake exe airline-facts` prints and Verified
+Airline's site reads.  For each fare and each stage after
 payment, it takes the rule in force ({lit}`ruleInForce`), what a change is quoted
 ({lit}`voluntaryChange`) and what a cancellation returns ({lit}`cancellationRefund`).  It
 also prices the worked examples, a change through {lit}`priceDifferential`.

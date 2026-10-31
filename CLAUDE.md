@@ -26,7 +26,7 @@ Business rules for airline offers and orders as a Lean model, with review docume
 | `blueprint/src/content.tex`, without `\leanok`; candidate nodes use `Open point:`, `Counterexample:`, `Source:` and `Capabilities:` paragraphs, which the progress page reads; capability codes must be in `docs/one-order-coverage.md` | `blueprint/src/*.generated.tex`, `.kiro/specs/` (committed) |
 | `Review/Review/{Overview,OpenQuestions,Objects}.lean`, `Review/Review.lean`, `Review/Review/Status.lean`, `Review/review.css`, `Review/review.js` | `build/home/index.html` (`scripts/render_home.py`), the site root; `build/progress/index.html` (`scripts/render_progress.py`), at `/progress/`; `build/graph/index.html` (`scripts/render_graph.py` with `scripts/explore.js` and `scripts/explore.css`), the Explore page at `/graph/`; `build/area/<slug>/` (`scripts/render_areas.py`); `build/tour/` (`scripts/render_tour.py`); `build/history/` (`scripts/render_history.py`), which sends readers to the Explore page's History tab |
 | `impl/java`, `impl/rust`, `impl/wasm`, `scripts/` | `Verify/Rust/` (committed), `build/try/rules.wasm` |
-| `Airline/Fares.lean` (Verified Airline's fares), `airline-site/content/*.md` (the wording of each page), `airline-site/assets/` | `build/airline/facts.json` (`lake exe airline-facts`), `build/airline/` pages (`scripts/render_airline.py`), served at `/airline/` |
+| `Airline/Fares.lean` (Verified Airline's fares) | `build/airline-data/facts.json` (`lake exe airline-facts`) and `build/airline-data/model.json` (`scripts/export_airline.py`), served at `/airline-data/` for Verified Airline's site |
 | `motion/src/` (the storyboard and captions are in `story.ts`) | `motion/out/history.mp4` and `history-poster.jpg` (`scripts/render-motion.sh`, committed) |
 
 The bar at the top of every page is defined once in `scripts/site_nav.py`: the site name, which leads to the home page, then Progress, Review document, Explore, Verified Airline and GitHub. `Review/review.js` repeats its links for the review document, so change both together. The home page describes each part of the site; a new part needs a card in `scripts/render_home.py`.
@@ -35,13 +35,13 @@ The Explore page, the area pages, the tour, the home page and the progress page'
 
 A new requirement needs `{include 1 Review.Generated.<ID without the dash>}` (such as `ONE301`) in `Review/Review.lean`; `render_status.py` fails until it is there.
 
-## Verified Airline pages
+## Verified Airline
 
-- The pages under `/airline/` are a fictional airline's policies, written from the model. Every amount is a `{{placeholder}}` from `build/airline/facts.json`; never type one. To change a fee or refund, change `Airline/Fares.lean` and rebuild. The `Airline` namespace stays outside `Rules`, so the status counts do not change.
+- Verified Airline's site has its own repository, `samdengler/verified-airline`, usually checked out at `../verified-airline`. Its pages read `/airline-data/facts.json` and `/airline-data/model.json` from this site, and its CLAUDE.md has the rules for their wording.
+- To change a fee or refund, change `Airline/Fares.lean` and rebuild here, then run `scripts/update-model.sh ../verified-air/build/airline-data` in the airline's repository. The `Airline` namespace stays outside `Rules`, so the status counts do not change.
 - The fares must not depend on a reading of the guide: no expiration dates, no refund both full and fixed. `lake exe airline-facts` fails if two readings disagree.
-- Each `##` section of a policy page ends with `{model: ID, ...}` and each item under "Still being decided" with `{open: criterion}`. When a cited criterion is proven, `scripts/render_airline.py` stops the build: rewrite that item's wording.
-- Traveler-facing wording never says rule, theorem or criterion, and shows no requirement ID; the build checks the pages with the Lean model hidden. Those words belong in the popovers.
-- The page sources are in `airline-site/`, since `airline/` and `Airline/` are one directory on macOS.
+- `scripts/check-airline.sh` renders the airline's wording against this build. When a criterion the airline calls still being decided is proven, the build stops: rewrite that wording in the airline's repository and push it before pushing the proof here. Locally the script uses `../verified-airline`, uncommitted wording included; CI clones the airline's `main`.
+- `/airline/` and its old page addresses send readers to the airline's site (`scripts/assemble-site.sh`).
 
 ## Branches, tags and milestones
 
